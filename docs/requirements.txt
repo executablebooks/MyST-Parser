@@ -1,0 +1,3 @@
+sphinx
+pyyaml
+https://github.com/ExecutableBookProject/mistletoe/archive/myst.zip
