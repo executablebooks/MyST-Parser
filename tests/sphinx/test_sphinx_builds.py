@@ -83,7 +83,9 @@ def get_sphinx_app_output(file_regression):
     return read
 
 
-@pytest.mark.sphinx(buildername="html", srcdir=os.path.join(SOURCE_DIR, "basic"))
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "basic"), freshenv=True
+)
 def test_basic(app, status, warning, get_sphinx_app_output, remove_sphinx_builds):
     """basic test."""
     app.build()

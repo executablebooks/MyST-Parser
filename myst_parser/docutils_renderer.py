@@ -19,6 +19,7 @@ from mistletoe.base_renderer import BaseRenderer
 
 from myst_parser import span_tokens as myst_span_tokens
 from myst_parser import block_tokens as myst_block_tokens
+from myst_parser.utils import escape_url
 
 
 class DocutilsRenderer(BaseRenderer):
@@ -280,15 +281,15 @@ class DocutilsRenderer(BaseRenderer):
         img_node = nodes.image()
         img_node["uri"] = token.src
 
-        # TODO how should image alt children be stored?
         img_node["alt"] = ""
-        # if token.children and isinstance(token.children[0], block_token.RawText):
-        #     img_node["alt"] = token.children[0].content
-        #     token.children[0].content = ""
+        if token.children and isinstance(token.children[0], myst_span_tokens.RawText):
+            img_node["alt"] = token.children[0].content
+            token.children[0].content = ""
 
         self.current_node.append(img_node)
-        with self.set_current_node(img_node):
-            self.render_children(token)
+        # TODO how should non-raw alternative text be handled?
+        # with self.set_current_node(img_node):
+        #     self.render_children(token)
 
     def render_list(self, token):
         list_node = None
@@ -312,7 +313,7 @@ class DocutilsRenderer(BaseRenderer):
         with self.set_current_node(list_node):
             self.render_children(token)
 
-    def render_list_item(self, token):
+    def render_list_item(self, token: myst_block_tokens.ListItem):
         item_node = nodes.list_item()
         # TODO list item range
         # node.line = token.range[0]
@@ -358,16 +359,18 @@ class DocutilsRenderer(BaseRenderer):
             self.render_children(token)
 
     def render_auto_link(self, token):
-        # TODO render_auto_link
-        raise NotImplementedError
+        if token.mailto:
+            refuri = "mailto:{}".format(token.target)
+        else:
+            refuri = escape_url(token.target)
+        ref_node = nodes.reference(token.target, token.target, refuri=refuri)
+        self.current_node.append(ref_node)
 
     def render_html_span(self, token):
-        # TODO render_html_span
-        raise NotImplementedError
+        self.current_node.append(nodes.raw("", token.content, format="html"))
 
     def render_html_block(self, token):
-        # TODO render_html_block
-        raise NotImplementedError
+        self.current_node.append(nodes.raw("", token.content, format="html"))
 
     def render_role(self, token):
         content = token.children[0].content

@@ -5,7 +5,7 @@
 % comment
 
 ````{note}
-abcd *abc* [google](http://www.google.com)
+abcd *abc* [google](https://www.google.com)
 
   ```{warning}
   xyz
@@ -19,6 +19,10 @@ height: 40px
 ---
 Caption
 ```
+
+![*alternative text*](example.jpg)
+
+<https://www.google.com>
 
 **{code}`` a=1{`} ``**
 

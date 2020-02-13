@@ -145,6 +145,17 @@ def test_image(renderer_mock):
     )
 
 
+def test_image_with_alt(renderer_mock):
+    renderer_mock.render(tokenize([r"![alt](path/to/image.jpeg)"])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <paragraph>
+            <image alt="alt" uri="path/to/image.jpeg">
+    """
+    )
+
+
 def test_quote(renderer_mock):
     render_token(renderer_mock, "Quote", range=(0, 0))
     assert renderer_mock.document.pformat() == dedent(
