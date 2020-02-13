@@ -110,6 +110,7 @@ class DocutilsRenderer(BaseRenderer):
         since `process_doc` just converts them back to text.
 
         """
+        # TODO this data could be used to support default option values for directives
         docinfo = nodes.docinfo()
         for key, value in token.data.items():
             if not isinstance(value, (str, int, float)):
