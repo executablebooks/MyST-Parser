@@ -34,6 +34,7 @@ maxdepth: 2
 caption: Contents
 ---
 syntax.md
+contributing.md
 ```
 
 ```{toctree}
