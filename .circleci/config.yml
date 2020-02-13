@@ -11,7 +11,6 @@ jobs:
       - restore_cache:
           keys:
             - cache-pip
-      - run: pip install --user -r docs/requirements.txt
       - run: pip install --user -e .[testing,sphinx]
       - save_cache:
           key: cache-pip

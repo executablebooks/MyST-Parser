@@ -12,7 +12,6 @@ matrix:
         env: TEST_TYPE="pre-commit"
 install:
   - pip install --upgrade pip wheel setuptools
-  - pip install git+https://github.com/ExecutableBookProject/mistletoe.git@myst
   - |
       if [[ "$TEST_TYPE" == "pre-commit" ]]; then
         pip install -e .[code_style]
@@ -20,6 +19,7 @@ install:
   - |
       if [[ "$TEST_TYPE" == "pytest" ]]; then
         pip install -e .[testing,sphinx]
+        pip install coveralls
       fi
 before_script:
     - (cd tests/commonmark && ./spec.sh)

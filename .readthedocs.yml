@@ -1,8 +1,10 @@
 name: Myst Parser
 type: sphinx
-requirements_file: docs/requirements.txt
+
 python:
   version: 3
   install:
-     - method: pip
-       path: .
+      - method: pip
+        path: .
+        extra_requirements:
+          - sphinx

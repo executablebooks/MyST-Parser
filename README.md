@@ -1,10 +1,12 @@
 # myst_parser
 
 [![Build Status](https://travis-ci.org/ExecutableBookProject/myst_parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/myst_parser)
+[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/myst_parser/badge.svg?branch=improvements)](https://coveralls.io/github/ExecutableBookProject/myst_parser?branch=improvements)
+[![Documentation Status](https://readthedocs.org/projects/myst-parser/badge/?version=latest)](https://myst-parser.readthedocs.io/en/latest/?badge=latest)
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
 
-## Installing
+## Usage
 
 This parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
 fork of mistletoe (and the myst branch).
