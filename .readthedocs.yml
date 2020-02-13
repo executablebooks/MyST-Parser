@@ -1,5 +1,5 @@
+version: 2
 name: Myst Parser
-type: sphinx
 
 python:
   version: 3

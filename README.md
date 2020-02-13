@@ -8,12 +8,12 @@ An extended commonmark compliant parser, with bridges to docutils & sphinx.
 
 ## Usage
 
-This parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
-fork of mistletoe (and the myst branch).
-
 ```console
-pip install git+https://github.com/ExecutableBookProject/mistletoe.git@myst
+pip install -e git+https://github.com/ExecutableBookProject/myst_parser.git#egg=myst_parser[sphinx,code_style,testing]
 ```
+
+Note, this parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
+fork of mistletoe (included in the above installation).
 
 To use the Myst parser in sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
