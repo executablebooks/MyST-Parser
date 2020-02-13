@@ -10,7 +10,6 @@ from mistletoe.span_token import (
     LineBreak,
     RawText,
 )
-from mistletoe.latex_token import Math
 
 """
 Tokens to be included in the parsing process, in the order specified.
@@ -50,6 +49,12 @@ class Role(span_token.SpanToken):
         self.children = (
             span_token.RawText(" ".join(re.split("[ \n]+", content.strip()))),
         )
+
+
+class Math(span_token.SpanToken):
+    pattern = re.compile(r"(?<!\\|`)(?:\\\\)*(\${1,2})([^\$]+?)\1")
+    parse_inner = False
+    parse_group = 0
 
 
 class Target(span_token.SpanToken):
