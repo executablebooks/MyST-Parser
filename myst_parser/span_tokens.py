@@ -2,6 +2,7 @@ import re
 
 from mistletoe import span_token
 from mistletoe.span_token import (
+    HTMLSpan,
     EscapeSequence,
     AutoLink,
     CoreTokens,
@@ -18,6 +19,7 @@ RawText is last as a 'fallback' token
 __all__ = (
     "Role",
     "Math",
+    "HTMLSpan",
     "EscapeSequence",
     "AutoLink",
     "CoreTokens",
