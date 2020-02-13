@@ -15,7 +15,45 @@ powerful than Markdown, and also (arguably) more complex to use.
 This project is an attempt to have the best of both worlds: the flexibility
 and extensibility of Sphinx with the simplicity and readability of Markdown.
 
-Here are a few major extensions from the CommonMark flavor of markdown
+Below is a summary of the syntax 'tokens' parsed,
+and further details of a few major extensions from the CommonMark flavor of markdown
+
+## Parsed Token Classes
+
+Tokens are listed in their order of precedence.
+For more information, also see the [CommonMark Spec](https://spec.commonmark.org/0.28/), which the parser is tested against.
+
+### Block Tokens
+
+- **HTMLBlock**: Any valid HTML (rendered in HTML output only)
+- **LineComment**: `% this is a comment`
+- **BlockCode**: indented text (4 spaces)
+- **Heading**: `# Heading` (levels 1-6)
+- **SetextHeading**: underlined header
+- **Quote**: `> this is a quote`
+- **CodeFence**: enclosed in 3 or more backticks.
+  If it starts with a `{name}`, then treated as directive.
+- **ThematicBreak**: `---`
+- **List**: bullet points or enumerated.
+- **Table**: Standard markdown table styles.
+- **Footnote**: A substitution for an inline link (e.g. `[key][name]`), which can have a reference target (no spaces), and an optional title (in `"`), e.g. `[key]: https://www.google.com "a title"`
+- **Paragraph**: General inline text
+
+### Span (Inline) Tokens
+
+- **Role**: `` `{name}`interpreted text` ``
+- **Math**: `$a=1$` or `$$a=1$$`
+- **HTMLSpan**: any valid HTML (rendered in HTML output only)
+- **EscapeSequence**: `\*`
+- **AutoLink**: `<http://www.google.com>`
+- **Target**: `(target)=` (precedes element to target, e.g. header)
+- **InlineCode**: `` `a=1` ``
+- **LineBreak**: Soft or hard (ends with spaces or `\`)
+- **Image**: `![alt](src "title")`
+- **Link**: `[text](target "title")` or `[text][key]` (key from `Footnote`)
+- **Strong**: `**strong**`
+- **Emphasis**: `*emphasis*`
+- **RawText**
 
 ## Directives - a block-level extension point
 
