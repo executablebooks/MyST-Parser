@@ -22,6 +22,7 @@ __all__ = (
     "HTMLSpan",
     "EscapeSequence",
     "AutoLink",
+    "Target",
     "CoreTokens",
     "InlineCode",
     "LineBreak",
@@ -41,7 +42,7 @@ class Role(span_token.SpanToken):
         re.DOTALL,
     )
     parse_inner = False
-    precedence = 6  # higher precedence than InlineCode
+    # precedence = 6  # higher precedence than InlineCode?
 
     def __init__(self, match):
         self.name = match.group(1)
@@ -49,3 +50,15 @@ class Role(span_token.SpanToken):
         self.children = (
             span_token.RawText(" ".join(re.split("[ \n]+", content.strip()))),
         )
+
+
+class Target(span_token.SpanToken):
+    """Target tokens. ("!(target name)")"""
+
+    pattern = re.compile(r"(?<!\\)(?:\\\\)*\((.+?)\)\=", re.DOTALL)
+    parse_inner = False
+
+    def __init__(self, match):
+        content = match.group(self.parse_group)
+        self.children = (RawText(content),)
+        self.target = content

@@ -96,6 +96,11 @@ class DocutilsRenderer(BaseRenderer):
         return self.document
 
     def render_paragraph(self, token):
+        if len(token.children) == 1 and isinstance(
+            token.children[0], myst_span_tokens.Target
+        ):
+            # promote the target to block level
+            return self.render_target(token.children[0])
         para = nodes.paragraph("")
         para.line = token.range[0]
         with self.set_current_node(para, append=True):
@@ -103,6 +108,14 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_line_comment(self, token):
         self.current_node.append(nodes.comment(token.content, token.content))
+
+    def render_target(self, token):
+        text = token.children[0].content
+        name = nodes.fully_normalize_name(text)
+        target = nodes.target(text)
+        target["names"].append(name)
+        self.document.note_explicit_target(target, self.current_node)
+        self.current_node.append(target)
 
     def render_raw_text(self, token):
         text = token.content
