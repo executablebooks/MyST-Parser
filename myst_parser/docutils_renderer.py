@@ -111,9 +111,9 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_line_break(self, token):
         if token.soft:
-            self.current_node.append(nodes.raw("", " ", format="html"))
+            self.current_node.append(nodes.Text("\n"))
         else:
-            self.current_node.append(nodes.raw("", "<br />", format="html"))
+            self.current_node.append(nodes.raw("", "<br />\n", format="html"))
 
     def render_strong(self, token):
         node = nodes.strong()
