@@ -19,7 +19,7 @@ install:
       fi
   - |
       if [[ "$TEST_TYPE" == "pytest" ]]; then
-        pip install -e .[testing]
+        pip install -e .[testing,sphinx]
       fi
 before_script:
     - (cd tests/commonmark && ./spec.sh)
