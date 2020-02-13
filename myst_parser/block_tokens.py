@@ -4,6 +4,7 @@ from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
 
 from mistletoe.block_token import (  # noqa: F401
+    HTMLBlock,
     ThematicBreak,
     List,
     ListItem,
@@ -15,6 +16,7 @@ from mistletoe.block_token import (  # noqa: F401
 Tokens to be included in the parsing process, in the order specified.
 """
 __all__ = [
+    "HTMLBlock",
     "BlockCode",
     "Heading",
     "Quote",
@@ -177,9 +179,9 @@ class Paragraph(block_token.Paragraph):
 
             # check if next_line starts HTMLBlock other than type 7
             # TODO ignore HTMLBlock?
-            # html_block = HTMLBlock.start(next_line)
-            # if html_block and html_block != 7:
-            #     break
+            html_block = block_token.HTMLBlock.start(next_line)
+            if html_block and html_block != 7:
+                break
 
             # check if we see a setext underline
             if cls.parse_setext and cls.is_setext_heading(next_line):

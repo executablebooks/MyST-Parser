@@ -341,6 +341,14 @@ class DocutilsRenderer(BaseRenderer):
         # TODO render_auto_link
         raise NotImplementedError
 
+    def render_html_span(self, token):
+        # TODO render_html_span
+        raise NotImplementedError
+
+    def render_html_block(self, token):
+        # TODO render_html_block
+        raise NotImplementedError
+
     def render_role(self, token):
         content = token.children[0].content
         name = token.name
