@@ -1,0 +1,692 @@
+[
+    {
+        "name": "abbreviation",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <abbreviation>"
+    },
+    {
+        "name": "acronym",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <acronym>"
+    },
+    {
+        "name": "emphasis",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <emphasis>"
+    },
+    {
+        "name": "literal",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <literal>"
+    },
+    {
+        "name": "strong",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <strong>"
+    },
+    {
+        "name": "subscript",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <subscript>"
+    },
+    {
+        "name": "superscript",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "output": "<paragraph>\n    <superscript>"
+    },
+    {
+        "name": "title-reference",
+        "import": "docutils.parsers.rst.roles.GenericRole",
+        "type": "class",
+        "content": "t",
+        "output": "<paragraph>\n    <title_reference>\n        t"
+    },
+    {
+        "name": "pep-reference",
+        "import": "docutils.parsers.rst.roles.pep_reference_role",
+        "type": "function",
+        "content": "0",
+        "output": "<paragraph>\n    <reference refuri=\"http://www.python.org/dev/peps/pep-0000\">\n        PEP 0"
+    },
+    {
+        "name": "rfc-reference",
+        "import": "docutils.parsers.rst.roles.rfc_reference_role",
+        "type": "function",
+        "content": "1",
+        "output": "<paragraph>\n    <reference refuri=\"http://tools.ietf.org/html/rfc1.html\">\n        RFC 1"
+    },
+    {
+        "name": "raw",
+        "import": "docutils.parsers.rst.roles.raw_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "code",
+        "import": "docutils.parsers.rst.roles.code_role",
+        "type": "function",
+        "output": "<paragraph>\n    <literal classes=\"code\">"
+    },
+    {
+        "name": "math",
+        "import": "docutils.parsers.rst.roles.math_role",
+        "type": "function",
+        "output": "<paragraph>\n    <math>"
+    },
+    {
+        "name": "named-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "anonymous-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "uri-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "footnote-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "citation-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "substitution-reference",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "target",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "restructuredtext-unimplemented-role",
+        "import": "docutils.parsers.rst.roles.unimplemented_role",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "command",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "dfn",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "kbd",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "mailheader",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "makevar",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "manpage",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "mimetype",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "newsgroup",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "regexp",
+        "import": "docutils.parsers.rst.roles.CustomRole",
+        "type": "class",
+        "output": ""
+    },
+    {
+        "name": "c:func",
+        "import": "sphinx.domains.c.CXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"c\" refexplicit=\"False\" reftarget=\"a\" reftype=\"func\" refwarn=\"False\">\n        <literal classes=\"xref c c-func\">\n            a()"
+    },
+    {
+        "name": "c:member",
+        "import": "sphinx.domains.c.CObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"c\" refexplicit=\"False\" reftarget=\"a\" reftype=\"member\" refwarn=\"False\">\n        <literal classes=\"xref c c-member\">\n            a"
+    },
+    {
+        "name": "c:macro",
+        "import": "sphinx.domains.c.CObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"c\" refexplicit=\"False\" reftarget=\"a\" reftype=\"macro\" refwarn=\"False\">\n        <literal classes=\"xref c c-macro\">\n            a"
+    },
+    {
+        "name": "c:data",
+        "import": "sphinx.domains.c.CXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"c\" refexplicit=\"False\" reftarget=\"a\" reftype=\"data\" refwarn=\"False\">\n        <literal classes=\"xref c c-data\">\n            a"
+    },
+    {
+        "name": "c:type",
+        "import": "sphinx.domains.c.CObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"c\" refexplicit=\"False\" reftarget=\"a\" reftype=\"type\" refwarn=\"False\">\n        <literal classes=\"xref c c-type\">\n            a"
+    },
+    {
+        "name": "c:function",
+        "import": "sphinx.domains.c.CObject",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "c:var",
+        "import": "sphinx.domains.c.CObject",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "cpp:any",
+        "import": "sphinx.domains.cpp.CPPXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"any\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-any\">\n            a"
+    },
+    {
+        "name": "cpp:class",
+        "import": "sphinx.domains.cpp.CPPClassObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"class\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-class\">\n            a"
+    },
+    {
+        "name": "cpp:struct",
+        "import": "sphinx.domains.cpp.CPPClassObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"struct\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-struct\">\n            a"
+    },
+    {
+        "name": "cpp:union",
+        "import": "sphinx.domains.cpp.CPPUnionObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"union\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-union\">\n            a"
+    },
+    {
+        "name": "cpp:func",
+        "import": "sphinx.domains.cpp.CPPXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"func\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-func\">\n            a()"
+    },
+    {
+        "name": "cpp:member",
+        "import": "sphinx.domains.cpp.CPPMemberObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"member\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-member\">\n            a"
+    },
+    {
+        "name": "cpp:var",
+        "import": "sphinx.domains.cpp.CPPMemberObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"var\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-var\">\n            a"
+    },
+    {
+        "name": "cpp:type",
+        "import": "sphinx.domains.cpp.CPPTypeObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"type\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-type\">\n            a"
+    },
+    {
+        "name": "cpp:concept",
+        "import": "sphinx.domains.cpp.CPPConceptObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"concept\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-concept\">\n            a"
+    },
+    {
+        "name": "cpp:enum",
+        "import": "sphinx.domains.cpp.CPPEnumObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"enum\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-enum\">\n            a"
+    },
+    {
+        "name": "cpp:enumerator",
+        "import": "sphinx.domains.cpp.CPPEnumeratorObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"enumerator\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-enumerator\">\n            a"
+    },
+    {
+        "name": "cpp:expr",
+        "import": "sphinx.domains.cpp.CPPExprRole",
+        "type": "class",
+        "output": "<paragraph>\n    <literal classes=\"xref cpp cpp-expr\">\n        <pending_xref classname=\"True\" cpp:parent_key=\"\" modname=\"True\" refdomain=\"cpp\" reftarget=\"a\" reftype=\"identifier\">\n            a"
+    },
+    {
+        "name": "cpp:texpr",
+        "import": "sphinx.domains.cpp.CPPExprRole",
+        "type": "class",
+        "output": "<paragraph>\n    <inline classes=\"xref cpp cpp-texpr\">\n        <pending_xref classname=\"True\" cpp:parent_key=\"\" modname=\"True\" refdomain=\"cpp\" reftarget=\"a\" reftype=\"identifier\">\n            a"
+    },
+    {
+        "name": "cpp:function",
+        "import": "sphinx.domains.cpp.CPPFunctionObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"function\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-function\">\n            a"
+    },
+    {
+        "name": "cpp:enum-struct",
+        "import": "sphinx.domains.cpp.CPPEnumObject",
+        "type": "function",
+        "output": "<paragraph>\n    {cpp:enum-struct}\n    <literal>\n        a"
+    },
+    {
+        "name": "cpp:enum-class",
+        "import": "sphinx.domains.cpp.CPPEnumObject",
+        "type": "function",
+        "output": "<paragraph>\n    {cpp:enum-class}\n    <literal>\n        a"
+    },
+    {
+        "name": "cpp:namespace",
+        "import": "sphinx.domains.cpp.CPPNamespaceObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"namespace\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-namespace\">\n            a"
+    },
+    {
+        "name": "cpp:namespace-push",
+        "import": "sphinx.domains.cpp.CPPNamespacePushObject",
+        "type": "function",
+        "output": "<paragraph>\n    {cpp:namespace-push}\n    <literal>\n        a"
+    },
+    {
+        "name": "cpp:namespace-pop",
+        "import": "sphinx.domains.cpp.CPPNamespacePopObject",
+        "type": "function",
+        "output": "<paragraph>\n    {cpp:namespace-pop}\n    <literal>\n        a"
+    },
+    {
+        "name": "cpp:alias",
+        "import": "sphinx.domains.cpp.CPPAliasObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"cpp\" refexplicit=\"False\" reftarget=\"a\" reftype=\"alias\" refwarn=\"False\">\n        <literal classes=\"xref cpp cpp-alias\">\n            a"
+    },
+    {
+        "name": "js:func",
+        "import": "sphinx.domains.javascript.JSXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"func\" refwarn=\"False\">\n        <literal classes=\"xref js js-func\">\n            a()"
+    },
+    {
+        "name": "js:meth",
+        "import": "sphinx.domains.javascript.JSXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"meth\" refwarn=\"False\">\n        <literal classes=\"xref js js-meth\">\n            a()"
+    },
+    {
+        "name": "js:class",
+        "import": "sphinx.domains.javascript.JSConstructor",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"class\" refwarn=\"False\">\n        <literal classes=\"xref js js-class\">\n            a()"
+    },
+    {
+        "name": "js:data",
+        "import": "sphinx.domains.javascript.JSObject",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"data\" refwarn=\"False\">\n        <literal classes=\"xref js js-data\">\n            a"
+    },
+    {
+        "name": "js:attr",
+        "import": "sphinx.domains.javascript.JSXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"attr\" refwarn=\"False\">\n        <literal classes=\"xref js js-attr\">\n            a"
+    },
+    {
+        "name": "js:mod",
+        "import": "sphinx.domains.javascript.JSXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref js:module=\"True\" js:object=\"True\" refdoc=\"mock_docname\" refdomain=\"js\" refexplicit=\"False\" reftarget=\"a\" reftype=\"mod\" refwarn=\"False\">\n        <literal classes=\"xref js js-mod\">\n            a"
+    },
+    {
+        "name": "js:function",
+        "import": "sphinx.domains.javascript.JSCallable",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "js:method",
+        "import": "sphinx.domains.javascript.JSCallable",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "js:attribute",
+        "import": "sphinx.domains.javascript.JSObject",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "js:module",
+        "import": "sphinx.domains.javascript.JSModule",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "eq",
+        "import": "sphinx.domains.math.MathReferenceRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"math\" refexplicit=\"False\" reftarget=\"a\" reftype=\"eq\" refwarn=\"True\">\n        <literal classes=\"xref eq\">\n            a"
+    },
+    {
+        "name": "math:numref",
+        "import": "sphinx.domains.math.MathReferenceRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"math\" refexplicit=\"False\" reftarget=\"a\" reftype=\"numref\" refwarn=\"False\">\n        <literal classes=\"xref math math-numref\">\n            a"
+    },
+    {
+        "name": "py:data",
+        "import": "sphinx.domains.python.PyVariable",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"data\" refwarn=\"False\">\n        <literal classes=\"xref py py-data\">\n            a"
+    },
+    {
+        "name": "py:exc",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"exc\" refwarn=\"False\">\n        <literal classes=\"xref py py-exc\">\n            a"
+    },
+    {
+        "name": "py:func",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"func\" refwarn=\"False\">\n        <literal classes=\"xref py py-func\">\n            a()"
+    },
+    {
+        "name": "py:class",
+        "import": "sphinx.domains.python.PyClasslike",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"class\" refwarn=\"False\">\n        <literal classes=\"xref py py-class\">\n            a"
+    },
+    {
+        "name": "py:const",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"const\" refwarn=\"False\">\n        <literal classes=\"xref py py-const\">\n            a"
+    },
+    {
+        "name": "py:attr",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"attr\" refwarn=\"False\">\n        <literal classes=\"xref py py-attr\">\n            a"
+    },
+    {
+        "name": "py:meth",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"meth\" refwarn=\"False\">\n        <literal classes=\"xref py py-meth\">\n            a()"
+    },
+    {
+        "name": "py:mod",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"mod\" refwarn=\"False\">\n        <literal classes=\"xref py py-mod\">\n            a"
+    },
+    {
+        "name": "py:obj",
+        "import": "sphinx.domains.python.PyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"obj\" refwarn=\"False\">\n        <literal classes=\"xref py py-obj\">\n            a"
+    },
+    {
+        "name": "py:function",
+        "import": "sphinx.domains.python.PyFunction",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"function\" refwarn=\"False\">\n        <literal classes=\"xref py py-function\">\n            a"
+    },
+    {
+        "name": "py:exception",
+        "import": "sphinx.domains.python.PyClasslike",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"exception\" refwarn=\"False\">\n        <literal classes=\"xref py py-exception\">\n            a"
+    },
+    {
+        "name": "py:method",
+        "import": "sphinx.domains.python.PyMethod",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"method\" refwarn=\"False\">\n        <literal classes=\"xref py py-method\">\n            a"
+    },
+    {
+        "name": "py:classmethod",
+        "import": "sphinx.domains.python.PyClassMethod",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"classmethod\" refwarn=\"False\">\n        <literal classes=\"xref py py-classmethod\">\n            a"
+    },
+    {
+        "name": "py:staticmethod",
+        "import": "sphinx.domains.python.PyStaticMethod",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"staticmethod\" refwarn=\"False\">\n        <literal classes=\"xref py py-staticmethod\">\n            a"
+    },
+    {
+        "name": "py:attribute",
+        "import": "sphinx.domains.python.PyAttribute",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"attribute\" refwarn=\"False\">\n        <literal classes=\"xref py py-attribute\">\n            a"
+    },
+    {
+        "name": "py:module",
+        "import": "sphinx.domains.python.PyModule",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"module\" refwarn=\"False\">\n        <literal classes=\"xref py py-module\">\n            a"
+    },
+    {
+        "name": "py:currentmodule",
+        "import": "sphinx.domains.python.PyCurrentModule",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"currentmodule\" refwarn=\"False\">\n        <literal classes=\"xref py py-currentmodule\">\n            a"
+    },
+    {
+        "name": "py:decorator",
+        "import": "sphinx.domains.python.PyDecoratorFunction",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"decorator\" refwarn=\"False\">\n        <literal classes=\"xref py py-decorator\">\n            a"
+    },
+    {
+        "name": "py:decoratormethod",
+        "import": "sphinx.domains.python.PyDecoratorMethod",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref py:class=\"True\" py:module=\"True\" refdoc=\"mock_docname\" refdomain=\"py\" refexplicit=\"False\" reftarget=\"a\" reftype=\"decoratormethod\" refwarn=\"False\">\n        <literal classes=\"xref py py-decoratormethod\">\n            a"
+    },
+    {
+        "name": "rst:role",
+        "import": "sphinx.domains.rst.ReSTRole",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"rst\" refexplicit=\"False\" reftarget=\"a\" reftype=\"role\" refwarn=\"False\">\n        <literal classes=\"xref rst rst-role\">\n            a"
+    },
+    {
+        "name": "rst:directive",
+        "import": "sphinx.domains.rst.ReSTDirective",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "rst:directive:option",
+        "import": "sphinx.domains.rst.ReSTDirectiveOption",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "program",
+        "import": "sphinx.domains.std.Program",
+        "type": "function",
+        "output": "<paragraph>\n    <literal_strong classes=\"program\">\n        a"
+    },
+    {
+        "name": "option",
+        "import": "sphinx.domains.std.Cmdoption",
+        "type": "function",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"option\" refwarn=\"True\" std:program=\"True\">\n        <literal classes=\"xref std std-option\">\n            a"
+    },
+    {
+        "name": "envvar",
+        "import": "sphinx.domains.std.EnvVar",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "cmdoption",
+        "import": "sphinx.domains.std.Cmdoption",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "glossary",
+        "import": "sphinx.domains.std.Glossary",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "productionlist",
+        "import": "sphinx.domains.std.ProductionList",
+        "type": "function",
+        "output": ""
+    },
+    {
+        "name": "index",
+        "import": "sphinx.roles.Index",
+        "type": "class",
+        "output": "<paragraph>\n    <index entries=\"('single',\\ 'a',\\ 'index-0',\\ '',\\ None)\">\n    <target ids=\"index-0\">\n    a"
+    },
+    {
+        "name": "download",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <download_reference refdoc=\"mock_docname\" refdomain=\"\" refexplicit=\"False\" reftarget=\"a\" reftype=\"download\" refwarn=\"False\">\n        <literal classes=\"xref download\">\n            a"
+    },
+    {
+        "name": "any",
+        "import": "sphinx.roles.AnyXRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"\" refexplicit=\"False\" reftarget=\"a\" reftype=\"any\" refwarn=\"True\">\n        <literal classes=\"xref any\">\n            a"
+    },
+    {
+        "name": "pep",
+        "import": "sphinx.roles.PEP",
+        "type": "class",
+        "content": "1",
+        "output": "<paragraph>\n    <index entries=\"('single',\\ 'Python\\ Enhancement\\ Proposals;\\ PEP\\ 1',\\ 'index-0',\\ '',\\ None)\">\n    <target ids=\"index-0\">\n    <reference classes=\"pep\" internal=\"False\" refuri=\"http://www.python.org/dev/peps/pep-0001\">\n        <strong>\n            PEP 1"
+    },
+    {
+        "name": "rfc",
+        "import": "sphinx.roles.RFC",
+        "type": "class",
+        "content": "1",
+        "output": "<paragraph>\n    <index entries=\"('single',\\ 'RFC;\\ RFC\\ 1',\\ 'index-0',\\ '',\\ None)\">\n    <target ids=\"index-0\">\n    <reference classes=\"rfc\" internal=\"False\" refuri=\"http://tools.ietf.org/html/rfc1.html\">\n        <strong>\n            RFC 1"
+    },
+    {
+        "name": "guilabel",
+        "import": "sphinx.roles.GUILabel",
+        "type": "class",
+        "output": "<paragraph>\n    <inline classes=\"guilabel\" rawtext=\":guilabel:`a`\">\n        a"
+    },
+    {
+        "name": "menuselection",
+        "import": "sphinx.roles.MenuSelection",
+        "type": "class",
+        "output": "<paragraph>\n    <inline classes=\"menuselection\" rawtext=\":menuselection:`a`\">\n        a"
+    },
+    {
+        "name": "file",
+        "import": "sphinx.roles.EmphasizedLiteral",
+        "type": "class",
+        "output": "<paragraph>\n    <literal classes=\"file\" role=\"file\">\n        a"
+    },
+    {
+        "name": "samp",
+        "import": "sphinx.roles.EmphasizedLiteral",
+        "type": "class",
+        "output": "<paragraph>\n    <literal classes=\"samp\" role=\"samp\">\n        a"
+    },
+    {
+        "name": "abbr",
+        "import": "sphinx.roles.Abbreviation",
+        "type": "class",
+        "output": "<paragraph>\n    <abbreviation>\n        a"
+    },
+    {
+        "name": "rst:dir",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"rst\" refexplicit=\"False\" reftarget=\"a\" reftype=\"dir\" refwarn=\"False\">\n        <literal classes=\"xref rst rst-dir\">\n            a"
+    },
+    {
+        "name": "token",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"token\" refwarn=\"False\">\n        <literal classes=\"xref std std-token\">\n            a"
+    },
+    {
+        "name": "term",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"term\" refwarn=\"True\">\n        <inline classes=\"xref std std-term\">\n            a"
+    },
+    {
+        "name": "ref",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"ref\" refwarn=\"True\">\n        <inline classes=\"xref std std-ref\">\n            a"
+    },
+    {
+        "name": "numref",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"numref\" refwarn=\"True\">\n        <literal classes=\"xref std std-numref\">\n            a"
+    },
+    {
+        "name": "keyword",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"False\" reftarget=\"a\" reftype=\"keyword\" refwarn=\"True\">\n        <literal classes=\"xref std std-keyword\">\n            a"
+    },
+    {
+        "name": "doc",
+        "import": "sphinx.roles.XRefRole",
+        "type": "class",
+        "content": "this lecture <heavy_tails>",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"std\" refexplicit=\"True\" reftarget=\"heavy_tails\" reftype=\"doc\" refwarn=\"True\">\n        <inline classes=\"xref std std-doc\">\n            this lecture"
+    }
+]

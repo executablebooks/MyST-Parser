@@ -4,7 +4,8 @@
 exclude: >
     (?x)^(
       \.vscode/settings\.json|
-      tests/commonmark/commonmark\.json
+      tests/commonmark/commonmark\.json|
+      .*\.xml
     )$
 
 repos:

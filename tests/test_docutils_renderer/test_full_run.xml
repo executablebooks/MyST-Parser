@@ -1,0 +1,58 @@
+<document source="">
+    <section ids="header-1" names="header\ 1">
+        <title>
+            header 1
+        <section ids="sub-header-1" names="sub\ header\ 1">
+            <title>
+                sub header 1
+            <paragraph>
+                a 
+                <emphasis>
+                    b
+                 
+                <strong>
+                    c
+                 
+                <literal>
+                    abc
+                 
+                *
+        <section ids="sub-header-2" names="sub\ header\ 2">
+            <title>
+                sub header 2
+            <paragraph>
+                x y 
+                <reference refuri="http://www.xyz.com">
+                    a
+                 z
+            <transition>
+    <section ids="header-2" names="header\ 2">
+        <title>
+            header 2
+        <literal_block language="::python" xml:space="preserve">
+            a = 1
+        <block_quote>
+            <paragraph>
+                abc
+        <bullet_list>
+            <list_item>
+                <paragraph>
+                    a
+            <list_item>
+                <paragraph>
+                    b
+                <bullet_list>
+                    <list_item>
+                        <paragraph>
+                            c
+        <enumerated_list>
+            <list_item>
+                <paragraph>
+                    a
+            <list_item>
+                <paragraph>
+                    b
+                <enumerated_list>
+                    <list_item>
+                        <paragraph>
+                            c
