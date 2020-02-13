@@ -1,4 +1,5 @@
 <document source="">
+    <target ids="target" names="target">
     <section ids="header-1" names="header\ 1">
         <title>
             header 1
@@ -56,3 +57,7 @@
                     <list_item>
                         <paragraph>
                             c
+        <paragraph>
+            <pending_xref refdoc="mock_docname" refdomain="std" refexplicit="False" reftarget="target" reftype="ref" refwarn="True">
+                <inline classes="xref std std-ref">
+                    target

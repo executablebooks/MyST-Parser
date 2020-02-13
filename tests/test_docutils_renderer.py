@@ -145,6 +145,17 @@ def test_image(renderer_mock):
     )
 
 
+def test_image_with_alt(renderer_mock):
+    renderer_mock.render(tokenize([r"![alt](path/to/image.jpeg)"])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <paragraph>
+            <image alt="alt" uri="path/to/image.jpeg">
+    """
+    )
+
+
 def test_quote(renderer_mock):
     render_token(renderer_mock, "Quote", range=(0, 0))
     assert renderer_mock.document.pformat() == dedent(
@@ -251,9 +262,24 @@ def test_comment(renderer_mock):
     )
 
 
-def test_full_run(renderer, file_regression):
+def test_footnote(renderer):
+    renderer.render(
+        Document(["[name][key]", "", '[key]: https://www.google.com "a title"', ""])
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="">
+        <paragraph>
+            <reference refuri="https://www.google.com" title="a title">
+                name
+    """
+    )
+
+
+def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\
+        (target)=
         # header 1
         ## sub header 1
 
@@ -281,11 +307,13 @@ def test_full_run(renderer, file_regression):
         2. b
             1. c
 
+        {ref}`target`
+
         """
     )
 
-    renderer.render(Document(string))
-    file_regression.check(renderer.document.pformat(), extension=".xml")
+    sphinx_renderer.render(Document(string))
+    file_regression.check(sphinx_renderer.document.pformat(), extension=".xml")
 
 
 with open(os.path.join(os.path.dirname(__file__), "sphinx_roles.json"), "r") as fin:
