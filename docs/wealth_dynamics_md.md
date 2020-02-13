@@ -428,7 +428,7 @@ indicating a rise in inequality.
 
 ```{image} htop_again.png
 ---
-scale: 80%
+scale: 80 %
 ---
 ```
 
