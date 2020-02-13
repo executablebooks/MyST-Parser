@@ -1,3 +1,5 @@
+(target)=
+
 # Header
 
 % comment
@@ -44,3 +46,5 @@ this is a second paragraph
   - a sub list
 % a comment 3
 - new list?
+
+{ref}`target`

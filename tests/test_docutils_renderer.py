@@ -218,6 +218,28 @@ def test_role_code(renderer_mock):
     )
 
 
+def test_target_block(renderer_mock):
+    renderer_mock.render(tokenize(["(target)="])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <target ids="target" names="target">
+    """
+    )
+
+
+def test_target_inline(renderer_mock):
+    renderer_mock.render(tokenize(["A b(target)="])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <paragraph>
+            A b
+            <target ids="target" names="target">
+    """
+    )
+
+
 def test_comment(renderer_mock):
     renderer_mock.render(tokenize([r"% a comment"])[0])
     assert renderer_mock.document.pformat() == dedent(
