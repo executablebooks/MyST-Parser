@@ -1,4 +1,10 @@
 <document source="">
+    <docinfo>
+        <field>
+            <field_name>
+                a
+            <field_body>
+                1
     <target ids="target" names="target">
     <section ids="header-1" names="header\ 1">
         <title>

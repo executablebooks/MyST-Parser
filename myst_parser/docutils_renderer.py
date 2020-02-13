@@ -96,6 +96,32 @@ class DocutilsRenderer(BaseRenderer):
         self.render_children(token)
         return self.document
 
+    def render_front_matter(self, token):
+        """Pass document front matter data
+
+        For RST, all field lists are captured by
+        ``docutils.docutils.parsers.rst.states.Body.field_marker``,
+        then, if one occurs at the document, it is transformed by
+        `docutils.docutils.transforms.frontmatter.DocInfo`, and finally
+        this is intercepted by sphinx and added to the env in
+        `sphinx.environment.collectors.metadata.MetadataCollector.process_doc`
+
+        So technically the values should be parsed to AST, but this is redundant,
+        since `process_doc` just converts them back to text.
+
+        """
+        docinfo = nodes.docinfo()
+        for key, value in token.data.items():
+            if not isinstance(value, (str, int, float)):
+                continue
+            value = str(value)
+            field_node = nodes.field()
+            field_node.source = value
+            field_node += nodes.field_name(key, "", nodes.Text(key, key))
+            field_node += nodes.field_body(value, nodes.Text(value, value))
+            docinfo += field_node
+        self.current_node.append(docinfo)
+
     def render_paragraph(self, token):
         if len(token.children) == 1 and isinstance(
             token.children[0], myst_span_tokens.Target

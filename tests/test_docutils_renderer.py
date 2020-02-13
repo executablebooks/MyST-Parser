@@ -5,10 +5,10 @@ from unittest import mock
 
 import pytest
 
-from mistletoe import Document
 from mistletoe.block_token import tokenize
 from mistletoe.span_token import tokenize_inner
 
+from myst_parser.block_tokens import Document
 from myst_parser.docutils_renderer import DocutilsRenderer
 
 
@@ -279,6 +279,10 @@ def test_footnote(renderer):
 def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\
+        ---
+        a: 1
+        ---
+
         (target)=
         # header 1
         ## sub header 1

@@ -1,7 +1,7 @@
 from docutils import frontend, parsers
-from mistletoe import Document
 
 from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.block_tokens import Document
 
 
 class MystParser(parsers.Parser):

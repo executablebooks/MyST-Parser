@@ -25,6 +25,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 
 ### Block Tokens
 
+- **FrontMatter**: A YAML block at the start of the document enclosed by `---`
 - **HTMLBlock**: Any valid HTML (rendered in HTML output only)
 - **LineComment**: `% this is a comment`
 - **BlockCode**: indented text (4 spaces)
@@ -258,6 +259,20 @@ most beautiful mathematical formulas.
 
 Here is some extra markdown syntax which provides functionality in rST that doesn't
 exist in CommonMark.
+
+## Front Matter
+
+This is a YAML block at the start of the document, as used for example in [jekyll](https://jekyllrb.com/docs/front-matter/).
+Sphinx intercepts this data and stores it within the global environment (as discussed [here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)), and a classic use-case is to specify 'orphan' documents,
+that are not specified in any toctrees.
+
+```markdown
+---
+orphan: true
+---
+
+This is an orphan document, not specified in any toctrees.
+```
 
 ### Comments
 
