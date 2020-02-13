@@ -102,14 +102,18 @@ class DocutilsRenderer(BaseRenderer):
             self.render_children(token)
 
     def render_raw_text(self, token):
-        self.current_node.append(nodes.Text(token.content, token.content))
+        text = token.content
+        self.current_node.append(nodes.Text(text, text))
 
     def render_escape_sequence(self, token):
         text = token.children[0].content
         self.current_node.append(nodes.Text(text, text))
 
     def render_line_break(self, token):
-        self.current_node.append(nodes.raw("", "<br />", format="html"))
+        if token.soft:
+            self.current_node.append(nodes.Text("\n"))
+        else:
+            self.current_node.append(nodes.raw("", "<br />\n", format="html"))
 
     def render_strong(self, token):
         node = nodes.strong()
