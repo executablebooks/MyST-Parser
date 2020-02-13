@@ -33,7 +33,12 @@ setup(
     ],
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.5",
-    install_requires=["mistletoe>=0.8"],
+    install_requires=[
+        (
+            "mistletoe @ "
+            "https://github.com/ExecutableBookProject/mistletoe/archive/myst.zip"
+        )
+    ],
     extras_require={
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
@@ -43,7 +48,7 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "sphinx": ["docutils>=0.15", "sphinx>=2,<3"],
+        "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
     },
-    zip_safe=False,
+    zip_safe=True,
 )
