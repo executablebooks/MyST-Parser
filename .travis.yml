@@ -12,7 +12,6 @@ matrix:
         env: TEST_TYPE="pre-commit"
 install:
   - pip install --upgrade pip wheel setuptools
-  - pip install git+https://github.com/ExecutableBookProject/mistletoe.git@myst
   - |
       if [[ "$TEST_TYPE" == "pre-commit" ]]; then
         pip install -e .[code_style]
