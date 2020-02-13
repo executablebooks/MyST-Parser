@@ -150,7 +150,12 @@ dynamics.
 
 The model we will study is
 
-$$w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1}$$
+```{math}
+---
+label: wealth_dynam_ah
+---
+w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1}
+```
 
 where
 
@@ -174,7 +179,15 @@ $$y_t = c_y \exp(z_t) + \exp(\mu_y + \sigma_y \zeta_t)$$
 Here $\{ (\epsilon_t, \xi_t, \zeta_t) \}$ is IID and standard normal in
 $\mathbb R^3$.
 
-$$s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\}$$
+(sav_ah)=
+
+```{math}
+---
+label: sav_ah
+---
+s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\}
+```
+
 
 where $s_0$ is a positive constant.
 
