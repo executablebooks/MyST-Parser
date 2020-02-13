@@ -7,7 +7,6 @@ from mistletoe.block_token import (  # noqa: F401
     HTMLBlock,
     ThematicBreak,
     List,
-    ListItem,
     Footnote,
     TableRow,
 )
@@ -17,6 +16,7 @@ Tokens to be included in the parsing process, in the order specified.
 """
 __all__ = [
     "HTMLBlock",
+    "LineComment",
     "BlockCode",
     "Heading",
     "Quote",
@@ -30,8 +30,29 @@ __all__ = [
 
 # TODO add FieldList block token, see:
 # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
-# TODO block comments (preferably not just HTML)
 # TODO target span (or role)
+
+
+class LineComment(block_token.BlockToken):
+    """Line comment start with % """
+
+    pattern = re.compile(r" {0,3}\%\s*(.*)")
+
+    def __init__(self, content):
+        self.content = content
+
+    @classmethod
+    def start(cls, line):
+        match_obj = cls.pattern.match(line)
+        if match_obj is None:
+            return False
+        cls.content = (match_obj.group(1) or "").strip()
+        return True
+
+    @classmethod
+    def read(cls, lines):
+        next(lines)
+        return cls.content
 
 
 class Heading(block_token.Heading):
@@ -99,6 +120,7 @@ class Quote(block_token.Quote):
         while (
             next_line is not None
             and next_line.strip() != ""
+            and not LineComment.start(next_line)
             and not Heading.start(next_line)
             and not CodeFence.start(next_line)
             and not ThematicBreak.start(next_line)
@@ -162,6 +184,7 @@ class Paragraph(block_token.Paragraph):
         while (
             next_line is not None
             and next_line.strip() != ""
+            and not LineComment.start(next_line)
             and not Heading.start(next_line)
             and not CodeFence.start(next_line)
             and not Quote.start(next_line)
@@ -309,3 +332,15 @@ class Table(block_token.Table):
             lines.reset()
             return None
         return line_buffer, (start_line, lines.lineno)
+
+
+class ListItem(block_token.ListItem):
+    @staticmethod
+    def other_token(line):
+        return (
+            Heading.start(line)
+            or LineComment.start(line)
+            or Quote.start(line)
+            or CodeFence.start(line)
+            or ThematicBreak.start(line)
+        )

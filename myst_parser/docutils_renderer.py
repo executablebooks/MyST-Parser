@@ -101,6 +101,9 @@ class DocutilsRenderer(BaseRenderer):
         with self.set_current_node(para, append=True):
             self.render_children(token)
 
+    def render_line_comment(self, token):
+        self.current_node.append(nodes.comment(token.content, token.content))
+
     def render_raw_text(self, token):
         text = token.content
         self.current_node.append(nodes.Text(text, text))

@@ -218,6 +218,17 @@ def test_role_code(renderer_mock):
     )
 
 
+def test_comment(renderer_mock):
+    renderer_mock.render(tokenize([r"% a comment"])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <comment xml:space="preserve">
+            a comment
+    """
+    )
+
+
 def test_full_run(renderer, file_regression):
     string = dedent(
         """\
