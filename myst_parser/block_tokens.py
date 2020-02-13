@@ -30,7 +30,6 @@ __all__ = [
 
 # TODO add FieldList block token, see:
 # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
-# TODO target span (or role)
 
 
 class LineComment(block_token.BlockToken):
