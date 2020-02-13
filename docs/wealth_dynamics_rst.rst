@@ -19,7 +19,7 @@ Overview
 ========
 
 This notebook gives an introduction to wealth distribution dynamics, with a
-focus on 
+focus on
 
 * modeling and computing the wealth distribution via simulation,
 
@@ -27,7 +27,7 @@ focus on
 
 * how inequality is affected by the properties of wage income and returns on assets.
 
-The wealth distribution in many countries exhibits a Pareto tail 
+The wealth distribution in many countries exhibits a Pareto tail
 
 * See :doc:`this lecture <heavy_tails>` for a definition.
 
@@ -39,7 +39,7 @@ A Note on Assumptions
 ---------------------
 
 The evolution of wealth for any given household depends on their
-savings behavior. 
+savings behavior.
 
 We will use the following imports.
 
@@ -48,7 +48,7 @@ We will use the following imports.
     import numpy as np
     import matplotlib.pyplot as plt
     %matplotlib inline
-    
+
     import quantecon as qe
     from numba import njit, jitclass, float64, prange
 
@@ -68,7 +68,7 @@ One popular graphical measure of inequality is the `Lorenz curve
 The package `QuantEcon.py <https://github.com/QuantEcon/QuantEcon.py>`__,
 already imported above, contains a function to compute Lorenz curves.
 
-To illustrate, suppose that 
+To illustrate, suppose that
 
 .. code:: ipython3
 
@@ -94,7 +94,7 @@ This curve can be understood as follows: if point :math:`(x,y)` lies on the curv
 
 .. code:: ipython3
 
-    a_vals = (1, 2, 5)              # Pareto tail index 
+    a_vals = (1, 2, 5)              # Pareto tail index
     n = 10_000                      # size of each sample
     fig, ax = plt.subplots()
     for a in a_vals:
@@ -129,7 +129,7 @@ contains a function to calculate the Gini coefficient.
 We can test it on the Weibull distribution with parameter :math:`a`, where the
 Gini coefficient is known to be
 
-.. math::  G = 1 - 2^{-1/a} 
+.. math::  G = 1 - 2^{-1/a}
 
 Let's see if the Gini coefficient computed from a simulated sample matches
 this at each fixed value of :math:`a`.
@@ -142,7 +142,7 @@ this at each fixed value of :math:`a`.
     ginis = []
     ginis_theoretical = []
     n = 100
-    
+
     fig, ax = plt.subplots()
     for a in a_vals:
         y = np.random.weibull(a, size=n)
@@ -166,10 +166,10 @@ Having discussed inequality measures, let us now turn to wealth dynamics.
 
 The model we will study is
 
-.. math::  
+.. math::
     :label: wealth_dynam_ah
 
-    w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1} 
+    w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1}
 
 where
 
@@ -180,24 +180,24 @@ where
 
 Letting :math:`\{z_t\}` be a correlated state process of the form
 
-.. math::  z_{t+1} = a z_t + b + \sigma_z \epsilon_{t+1} 
+.. math::  z_{t+1} = a z_t + b + \sigma_z \epsilon_{t+1}
 
 we’ll assume that
 
-.. math::  R_t := 1 + r_t = c_r \exp(z_t) + \exp(\mu_r + \sigma_r \xi_t) 
+.. math::  R_t := 1 + r_t = c_r \exp(z_t) + \exp(\mu_r + \sigma_r \xi_t)
 
 and
 
-.. math::  y_t = c_y \exp(z_t) + \exp(\mu_y + \sigma_y \zeta_t) 
+.. math::  y_t = c_y \exp(z_t) + \exp(\mu_y + \sigma_y \zeta_t)
 
 Here :math:`\{ (\epsilon_t, \xi_t, \zeta_t) \}` is IID and standard
 normal in :math:`\mathbb R^3`.
 
 
-.. math::  
+.. math::
     :label: sav_ah
 
-    s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\} 
+    s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\}
 
 where :math:`s_0` is a positive constant.
 
@@ -234,53 +234,53 @@ the aggregate state and household wealth.
 
     @jitclass(wealth_dynamics_data)
     class WealthDynamics:
-        
+
         def __init__(self,
                      w_hat=1.0,
-                     s_0=0.75, 
-                     c_y=1.0, 
+                     s_0=0.75,
+                     c_y=1.0,
                      μ_y=1.0,
-                     σ_y=0.2, 
+                     σ_y=0.2,
                      c_r=0.05,
-                     μ_r=0.1, 
-                     σ_r=0.5, 
-                     a=0.5,  
-                     b=0.0, 
+                     μ_r=0.1,
+                     σ_r=0.5,
+                     a=0.5,
+                     b=0.0,
                      σ_z=0.1):
-        
+
             self.w_hat, self.s_0 = w_hat, s_0
             self.c_y, self.μ_y, self.σ_y = c_y, μ_y, σ_y
             self.c_r, self.μ_r, self.σ_r = c_r, μ_r, σ_r
             self.a, self.b, self.σ_z = a, b, σ_z
-            
+
             # Record stationary moments
             self.z_mean = b / (1 - a)
             self.z_var = σ_z**2 / (1 - a**2)
             exp_z_mean = np.exp(self.z_mean + self.z_var / 2)
             self.R_mean = c_r * exp_z_mean + np.exp(μ_r + σ_r**2 / 2)
             self.y_mean = c_y * exp_z_mean + np.exp(μ_y + σ_y**2 / 2)
-            
+
             # Test a stability condition that ensures wealth does not diverge
             # to infinity.
             α = self.R_mean * self.s_0
             if α >= 1:
                 raise ValueError("Stability condition failed.")
-                
+
         def parameters(self):
             """
             Collect and return parameters.
             """
-            parameters = (self.w_hat, self.s_0, 
+            parameters = (self.w_hat, self.s_0,
                           self.c_y, self.μ_y, self.σ_y,
                           self.c_r, self.μ_r, self.σ_r,
                           self.a, self.b, self.σ_z)
             return parameters
-            
+
         def update_states(self, w, z):
             """
-            Update one period, given current wealth w and persistent 
+            Update one period, given current wealth w and persistent
             state z.
-            """   
+            """
 
             # Simplify names
             params = self.parameters()
@@ -288,13 +288,13 @@ the aggregate state and household wealth.
             zp = a * z + b + σ_z * np.random.randn()
 
             # Update wealth
-            y = c_y * np.exp(zp) + np.exp(μ_y + σ_y * np.random.randn())   
+            y = c_y * np.exp(zp) + np.exp(μ_y + σ_y * np.random.randn())
             wp = y
             if w >= w_hat:
                 R = c_r * np.exp(zp) + np.exp(μ_r + σ_r * np.random.randn())
-                wp += R * s_0 * w 
+                wp += R * s_0 * w
             return wp, zp
-            
+
 
 Here's function to simulate the time series of wealth for in individual households.
 
@@ -303,7 +303,7 @@ Here's function to simulate the time series of wealth for in individual househol
     @njit
     def wealth_time_series(wdy, w_0, n):
         """
-        Generate a single time series of length n for wealth given 
+        Generate a single time series of length n for wealth given
         initial value w_0.
 
         The initial persistent state z_0 for each household is drawn from
@@ -336,16 +336,16 @@ Note the use of parallelization to speed up computation.
 
         * wdy: an instance of WealthDynamics
         * w_distribution: array_like, represents current cross-section
-        
+
         Takes a current distribution of wealth values as w_distribution
-        and updates each w_t in w_distribution to w_{t+j}, where 
-        j = shift_length.  
-        
+        and updates each w_t in w_distribution to w_{t+j}, where
+        j = shift_length.
+
         Returns the new distribution.
 
         """
         new_distribution = np.empty_like(w_distribution)
-    
+
         # Update each household
         for i in prange(len(new_distribution)):
             z = wdy.z_mean + np.sqrt(wdy.z_var) * np.random.randn()
@@ -354,7 +354,7 @@ Note the use of parallelization to speed up computation.
                 w, z = wdy.update_states(w, z)
             new_distribution[i] = w
         return new_distribution
-    
+
 Parallelization is very effective in the function above because the time path
 of each household can be calculated independently once the path for the
 aggregate state is known.
@@ -362,7 +362,7 @@ aggregate state is known.
 
 
 
-Applications 
+Applications
 ============
 
 Let's try simulating the model at different parameter values and investigate
@@ -372,15 +372,15 @@ the implications for the wealth distribution.
 Time Series
 -----------
 
-Let's look at the wealth dynamics of an individual household. 
+Let's look at the wealth dynamics of an individual household.
 
 .. code:: ipython3
 
     wdy = WealthDynamics()
-    
+
     ts_length = 200
     w = wealth_time_series(wdy, wdy.y_mean, ts_length)
-    
+
     fig, ax = plt.subplots()
     ax.plot(w)
     plt.show()
@@ -404,18 +404,18 @@ curve and Gini coefficient.
 
     def generate_lorenz_and_gini(wdy, num_households=100_000, T=500):
         """
-        Generate the Lorenz curve data and gini coefficient corresponding to a 
+        Generate the Lorenz curve data and gini coefficient corresponding to a
         WealthDynamics mode by simulating num_households forward to time T.
         """
         ψ_0 = np.ones(num_households) * wdy.y_mean
         z_0 = wdy.z_mean
-    
+
         ψ_star = update_cross_section(wdy, ψ_0, shift_length=T)
         return qe.gini_coefficient(ψ_star), qe.lorenz_curve(ψ_star)
 
 Now we investigate how the Lorenz curves associated with the wealth distribution change as return to savings varies.
 
-The code below plots Lorenz curves for three different values of :math:`\mu_r`. 
+The code below plots Lorenz curves for three different values of :math:`\mu_r`.
 
 If you are running this yourself, note that it will take one or two minutes to execute.
 
@@ -428,13 +428,13 @@ In fact the code, which is JIT compiled and parallelized, runs extremely fast re
     fig, ax = plt.subplots()
     μ_r_vals = (0.0, 0.025, 0.05)
     gini_vals = []
-    
+
     for μ_r in μ_r_vals:
         wdy = WealthDynamics(μ_r=μ_r)
         gv, (f_vals, l_vals) = generate_lorenz_and_gini(wdy)
         ax.plot(f_vals, l_vals, label=f'$\psi^*$ at $\mu_r = {μ_r:0.2}$')
         gini_vals.append(gv)
-        
+
     ax.plot(f_vals, f_vals, label='equality')
     ax.legend(loc="upper left")
     plt.show()
@@ -448,11 +448,11 @@ The Lorenz curve shifts downwards as returns on financial income rise, indicatin
    :scale: 80
 
 
-Now let's check the Gini coefficient. 
+Now let's check the Gini coefficient.
 
 .. code:: ipython3
 
-    fig, ax = plt.subplots()    
+    fig, ax = plt.subplots()
     ax.plot(μ_r_vals, gini_vals, label='gini coefficient')
     ax.set_xlabel("$\mu_r$")
     ax.legend()
@@ -470,19 +470,16 @@ volatility term :math:`\sigma_r` in financial returns.
     fig, ax = plt.subplots()
     σ_r_vals = (0.35, 0.45, 0.52)
     gini_vals = []
-    
+
     for σ_r in σ_r_vals:
         wdy = WealthDynamics(σ_r=σ_r)
         gv, (f_vals, l_vals) = generate_lorenz_and_gini(wdy)
         ax.plot(f_vals, l_vals, label=f'$\psi^*$ at $\sigma_r = {σ_r:0.2}$')
         gini_vals.append(gv)
-        
+
     ax.plot(f_vals, f_vals, label='equality')
     ax.legend(loc="upper left")
     plt.show()
 
 
 We see that greater volatility has the effect of increasing inequality in this model.
-
-
-
