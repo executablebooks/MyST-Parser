@@ -13,7 +13,11 @@ fork of mistletoe (and the myst branch).
 pip install git+https://github.com/ExecutableBookProject/mistletoe.git@myst
 ```
 
+To use the Myst parser in sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
+
 ## Contributing
+
+To contribute, make Pull Requests to the `develop` branch (this is the default branch).
 
 Code style is tested using [flake8](http://flake8.pycqa.org),
 with the configuration set in `.flake8`,
