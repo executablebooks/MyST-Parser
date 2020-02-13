@@ -27,7 +27,13 @@ Here are the site contents:
 maxdepth: 2
 caption: Contents
 ---
+syntax.md
+```
+
+```{toctree}
+---
+caption: Example pages
+---
 wealth_dynamics_rst.rst
 wealth_dynamics_md.md
-examples.md
 ```
