@@ -1,9 +1,12 @@
 import re
 
+import yaml
+
 from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
 
 from mistletoe.block_token import (  # noqa: F401
+    tokenize,
     HTMLBlock,
     ThematicBreak,
     List,
@@ -25,11 +28,68 @@ __all__ = [
     "List",
     "Table",
     "Footnote",
+    "FrontMatter",
     "Paragraph",
 ]
 
 # TODO add FieldList block token, see:
 # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
+
+
+class FrontMatter(block_token.BlockToken):
+    """Front matter YAML block.
+
+    Not included in the parsing process, but called by Document.__init__.
+    """
+
+    def __init__(self, lines):
+        assert lines and lines[0].startswith("---")
+        end_line = None
+        for i, line in enumerate(lines[1:]):
+            if line.startswith("---"):
+                end_line = i + 2
+                break
+        # TODO raise/report error if closing block not found
+        if end_line is None:
+            end_line = len(lines)
+        self.range = (0, end_line)
+        yaml_block = "\n".join(lines[1 : end_line - 1])
+        self.data = yaml.safe_load(yaml_block) or {}
+        self.children = []
+
+    @classmethod
+    def start(cls, line):
+        False
+
+    @classmethod
+    def read(cls, lines):
+        raise NotImplementedError()
+
+
+class Document(block_token.BlockToken):
+    """Document token."""
+
+    def __init__(self, lines):
+
+        self.footnotes = {}
+        block_token._root_node = self
+        span_token._root_node = self
+
+        if isinstance(lines, str):
+            lines = lines.splitlines(keepends=True)
+        lines = [line if line.endswith("\n") else "{}\n".format(line) for line in lines]
+        start_line = 0
+        self.children = []
+        if lines and lines[0].startswith("---"):
+            front_matter = FrontMatter(lines)
+            self.children.append(front_matter)
+            start_line = front_matter.range[1]
+            print(start_line)
+            lines = lines[start_line:]
+        self.children.extend(tokenize(lines, start_line))
+
+        span_token._root_node = None
+        block_token._root_node = None
 
 
 class LineComment(block_token.BlockToken):
@@ -119,6 +179,7 @@ class Quote(block_token.Quote):
         while (
             next_line is not None
             and next_line.strip() != ""
+            # TODO transition checks should only be made on 'active' tokens
             and not LineComment.start(next_line)
             and not Heading.start(next_line)
             and not CodeFence.start(next_line)

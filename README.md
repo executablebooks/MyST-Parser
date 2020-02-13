@@ -23,6 +23,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 
 ### Block Tokens
 
+- **FrontMatter**: A YAML block at the start of the document enclosed by `---`
 - **HTMLBlock**: Any valid HTML (rendered in HTML output only)
 - **LineComment**: `% this is a comment`
 - **BlockCode**: indented text (4 spaces)
