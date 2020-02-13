@@ -78,9 +78,9 @@ ax.legend()
 plt.show()
 ```
 
-This curve can be understood as follows: if point {math}`x,y` lies on the
-curve, it means that, collectively, the bottom {math}`100x)\%` of the
-population holds {math}`(100y)\%` of the wealth.
+This curve can be understood as follows: if point $x,y$ lies on the
+curve, it means that, collectively, the bottom $(100x)\%$ of the
+population holds $(100y)\%$ of the wealth.
 
 ```{code-block} python
 a_vals = (1, 2, 5)              # Pareto tail index
@@ -114,15 +114,13 @@ complete inequality (all wealth held by the richest household).
 The [QuantEcon.py](https://github.com/QuantEcon/QuantEcon.py) library
 contains a function to calculate the Gini coefficient.
 
-We can test it on the Weibull distribution with parameter {math}`a`, where the
+We can test it on the Weibull distribution with parameter $a$, where the
 Gini coefficient is known to be
 
-```{math}
-G = 1 - 2^{-1/a}
-```
+$$G = 1 - 2^{-1/a}$$
 
 Let's see if the Gini coefficient computed from a simulated sample
-matches this at each fixed value of {math}`a`.
+matches this at each fixed value of $a$.
 
 ```{code-block} python
 a_vals = range(1, 20)
@@ -152,43 +150,33 @@ dynamics.
 
 The model we will study is
 
-```{math}
-w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1}
-```
+$$w_{t+1} = (1 + r_{t+1}) s(w_t) + y_{t+1}$$
 
 where
 
-- {math}`w_t` is wealth at time $t$ for a given household,
-- {math}`r_t` is the rate of return of financial assets,
-- {math}`y_t` is current non-financial (e.g., labor) income and
-- {math}`s(w_t)` is current wealth net of consumption
+- $w_t$ is wealth at time $t$ for a given household,
+- $r_t$ is the rate of return of financial assets,
+- $y_t$ is current non-financial (e.g., labor) income and
+- $s(w_t)$ is current wealth net of consumption
 
-Letting {math}`\{z_t\}` be a correlated state process of the form
+Letting $\{z_t\}$ be a correlated state process of the form
 
-```{math}
-z_{t+1} = a z_t + b + \sigma_z \epsilon_{t+1}
-```
+$$z_{t+1} = a z_t + b + \sigma_z \epsilon_{t+1}$$
 
 we'll assume that
 
-```{math}
-R_t := 1 + r_t = c_r \exp(z_t) + \exp(\mu_r + \sigma_r \xi_t)
-```
+$$R_t := 1 + r_t = c_r \exp(z_t) + \exp(\mu_r + \sigma_r \xi_t)$$
 
 and
 
-```{math}
-y_t = c_y \exp(z_t) + \exp(\mu_y + \sigma_y \zeta_t)
-```
+$$y_t = c_y \exp(z_t) + \exp(\mu_y + \sigma_y \zeta_t)$$
 
-Here {math}`\{ ($\epsilon_t$, \xi_t, \zeta_t) \}` is IID and standard normal in
-{math}`\mathbb R^3`.
+Here $\{ (\epsilon_t, \xi_t, \zeta_t) \}$ is IID and standard normal in
+$\mathbb R^3$.
 
-```{math}
-s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\}
-```
+$$s(w) = s_0 w \cdot \mathbb 1\{w \geq \hat w\}$$
 
-where {math}`s_0` is a positive constant.
+where $s_0$ is a positive constant.
 
 ## Implementation
 
@@ -394,8 +382,7 @@ def generate_lorenz_and_gini(wdy, num_households=100_000, T=500):
 Now we investigate how the Lorenz curves associated with the wealth
 distribution change as return to savings varies.
 
-The code below plots Lorenz curves for three different values of
-{math}`\mu_r`.
+The code below plots Lorenz curves for three different values of $\mu_r$.
 
 If you are running this yourself, note that it will take one or two
 minutes to execute.
@@ -424,6 +411,7 @@ plt.show()
 The Lorenz curve shifts downwards as returns on financial income rise,
 indicating a rise in inequality.
 
+(htop_again)=
 
 ```{image} htop_again.png
 ---
@@ -445,7 +433,7 @@ Once again, we see that inequality increases as returns on financial
 income rise.
 
 Let's finish this section by investigating what happens when we change
-the volatility term {math}`\sigma_r` in financial returns.
+the volatility term $\sigma_r$ in financial returns.
 
 ```{code-block} python
 fig, ax = plt.subplots()

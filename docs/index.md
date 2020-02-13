@@ -11,10 +11,16 @@ To install the myst parser (and thus to be able to build these docs),
 run the following:
 
 ```bash
+pip install -e git+https://github.com/ExecutableBookProject/myst_parser.git#egg=myst_parser[sphinx]
+```
+
+Or for package development:
+
+```bash
 git clone https://github.com/chrisjsewell/mistletoe
 cd mistletoe
 git checkout myst
-pip install .[sphinx,testing]
+pip install -e .[sphinx,testing]
 ```
 
 This should install the myst fork of mistletoe, along with the Sphinx parser
