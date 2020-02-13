@@ -1,5 +1,5 @@
 name: Myst Parser
 type: sphinx
-requirements_file: doc/requirements.txt
+requirements_file: docs/requirements.txt
 python:
   version: 3
