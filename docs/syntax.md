@@ -1,3 +1,5 @@
+(example_syntax)=
+
 # Example syntax for myst
 
 As a base, Myst adheres to the [CommonMark specification](https://spec.commonmark.org/).
@@ -233,3 +235,26 @@ For example, this code:
 Is below, but it won't be parsed into the document.
 
 % my comment
+
+(targets)=
+
+### Targets
+
+Targets are used to define custom anchors that you can refer to elsewhere in your
+documentation. They generally go before section titles so that you can easily refer
+to them.
+
+Target headers are defined with this syntax:
+
+```
+(header_target)=
+```
+
+They can then be referred to with the "ref" inline role:
+
+```
+{ref}`header_target`
+```
+
+For example, see this ref: {ref}`targets` and here's a ref back to the top of
+this page {ref}`example_syntax`.
