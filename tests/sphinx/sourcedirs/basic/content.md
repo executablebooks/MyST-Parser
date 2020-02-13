@@ -13,6 +13,8 @@ abcd *abc* [google](https://www.google.com)
 
 ````
 
+(target2)=
+
 ```{figure} example.jpg
 ---
 height: 40px
@@ -51,4 +53,8 @@ this is a second paragraph
 % a comment 3
 - new list?
 
-{ref}`target`
+{ref}`target`  {ref}`target2`
+
+[name][key]
+
+[key]: https://www.google.com "a title"
