@@ -44,3 +44,11 @@ caption: Example pages
 wealth_dynamics_rst.rst
 wealth_dynamics_md.md
 ```
+
+```{toctree}
+---
+hidden: True
+---
+heavy_tails.md
+kesten_processes.md
+```
