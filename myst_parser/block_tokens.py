@@ -84,7 +84,6 @@ class Document(block_token.BlockToken):
             front_matter = FrontMatter(lines)
             self.children.append(front_matter)
             start_line = front_matter.range[1]
-            print(start_line)
             lines = lines[start_line:]
         self.children.extend(tokenize(lines, start_line))
 
