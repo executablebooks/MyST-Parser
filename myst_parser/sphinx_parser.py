@@ -1,8 +1,9 @@
 from docutils import frontend, parsers
+from docutils.nodes import container
+import nbformat as nbf
 
 from myst_parser.docutils_renderer import SphinxRenderer
 from myst_parser.block_tokens import Document
-
 
 class MystParser(parsers.Parser):
     """Docutils parser for CommonMark + Math + Tables + RST Extensions """
@@ -170,3 +171,53 @@ class MystParser(parsers.Parser):
         renderer = SphinxRenderer(document=document)
         with renderer:
             renderer.render(Document(inputstring))
+
+
+class IPynbParser(MystParser):
+    """Docutils parser for IPynb + CommonMark + Math + Tables + RST Extensions """
+
+    supported = ("ipynb",)
+    translate_section_name = None
+
+    default_config = {"known_url_schemes": None}
+
+    config_section = "ipynb parser"
+    config_section_dependencies = ("parsers",)
+
+    def parse(self, inputstring, document):
+        self.config = self.default_config.copy()
+        try:
+            new_cfg = self.document.settings.env.config.myst_config
+            self.config.update(new_cfg)
+        except AttributeError:
+            pass
+
+        # Create a base document we'll build up w/ each cell
+        doc = Document("notebook")
+
+        renderer = DocutilsRenderer()
+        with renderer:
+            ntbk = nbf.reads(inputstring, nbf.NO_CONVERT)
+            for cell in ntbk.cells:
+                # Cell container will wrap whatever is in the cell
+                cell = container(kind="cell", cell_type=cell["cell_type"])
+                doc.children += cell
+
+                # If a markdown cell, simply call the Myst parser and append children
+                if cell["cell_type"] == "markdown":
+                    ast = renderer.render(Document(cell['source']))
+                    cell.children += ast.children
+                # If a code cell, convert the code + outputs
+                if cell["cell_type"] == "code":
+                    # TODO: Either directly create a code cell, or pass cell contents to the Myst parser?
+                    cell_input = container(kind="cell_input")
+                    ast_input = renderer.render(Document(cell['source']))
+                    cell_input += ast_input.children
+
+                    # TODO: Figure out how to go from MIME output -> AST
+                    cell_output = container(kind="cell_output")
+                    ast_output = mime_to_ast(cell_output['outputs']) # TODO: make this do something
+                    cell.children += [ast_output]
+
+
+
