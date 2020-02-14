@@ -194,13 +194,24 @@ class DocutilsRenderer(BaseRenderer):
     def render_code_fence(self, token):
         if token.language.startswith("{") and token.language.endswith("}"):
             return self.render_directive(token)
-        text = token.children[0].content
-        node = nodes.literal_block(text, text, language=token.language)
-        self.current_node.append(node)
+        self.render_block_code(token, default_language=True)
 
-    def render_block_code(self, token):
+    def render_block_code(self, token, default_language=False):
+        # indented code blocks will always have no language,
+        # but for code fences, if not set, a default_language will be retrieved
         text = token.children[0].content
-        node = nodes.literal_block(text, text, language=token.language)
+        language = token.language
+        if not language and default_language:
+            try:
+                sphinx_env = self.document.settings.env
+                language = sphinx_env.temp_data.get(
+                    "highlight_language", sphinx_env.config.highlight_language
+                )
+            except AttributeError:
+                pass
+        if not language and default_language:
+            language = self.config.get("highlight_language", "")
+        node = nodes.literal_block(text, text, language=language)
         self.current_node.append(node)
 
     def render_inline_code(self, token):

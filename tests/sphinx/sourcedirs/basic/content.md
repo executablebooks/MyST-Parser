@@ -58,3 +58,8 @@ this is a second paragraph
 [name][key]
 
 [key]: https://www.google.com "a title"
+
+```
+def func(a, b=1):
+    print(a)
+```
