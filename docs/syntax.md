@@ -90,17 +90,33 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 Directives syntax is defined with triple-backticks and curly-brackets. It
 is effectively a code block with curly brackets around the language, and
 a directive name in place of a language name. It is similar to how RMarkdown
-defines "runnable cells". Here is the basic structure
+defines "runnable cells". Here is the basic structure:
 
-````
-```{directivename} Directive arguments
+`````{list-table}
 ---
-optional: yaml
-keyval: parameterization
+header-rows: 1
 ---
-My directive content.
-```
-````
+* - Myst
+  - reStructuredText
+* - ````markdown
+    ```{directivename} arguments
+    ---
+    key1: val1
+    key2: val2
+    ---
+    This is
+    directive content
+    ```
+    ````
+  - ```rst
+    .. directivename:: arguments
+       :key1: val1
+       :key2: val2
+
+       This is
+       directive content
+    ```
+`````
 
 For example, the following code:
 
@@ -243,9 +259,19 @@ Roles are similar to directives - they allow you to define arbitrary new
 functionality in Sphinx, but they are use *in-line*. To define an in-line
 role, use the following form:
 
-```
-{role-name}`role content`
-```
+````{list-table}
+---
+header-rows: 1
+---
+* - Myst
+  - reStructuredText
+* - ````markdown
+    {role-name}`role content`
+    ````
+  - ```rst
+    :role-name:`role content`
+    ```
+````
 
 For example, the following code:
 
@@ -291,6 +317,35 @@ Here is some extra markdown syntax which provides functionality in rST that does
 exist in CommonMark. In most cases, these are syntactic short-cuts to calling
 roles and directives. We'll cover some common ones below.
 
+This tale describes the rST and Myst equivalents:
+
+````{list-table}
+---
+header-rows: 1
+---
+* - Type
+  - Myst
+  - reStructuredText
+* - Math shortcuts
+  - `$x^2$`
+  - N/A
+* - Front matter
+  - ```
+    ---
+    key: val
+    ---
+    ```
+  - ```
+    :key: val
+    ```
+* - Comments
+  - `% comment`
+  - `.. comment`
+* - Targets
+  - `(mytarget)=`
+  - `.. _mytarget:`
+````
+
 ### Math shortcuts
 
 Math can be called in-line with single `$` characters around your math.
@@ -334,7 +389,7 @@ This is equivalent to the following directive:
 ````
 
 (syntax/frontmatter)=
-## Front Matter
+### Front Matter
 
 This is a YAML block at the start of the document, as used for example in
 [jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts this data and
