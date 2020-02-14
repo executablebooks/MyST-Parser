@@ -466,3 +466,6 @@ plt.show()
 
 We see that greater volatility has the effect of increasing inequality
 in this model.
+
+```{bibliography} references.bib
+```
