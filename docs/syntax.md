@@ -25,15 +25,36 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 
 ### Block Tokens
 
-- **FrontMatter**: A YAML block at the start of the document enclosed by `---`
+#### Extended block tokens
+
+- **FrontMatter**: A YAML block at the start of the document enclosed by `---`. See
+  {ref}`syntax/frontmatter` for more information.
+- **Directives**: enclosed in 3 or more backticks followed by the directive name wrapped
+  in curly brackets `{}`. See {ref}`syntax/directives` for more details.
+- **Math**: Two `$` characters wrapping multi-line math, e.g.
+
+  ```
+  $$
+  a=1
+  $$
+  ```
+- **LineComment**: `% this is a comment`. See {ref}`syntax/comments` for more
+  information.
+
+
+#### CommonMark tokens
+
 - **HTMLBlock**: Any valid HTML (rendered in HTML output only)
-- **LineComment**: `% this is a comment`
 - **BlockCode**: indented text (4 spaces)
 - **Heading**: `# Heading` (levels 1-6)
 - **SetextHeading**: underlined header
 - **Quote**: `> this is a quote`
-- **CodeFence**: enclosed in 3 or more backticks.
-  If it starts with a `{name}`, then treated as directive.
+- **CodeFence**: enclosed in 3 or more backticks with an optional language name. E.g.:
+  ````
+  ```python
+  print('this is python')
+  ```
+  ````
 - **ThematicBreak**: `---`
 - **List**: bullet points or enumerated.
 - **Table**: Standard markdown table styles.
@@ -42,12 +63,19 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 
 ### Span (Inline) Tokens
 
-- **Role**: `` `{name}`interpreted text` ``
+#### Extended inline tokens
+
+- **Role**: `` `{rolename}`interpreted text` ``. See {ref}`syntax/roles` for more
+  information.
+- **Target**: `(target)=` (precedes element to target, e.g. header). See
+  {ref}`syntax/targets` for more information.
 - **Math**: `$a=1$` or `$$a=1$$`
+
+#### CommonMark inline tokens
+
 - **HTMLSpan**: any valid HTML (rendered in HTML output only)
 - **EscapeSequence**: `\*`
 - **AutoLink**: `<http://www.google.com>`
-- **Target**: `(target)=` (precedes element to target, e.g. header)
 - **InlineCode**: `` `a=1` ``
 - **LineBreak**: Soft or hard (ends with spaces or `\`)
 - **Image**: `![alt](src "title")`
@@ -56,6 +84,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 - **Emphasis**: `*emphasis*`
 - **RawText**
 
+(syntax/directives)=
 ## Directives - a block-level extension point
 
 Directives syntax is defined with triple-backticks and curly-brackets. It
@@ -207,6 +236,7 @@ print('yep!')
 `````
 ``````
 
+(syntax/roles)=
 ## Roles - an in-line extension point
 
 Roles are similar to directives - they allow you to define arbitrary new
@@ -258,13 +288,62 @@ most beautiful mathematical formulas.
 ## Extra markdown syntax
 
 Here is some extra markdown syntax which provides functionality in rST that doesn't
-exist in CommonMark.
+exist in CommonMark. In most cases, these are syntactic short-cuts to calling
+roles and directives. We'll cover some common ones below.
 
+### Math shortcuts
+
+Math can be called in-line with single `$` characters around your math.
+For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
+This is equivalent to writing
+
+```
+{math}`x_{hey}=it+is^{math}`
+```
+
+Block-level math can be provided with `$$` signs that wrap the math block you'd like
+to parse. For example:
+
+```
+$$
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+$$
+```
+
+becomes
+
+$$
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+$$
+
+This is equivalent to the following directive:
+
+````
+```{math}
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+```
+````
+
+(syntax/frontmatter)=
 ## Front Matter
 
-This is a YAML block at the start of the document, as used for example in [jekyll](https://jekyllrb.com/docs/front-matter/).
-Sphinx intercepts this data and stores it within the global environment (as discussed [here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)), and a classic use-case is to specify 'orphan' documents,
-that are not specified in any toctrees.
+This is a YAML block at the start of the document, as used for example in
+[jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts this data and
+stores it within the global environment (as discussed
+[here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
+
+A classic use-case is to specify 'orphan' documents, that are not specified in any
+toctrees. For example, inserting the following syntax at the top of a page will cause
+Sphinx to treat it as an orphan page:
 
 ```markdown
 ---
@@ -274,6 +353,7 @@ orphan: true
 This is an orphan document, not specified in any toctrees.
 ```
 
+(syntax/comments)=
 ### Comments
 
 You may add comments by putting the `%` character at the beginning of a line. This will
@@ -289,7 +369,7 @@ Is below, but it won't be parsed into the document.
 
 % my comment
 
-(targets)=
+(syntax/targets)=
 
 ### Targets
 
@@ -309,5 +389,5 @@ They can then be referred to with the "ref" inline role:
 {ref}`header_target`
 ```
 
-For example, see this ref: {ref}`targets` and here's a ref back to the top of
+For example, see this ref: {ref}`syntax/targets` and here's a ref back to the top of
 this page {ref}`example_syntax`.
