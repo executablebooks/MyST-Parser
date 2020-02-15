@@ -20,7 +20,7 @@ Or for package development:
 git clone https://github.com/chrisjsewell/mistletoe
 cd mistletoe
 git checkout myst
-pip install -e .[sphinx,testing]
+pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
 This should install the myst fork of mistletoe, along with the Sphinx parser
