@@ -9,19 +9,19 @@ from mistletoe.block_token import tokenize
 from mistletoe.span_token import tokenize_inner
 
 from myst_parser.block_tokens import Document
-from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.docutils_renderer import SphinxRenderer
 
 
 @pytest.fixture
 def renderer():
-    renderer = DocutilsRenderer()
+    renderer = SphinxRenderer()
     with renderer:
         yield renderer
 
 
 @pytest.fixture
 def renderer_mock():
-    renderer = DocutilsRenderer()
+    renderer = SphinxRenderer()
     renderer.render_inner = mock.Mock(return_value="inner")
     with renderer:
         yield renderer
@@ -276,6 +276,35 @@ def test_footnote(renderer):
     )
 
 
+def test_block_quotes(renderer):
+    renderer.render(
+        Document(
+            dedent(
+                """\
+            ```{epigraph}
+            a b*c*
+
+            -- a**b**
+            """
+            )
+        )
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="">
+        <block_quote classes="epigraph">
+            <paragraph>
+                a b
+                <emphasis>
+                    c
+            <attribution>
+                a
+                <strong>
+                    b
+    """
+    )
+
+
 def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\
@@ -437,7 +466,13 @@ with open(
 def test_docutils_directives(renderer, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
     name = directive["name"]
-    if name in ["role", "rst-class", "cssclass", "line-block"]:
+    if name in [
+        "role",
+        "rst-class",
+        "cssclass",
+        "line-block",
+        "block_quote",  # this is only used as a base class
+    ]:
         # TODO fix skips
         pytest.skip("awaiting fix")
     arguments = " ".join(directive["args"])
