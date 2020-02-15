@@ -11,7 +11,7 @@ jobs:
       - restore_cache:
           keys:
             - cache-pip
-      - run: pip install --user -e .[testing,sphinx]
+      - run: pip install --user -e .[sphinx,rtd]
       - save_cache:
           key: cache-pip
           paths:
