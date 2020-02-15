@@ -48,7 +48,13 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
+        "sphinx": [
+            "pyyaml",
+            "docutils>=0.15",
+            "sphinx>=2,<3",
+            "sphinxcontrib-bibtex",
+            "ipython",
+        ],
     },
     zip_safe=True,
 )
