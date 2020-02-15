@@ -39,7 +39,9 @@ class JupyterDB:
 
     def __init__(self, db_folder_path: str, db_file_name: str = "jupyter.db", **kwargs):
         self._db_path = (pathlib.Path(db_folder_path) / db_file_name).absolute()
-        self._engine = sqla.create_engine(f"sqlite:///{self._db_path}", **kwargs)
+        self._engine = sqla.create_engine(
+            "sqlite:///{}".format(self._db_path), **kwargs
+        )
         OrmBase.metadata.create_all(self._engine)
         self._session_factory = sessionmaker(bind=self._engine)
 
@@ -56,7 +58,9 @@ class JupyterDB:
 
     def __setstate__(self, newstate):
         """For unpickling instance."""
-        newstate["_engine"] = sqla.create_engine(f"sqlite:///{newstate['_db_path']}")
+        newstate["_engine"] = sqla.create_engine(
+            "sqlite:///{}".format(newstate["_db_path"])
+        )
         newstate["_session_factory"] = sessionmaker(bind=newstate["_engine"])
         self.__dict__.update(newstate)
 
