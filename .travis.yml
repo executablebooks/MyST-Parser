@@ -2,8 +2,9 @@ language: python
 cache: pip
 matrix:
     include:
-      - python: 3.5
-        env: TEST_TYPE="pytest"
+      # Not working with some of the annotation syntax in jupyter_db
+      # - python: 3.5
+      #   env: TEST_TYPE="pytest"
       - python: 3.6
         env: TEST_TYPE="pytest"
       - python: 3.7
