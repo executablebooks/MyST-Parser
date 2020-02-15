@@ -9,7 +9,16 @@ An extended commonmark compliant parser, with bridges to docutils & sphinx.
 ## Usage
 
 ```console
-pip install -e git+https://github.com/ExecutableBookProject/myst_parser.git#egg=myst_parser[sphinx,code_style,testing]
+pip install -e git+https://github.com/ExecutableBookProject/myst_parser.git#egg=myst_parser[sphinx]
+```
+
+Or for package development:
+
+```bash
+git clone https://github.com/ExecutableBookProject/myst_parser
+cd myst_parser
+git checkout develop
+pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
 Note, this parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
