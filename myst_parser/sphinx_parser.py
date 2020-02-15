@@ -1,5 +1,5 @@
 from docutils import frontend, parsers
-from docutils.nodes import container
+from docutils.nodes import container, literal_block
 import nbformat as nbf
 
 from myst_parser.docutils_renderer import SphinxRenderer
@@ -192,32 +192,30 @@ class IPynbParser(MystParser):
         except AttributeError:
             pass
 
-        # Create a base document we'll build up w/ each cell
-        doc = Document("notebook")
+        ntbk = nbf.reads(inputstring, nbf.NO_CONVERT)
+        for cell in ntbk.cells:
+            # Cell container will wrap whatever is in the cell
+            sphinx_cell = container(classes=["cell"], cell_type=cell["cell_type"])
+            # Give *all* cells an input container just to make it more consistent
+            cell_input = container(classes=["cell_input"])
+            sphinx_cell += cell_input
+            document += sphinx_cell
 
-        renderer = DocutilsRenderer()
-        with renderer:
-            ntbk = nbf.reads(inputstring, nbf.NO_CONVERT)
-            for cell in ntbk.cells:
-                # Cell container will wrap whatever is in the cell
-                cell = container(kind="cell", cell_type=cell["cell_type"])
-                doc.children += cell
+            # If a markdown cell, simply call the Myst parser and append children
+            if cell["cell_type"] == "markdown":
+                # Initialize the render so that it'll append things to our current cell
+                renderer = SphinxRenderer(document=document, current_node=cell_input)
+                with renderer:
+                    myst_ast = Document(cell['source'])
+                    renderer.render(myst_ast)
+            # If a code cell, convert the code + outputs
+            elif cell["cell_type"] == "code":
+                code_block = literal_block(
+                    text=cell['source'],
+                )
+                cell_input += code_block
 
-                # If a markdown cell, simply call the Myst parser and append children
-                if cell["cell_type"] == "markdown":
-                    ast = renderer.render(Document(cell['source']))
-                    cell.children += ast.children
-                # If a code cell, convert the code + outputs
-                if cell["cell_type"] == "code":
-                    # TODO: Either directly create a code cell, or pass cell contents to the Myst parser?
-                    cell_input = container(kind="cell_input")
-                    ast_input = renderer.render(Document(cell['source']))
-                    cell_input += ast_input.children
-
-                    # TODO: Figure out how to go from MIME output -> AST
-                    cell_output = container(kind="cell_output")
-                    ast_output = mime_to_ast(cell_output['outputs']) # TODO: make this do something
-                    cell.children += [ast_output]
-
-
-
+                # TODO: Figure out how to go from MIME output -> AST
+                # cell_output = container(classes=["cell_output"])
+                # ast_output = mime_to_ast(cell_output['outputs']) # TODO: make this do something
+                # cell.children += [ast_output]
