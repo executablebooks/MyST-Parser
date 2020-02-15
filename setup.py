@@ -40,7 +40,15 @@ setup(
         )
     ],
     extras_require={
-        "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
+        "sphinx": [
+            "pyyaml",
+            "docutils>=0.15",
+            "sphinx>=2,<3",
+            (
+                "pandas_sphinx_theme @ "
+                "https://github.com/pandas-dev/pandas-sphinx-theme/archive/master.zip"
+            ),
+        ],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",
