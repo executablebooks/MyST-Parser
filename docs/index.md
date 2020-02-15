@@ -17,9 +17,9 @@ pip install -e "git+https://github.com/ExecutableBookProject/myst_parser.git#egg
 Or for package development:
 
 ```bash
-git clone https://github.com/chrisjsewell/mistletoe
-cd mistletoe
-git checkout myst
+git clone https://github.com/ExecutableBookProject/myst_parser
+cd myst_parser
+git checkout develop
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
