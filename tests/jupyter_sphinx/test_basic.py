@@ -55,6 +55,6 @@ def test_basic(build_sphinx, file_regression, data_regression):
     result = build_sphinx("basic", in_temp=True)
     file_regression.check(result.doctrees["contents"].pformat(), extension=".xml")
     cache_data = result.app.env.jupyter_db.to_dict(
-        drop_columns=("created_at", "updated_at")
+        drop_columns=("created_at", "updated_at"), drop_tables=("kernelinfo",)
     )
     data_regression.check(cache_data)
