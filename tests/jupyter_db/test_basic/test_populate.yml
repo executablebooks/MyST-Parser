@@ -1,0 +1,48 @@
+cellexecute: []
+codecells:
+- doc_order: 0
+  doc_pk: 1
+  exec_order: 0
+  kernel_pk: 2
+  meta_data:
+    timeout: 20
+  name: null
+  pk: 1
+  source: a = 1
+- doc_order: 1
+  doc_pk: 1
+  exec_order: 0
+  kernel_pk: 1
+  meta_data: null
+  name: null
+  pk: 2
+  source: b = 2
+- doc_order: 2
+  doc_pk: 1
+  exec_order: 1
+  kernel_pk: 2
+  meta_data: null
+  name: d
+  pk: 3
+  source: c = 3
+documents:
+- meta_data: null
+  pk: 1
+  uri: path/to/doc
+kernelinfo: []
+kernels:
+- doc_order: 0
+  doc_pk: 1
+  kernel_type: python
+  meta_data:
+    timeout: 10
+  name: a
+  pk: 1
+- doc_order: 1
+  doc_pk: 1
+  kernel_type: python
+  meta_data: null
+  name: b
+  pk: 2
+mimebundles: []
+outputs: []

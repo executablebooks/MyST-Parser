@@ -16,7 +16,10 @@ setup(
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",
     packages=find_packages(),
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": [],
+        "jupyter_executors": ["default = jupyter_sphinx.executor:run_execution"],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -50,6 +53,13 @@ setup(
             "beautifulsoup4",
         ],
         "rtd": ["sphinxcontrib-bibtex", "ipython"],
+        "jupyter": [
+            "sqlalchemy",
+            "nbformat",
+            "nbconvert",
+            "jupyter_client",
+            "ipykernel",
+        ],
     },
     zip_safe=True,
 )

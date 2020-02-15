@@ -1,0 +1,12 @@
+<document source="<source_path>">
+    <JupyterExecNode cell_pk="1">
+        <literal_block language="True" xml:space="preserve">
+            print("x")
+            a = 1
+            a
+    <JupyterViewNode cell_pk="2" mimetype="True" output_index="True" render_type="True">
+        <caption>
+            <paragraph>
+                This is a
+                <emphasis>
+                    caption

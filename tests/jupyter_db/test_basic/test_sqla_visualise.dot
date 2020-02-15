@@ -1,0 +1,154 @@
+digraph SQL_Structure {
+	documents [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>documents</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="uri">uri</TD><TD ALIGN="LEFT">VARCHAR(255)</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="meta_data">meta_data</TD><TD ALIGN="LEFT">JSON?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="created_at">created_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="updated_at">updated_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>Constraints</B></TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">UNIQUE (uri)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="2" ALIGN="LEFT" PORT="OrmDocument">OrmDocument</TD><TD ALIGN="LEFT" PORT="OrmDocument_kernels">kernels</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmDocument_codecells">codecells</TD></TR>
+</TABLE>> shape=plaintext]
+	kernels [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>kernels</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="name">name</TD><TD ALIGN="LEFT">VARCHAR(36)?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="kernel_type">kernel_type</TD><TD ALIGN="LEFT">VARCHAR(36)</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="meta_data">meta_data</TD><TD ALIGN="LEFT">JSON?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="doc_pk">doc_pk</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="doc_order">doc_order</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="created_at">created_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="updated_at">updated_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>Constraints</B></TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">UNIQUE (name)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">doc_order UNIQUE (doc_pk, doc_order)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TLR">doc_order_check CHECK ((doc_pk is not</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="LR">null AND doc_order is not null) or</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="BLR">(doc_pk is null AND doc_order is null))</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="3" ALIGN="LEFT" PORT="OrmKernel">OrmKernel</TD><TD ALIGN="LEFT" PORT="OrmKernel_codecells">codecells</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmKernel_info">info</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmKernel_document">document</TD></TR>
+</TABLE>> shape=plaintext]
+	codecells [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>codecells</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="name">name</TD><TD ALIGN="LEFT">VARCHAR(36)?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="source">source</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="meta_data">meta_data</TD><TD ALIGN="LEFT">JSON?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="kernel_pk">kernel_pk</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="exec_order">exec_order</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="doc_pk">doc_pk</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="doc_order">doc_order</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="created_at">created_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="updated_at">updated_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>Constraints</B></TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">UNIQUE (name)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">doc_order UNIQUE (doc_pk, doc_order)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TLR">doc_order_check CHECK ((doc_pk is not</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="LR">null AND doc_order is not null) or</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="BLR">(doc_pk is null AND doc_order is null))</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TLR">exec_order UNIQUE (kernel_pk,</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="BLR">exec_order)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="3" ALIGN="LEFT" PORT="OrmCodeCell">OrmCodeCell</TD><TD ALIGN="LEFT" PORT="OrmCodeCell_kernel">kernel</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmCodeCell_document">document</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmCodeCell_execution">execution</TD></TR>
+</TABLE>> shape=plaintext]
+	kernelinfo [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>kernelinfo</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="data">data</TD><TD ALIGN="LEFT">JSON</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="created_at">created_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="updated_at">updated_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="1" ALIGN="LEFT" PORT="OrmKernelInfo">OrmKernelInfo</TD><TD ALIGN="LEFT" PORT="OrmKernelInfo_kernel">kernel</TD></TR>
+</TABLE>> shape=plaintext]
+	cellexecute [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>cellexecute</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="execution_count">execution_count</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="created_at">created_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="updated_at">updated_at</TD><TD ALIGN="LEFT">DATETIME</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="2" ALIGN="LEFT" PORT="OrmCellExecution">OrmCellExecution</TD><TD ALIGN="LEFT" PORT="OrmCellExecution_codecell">codecell</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmCellExecution_outputs">outputs</TD></TR>
+</TABLE>> shape=plaintext]
+	outputs [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>outputs</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="execute_pk">execute_pk</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="order">order</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="output_type">output_type</TD><TD ALIGN="LEFT">ENUM(stream,display_data,execute_result,error)?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="name">name</TD><TD ALIGN="LEFT">ENUM(stdout,stderr)?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="text">text</TD><TD ALIGN="LEFT">TEXT?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="meta_data">meta_data</TD><TD ALIGN="LEFT">JSON?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="execution_count">execution_count</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="ename">ename</TD><TD ALIGN="LEFT">TEXT?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="evalue">evalue</TD><TD ALIGN="LEFT">TEXT?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="traceback">traceback</TD><TD ALIGN="LEFT">JSON?</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>Constraints</B></TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">execute_order UNIQUE (execute_pk, order)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD ROWSPAN="1" ALIGN="LEFT" PORT="OrmOutput">OrmOutput</TD><TD ALIGN="LEFT" PORT="OrmOutput_execute">execute</TD></TR>
+<TR><TD ROWSPAN="1" ALIGN="LEFT" PORT="OrmOutputStream">OrmOutputStream</TD><TD ALIGN="LEFT" PORT="OrmOutputStream_execute">execute</TD></TR>
+<TR><TD ROWSPAN="2" ALIGN="LEFT" PORT="OrmOutputDisplay">OrmOutputDisplay</TD><TD ALIGN="LEFT" PORT="OrmOutputDisplay_data">data</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmOutputDisplay_execute">execute</TD></TR>
+<TR><TD ROWSPAN="2" ALIGN="LEFT" PORT="OrmOutputExecute">OrmOutputExecute</TD><TD ALIGN="LEFT" PORT="OrmOutputExecute_data">data</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="OrmOutputExecute_execute">execute</TD></TR>
+<TR><TD ROWSPAN="1" ALIGN="LEFT" PORT="OrmOutputError">OrmOutputError</TD><TD ALIGN="LEFT" PORT="OrmOutputError_execute">execute</TD></TR>
+</TABLE>> shape=plaintext]
+	mimebundles [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+<TR><TD COLSPAN="2"><B>mimebundles</B></TD></TR>
+<TR><TD ALIGN="LEFT" PORT="pk"><u>pk</u></TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="output_pk">output_pk</TD><TD ALIGN="LEFT">INTEGER?</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="mimetype">mimetype</TD><TD ALIGN="LEFT">VARCHAR(50)</TD></TR>
+<TR><TD ALIGN="LEFT" PORT="source">source</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>Constraints</B></TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2" SIDES="TBLR">outputmime UNIQUE (output_pk, mimetype)</TD></TR>
+<TR><TD ALIGN="LEFT" COLSPAN="2"><B>ORM Classes</B></TD></TR>
+<TR><TD COLSPAN="2" ALIGN="LEFT">OrmMimeBundle</TD></TR>
+</TABLE>> shape=plaintext]
+	documents:OrmDocument_kernels -> kernels:OrmKernel [style=dashed]
+	documents:OrmDocument_codecells -> codecells:OrmCodeCell [style=dashed]
+	label_documents_pk_kernels_doc_pk [label="ON_DELETE=CASCADE"]
+	documents:pk -> label_documents_pk_kernels_doc_pk [style=solid]
+	label_documents_pk_kernels_doc_pk -> kernels:doc_pk [style=solid]
+	kernels:OrmKernel_codecells -> codecells:OrmCodeCell [style=dashed]
+	kernels:OrmKernel_info -> kernelinfo:OrmKernelInfo [style=dashed]
+	kernels:OrmKernel_document -> documents:OrmDocument [style=dashed]
+	label_documents_pk_codecells_doc_pk [label="ON_DELETE=CASCADE"]
+	documents:pk -> label_documents_pk_codecells_doc_pk [style=solid]
+	label_documents_pk_codecells_doc_pk -> codecells:doc_pk [style=solid]
+	label_kernels_pk_codecells_kernel_pk [label="ON_DELETE=RESTRICT"]
+	kernels:pk -> label_kernels_pk_codecells_kernel_pk [style=solid]
+	label_kernels_pk_codecells_kernel_pk -> codecells:kernel_pk [style=solid]
+	codecells:OrmCodeCell_kernel -> kernels:OrmKernel [style=dashed]
+	codecells:OrmCodeCell_document -> documents:OrmDocument [style=dashed]
+	codecells:OrmCodeCell_execution -> cellexecute:OrmCellExecution [style=dashed]
+	label_kernels_pk_kernelinfo_pk [label="ON_DELETE=CASCADE"]
+	kernels:pk -> label_kernels_pk_kernelinfo_pk [style=solid]
+	label_kernels_pk_kernelinfo_pk -> kernelinfo:pk [style=solid]
+	kernelinfo:OrmKernelInfo_kernel -> kernels:OrmKernel [style=dashed]
+	label_codecells_pk_cellexecute_pk [label="ON_DELETE=CASCADE"]
+	codecells:pk -> label_codecells_pk_cellexecute_pk [style=solid]
+	label_codecells_pk_cellexecute_pk -> cellexecute:pk [style=solid]
+	cellexecute:OrmCellExecution_codecell -> codecells:OrmCodeCell [style=dashed]
+	cellexecute:OrmCellExecution_outputs -> outputs:OrmOutput [style=dashed]
+	label_cellexecute_pk_outputs_execute_pk [label="ON_DELETE=CASCADE"]
+	cellexecute:pk -> label_cellexecute_pk_outputs_execute_pk [style=solid]
+	label_cellexecute_pk_outputs_execute_pk -> outputs:execute_pk [style=solid]
+	outputs:OrmOutput_execute -> cellexecute:OrmCellExecution [style=dashed]
+	outputs:OrmOutputStream_execute -> cellexecute:OrmCellExecution [style=dashed]
+	outputs:OrmOutputDisplay_data -> mimebundles:OrmMimeBundle [style=dashed]
+	outputs:OrmOutputDisplay_execute -> cellexecute:OrmCellExecution [style=dashed]
+	outputs:OrmOutputExecute_data -> mimebundles:OrmMimeBundle [style=dashed]
+	outputs:OrmOutputExecute_execute -> cellexecute:OrmCellExecution [style=dashed]
+	outputs:OrmOutputError_execute -> cellexecute:OrmCellExecution [style=dashed]
+	label_outputs_pk_mimebundles_output_pk [label="ON_DELETE=CASCADE"]
+	outputs:pk -> label_outputs_pk_mimebundles_output_pk [style=solid]
+	label_outputs_pk_mimebundles_output_pk -> mimebundles:output_pk [style=solid]
+}

@@ -18,7 +18,7 @@ install:
       fi
   - |
       if [[ "$TEST_TYPE" == "pytest" ]]; then
-        pip install -e .[testing,sphinx]
+        pip install -e .[testing,sphinx,jupyter]
         pip install coveralls
       fi
 before_script:
