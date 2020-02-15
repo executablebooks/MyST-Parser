@@ -33,22 +33,7 @@ Here are the site contents:
 maxdepth: 2
 caption: Contents
 ---
-syntax.md
-contributing.md
-```
-
-```{toctree}
----
-caption: Example pages
----
-wealth_dynamics_rst.rst
-wealth_dynamics_md.md
-```
-
-```{toctree}
----
-hidden: True
----
-heavy_tails.md
-kesten_processes.md
+using/index.md
+examples/index.md
+develop/index.md
 ```

@@ -1,9 +1,9 @@
 .. highlight:: python3
 
 
-****************************
-Wealth Distribution Dynamics
-****************************
+***********************************
+Wealth Distribution Dynamics in rST
+***********************************
 
 .. contents:: :depth: 2
 
