@@ -1,6 +1,6 @@
 from docutils import frontend, parsers
 
-from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.docutils_renderer import SphinxRenderer
 from myst_parser.block_tokens import Document
 
 
@@ -167,6 +167,6 @@ class MystParser(parsers.Parser):
             self.config.update(new_cfg)
         except AttributeError:
             pass
-        renderer = DocutilsRenderer(document=document)
+        renderer = SphinxRenderer(document=document)
         with renderer:
             renderer.render(Document(inputstring))

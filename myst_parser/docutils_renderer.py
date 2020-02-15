@@ -2,6 +2,8 @@ from contextlib import contextmanager
 from itertools import chain
 from os.path import splitext
 import re
+import sys
+from typing import List, Optional
 from unittest import mock
 from urllib.parse import urlparse, unquote
 
@@ -10,8 +12,8 @@ from docutils.frontend import OptionParser
 from docutils.languages import get_language
 from docutils.parsers.rst import directives, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
 from docutils.utils import new_document
-from sphinx import addnodes
 import yaml
 
 from mistletoe import Document, block_token, span_token
@@ -23,59 +25,48 @@ from myst_parser.utils import escape_url
 
 
 class DocutilsRenderer(BaseRenderer):
-    def __init__(self, extras=(), document=None, current_node=None, config=None):
+    """A mistletoe renderer to populate (in-place) a `docutils.document` AST.
+
+    Note this renderer has no dependencies in sphinx.
+    """
+
+    def __init__(
+        self,
+        document: Optional[nodes.document] = None,
+        current_node: Optional[nodes.Element] = None,
+        config: Optional[dict] = None,
+    ):
+        """Initialise the renderer.
+
+        Parameters
+        ----------
+        document : docutils.nodes.document
+            The document to populate (or create a new one if None)
+        current_node : docutils.nodes.Element
+            The root node from which to begin populating (default is document)
+            (should be an ancestor of document)
+        config : dict
+            contains configuration specific to the rendering process
+
         """
-        Args:
-            extras (list): allows subclasses to add even more custom tokens.
-        """
-        self.document = document
         self.config = config or {}
-        if self.document is None:
-            settings = OptionParser(components=(RSTParser,)).get_default_values()
-            self.document = new_document("", settings=settings)
-        self.current_node = current_node or self.document
-        self.language_module = self.document.settings.language_code
+        self.document = document or self.new_document()  # type: nodes.document
+        self.current_node = current_node or self.document  # type: nodes.Element
+        self.language_module = self.document.settings.language_code  # type: str
         get_language(self.language_module)
         self._level_to_elem = {0: self.document}
 
         _span_tokens = self._tokens_from_module(myst_span_tokens)
         _block_tokens = self._tokens_from_module(myst_block_tokens)
 
-        super().__init__(*chain(_block_tokens, _span_tokens, extras))
+        super().__init__(*chain(_block_tokens, _span_tokens))
 
         span_token._token_types.value = _span_tokens
         block_token._token_types.value = _block_tokens
 
-    def mock_sphinx_env(self):
-        """Load sphinx roles, directives, etc."""
-        from sphinx.application import builtin_extensions, Sphinx
-        from sphinx.config import Config
-        from sphinx.environment import BuildEnvironment
-        from sphinx.events import EventManager
-        from sphinx.project import Project
-        from sphinx.registry import SphinxComponentRegistry
-
-        class MockSphinx(Sphinx):
-            def __init__(self):
-                self.registry = SphinxComponentRegistry()
-                self.config = Config({}, {})
-                self.events = EventManager(self)
-                self.html_themes = {}
-                self.extensions = {}
-                for extension in builtin_extensions:
-                    self.registry.load_extension(self, extension)
-                # fresh env
-                self.doctreedir = "/doctreedir/"
-                self.srcdir = "/srcdir/"
-                self.project = Project(srcdir="", source_suffix=".md")
-                self.project.docnames = ["mock_docname"]
-                self.env = BuildEnvironment()
-                self.env.setup(self)
-                self.env.temp_data["docname"] = "mock_docname"
-
-        app = MockSphinx()
-        self.document.settings.env = app.env
-        return app
+    def new_document(self, source_name="") -> nodes.document:
+        settings = OptionParser(components=(RSTParser,)).get_default_values()
+        return new_document(source_name, settings=settings)
 
     def render_children(self, token):
         for child in token.children:
@@ -267,6 +258,12 @@ class DocutilsRenderer(BaseRenderer):
         self.document.note_implicit_target(section, section)
         self.current_node = section
 
+    def handle_cross_reference(self, token, destination, ref_node):
+        # TODO use the docutils error reporting mechanisms, rather than raising
+        raise NotImplementedError(
+            "reference not found in current document: {}".format(destination)
+        )
+
     def render_link(self, token):
         ref_node = nodes.reference()
         # Check destination is supported for cross-linking and remove extension
@@ -281,6 +278,7 @@ class DocutilsRenderer(BaseRenderer):
         # if ext.replace('.', '') in self.supported:
         #     destination = destination.replace(ext, '')
         ref_node["refuri"] = destination
+        # TODO get line of Link token (requires upstream mistletoe improvements)
         # ref_node.line = self._get_line(token)
         if token.title:
             ref_node["title"] = token.title
@@ -289,7 +287,7 @@ class DocutilsRenderer(BaseRenderer):
         url_check = urlparse(destination)
         # If there's not a url scheme (e.g. 'https' for 'https:...' links),
         # or there is a scheme but it's not in the list of known_url_schemes,
-        # then assume it's a cross-reference and pass it to Sphinx as an `:any:` ref.
+        # then assume it's a cross-reference
         known_url_schemes = self.config.get("known_url_schemes", None)
         if known_url_schemes:
             scheme_known = url_check.scheme in known_url_schemes
@@ -297,19 +295,7 @@ class DocutilsRenderer(BaseRenderer):
             scheme_known = bool(url_check.scheme)
 
         if not url_check.fragment and not scheme_known:
-            wrap_node = addnodes.pending_xref(
-                reftarget=unquote(destination),
-                reftype="any",
-                refdomain=None,  # Added to enable cross-linking
-                refexplicit=True,
-                refwarn=True,
-            )
-            # TODO also not correct sourcepos
-            # wrap_node.line = self._get_line(token)
-            if token.title:
-                wrap_node["title"] = token.title
-            wrap_node.append(ref_node)
-            next_node = wrap_node
+            next_node = self.handle_cross_reference(token, destination, ref_node)
 
         self.current_node.append(next_node)
         with self.set_current_node(ref_node):
@@ -499,7 +485,7 @@ class DocutilsRenderer(BaseRenderer):
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
-        except AttributeError:
+        except (AttributeError, NotImplementedError):
             # TODO deal with directives that call unimplemented methods of State/Machine
             raise
         assert isinstance(
@@ -534,8 +520,68 @@ class DocutilsRenderer(BaseRenderer):
         return arguments
 
 
+class SphinxRenderer(DocutilsRenderer):
+    """A mistletoe renderer to populate (in-place) a `docutils.document` AST.
+
+    This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
+    """
+
+    def handle_cross_reference(self, token, destination, ref_node):
+        from sphinx import addnodes
+
+        wrap_node = addnodes.pending_xref(
+            reftarget=unquote(destination),
+            reftype="any",
+            refdomain=None,  # Added to enable cross-linking
+            refexplicit=True,
+            refwarn=True,
+        )
+        # TODO also not correct sourcepos
+        # wrap_node.line = self._get_line(token)
+        if token.title:
+            wrap_node["title"] = token.title
+        wrap_node.append(ref_node)
+        return wrap_node
+
+    def mock_sphinx_env(self):
+        """Load sphinx roles, directives, etc."""
+        from sphinx.application import builtin_extensions, Sphinx
+        from sphinx.config import Config
+        from sphinx.environment import BuildEnvironment
+        from sphinx.events import EventManager
+        from sphinx.project import Project
+        from sphinx.registry import SphinxComponentRegistry
+
+        class MockSphinx(Sphinx):
+            def __init__(self):
+                self.registry = SphinxComponentRegistry()
+                self.config = Config({}, {})
+                self.events = EventManager(self)
+                self.html_themes = {}
+                self.extensions = {}
+                for extension in builtin_extensions:
+                    self.registry.load_extension(self, extension)
+                # fresh env
+                self.doctreedir = "/doctreedir/"
+                self.srcdir = "/srcdir/"
+                self.project = Project(srcdir="", source_suffix=".md")
+                self.project.docnames = ["mock_docname"]
+                self.env = BuildEnvironment()
+                self.env.setup(self)
+                self.env.temp_data["docname"] = "mock_docname"
+
+        app = MockSphinx()
+        self.document.settings.env = app.env
+        return app
+
+
 class MockInliner:
-    def __init__(self, renderer, lineno):
+    """A mock version of `docutils.parsers.rst.states.Inliner`.
+
+    This is parsed to role functions.
+    """
+
+    def __init__(self, renderer: DocutilsRenderer, lineno: int):
         self._renderer = renderer
         self.document = renderer.document
         self.reporter = renderer.document.reporter
@@ -549,7 +595,7 @@ class MockInliner:
         self.language = renderer.language_module
         self.rfc_url = "rfc%d.html"
 
-    def problematic(self, text, rawsource, message):
+    def problematic(self, text: str, rawsource: str, message: nodes.system_message):
         msgid = self.document.set_id(message, self.parent)
         problematic = nodes.problematic(rawsource, rawsource, refid=msgid)
         prbid = self.document.set_id(problematic)
@@ -558,9 +604,31 @@ class MockInliner:
 
     # TODO add parse method
 
+    def __getattr__(self, name):
+        """This method is only be called if the attribute requested has not
+        been defined. Defined attributes will not be overridden.
+        """
+        # TODO use document.reporter mechanism?
+        if hasattr(Inliner, name):
+            msg = "{cls} has not yet implemented attribute {name}".format(
+                cls=type(self).__name__, name=name
+            )
+            raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
+        msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
+        raise AttributeError(msg).with_traceback(sys.exc_info()[2])
+
 
 class MockState:
-    def __init__(self, renderer, state_machine, lineno):
+    """A mock version of `docutils.parsers.rst.states.RSTState`.
+
+    This is parsed to the `Directives.run()` method,
+    so that they may run nested parses on their content that will be parsed as markdown,
+    rather than RST.
+    """
+
+    def __init__(
+        self, renderer: DocutilsRenderer, state_machine: "MockStateMachine", lineno: int
+    ):
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
@@ -579,25 +647,29 @@ class MockState:
 
     def nested_parse(
         self,
-        block,
-        input_offset,
-        node,
-        match_titles=False,
+        block: List[str],
+        input_offset: int,
+        node: nodes.Element,
+        match_titles: bool = False,
         state_machine_class=None,
         state_machine_kwargs=None,
     ):
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
-        nested_renderer = DocutilsRenderer(document=self.document, current_node=node)
+        nested_renderer = self._renderer.__class__(
+            document=self.document, current_node=node
+        )
         self.state_machine.match_titles = current_match_titles
         # TODO deal with starting line number
         nested_renderer.render(Document(block))
 
-    def inline_text(self, text, lineno):
+    def inline_text(self, text: str, lineno: int):
         # TODO return messages?
         messages = []
         paragraph = nodes.paragraph("")
-        renderer = DocutilsRenderer(document=self.document, current_node=paragraph)
+        renderer = self._renderer.__class__(
+            document=self.document, current_node=paragraph
+        )
         renderer.render(Document(text))
         textnodes = []
         if paragraph.children:
@@ -605,14 +677,85 @@ class MockState:
             textnodes = paragraph.children[0].children
         return textnodes, messages
 
-    def block_quote(self, indented, line_offset):
-        # TODO block_quote
+    # U+2014 is an em-dash:
+    attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
+
+    def block_quote(self, lines: List[str], line_offset: int):
+        """Parse a block quote, which is a block of text,
+        followed by an (optional) attribution.
+
+        ::
+
+           No matter where you go, there you are.
+
+           -- Buckaroo Banzai
+        """
         elements = []
+        # split attribution
+        last_line_blank = False
+        blockquote_lines = lines
+        attribution_lines = []
+        attribution_line_offset = None
+        # First line after a blank line must begin with a dash
+        for i, line in enumerate(lines):
+            if not line.strip():
+                last_line_blank = True
+                continue
+            if not last_line_blank:
+                last_line_blank = False
+                continue
+            last_line_blank = False
+            match = self.attribution_pattern.match(line)
+            if not match:
+                continue
+            attribution_line_offset = i
+            attribution_lines = [match.group(2)]
+            for at_line in lines[i + 1 :]:
+                indented_line = at_line[len(match.group(1)) :]
+                if len(indented_line) != len(at_line.lstrip()):
+                    break
+                attribution_lines.append(indented_line)
+            blockquote_lines = lines[:i]
+            break
+        # parse block
+        blockquote = nodes.block_quote()
+        self.nested_parse(blockquote_lines, line_offset, blockquote)
+        elements.append(blockquote)
+        # parse attribution
+        if attribution_lines:
+            attribution_text = "\n".join(attribution_lines)
+            lineno = self._lineno + line_offset + attribution_line_offset
+            textnodes, messages = self.inline_text(attribution_text, lineno)
+            attribution = nodes.attribution(attribution_text, "", *textnodes)
+            (
+                attribution.source,
+                attribution.line,
+            ) = self.state_machine.get_source_and_line(lineno)
+            blockquote += attribution
+            elements += messages
         return elements
+
+    def __getattr__(self, name):
+        """This method is only be called if the attribute requested has not
+        been defined. Defined attributes will not be overridden.
+        """
+        # TODO use document.reporter mechanism?
+        if hasattr(Body, name):
+            msg = "{cls} has not yet implemented attribute {name}".format(
+                cls=type(self).__name__, name=name
+            )
+            raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
+        msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
+        raise AttributeError(msg).with_traceback(sys.exc_info()[2])
 
 
 class MockStateMachine:
-    def __init__(self, renderer, lineno):
+    """A mock version of `docutils.parsers.rst.states.RSTStateMachine`.
+
+    This is parsed to the `Directives.run()` method.
+    """
+
+    def __init__(self, renderer: DocutilsRenderer, lineno: int):
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
@@ -620,7 +763,20 @@ class MockStateMachine:
         self.node = renderer.current_node
         self.match_titles = True
 
-    def get_source_and_line(self, lineno=None):
+    def get_source_and_line(self, lineno: Optional[int] = None):
         """Return (source, line) tuple for current or given line number."""
         # TODO return correct line source
         return "", lineno or self._lineno
+
+    def __getattr__(self, name):
+        """This method is only be called if the attribute requested has not
+        been defined. Defined attributes will not be overridden.
+        """
+        # TODO use document.reporter mechanism?
+        if hasattr(RSTStateMachine, name):
+            msg = "{cls} has not yet implemented attribute {name}".format(
+                cls=type(self).__name__, name=name
+            )
+            raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
+        msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
+        raise AttributeError(msg).with_traceback(sys.exc_info()[2])

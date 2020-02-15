@@ -109,21 +109,21 @@
         "class": "docutils.parsers.rst.directives.body.Epigraph",
         "args": [],
         "options": {},
-        "output": ""
+        "output": "<block_quote classes=\"epigraph\">"
     },
     {
         "name": "highlights",
         "class": "docutils.parsers.rst.directives.body.Highlights",
         "args": [],
         "options": {},
-        "output": ""
+        "output": "<block_quote classes=\"highlights\">"
     },
     {
         "name": "pull-quote",
         "class": "docutils.parsers.rst.directives.body.PullQuote",
         "args": [],
         "options": {},
-        "output": ""
+        "output": "<block_quote classes=\"pull-quote\">"
     },
     {
         "name": "compound",
