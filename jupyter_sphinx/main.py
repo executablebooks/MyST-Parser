@@ -20,6 +20,20 @@ def setup(app: Sphinx) -> dict:
     """Initialize Sphinx extension."""
 
     app.add_config_value("jupyter_sphinx_executor", "default", "html")
+    app.add_config_value(
+        "jupyter_execute_data_priority",
+        [
+            "application/vnd.jupyter.widget-view+json",
+            "application/javascript",
+            "text/html",
+            "image/svg+xml",
+            "image/png",
+            "image/jpeg",
+            "text/latex",
+            "text/plain",
+        ],
+        "env",
+    )
 
     # Document Elements
     app.add_directive("jupyter-kernel", JupyterKernel)
@@ -35,6 +49,12 @@ def setup(app: Sphinx) -> dict:
         override=True,
         html=(lambda self, node: None, lambda self, node: None),
     )
+
+    # For syntax highlighting
+    from IPython.lib.lexers import IPythonTracebackLexer, IPython3Lexer
+
+    app.add_lexer("ipythontb", IPythonTracebackLexer())
+    app.add_lexer("ipython", IPython3Lexer())
 
     # Read/Build Phases
     # -----------------
@@ -98,9 +118,7 @@ def execute_code_cells(app: Sphinx, env: BuildEnvironment) -> Optional[List[str]
     try:
         execute_func(app.env.jupyter_db)
     except Exception as err:
-        raise ExtensionError(
-            "'jupyter_executors.{}' failed: {}".format(name, err)
-        ) from err
+        raise ExtensionError("'jupyter_executors.{}' failed: {}".format(name, err))
 
 
 def add_transform(app, transform, post=False):

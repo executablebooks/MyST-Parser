@@ -1,5 +1,7 @@
 import datetime
 
+import nbformat
+
 from sqlalchemy import CheckConstraint, Column, ForeignKey, UniqueConstraint
 from sqlalchemy import DateTime, Enum, Integer, JSON, String, Text
 from sqlalchemy.orm import relationship
@@ -105,6 +107,17 @@ class OrmKernel(OrmBase):
             f"doc_pk={self.doc_pk}, status={self.status})"
         )
 
+    def to_nbformat(self, with_outputs=True) -> nbformat.NotebookNode:
+        metadata = {}
+        metadata.update(self.meta_data or {})
+        if self.info:
+            metadata.update(self.info.data)
+        notebook = nbformat.v4.new_notebook(metadata=metadata)
+        notebook.cells = [
+            cell.to_nbformat(with_outputs=with_outputs) for cell in self.codecells
+        ]
+        return notebook
+
 
 class OrmKernelInfo(OrmBase):
     __tablename__ = "kernelinfo"
@@ -179,8 +192,17 @@ class OrmCodeCell(OrmBase):
         return (
             f"{self.__class__.__name__}(pk={self.pk}, doc_pk={self.doc_pk}, "
             f"doc_order={self.doc_order_code}, "
-            f"follows={self.follows_pk}, kernel={self.kernel_pk}, status={self.status})"
+            f"kernel={self.kernel_pk})"
         )
+
+    def to_nbformat(self, with_outputs=True) -> nbformat.NotebookNode:
+        nb_cell = nbformat.v4.new_code_cell(self.source)
+        nb_cell.metadata = self.meta_data or {}
+        if self.execution and with_outputs:
+            nb_cell.execution_count = self.execution.execution_count
+            for output in self.execution.outputs:
+                nb_cell.outputs.append(output.to_nbformat())
+        return nb_cell
 
 
 class OrmCellExecution(OrmBase):
@@ -232,11 +254,36 @@ class OrmOutput(OrmBase):
             f"order={self.order})"
         )
 
+    @staticmethod
+    def from_nbformat(output, order):
+        if output.output_type == "execute_result":
+            orm_output = OrmOutputExecute.from_nbformat(output, order)
+        elif output.output_type == "display_data":
+            orm_output = OrmOutputDisplay.from_nbformat(output, order)
+        elif output.output_type == "stream":
+            orm_output = OrmOutputStream.from_nbformat(output, order)
+        elif output.output_type == "error":
+            orm_output = OrmOutputError.from_nbformat(output, order)
+        else:
+            raise AssertionError(
+                "output_type not recognised: {}".format(output.output_type)
+            )
+        return orm_output
+
 
 class OrmOutputStream(OrmOutput):
     __mapper_args__ = {"polymorphic_identity": "stream"}
     name = Column(Enum("stdout", "stderr"))
     text = Column(Text())
+
+    def to_nbformat(self) -> nbformat.NotebookNode:
+        return nbformat.NotebookNode(
+            {"output_type": self.output_type, "name": self.name, "text": self.text}
+        )
+
+    @staticmethod
+    def from_nbformat(output, order):
+        return OrmOutputStream(order=order, name=output.name, text=output.text)
 
 
 class OrmOutputDisplay(OrmOutput):
@@ -252,6 +299,23 @@ class OrmOutputDisplay(OrmOutput):
         cascade="all, delete, delete-orphan",
         passive_deletes=True,
     )
+
+    def to_nbformat(self) -> nbformat.NotebookNode:
+        return nbformat.NotebookNode(
+            {
+                "output_type": self.output_type,
+                "metadata": self.meta_data or {},
+                "data": {k: v.source for k, v in self.data.items()},
+            }
+        )
+
+    @staticmethod
+    def from_nbformat(output, order):
+        orm_output = OrmOutputDisplay(order=order, meta_data=output.metadata)
+        orm_output.data = {
+            k: OrmMimeBundle(mimetype=k, source=v) for k, v in output.data.items()
+        }
+        return orm_output
 
 
 class OrmOutputExecute(OrmOutput):
@@ -269,6 +333,28 @@ class OrmOutputExecute(OrmOutput):
         passive_deletes=True,
     )
 
+    def to_nbformat(self) -> nbformat.NotebookNode:
+        return nbformat.NotebookNode(
+            {
+                "output_type": self.output_type,
+                "execution_count": self.execution_count,
+                "metadata": self.meta_data or {},
+                "data": {k: v.source for k, v in self.data.items()},
+            }
+        )
+
+    @staticmethod
+    def from_nbformat(output, order):
+        orm_output = OrmOutputExecute(
+            order=order,
+            execution_count=output.execution_count,
+            meta_data=output.metadata,
+        )
+        orm_output.data = {
+            k: OrmMimeBundle(mimetype=k, source=v) for k, v in output.data.items()
+        }
+        return orm_output
+
 
 class OrmOutputError(OrmOutput):
     __mapper_args__ = {"polymorphic_identity": "error"}
@@ -276,6 +362,25 @@ class OrmOutputError(OrmOutput):
     evalue = Column(Text())
     # The traceback will contain a list of frames (each as a string)
     traceback = Column(JSON())
+
+    def to_nbformat(self) -> nbformat.NotebookNode:
+        return nbformat.NotebookNode(
+            {
+                "output_type": self.output_type,
+                "ename": self.ename,
+                "evalue": self.evalue,
+                "traceback": self.traceback,
+            }
+        )
+
+    @staticmethod
+    def from_nbformat(output, order):
+        return OrmOutputError(
+            order=order,
+            ename=output.ename,
+            evalue=output.evalue,
+            traceback=output.traceback,
+        )
 
 
 class OrmMimeBundle(OrmBase):

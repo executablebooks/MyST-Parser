@@ -14,7 +14,7 @@ def run_execution(jupyter_db: JupyterDB):
             spec = get_kernel_spec(kernel.kernel_type)
         except NoSuchKernel as err:
             raise ExecutionError("Unable to find kernel type: {}".format(err))
-        notebook = jupyter_db.get_clean_notebook(kernel.pk)
+        notebook = jupyter_db.get_notebook(kernel.pk, with_outputs=False)
         notebook.metadata.update(
             {
                 "kernelspec": {

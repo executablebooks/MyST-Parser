@@ -60,7 +60,7 @@ outputs:
 - ename: null
   evalue: null
   execute_pk: 1
-  execution_count: 0
+  execution_count: 1
   meta_data: {}
   name: null
   order: 1

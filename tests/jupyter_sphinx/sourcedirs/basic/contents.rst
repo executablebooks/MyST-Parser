@@ -9,6 +9,7 @@
     a = 1
     a
 
+.. jupyter-view::
 
 .. jupyter-exec::
 

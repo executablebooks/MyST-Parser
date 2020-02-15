@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-import copy
 import pathlib
 from sqlite3 import Connection as SQLite3Connection
 from typing import Iterator, Optional
@@ -17,6 +16,7 @@ from .orm import (  # noqa: F401
     OrmDocument,
     OrmKernel,
     OrmKernelInfo,
+    OrmOutput,
     OrmOutputDisplay,
     OrmOutputError,
     OrmOutputExecute,
@@ -189,7 +189,7 @@ class JupyterDB:
             )
             session.add(code_cell)
             session.commit()
-            session.refresh(code_cell)
+            _ = code_cell.pk
             session.expunge(code_cell)
         return code_cell
 
@@ -206,6 +206,16 @@ class JupyterDB:
                 code_cell = session.query(OrmCodeCell).filter_by(name=name).one()
             session.expunge(code_cell)
         return code_cell
+
+    def get_notebook_cell(
+        self, pk, *, with_outputs=True, session: Optional[Session] = None
+    ) -> nbformat.NotebookNode:
+        with self.context_session(
+            session=session, final_commit=False
+        ) as session:  # type: Session
+            cell = session.query(OrmCodeCell).filter_by(pk=pk).one()
+            nb_cell = cell.to_nbformat(with_outputs=with_outputs)
+        return nb_cell
 
     def get_cell_language(self, pk, *, session: Optional[Session] = None):
         with self.context_session(
@@ -233,17 +243,14 @@ class JupyterDB:
                     kernels.append(kernel)
         return kernels
 
-    def get_clean_notebook(self, kernel_pk: int, *, session: Optional[Session] = None):
+    def get_notebook(
+        self, kernel_pk: int, *, with_outputs=True, session: Optional[Session] = None
+    ) -> nbformat.NotebookNode:
         with self.context_session(
             session=session, final_commit=False
         ) as session:  # type: Session
             kernel = session.query(OrmKernel).filter_by(pk=kernel_pk).one()
-            metadata = copy.copy(kernel.meta_data or {})
-            notebook = nbformat.v4.new_notebook(metadata=metadata)
-            notebook.cells = [
-                nbformat.v4.new_code_cell(cell.source) for cell in kernel.codecells
-            ]
-            return notebook
+            return kernel.to_nbformat(with_outputs=with_outputs)
 
     def add_outputs_from_nb(
         self,
@@ -265,38 +272,8 @@ class JupyterDB:
             )
             for i, (nb_cell, orm_cell) in enumerate(zip(nb.cells, kernel.codecells)):
                 orm_cell.execution = OrmCellExecution(execution_count=i)
-                orm_outputs = []
-                for j, output in enumerate(nb_cell.outputs):
-                    if output.output_type == "execute_result":
-                        orm_output = OrmOutputExecute(
-                            order=j, execution_count=i, meta_data=output.metadata
-                        )
-                        orm_output.data = {
-                            k: OrmMimeBundle(mimetype=k, source=v)
-                            for k, v in output.data.items()
-                        }
-                    elif output.output_type == "display_data":
-                        orm_output = OrmOutputDisplay(
-                            order=j, meta_data=output.metadata
-                        )
-                        orm_output.data = {
-                            k: OrmMimeBundle(mimetype=k, source=v)
-                            for k, v in output.data.items()
-                        }
-                    elif output.output_type == "stream":
-                        orm_output = OrmOutputStream(
-                            order=j, name=output.name, text=output.text
-                        )
-                    elif output.output_type == "error":
-                        orm_output = OrmOutputError(
-                            order=j,
-                            ename=output.ename,
-                            evalue=output.evalue,
-                            traceback=output.traceback,
-                        )
-                    else:
-                        raise AssertionError(
-                            "output_type not recognised: {}".format(output.output_type)
-                        )
-                    orm_outputs.append(orm_output)
+                orm_outputs = [
+                    OrmOutput.from_nbformat(output, j)
+                    for j, output in enumerate(nb_cell.outputs)
+                ]
                 orm_cell.execution.outputs = orm_outputs

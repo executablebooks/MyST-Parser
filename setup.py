@@ -59,6 +59,7 @@ setup(
             "nbconvert",
             "jupyter_client",
             "ipykernel",
+            "ipython",
         ],
     },
     zip_safe=True,
