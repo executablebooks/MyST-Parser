@@ -209,6 +209,11 @@ def cell_output_to_nodes(cell, data_priority, write_stderr):
             except StopIteration:
                 continue
             data = output["data"][mime_type]
+            # TODO for mime bundles that need to be saved externally,
+            # it should be possible to save them by their primary key,
+            # path/to/dir/jupyter_db_{pk}.{mime_extension}
+            # In that way, it would also be easy to clean any no longer in use
+
             # if mime_type.startswith("image"):
             #     # Sphinx treats absolute paths as being rooted at the source
             #     # directory, so make a relative path, which Sphinx treats
