@@ -1,6 +1,7 @@
 import os
-from docutils import frontend
+import docutils
 from sphinx import parsers
+from docutils import frontend
 from docutils.nodes import container, literal_block
 import nbformat as nbf
 from jupyter_sphinx.execute import (
@@ -8,6 +9,8 @@ from jupyter_sphinx.execute import (
     cell_output_to_nodes,
     sphinx_abs_dir,
     output_directory,
+    JupyterWidgetStateNode,
+    JupyterWidgetViewNode
 )
 
 from myst_parser.docutils_renderer import SphinxRenderer
@@ -236,6 +239,35 @@ class IPynbParser(MystParser):
                 # ==================
                 # TODO: hard-coding the jupyter-sphinx render priority but we should
                 #       remove when we refactor
+                    # JupyterWidgetViewNode holds widget view JSON,
+                # but is only rendered properly in HTML documents.
+                # Used to render an element node as HTML
+                def visit_element_html(self, node):
+                    self.body.append(node.html())
+                    raise docutils.nodes.SkipNode
+
+                # Used for nodes that do not need to be rendered
+                def skip(self, node):
+                    raise docutils.nodes.SkipNode
+
+                self.app.add_node(
+                    JupyterWidgetViewNode,
+                    html=(visit_element_html, None),
+                    latex=(skip, None),
+                    textinfo=(skip, None),
+                    text=(skip, None),
+                    man=(skip, None),
+                )
+                # JupyterWidgetStateNode holds the widget state JSON,
+                # but is only rendered in HTML documents.
+                self.app.add_node(
+                    JupyterWidgetStateNode,
+                    html=(visit_element_html, None),
+                    latex=(skip, None),
+                    textinfo=(skip, None),
+                    text=(skip, None),
+                    man=(skip, None),
+                )
                 WIDGET_VIEW_MIMETYPE = "application/vnd.jupyter.widget-view+json"
                 RENDER_PRIORITY = [
                     WIDGET_VIEW_MIMETYPE,
