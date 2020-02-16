@@ -1,9 +1,18 @@
-from docutils import frontend, parsers
+import os
+from docutils import frontend
+from sphinx import parsers
 from docutils.nodes import container, literal_block
 import nbformat as nbf
+from jupyter_sphinx.execute import (
+    write_notebook_output,
+    cell_output_to_nodes,
+    sphinx_abs_dir,
+    output_directory,
+)
 
 from myst_parser.docutils_renderer import SphinxRenderer
 from myst_parser.block_tokens import Document
+
 
 class MystParser(parsers.Parser):
     """Docutils parser for CommonMark + Math + Tables + RST Extensions """
@@ -193,6 +202,8 @@ class IPynbParser(MystParser):
             pass
 
         ntbk = nbf.reads(inputstring, nbf.NO_CONVERT)
+        filename = document.attributes["source"]
+        notebook_name = os.path.basename(filename).strip(".ipynb")
         for cell in ntbk.cells:
             # Cell container will wrap whatever is in the cell
             sphinx_cell = container(classes=["cell"], cell_type=cell["cell_type"])
@@ -206,16 +217,50 @@ class IPynbParser(MystParser):
                 # Initialize the render so that it'll append things to our current cell
                 renderer = SphinxRenderer(document=document, current_node=cell_input)
                 with renderer:
-                    myst_ast = Document(cell['source'])
+                    myst_ast = Document(cell["source"])
                     renderer.render(myst_ast)
             # If a code cell, convert the code + outputs
             elif cell["cell_type"] == "code":
-                code_block = literal_block(
-                    text=cell['source'],
-                )
+                code_block = literal_block(text=cell["source"])
                 cell_input += code_block
 
-                # TODO: Figure out how to go from MIME output -> AST
-                # cell_output = container(classes=["cell_output"])
-                # ast_output = mime_to_ast(cell_output['outputs']) # TODO: make this do something
-                # cell.children += [ast_output]
+                # TODO: currently uses Jupyter-Sphinx and hard-codes outputs in the
+                #       docutils tree. We should instead put the mimebundle in the
+                #       docutils tree and renderers choose how things are parsed.
+
+                cell_output = container(classes=["cell_output"])
+                sphinx_cell += cell_output
+
+                # ==================
+                # Cell output
+                # ==================
+                # TODO: hard-coding the jupyter-sphinx render priority but we should
+                #       remove when we refactor
+                WIDGET_VIEW_MIMETYPE = "application/vnd.jupyter.widget-view+json"
+                RENDER_PRIORITY = [
+                    WIDGET_VIEW_MIMETYPE,
+                    "application/javascript",
+                    "text/html",
+                    "image/svg+xml",
+                    "image/png",
+                    "image/jpeg",
+                    "text/latex",
+                    "text/plain",
+                ]
+
+                # Write the notebook output to disk if needed
+                doc_relpath = os.path.dirname(self.env.docname)  # relative to src dir
+                output_dir = os.path.join(output_directory(self.env), doc_relpath)
+                write_notebook_output(ntbk, output_dir, notebook_name)
+
+                # Create doctree nodes for cell outputs.
+                HAS_STDERR = False  # TODO: Hard code this for now and we'll fix later
+                THEBE_CONFIG = {}
+                output_nodes = cell_output_to_nodes(
+                    cell,
+                    RENDER_PRIORITY,
+                    HAS_STDERR,
+                    sphinx_abs_dir(self.env),
+                    THEBE_CONFIG,
+                )
+                cell_output += output_nodes
