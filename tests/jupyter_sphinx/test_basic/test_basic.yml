@@ -3,6 +3,8 @@ cellexecute:
   pk: 1
 - execution_count: 1
   pk: 2
+- execution_count: 2
+  pk: 3
 codecells:
 - doc_order: 0
   doc_pk: 1
@@ -26,6 +28,17 @@ codecells:
   name: null
   pk: 2
   source: raise ValueError("failed")
+- doc_order: 2
+  doc_pk: 1
+  exec_order: 2
+  kernel_pk: 1
+  meta_data:
+    timeout: null
+  name: null
+  pk: 3
+  source: "from IPython import display\nfrom base64 import b64decode\ndisplay.Image(b64decode(\n\
+    \    \"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==\"\
+    \n))"
 documents:
 - meta_data: null
   pk: 1
@@ -43,6 +56,16 @@ mimebundles:
   output_pk: 2
   pk: 1
   source: '1'
+- mimetype: image/png
+  output_pk: 4
+  pk: 2
+  source: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==
+
+    '
+- mimetype: text/plain
+  output_pk: 4
+  pk: 3
+  source: <IPython.core.display.Image object>
 outputs:
 - ename: null
   evalue: null
@@ -87,3 +110,14 @@ outputs:
     \e[0;32m----> 1\e[0;31m \e[0;32mraise\e[0m \e[0mValueError\e[0m\e[0;34m(\e[0m\e\
     [0;34m\"failed\"\e[0m\e[0;34m)\e[0m\e[0;34m\e[0m\e[0;34m\e[0m\e[0m\n\e[0m"
   - "\e[0;31mValueError\e[0m: failed"
+- ename: null
+  evalue: null
+  execute_pk: 3
+  execution_count: 3
+  meta_data: {}
+  name: null
+  order: 0
+  output_type: execute_result
+  pk: 4
+  text: null
+  traceback: null

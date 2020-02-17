@@ -397,3 +397,6 @@ class OrmMimeBundle(OrmBase):
             f"{self.__class__.__name__}(pk={self.pk}, output_pk={self.output_pk}, "
             f"mimetype={self.mimetype})"
         )
+
+    def __str__(self):
+        return str(self.source)

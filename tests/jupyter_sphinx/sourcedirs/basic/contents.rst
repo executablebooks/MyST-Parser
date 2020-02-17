@@ -18,3 +18,13 @@
 .. jupyter-view::
 
     This is a *caption*
+
+.. jupyter-exec::
+
+    from IPython import display
+    from base64 import b64decode
+    display.Image(b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+    ))
+
+.. jupyter-view::

@@ -1,6 +1,12 @@
+from binascii import a2b_base64
 from contextlib import contextmanager
+import json
+from mimetypes import guess_extension
+import os
 import pathlib
 from sqlite3 import Connection as SQLite3Connection
+import sys
+from textwrap import dedent
 from typing import Iterator, Optional
 
 import sqlalchemy as sqla
@@ -217,6 +223,15 @@ class JupyterDB:
             nb_cell = cell.to_nbformat(with_outputs=with_outputs)
         return nb_cell
 
+    def iter_outputs(self, pk, *, session: Optional[Session] = None) -> OrmOutput:
+        with self.context_session(
+            session=session, final_commit=False
+        ) as session:  # type: Session
+            cell = session.query(OrmCodeCell).filter_by(pk=pk).one()
+            if cell.execution:
+                for output in cell.execution.outputs:
+                    yield output
+
     def get_cell_language(self, pk, *, session: Optional[Session] = None):
         with self.context_session(
             session=session, final_commit=False
@@ -277,3 +292,55 @@ class JupyterDB:
                     for j, output in enumerate(nb_cell.outputs)
                 ]
                 orm_cell.execution.outputs = orm_outputs
+
+    def write_mime_to_file(
+        self,
+        pk: int,
+        dir_path: str,
+        *,
+        fname_format="mimebundle_{pk}{ext}",
+        session: Optional[Session] = None,
+    ) -> str:
+        with self.context_session(
+            session=session, final_commit=False
+        ) as session:  # type: Session
+            mime: OrmMimeBundle = session.query(OrmMimeBundle).filter_by(pk=pk).one()
+            source = mime.source
+            if mime.mimetype == "html":
+                source = dedent(source)
+            if mime.mimetype in {"image/png", "image/jpeg", "application/pdf"}:
+                source = a2b_base64(source)
+            elif mime.mimetype == "application/json" or not isinstance(source, str):
+                if isinstance(source, bytes) and not isinstance(source, str):
+                    source = source.decode("utf-8")
+                source = platform_utf_8_encode(json.dumps(source))
+            else:
+                source = platform_utf_8_encode(source)
+            ext = guess_extension_without_jpe(mime.mimetype)
+            if ext is None:
+                ext = "." + mime.mimetype.rsplit("/")[-1]
+            filepath = os.path.join(dir_path, fname_format.format(pk=pk, ext=ext))
+            with open(filepath, "wb") as handle:
+                handle.write(source)
+        return filepath
+
+
+def platform_utf_8_encode(data):
+    if isinstance(data, str):
+        if sys.platform == "win32":
+            data = data.replace("\n", "\r\n")
+        data = data.encode("utf-8")
+    return data
+
+
+def guess_extension_without_jpe(mimetype):
+    """
+    This function fixes a problem with '.jpe' extensions
+    of jpeg images which are then not recognised by latex.
+    For any other case, the function works in the same way
+    as mimetypes.guess_extension
+    """
+    ext = guess_extension(mimetype)
+    if ext == ".jpe":
+        ext = ".jpeg"
+    return ext
