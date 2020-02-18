@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from textwrap import dedent, indent
 from unittest import mock
 
@@ -529,6 +530,9 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
     )
 
 
+@pytest.mark.skipif(
+    sys.version_info <= (3, 5), reason="option dict keys in wrong order"
+)
 @pytest.mark.parametrize(
     "type,text",
     [
