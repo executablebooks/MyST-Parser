@@ -530,6 +530,10 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
     )
 
 
+@pytest.mark.skipif(
+    sys.version_info.major == 3 and sys.version_info.minor <= 5,
+    reason="option dict keys in wrong order",
+)
 @pytest.mark.parametrize(
     "type,text",
     [
@@ -544,9 +548,6 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
         ),
         ("colon_style_no_space", (":option1: a", ":option2: b", "content", "```")),
     ],
-)
-@pytest.mark.skipif(
-    sys.version_info <= (3, 5), reason="option dict keys in wrong order"
 )
 def test_directive_options(renderer, type, text):
     renderer.render(Document(["```{restructuredtext-test-directive}"] + list(text)))
