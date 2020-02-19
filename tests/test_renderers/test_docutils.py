@@ -229,7 +229,11 @@ def test_cross_referencing(sphinx_renderer, file_regression):
         Title
         -----
 
-        [alt](target)
+        [alt1](target)
+
+        [alt2](https://www.google.com)
+
+        [alt3](#target3)
         """
     )
     sphinx_renderer.render(Document(string))

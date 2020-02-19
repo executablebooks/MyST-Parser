@@ -6,4 +6,10 @@
         <paragraph>
             <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="any" refwarn="True">
                 <reference refuri="target">
-                    alt
+                    alt1
+        <paragraph>
+            <reference refuri="https://www.google.com">
+                alt2
+        <paragraph>
+            <reference refuri="#target3">
+                alt3

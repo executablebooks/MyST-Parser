@@ -460,7 +460,11 @@ They can then be referred to with the [ref](https://www.sphinx-doc.org/en/master
 For example, see this ref: {ref}`syntax/targets` and here's a ref back to the top of
 this page {ref}`example_syntax`.
 
-Alternatively using the markdown syntax; `[](header_target)`, is synonymous with using the [any](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any) role; `` {any}`header_target` ``
+Alternatively using the markdown syntax; `[alt text](header_target)`, is synonymous with using the [any](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any) role; `` {any}`header_target` ``
 
-Using the same example, see this ref: [](syntax/targets) and here's a ref back to the top of
-this page [](example_syntax).
+Using the same example, see this ref: [syntax/targets](syntax/targets) and here's a ref back to the top of
+this page [example_syntax](example_syntax).
+
+```{note}
+With the markdown syntax, the alternative text cannot be empty, e.g. `[](target)`.
+```
