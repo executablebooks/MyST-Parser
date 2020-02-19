@@ -13,7 +13,7 @@ from docutils.languages import get_language
 from docutils.parsers.rst import directives, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
-from docutils.utils import new_document
+from docutils.utils import new_document, Reporter
 import yaml
 
 from mistletoe import Document, block_token, span_token
@@ -51,6 +51,7 @@ class DocutilsRenderer(BaseRenderer):
         """
         self.config = config or {}
         self.document = document or self.new_document()  # type: nodes.document
+        self.reporter = self.document.reporter  # type: Reporter
         self.current_node = current_node or self.document  # type: nodes.Element
         self.language_module = self.document.settings.language_code  # type: str
         get_language(self.language_module)
@@ -107,9 +108,9 @@ class DocutilsRenderer(BaseRenderer):
         try:
             data = yaml.safe_load(token.content) or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-            msg_node = self.document.reporter.system_message(
-                3, "Front matter block:\n" + str(error), line=token.range[0]
-            )  # 3 is ERROR level
+            msg_node = self.reporter.error(
+                "Front matter block:\n" + str(error), line=token.range[0]
+            )
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
             return
@@ -414,7 +415,7 @@ class DocutilsRenderer(BaseRenderer):
         lineno = 0  # TODO get line number
         inliner = MockInliner(self, lineno)
         role_func, messages = roles.role(
-            name, self.language_module, lineno, self.document.reporter
+            name, self.language_module, lineno, self.reporter
         )
         rawsource = ":{}:`{}`".format(name, content)
         # # backslash escapes converted to nulls (``\x00``)
@@ -424,7 +425,7 @@ class DocutilsRenderer(BaseRenderer):
             # return nodes, messages + messages2
             self.current_node += nodes
         else:
-            message = self.document.reporter.error(
+            message = self.reporter.error(
                 'Unknown interpreted text role "{}".'.format(name), line=lineno
             )
             # return ([self.problematic(content, content, msg)], messages + [msg])
@@ -484,9 +485,9 @@ class DocutilsRenderer(BaseRenderer):
             try:
                 options = yaml.safe_load(yaml_block) or {}
             except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                msg_node = self.document.reporter.system_message(
-                    3, "Directive options:\n" + str(error), line=token.range[0]
-                )  # 3 is ERROR level
+                msg_node = self.reporter.error(
+                    "Directive options:\n" + str(error), line=token.range[0]
+                )
                 msg_node += nodes.literal_block(yaml_block, yaml_block)
                 self.current_node += [msg_node]
                 return
@@ -503,9 +504,9 @@ class DocutilsRenderer(BaseRenderer):
             try:
                 options = yaml.safe_load(yaml_block) or {}
             except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                msg_node = self.document.reporter.system_message(
-                    3, "Directive options:\n" + str(error), line=token.range[0]
-                )  # 3 is ERROR level
+                msg_node = self.reporter.error(
+                    "Directive options:\n" + str(error), line=token.range[0]
+                )
                 msg_node += nodes.literal_block(yaml_block, yaml_block)
                 self.current_node += [msg_node]
                 return
@@ -526,9 +527,27 @@ class DocutilsRenderer(BaseRenderer):
 
         try:
             arguments = self.parse_directive_arguments(directive_class, token.arguments)
-        except RuntimeError:
-            # TODO handle/report error
-            raise
+        except RuntimeError as error:
+            error = self.reporter.error(
+                'Error in "{}" directive:\n{}.'.format(name, error),
+                nodes.literal_block(
+                    token.children[0].content, token.children[0].content
+                ),
+                line=token.range[0],
+            )
+            self.current_node += [error]
+            return
+
+        if content_lines and not directive_class.has_content:
+            error = self.reporter.error(
+                'Error in "{}" directive: no content permitted.'.format(name),
+                nodes.literal_block(
+                    token.children[0].content, token.children[0].content
+                ),
+                line=token.range[0],
+            )
+            self.current_node += [error]
+            return
 
         state_machine = MockStateMachine(self, token.range[0])
 
@@ -554,7 +573,7 @@ class DocutilsRenderer(BaseRenderer):
         try:
             result = directive_instance.run()
         except DirectiveError as error:
-            msg_node = self.document.reporter.system_message(
+            msg_node = self.reporter.system_message(
                 error.level, error.msg, line=token.range[0]
             )
             msg_node += nodes.literal_block(content, content)
