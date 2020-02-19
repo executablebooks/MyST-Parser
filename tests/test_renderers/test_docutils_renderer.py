@@ -530,6 +530,25 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
     )
 
 
+@pytest.mark.parametrize(
+    "type,text", [("no_init_space", ("content",)), ("with_init_space", ("", "content"))]
+)
+def test_directive_no_options(renderer, type, text):
+    renderer.render(
+        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="">
+        <system_message level="1" line="0" source="" type="INFO">
+            <paragraph>
+                Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content:
+            <literal_block xml:space="preserve">
+                content
+    """  # noqa: E501
+    )
+
+
 @pytest.mark.skipif(
     sys.version_info.major == 3 and sys.version_info.minor <= 5,
     reason="option dict keys in wrong order",
@@ -537,20 +556,16 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
 @pytest.mark.parametrize(
     "type,text",
     [
-        (
-            "block_style",
-            ("---", "option1: a", "option2: b", "---", "", "content", "```"),
-        ),
-        ("colon_style", (":option1: a", ":option2: b", "", "content", "```")),
-        (
-            "block_style_no_space",
-            ("---", "option1: a", "option2: b", "---", "content", "```"),
-        ),
-        ("colon_style_no_space", (":option1: a", ":option2: b", "content", "```")),
+        ("block_style", ("---", "option1: a", "option2: b", "---", "", "content")),
+        ("colon_style", (":option1: a", ":option2: b", "", "content")),
+        ("block_style_no_space", ("---", "option1: a", "option2: b", "---", "content")),
+        ("colon_style_no_space", (":option1: a", ":option2: b", "content")),
     ],
 )
 def test_directive_options(renderer, type, text):
-    renderer.render(Document(["```{restructuredtext-test-directive}"] + list(text)))
+    renderer.render(
+        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+    )
     assert renderer.document.pformat() == dedent(
         """\
     <document source="">
@@ -566,12 +581,14 @@ def test_directive_options(renderer, type, text):
 @pytest.mark.parametrize(
     "type,text",
     [
-        ("block_style", ("---", "option1", "option2: b", "---", "", "content", "```")),
-        ("colon_style", (":option1", ":option2: b", "", "content", "```")),
+        ("block_style", ("---", "option1", "option2: b", "---", "", "content")),
+        ("colon_style", (":option1", ":option2: b", "", "content")),
     ],
 )
 def test_directive_options_error(renderer, type, text):
-    renderer.render(Document(["```{restructuredtext-test-directive}"] + list(text)))
+    renderer.render(
+        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+    )
     assert renderer.document.pformat() == dedent(
         """\
         <document source="">
