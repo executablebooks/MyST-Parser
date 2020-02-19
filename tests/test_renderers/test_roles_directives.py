@@ -111,25 +111,11 @@ def test_directive_options(renderer, type, text):
         ("colon_style", (":option1", ":option2: b", "", "content")),
     ],
 )
-def test_directive_options_error(renderer, type, text):
+def test_directive_options_error(renderer, type, text, file_regression):
     renderer.render(
         Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
     )
-    assert renderer.document.pformat() == dedent(
-        """\
-        <document source="">
-            <system_message level="3" line="0" source="" type="ERROR">
-                <paragraph>
-                    Directive options:
-                    mapping values are not allowed here
-                      in "<unicode string>", line 2, column 8:
-                        option2: b
-                               ^
-                <literal_block xml:space="preserve">
-                    option1
-                    option2: b
-        """
-    )
+    file_regression.check(renderer.document.pformat(), extension=".xml")
 
 
 with open(os.path.join(os.path.dirname(__file__), "sphinx_roles.json"), "r") as fin:
