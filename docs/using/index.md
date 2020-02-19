@@ -6,4 +6,6 @@ Myst documents.
 ```{toctree}
 install.md
 syntax.md
+../test/md.md
+../test/rst.rst
 ```
