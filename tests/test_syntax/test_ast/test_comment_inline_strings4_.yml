@@ -1,0 +1,10 @@
+children:
+- children:
+  - content: a % comment
+    type: RawText
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

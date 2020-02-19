@@ -103,7 +103,18 @@ class DocutilsRenderer(BaseRenderer):
         """
         # TODO this data could be used to support default option values for directives
         docinfo = nodes.docinfo()
-        for key, value in token.data.items():
+
+        try:
+            data = yaml.safe_load(token.content) or {}
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+            msg_node = self.document.reporter.system_message(
+                3, "Front matter block:\n" + str(error), line=token.range[0]
+            )  # 3 is ERROR level
+            msg_node += nodes.literal_block(token.content, token.content)
+            self.current_node += [msg_node]
+            return
+
+        for key, value in data.items():
             if not isinstance(value, (str, int, float)):
                 continue
             value = str(value)
