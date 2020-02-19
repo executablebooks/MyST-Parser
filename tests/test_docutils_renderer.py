@@ -547,6 +547,14 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
             ("---", "option1: a", "option2: b", "---", "content", "```"),
         ),
         ("colon_style_no_space", (":option1: a", ":option2: b", "content", "```")),
+        (
+            "block_style_indented",
+            ("---", "    option1: a", "    option2: b", "---", "content", "```"),
+        ),
+        (
+            "colon_style_indented",
+            ("    :option1: a", "    :option2: b", "content", "```"),
+        ),
     ],
 )
 def test_directive_options(renderer, type, text):

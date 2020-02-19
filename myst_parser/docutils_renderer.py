@@ -6,6 +6,7 @@ import sys
 from typing import List, Optional
 from unittest import mock
 from urllib.parse import urlparse, unquote
+from textwrap import dedent
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -471,6 +472,7 @@ class DocutilsRenderer(BaseRenderer):
                 yaml_block = content
                 content = ""
             try:
+                yaml_block = dedent(yaml_block)
                 options = yaml.safe_load(yaml_block) or {}
             except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
                 msg_node = self.document.reporter.system_message(
@@ -486,7 +488,7 @@ class DocutilsRenderer(BaseRenderer):
             while content_lines:
                 if not content_lines[0].startswith(":"):
                     break
-                yaml_lines.append(content_lines.pop(0)[1:])
+                yaml_lines.append(content_lines.pop(0)[1:].lstrip())
             yaml_block = "\n".join(yaml_lines)
             content = "\n".join(content_lines)
             try:
