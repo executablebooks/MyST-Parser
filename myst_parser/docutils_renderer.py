@@ -631,15 +631,15 @@ class DocutilsRenderer(BaseRenderer):
         arguments = arg_text.split()
         if len(arguments) < required:
             raise DirectiveParsingError(
-                "{} argument(s) required, {} supplied".format(required, len(arguments))
+                "{} argument(s) required, {} supplied, argument text: '{}'".format(required, len(arguments), arg_text)
             )
         elif len(arguments) > required + optional:
             if directive.final_argument_whitespace:
                 arguments = arg_text.split(None, required + optional - 1)
             else:
                 raise DirectiveParsingError(
-                    "maximum {} argument(s) allowed, {} supplied".format(
-                        required + optional, len(arguments)
+                    "maximum {} argument(s) allowed, {} supplied, argument text: '{}'".format(
+                        required + optional, len(arguments), arg_text
                     )
                 )
         return arguments
