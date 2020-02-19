@@ -1,7 +1,5 @@
 import re
 
-import yaml
-
 from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
 
@@ -39,6 +37,19 @@ __all__ = [
 class FrontMatter(block_token.BlockToken):
     """Front matter YAML block.
 
+    ::
+
+        ---
+        a: b
+        c: d
+        ---
+
+    NOTE: The content of the block should be valid YAML,
+    but its parsing (and hence syntax testing) is deferred to the renderers.
+    This is so that, given 'bad' YAML,
+    the rest of the of document will still be parsed,
+    and then the renderers can apply there own error reporting.
+
     Not included in the parsing process, but called by Document.__init__.
     """
 
@@ -53,8 +64,7 @@ class FrontMatter(block_token.BlockToken):
         if end_line is None:
             end_line = len(lines)
         self.range = (0, end_line)
-        yaml_block = "\n".join(lines[1 : end_line - 1])
-        self.data = yaml.safe_load(yaml_block) or {}
+        self.content = "\n".join(lines[1 : end_line - 1])
         self.children = []
 
     @classmethod
@@ -319,12 +329,12 @@ class CodeFence(block_token.CodeFence):
         language (str): language of code block (default to empty).
     """
 
-    pattern = re.compile(r"( {0,3})((?:`|~){3,}) *([^`~\s]*) *([^`~]*)")
+    pattern = re.compile(r"^( {0,3})((?:`|~){3,}) *([^`~\s]*) *([^`~]*)$")
 
     def __init__(self, match):
         lines, open_info, self.range = match
         self.language = span_token.EscapeSequence.strip(open_info[2])
-        self.arguments = span_token.EscapeSequence.strip(open_info[3])
+        self.arguments = span_token.EscapeSequence.strip(open_info[3].splitlines()[0])
         self.children = (span_token.RawText("".join(lines)),)
 
     @classmethod

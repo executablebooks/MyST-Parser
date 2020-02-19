@@ -439,7 +439,7 @@ Is below, but it won't be parsed into the document.
 
 (syntax/targets)=
 
-### Targets
+### Targets and Cross-Referencing
 
 Targets are used to define custom anchors that you can refer to elsewhere in your
 documentation. They generally go before section titles so that you can easily refer
@@ -451,11 +451,32 @@ Target headers are defined with this syntax:
 (header_target)=
 ```
 
-They can then be referred to with the "ref" inline role:
+They can then be referred to with the [ref inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref):
 
 ```
 {ref}`header_target`
 ```
 
-For example, see this ref: {ref}`syntax/targets` and here's a ref back to the top of
-this page {ref}`example_syntax`.
+By default, the reference will use the text of the target (such as the section title), but also you can directly specify the text:
+
+```
+{ref}`my text <header_target>`
+```
+
+For example, see this ref: {ref}`syntax/targets`, and here's a ref back to the top of
+this page: {ref}`my text <example_syntax>`.
+
+Alternatively using the markdown syntax:
+
+```markdown
+[my text](header_target)
+```
+
+is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
+
+```
+{any}`my text <header_target>`
+```
+
+Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
+this page: [my text](example_syntax).

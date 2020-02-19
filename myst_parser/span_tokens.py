@@ -52,13 +52,13 @@ class Role(span_token.SpanToken):
 
 
 class Math(span_token.SpanToken):
-    pattern = re.compile(r"(?<!\\|`)(?:\\\\)*(\${1,2})([^\$]+?)\1")
+    pattern = re.compile(r"(?<!\\)(?:\\\\)*(\${1,2})([^\$]+?)\1")
     parse_inner = False
     parse_group = 0
 
 
 class Target(span_token.SpanToken):
-    """Target tokens. ("!(target name)")"""
+    """Target tokens. ("(target name)")"""
 
     pattern = re.compile(r"(?<!\\)(?:\\\\)*\((.+?)\)\=", re.DOTALL)
     parse_inner = False

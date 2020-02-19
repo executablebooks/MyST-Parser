@@ -6,4 +6,5 @@ codebase, and some guidelines for how you can contribute.
 ```{toctree}
 contributing.md
 architecture.md
+test_infrastructure.md
 ```

@@ -3,17 +3,19 @@ from itertools import chain
 from os.path import splitext
 import re
 import sys
-from typing import List, Optional
+from textwrap import dedent
+from typing import Callable, Dict, List, Optional, Type
 from unittest import mock
 from urllib.parse import urlparse, unquote
 
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.languages import get_language
-from docutils.parsers.rst import directives, DirectiveError, roles
+from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.directives.misc import TestDirective
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
-from docutils.utils import new_document
+from docutils.utils import new_document, Reporter
 import yaml
 
 from mistletoe import Document, block_token, span_token
@@ -22,6 +24,10 @@ from mistletoe.base_renderer import BaseRenderer
 from myst_parser import span_tokens as myst_span_tokens
 from myst_parser import block_tokens as myst_block_tokens
 from myst_parser.utils import escape_url
+
+
+class DirectiveParsingError(Exception):
+    pass
 
 
 class DocutilsRenderer(BaseRenderer):
@@ -51,6 +57,7 @@ class DocutilsRenderer(BaseRenderer):
         """
         self.config = config or {}
         self.document = document or self.new_document()  # type: nodes.document
+        self.reporter = self.document.reporter  # type: Reporter
         self.current_node = current_node or self.document  # type: nodes.Element
         self.language_module = self.document.settings.language_code  # type: str
         get_language(self.language_module)
@@ -103,7 +110,18 @@ class DocutilsRenderer(BaseRenderer):
         """
         # TODO this data could be used to support default option values for directives
         docinfo = nodes.docinfo()
-        for key, value in token.data.items():
+
+        try:
+            data = yaml.safe_load(token.content) or {}
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+            msg_node = self.reporter.error(
+                "Front matter block:\n" + str(error), line=token.range[0]
+            )
+            msg_node += nodes.literal_block(token.content, token.content)
+            self.current_node += [msg_node]
+            return
+
+        for key, value in data.items():
             if not isinstance(value, (str, int, float)):
                 continue
             value = str(value)
@@ -295,11 +313,11 @@ class DocutilsRenderer(BaseRenderer):
             scheme_known = bool(url_check.scheme)
 
         if not url_check.fragment and not scheme_known:
-            next_node = self.handle_cross_reference(token, destination, ref_node)
-
-        self.current_node.append(next_node)
-        with self.set_current_node(ref_node):
-            self.render_children(token)
+            self.handle_cross_reference(token, destination)
+        else:
+            self.current_node.append(next_node)
+            with self.set_current_node(ref_node):
+                self.render_children(token)
 
     def render_image(self, token):
         img_node = nodes.image()
@@ -403,7 +421,7 @@ class DocutilsRenderer(BaseRenderer):
         lineno = 0  # TODO get line number
         inliner = MockInliner(self, lineno)
         role_func, messages = roles.role(
-            name, self.language_module, lineno, self.document.reporter
+            name, self.language_module, lineno, self.reporter
         )
         rawsource = ":{}:`{}`".format(name, content)
         # # backslash escapes converted to nulls (``\x00``)
@@ -413,7 +431,7 @@ class DocutilsRenderer(BaseRenderer):
             # return nodes, messages + messages2
             self.current_node += nodes
         else:
-            message = self.document.reporter.error(
+            message = self.reporter.error(
                 'Unknown interpreted text role "{}".'.format(name), line=lineno
             )
             # return ([self.problematic(content, content, msg)], messages + [msg])
@@ -458,69 +476,58 @@ class DocutilsRenderer(BaseRenderer):
 
         """
         name = token.language[1:-1]
-        content = token.children[0].content
-        options = {}
-        # get YAML options
-        if content.startswith("---"):
-            content = "\n".join(content.splitlines()[1:])
-            match = re.search(r"^-{3,}", content, re.MULTILINE)
-            if match:
-                yaml_block = content[: match.start()]
-                content = content[match.end() + 1 :]  # TODO advance line number
-            else:
-                yaml_block = content
-                content = ""
-            try:
-                options = yaml.safe_load(yaml_block) or {}
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                msg_node = self.document.reporter.system_message(
-                    3, "Directive options:\n" + str(error), line=token.range[0]
-                )  # 3 is ERROR level
-                msg_node += nodes.literal_block(yaml_block, yaml_block)
-                self.current_node += [msg_node]
-                return
-            # TODO check options are an un-nested dict / json serialize ?
-        elif content.startswith(":"):
-            content_lines = content.splitlines()  # type: list
-            yaml_lines = []
-            while content_lines:
-                if not content_lines[0].startswith(":"):
-                    break
-                yaml_lines.append(content_lines.pop(0)[1:])
-            yaml_block = "\n".join(yaml_lines)
-            content = "\n".join(content_lines)
-            try:
-                options = yaml.safe_load(yaml_block) or {}
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                msg_node = self.document.reporter.system_message(
-                    3, "Directive options:\n" + str(error), line=token.range[0]
-                )  # 3 is ERROR level
-                msg_node += nodes.literal_block(yaml_block, yaml_block)
-                self.current_node += [msg_node]
-                return
-
-        # remove first line if blank
-        content_lines = content.splitlines()
-        if content_lines and not content_lines[0].strip():
-            content_lines = content_lines[1:]
-
         # TODO directive name white/black lists
+        content = token.children[0].content
+        self.document.current_line = token.range[0]
+
+        # get directive class
         directive_class, messages = directives.directive(
             name, self.language_module, self.document
-        )
+        )  # type: (Directive, list)
         if not directive_class:
-            # TODO deal with unknown directive
             self.current_node += messages
             return
 
+        # get directive arguments
         try:
             arguments = self.parse_directive_arguments(directive_class, token.arguments)
-        except RuntimeError:
-            # TODO handle/report error
-            raise
+        except DirectiveParsingError as error:
+            error = self.reporter.error(
+                "Directive '{}' arguments:\n{}".format(name, error),
+                nodes.literal_block(content, content),
+                line=token.range[0],
+            )
+            self.current_node += [error]
+            return
 
+        # get directive options
+        try:
+            body, options = self.parse_directive_options(content, directive_class)
+        except DirectiveParsingError as error:
+            msg_node = self.reporter.error(
+                "Directive '{}' options:\n{}".format(name, error), line=token.range[0]
+            )
+            msg_node += nodes.literal_block(content, content)
+            self.current_node += [msg_node]
+            return
+
+        # remove first line if blank
+        body_lines = body.splitlines()
+        if body_lines and not body_lines[0].strip():
+            body_lines = body_lines[1:]
+
+        # check for body content
+        if body_lines and not directive_class.has_content:
+            error = self.reporter.error(
+                'Error in "{}" directive: no content permitted.'.format(name),
+                nodes.literal_block(content, content),
+                line=token.range[0],
+            )
+            self.current_node += [error]
+            return
+
+        # initialise directive
         state_machine = MockStateMachine(self, token.range[0])
-
         directive_instance = directive_class(
             name=name,
             # the list of positional arguments
@@ -529,21 +536,22 @@ class DocutilsRenderer(BaseRenderer):
             # TODO option parsing
             options=options,
             # the directive content line by line
-            content=content_lines,
+            content=body_lines,
             # the absolute line number of the first line of the directive
             lineno=token.range[0],
             # the line offset of the first line of the content
             content_offset=0,
             # a string containing the entire directive
-            block_text="\n".join(content_lines),
+            block_text="\n".join(body_lines),
             state=MockState(self, state_machine, token.range[0]),
             state_machine=state_machine,
         )
 
+        # run directive
         try:
             result = directive_instance.run()
         except DirectiveError as error:
-            msg_node = self.document.reporter.system_message(
+            msg_node = self.reporter.system_message(
                 error.level, error.msg, line=token.range[0]
             )
             msg_node += nodes.literal_block(content, content)
@@ -563,19 +571,73 @@ class DocutilsRenderer(BaseRenderer):
         self.current_node += result
 
     @staticmethod
+    def parse_directive_options(content: str, directive_class: Type[Directive]):
+        options = {}
+        if content.startswith("---"):
+            content = "\n".join(content.splitlines()[1:])
+            match = re.search(r"^-{3,}", content, re.MULTILINE)
+            if match:
+                yaml_block = content[: match.start()]
+                content = content[match.end() + 1 :]  # TODO advance line number
+            else:
+                yaml_block = content
+                content = ""
+            yaml_block = dedent(yaml_block)
+            try:
+                options = yaml.safe_load(yaml_block) or {}
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                raise DirectiveParsingError("Invalid YAML: " + str(error))
+        elif content.lstrip().startswith(":"):
+            content_lines = content.splitlines()  # type: list
+            yaml_lines = []
+            while content_lines:
+                if not content_lines[0].lstrip().startswith(":"):
+                    break
+                yaml_lines.append(content_lines.pop(0).lstrip()[1:])
+            yaml_block = "\n".join(yaml_lines)
+            content = "\n".join(content_lines)
+            try:
+                options = yaml.safe_load(yaml_block) or {}
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                raise DirectiveParsingError("Invalid YAML: " + str(error))
+
+        if issubclass(directive_class, TestDirective):
+            # technically this directive spec only accepts one option ('option')
+            # but since its for testing only we accept all options
+            return content, options
+
+        # check options against spec
+        options_spec = directive_class.option_spec  # type: Dict[str, Callable]
+        for name, value in list(options.items()):
+            convertor = options_spec.get(name, None)
+            if convertor is None:
+                raise DirectiveParsingError("Unknown option: {}".format(name))
+            try:
+                converted_value = convertor(value)
+            except (ValueError, TypeError) as error:
+                raise DirectiveParsingError(
+                    "Invalid option value: (option: '{}'; value: {})\n{}".format(
+                        name, value, error
+                    )
+                )
+            options[name] = converted_value
+
+        return content, options
+
+    @staticmethod
     def parse_directive_arguments(directive, arg_text):
         required = directive.required_arguments
         optional = directive.optional_arguments
         arguments = arg_text.split()
         if len(arguments) < required:
-            raise RuntimeError(
+            raise DirectiveParsingError(
                 "{} argument(s) required, {} supplied".format(required, len(arguments))
             )
         elif len(arguments) > required + optional:
             if directive.final_argument_whitespace:
                 arguments = arg_text.split(None, required + optional - 1)
             else:
-                raise RuntimeError(
+                raise DirectiveParsingError(
                     "maximum {} argument(s) allowed, {} supplied".format(
                         required + optional, len(arguments)
                     )
@@ -589,22 +651,25 @@ class SphinxRenderer(DocutilsRenderer):
     This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
     """
 
-    def handle_cross_reference(self, token, destination, ref_node):
+    def handle_cross_reference(self, token, destination):
         from sphinx import addnodes
 
         wrap_node = addnodes.pending_xref(
             reftarget=unquote(destination),
             reftype="any",
             refdomain=None,  # Added to enable cross-linking
-            refexplicit=True,
+            refexplicit=len(token.children) > 0,
             refwarn=True,
         )
         # TODO also not correct sourcepos
         # wrap_node.line = self._get_line(token)
         if token.title:
             wrap_node["title"] = token.title
-        wrap_node.append(ref_node)
-        return wrap_node
+        self.current_node.append(wrap_node)
+        text_node = nodes.TextElement("", "", classes=["xref", "any"])
+        wrap_node.append(text_node)
+        with self.set_current_node(text_node):
+            self.render_children(token)
 
     def mock_sphinx_env(self):
         """Load sphinx roles, directives, etc."""

@@ -11,7 +11,7 @@ from myst_parser import block_tokens as myst_block_tokens
 
 class HTMLRenderer(html_renderer.HTMLRenderer):
     def __init__(self, add_mathjax=False):
-        """This HTML render used the same block/span tokens as the docutils renderer.
+        """This HTML render uses the same block/span tokens as the docutils renderer.
 
         It is used to test compliance with the commonmark spec.
         """
@@ -45,6 +45,15 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
 
     def render_code_fence(self, token):
         return self.render_block_code(token)
+
+    def render_front_matter(self, token):
+        raise NotImplementedError
+
+    def render_line_comment(self, token):
+        raise NotImplementedError
+
+    def render_target(self, token):
+        raise NotImplementedError
 
     def render_math(self, token):
         """

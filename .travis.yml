@@ -22,7 +22,7 @@ install:
         pip install coveralls
       fi
 before_script:
-    - (cd tests/commonmark && ./spec.sh)
+    - (cd tests/test_commonmark && ./spec.sh)
 script:
 - |
   if [[ "$TEST_TYPE" == "pytest" ]]; then

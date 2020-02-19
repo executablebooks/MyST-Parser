@@ -40,15 +40,7 @@ setup(
         )
     ],
     extras_require={
-        "sphinx": [
-            "pyyaml",
-            "docutils>=0.15",
-            "sphinx>=2,<3",
-            (
-                "pandas_sphinx_theme @ "
-                "https://github.com/pandas-dev/pandas-sphinx-theme/archive/master.zip"
-            ),
-        ],
+        "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",
@@ -57,7 +49,14 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "rtd": ["sphinxcontrib-bibtex", "ipython"],
+        "rtd": [
+            "sphinxcontrib-bibtex",
+            "ipython",
+            (
+                "pandas_sphinx_theme @ "
+                "https://github.com/pandas-dev/pandas-sphinx-theme/archive/master.zip"
+            ),
+        ],
     },
     zip_safe=True,
 )
