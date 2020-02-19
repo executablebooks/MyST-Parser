@@ -421,25 +421,88 @@ class DocutilsRenderer(BaseRenderer):
             self.current_node += problematic
 
     def render_directive(self, token):
+        """parse fenced code blocks as directives.
+
+        Such a fenced code block starts with `{directive_name}`,
+        followed by arguments on the same line.
+
+        Directive options are read from a YAML block,
+        if the first content line starts with `---`, e.g.
+
+        ::
+
+            ```{directive_name} arguments
+            ---
+            option1: name
+            option2: |
+                Longer text block
+            ---
+            content...
+            ```
+
+        Or the option block will be parsed if the first content line starts with `:`,
+        as a YAML block consisting of every line that starts with a `:`, e.g.
+
+        ::
+
+            ```{directive_name} arguments
+            :option1: name
+            :option2: other
+
+            content...
+            ```
+
+        If the first line of a directive's content is blank, this will be stripped
+        from the content.
+        This is to allow for separation between the option block and content.
+
+        """
         name = token.language[1:-1]
         content = token.children[0].content
         options = {}
+        # get YAML options
         if content.startswith("---"):
             content = "\n".join(content.splitlines()[1:])
-            # get YAML options
             match = re.search(r"^-{3,}", content, re.MULTILINE)
             if match:
                 yaml_block = content[: match.start()]
-                content = content[match.end() :]  # TODO advance line number
+                content = content[match.end() + 1 :]  # TODO advance line number
             else:
                 yaml_block = content
                 content = ""
             try:
                 options = yaml.safe_load(yaml_block) or {}
-            except yaml.parser.ParserError:
-                # TODO handle/report yaml parse error
-                pass
-            # TODO check options are an un-nested dict?
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                msg_node = self.document.reporter.system_message(
+                    3, "Directive options:\n" + str(error), line=token.range[0]
+                )  # 3 is ERROR level
+                msg_node += nodes.literal_block(yaml_block, yaml_block)
+                self.current_node += [msg_node]
+                return
+            # TODO check options are an un-nested dict / json serialize ?
+        elif content.startswith(":"):
+            content_lines = content.splitlines()  # type: list
+            yaml_lines = []
+            while content_lines:
+                if not content_lines[0].startswith(":"):
+                    break
+                yaml_lines.append(content_lines.pop(0)[1:])
+            yaml_block = "\n".join(yaml_lines)
+            content = "\n".join(content_lines)
+            try:
+                options = yaml.safe_load(yaml_block) or {}
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                msg_node = self.document.reporter.system_message(
+                    3, "Directive options:\n" + str(error), line=token.range[0]
+                )  # 3 is ERROR level
+                msg_node += nodes.literal_block(yaml_block, yaml_block)
+                self.current_node += [msg_node]
+                return
+
+        # remove first line if blank
+        content_lines = content.splitlines()
+        if content_lines and not content_lines[0].strip():
+            content_lines = content_lines[1:]
 
         # TODO directive name white/black lists
         directive_class, messages = directives.directive(
@@ -466,13 +529,13 @@ class DocutilsRenderer(BaseRenderer):
             # TODO option parsing
             options=options,
             # the directive content line by line
-            content=content.splitlines(),
+            content=content_lines,
             # the absolute line number of the first line of the directive
             lineno=token.range[0],
             # the line offset of the first line of the content
             content_offset=0,
             # a string containing the entire directive
-            block_text=content,
+            block_text="\n".join(content_lines),
             state=MockState(self, state_machine, token.range[0]),
             state_machine=state_machine,
         )

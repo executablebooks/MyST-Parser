@@ -4,84 +4,96 @@
         "class": "docutils.parsers.rst.directives.admonitions.Attention",
         "args": [],
         "options": {},
-        "output": "<attention>"
+        "content": "a",
+        "output": "<attention>\n    <paragraph>\n        a"
     },
     {
         "name": "caution",
         "class": "docutils.parsers.rst.directives.admonitions.Caution",
         "args": [],
         "options": {},
-        "output": "<caution>"
+        "content": "a",
+        "output": "<caution>\n    <paragraph>\n        a"
     },
     {
         "name": "danger",
         "class": "docutils.parsers.rst.directives.admonitions.Danger",
         "args": [],
         "options": {},
-        "output": "<danger>"
+        "content": "a",
+        "output": "<danger>\n    <paragraph>\n        a"
     },
     {
         "name": "error",
         "class": "docutils.parsers.rst.directives.admonitions.Error",
         "args": [],
         "options": {},
-        "output": "<error>"
+        "content": "a",
+        "output": "<error>\n    <paragraph>\n        a"
     },
     {
         "name": "important",
         "class": "docutils.parsers.rst.directives.admonitions.Important",
         "args": [],
         "options": {},
-        "output": "<important>"
+        "content": "a",
+        "output": "<important>\n    <paragraph>\n        a"
     },
     {
         "name": "note",
         "class": "docutils.parsers.rst.directives.admonitions.Note",
         "args": [],
         "options": {},
-        "output": "<note>"
+        "content": "a",
+        "output": "<note>\n    <paragraph>\n        a"
     },
     {
         "name": "tip",
         "class": "docutils.parsers.rst.directives.admonitions.Tip",
         "args": [],
         "options": {},
-        "output": "<tip>"
+        "content": "a",
+        "output": "<tip>\n    <paragraph>\n        a"
     },
     {
         "name": "hint",
         "class": "docutils.parsers.rst.directives.admonitions.Hint",
         "args": [],
         "options": {},
-        "output": "<hint>"
+        "content": "a",
+        "output": "<hint>\n    <paragraph>\n        a"
     },
     {
         "name": "warning",
         "class": "docutils.parsers.rst.directives.admonitions.Warning",
         "args": [],
         "options": {},
-        "output": "<warning>"
+        "content": "a",
+        "output": "<warning>\n    <paragraph>\n        a"
     },
     {
         "name": "admonition",
         "class": "docutils.parsers.rst.directives.admonitions.Admonition",
         "args": ["myclass"],
         "options": {},
-        "output": "<admonition classes=\"admonition-myclass\">\n    <title>\n        myclass"
+        "content": "a",
+        "output": "<admonition classes=\"admonition-myclass\">\n    <title>\n        myclass\n    <paragraph>\n        a"
     },
     {
         "name": "sidebar",
         "class": "docutils.parsers.rst.directives.body.Sidebar",
         "args": ["sidebar title"],
         "options": {},
-        "output": "<sidebar>\n    <title>\n        sidebar title"
+        "content": "a",
+        "output": "<sidebar>\n    <title>\n        sidebar title\n    <paragraph>\n        a"
     },
     {
         "name": "topic",
         "class": "docutils.parsers.rst.directives.body.Topic",
         "args": ["Topic Title"],
         "options": {},
-        "output": "<topic>\n    <title>\n        Topic Title"
+        "content": "a",
+        "output": "<topic>\n    <title>\n        Topic Title\n    <paragraph>\n        a"
     },
     {
         "name": "line-block",
@@ -95,7 +107,8 @@
         "class": "docutils.parsers.rst.directives.body.ParsedLiteral",
         "args": [],
         "options": {},
-        "output": "<literal_block xml:space=\"preserve\">"
+        "content": "a",
+        "output": "<literal_block xml:space=\"preserve\">\n    a"
     },
     {
         "name": "rubric",
@@ -109,35 +122,41 @@
         "class": "docutils.parsers.rst.directives.body.Epigraph",
         "args": [],
         "options": {},
-        "output": "<block_quote classes=\"epigraph\">"
+        "content": "a\n\n-- attribution",
+        "output": "<block_quote classes=\"epigraph\">\n    <paragraph>\n        a\n    <attribution>\n        attribution"
     },
     {
         "name": "highlights",
         "class": "docutils.parsers.rst.directives.body.Highlights",
         "args": [],
         "options": {},
-        "output": "<block_quote classes=\"highlights\">"
+        "content": "a\n\n-- attribution",
+        "output": "<block_quote classes=\"highlights\">\n    <paragraph>\n        a\n    <attribution>\n        attribution"
     },
     {
         "name": "pull-quote",
+        "content": "a\n\n-- attribution",
         "class": "docutils.parsers.rst.directives.body.PullQuote",
         "args": [],
         "options": {},
-        "output": "<block_quote classes=\"pull-quote\">"
+        "content": "a\n\n-- attribution",
+        "output": "<block_quote classes=\"pull-quote\">\n    <paragraph>\n        a\n    <attribution>\n        attribution"
     },
     {
         "name": "compound",
         "class": "docutils.parsers.rst.directives.body.Compound",
         "args": [],
         "options": {},
-        "output": "<compound>"
+        "content": "a",
+        "output": "<compound>\n    <paragraph>\n        a"
     },
     {
         "name": "container",
         "class": "docutils.parsers.rst.directives.body.Container",
         "args": [],
         "options": {},
-        "output": "<container>"
+        "content": "a",
+        "output": "<container>\n    <paragraph>\n        a"
     },
     {
         "name": "image",
@@ -165,7 +184,8 @@
         "class": "docutils.parsers.rst.directives.misc.Raw",
         "args": ["raw"],
         "options": {},
-        "output": "<raw format=\"raw\" xml:space=\"preserve\">"
+        "content": "a",
+        "output": "<raw format=\"raw\" xml:space=\"preserve\">\n    a"
     },
     {
         "name": "replace",
@@ -188,7 +208,8 @@
         "class": "docutils.parsers.rst.directives.misc.Class",
         "args": ["myclass"],
         "options": {},
-        "output": ""
+        "content": "a",
+        "output": "<paragraph classes=\"myclass\">\n    a"
     },
     {
         "name": "role",
@@ -219,7 +240,7 @@
         "class": "docutils.parsers.rst.directives.misc.TestDirective",
         "args": [],
         "options": {},
-        "output": "<system_message level=\"1\" line=\"-1\" source=\"\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content:\n    <literal_block xml:space=\"preserve\">"
+        "output": "<system_message level=\"1\" line=\"0\" source=\"\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content: None"
     },
     {
         "name": "contents",
@@ -240,14 +261,16 @@
         "class": "docutils.parsers.rst.directives.parts.Header",
         "args": [],
         "options": {},
-        "output": "<decoration>\n    <header>"
+        "content": "a",
+        "output": "<decoration>\n    <header>\n        <paragraph>\n            a"
     },
     {
         "name": "footer",
         "class": "docutils.parsers.rst.directives.parts.Footer",
         "args": [],
         "options": {},
-        "output": "<decoration>\n    <footer>"
+        "content": "a",
+        "output": "<decoration>\n    <footer>\n        <paragraph>\n            a"
     },
     {
         "name": "target-notes",
@@ -292,13 +315,6 @@
         "output": "<highlightlang force=\"False\" lang=\"something\" linenothreshold=\"9223372036854775807\">"
     },
     {
-        "name": "highlightlang",
-        "class": "sphinx.directives.code.HighlightLang",
-        "args": ["something"],
-        "options": {},
-        "output": "<highlightlang force=\"False\" lang=\"something\" linenothreshold=\"9223372036854775807\">"
-    },
-    {
         "name": "code-block",
         "class": "sphinx.directives.code.CodeBlock",
         "args": [],
@@ -318,7 +334,7 @@
         "class": "sphinx.directives.code.LiteralInclude",
         "args": ["/path/to/file"],
         "options": {},
-        "output": "<system_message level=\"2\" line=\"-1\" source=\"\" type=\"WARNING\">\n    <paragraph>\n        Include file '/srcdir/path/to/file' not found or reading it failed"
+        "output": "<system_message level=\"2\" line=\"0\" source=\"\" type=\"WARNING\">\n    <paragraph>\n        Include file '/srcdir/path/to/file' not found or reading it failed"
     },
     {
         "name": "toctree",
@@ -360,7 +376,8 @@
         "class": "sphinx.directives.other.SeeAlso",
         "args": [],
         "options": {},
-        "output": "<seealso>"
+        "content": "a",
+        "output": "<seealso>\n    <paragraph>\n        a"
     },
     {
         "name": "tabularcolumns",
@@ -449,7 +466,8 @@
         "class": "sphinx.directives.patches.Code",
         "args": ["python"],
         "options": {},
-        "output": "<literal_block force=\"False\" highlight_args=\"{}\" language=\"python\" xml:space=\"preserve\">"
+        "content": "a",
+        "output": "<literal_block force=\"False\" highlight_args=\"{}\" language=\"python\" xml:space=\"preserve\">\n    a"
     },
     {
         "name": "math",

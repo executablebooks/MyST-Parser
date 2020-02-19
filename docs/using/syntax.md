@@ -180,6 +180,19 @@ print('my 1st line')
 print(f'my {a}nd line')
 ```
 
+As a short-hand alternative, more closely resembling the reStructuredText syntax, options may also be denoted by an initial block, whereby all lines start with '`:`', for example:
+
+````
+```{code-block} python
+:lineno-start: 10
+:emphasize-lines: 1, 3
+
+a = 2
+print('my 1st line')
+print(f'my {a}nd line')
+```
+````
+
 ### Nesting directives
 
 You can nest directives by ensuring that the ticklines corresponding to the
