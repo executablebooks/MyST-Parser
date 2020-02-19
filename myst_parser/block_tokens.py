@@ -319,12 +319,12 @@ class CodeFence(block_token.CodeFence):
         language (str): language of code block (default to empty).
     """
 
-    pattern = re.compile(r"( {0,3})((?:`|~){3,}) *([^`~\s]*) *([^`~]*)")
+    pattern = re.compile(r"^( {0,3})((?:`|~){3,}) *([^`~\s]*) *([^`~]*)$")
 
     def __init__(self, match):
         lines, open_info, self.range = match
         self.language = span_token.EscapeSequence.strip(open_info[2])
-        self.arguments = span_token.EscapeSequence.strip(open_info[3])
+        self.arguments = span_token.EscapeSequence.strip(open_info[3].splitlines()[0])
         self.children = (span_token.RawText("".join(lines)),)
 
     @classmethod
