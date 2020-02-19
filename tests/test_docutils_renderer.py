@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from textwrap import dedent, indent
 from unittest import mock
 
@@ -354,18 +355,17 @@ with open(os.path.join(os.path.dirname(__file__), "sphinx_roles.json"), "r") as 
 
 
 @pytest.mark.parametrize(
-    "role_data",
+    "name,role_data",
     [
-        r
+        (r["name"], r)
         for r in roles_tests
         if r["import"].startswith("docutils")
         and not r["import"].endswith("unimplemented_role")
         and not r["import"].endswith("CustomRole")
     ],
 )
-def test_docutils_roles(renderer, role_data):
+def test_docutils_roles(renderer, name, role_data):
     """"""
-    name = role_data["name"]
     if name in ["raw"]:
         # TODO fix skips
         pytest.skip("awaiting fix")
@@ -384,18 +384,17 @@ def test_docutils_roles(renderer, role_data):
 
 
 @pytest.mark.parametrize(
-    "role_data",
+    "name,role_data",
     [
-        r
+        (r["name"], r)
         for r in roles_tests
         if r["import"].startswith("sphinx")
         # and not r["import"].endswith("unimplemented_role")
         # and not r["import"].endswith("CustomRole")
     ],
 )
-def test_sphinx_roles(sphinx_renderer, role_data):
+def test_sphinx_roles(sphinx_renderer, name, role_data):
     """"""
-    name = role_data["name"]
     # note, I think most of these have are actually node types rather than roles,
     # that I've erroneously picked up in my gather function.
     if name in [
@@ -455,17 +454,16 @@ with open(
 
 
 @pytest.mark.parametrize(
-    "directive",
+    "name,directive",
     [
-        d
+        (d["name"], d)
         for d in directive_tests
         if d["class"].startswith("docutils") and not d.get("sub_only", False)
         # todo add substitution definition directive and reference role
     ],
 )
-def test_docutils_directives(renderer, directive):
+def test_docutils_directives(renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
-    name = directive["name"]
     if name in [
         "role",
         "rst-class",
@@ -497,16 +495,15 @@ def test_docutils_directives(renderer, directive):
 
 
 @pytest.mark.parametrize(
-    "directive",
+    "name,directive",
     [
-        d
+        (d["name"], d)
         for d in directive_tests
         if d["class"].startswith("sphinx") and not d.get("sub_only", False)
     ],
 )
-def test_sphinx_directives(sphinx_renderer, directive):
+def test_sphinx_directives(sphinx_renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
-    name = directive["name"]
     if name in ["csv-table", "meta", "include"]:
         # TODO fix skips
         pytest.skip("awaiting fix")
@@ -530,4 +527,63 @@ def test_sphinx_directives(sphinx_renderer, directive):
         + "\n"
         + indent(directive["output"], "    ")
         + ("\n" if directive["output"] else "")
+    )
+
+
+@pytest.mark.skipif(
+    sys.version_info.major == 3 and sys.version_info.minor <= 5,
+    reason="option dict keys in wrong order",
+)
+@pytest.mark.parametrize(
+    "type,text",
+    [
+        (
+            "block_style",
+            ("---", "option1: a", "option2: b", "---", "", "content", "```"),
+        ),
+        ("colon_style", (":option1: a", ":option2: b", "", "content", "```")),
+        (
+            "block_style_no_space",
+            ("---", "option1: a", "option2: b", "---", "content", "```"),
+        ),
+        ("colon_style_no_space", (":option1: a", ":option2: b", "content", "```")),
+    ],
+)
+def test_directive_options(renderer, type, text):
+    renderer.render(Document(["```{restructuredtext-test-directive}"] + list(text)))
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="">
+        <system_message level="1" line="0" source="" type="INFO">
+            <paragraph>
+                Directive processed. Type="restructuredtext-test-directive", arguments=[], options={'option1': 'a', 'option2': 'b'}, content:
+            <literal_block xml:space="preserve">
+                content
+    """  # noqa: E501
+    )
+
+
+@pytest.mark.parametrize(
+    "type,text",
+    [
+        ("block_style", ("---", "option1", "option2: b", "---", "", "content", "```")),
+        ("colon_style", (":option1", ":option2: b", "", "content", "```")),
+    ],
+)
+def test_directive_options_error(renderer, type, text):
+    renderer.render(Document(["```{restructuredtext-test-directive}"] + list(text)))
+    assert renderer.document.pformat() == dedent(
+        """\
+        <document source="">
+            <system_message level="3" line="0" source="" type="ERROR">
+                <paragraph>
+                    Directive options:
+                    mapping values are not allowed here
+                      in "<unicode string>", line 2, column 8:
+                        option2: b
+                               ^
+                <literal_block xml:space="preserve">
+                    option1
+                    option2: b
+        """
     )
