@@ -13,6 +13,7 @@ from docutils.frontend import OptionParser
 from docutils.languages import get_language
 from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.directives.misc import TestDirective
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
 from docutils.utils import new_document, Reporter
 import yaml
@@ -600,7 +601,7 @@ class DocutilsRenderer(BaseRenderer):
             except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
                 raise DirectiveParsingError("Invalid YAML: " + str(error))
 
-        if directive_class.__name__ == "TestDirective":
+        if issubclass(directive_class, TestDirective):
             # technically this directive spec only accepts one option ('option')
             # but since its for testing only we accept all options
             return content, options
