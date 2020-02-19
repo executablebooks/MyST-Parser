@@ -312,11 +312,11 @@ class DocutilsRenderer(BaseRenderer):
             scheme_known = bool(url_check.scheme)
 
         if not url_check.fragment and not scheme_known:
-            next_node = self.handle_cross_reference(token, destination, ref_node)
-
-        self.current_node.append(next_node)
-        with self.set_current_node(ref_node):
-            self.render_children(token)
+            self.handle_cross_reference(token, destination)
+        else:
+            self.current_node.append(next_node)
+            with self.set_current_node(ref_node):
+                self.render_children(token)
 
     def render_image(self, token):
         img_node = nodes.image()
@@ -650,22 +650,25 @@ class SphinxRenderer(DocutilsRenderer):
     This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
     """
 
-    def handle_cross_reference(self, token, destination, ref_node):
+    def handle_cross_reference(self, token, destination):
         from sphinx import addnodes
 
         wrap_node = addnodes.pending_xref(
             reftarget=unquote(destination),
             reftype="any",
             refdomain=None,  # Added to enable cross-linking
-            refexplicit=True,
+            refexplicit=len(token.children) > 0,
             refwarn=True,
         )
         # TODO also not correct sourcepos
         # wrap_node.line = self._get_line(token)
         if token.title:
             wrap_node["title"] = token.title
-        wrap_node.append(ref_node)
-        return wrap_node
+        self.current_node.append(wrap_node)
+        text_node = nodes.TextElement("", "", classes=["xref", "any"])
+        wrap_node.append(text_node)
+        with self.set_current_node(text_node):
+            self.render_children(token)
 
     def mock_sphinx_env(self):
         """Load sphinx roles, directives, etc."""

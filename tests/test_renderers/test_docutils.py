@@ -231,6 +231,8 @@ def test_cross_referencing(sphinx_renderer, file_regression):
 
         [alt1](target)
 
+        [](target2)
+
         [alt2](https://www.google.com)
 
         [alt3](#target3)

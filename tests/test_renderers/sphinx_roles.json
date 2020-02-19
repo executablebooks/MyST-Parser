@@ -600,7 +600,8 @@
         "name": "any",
         "import": "sphinx.roles.AnyXRefRole",
         "type": "class",
-        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"\" refexplicit=\"False\" reftarget=\"a\" reftype=\"any\" refwarn=\"True\">\n        <literal classes=\"xref any\">\n            a"
+        "content": "a <alt text>",
+        "output": "<paragraph>\n    <pending_xref refdoc=\"mock_docname\" refdomain=\"\" refexplicit=\"True\" reftarget=\"alt text\" reftype=\"any\" refwarn=\"True\">\n        <literal classes=\"xref any\">\n            a"
     },
     {
         "name": "pep",

@@ -6,7 +6,7 @@ manner:
 
 > **Write failing tests that the code should pass, then write code to pass the tests**.
 
-The tests are run using [pytest](https://docs.pytest.org)/[TravisCI](travis-ci.org) for unit tests, and [sphinx-build](https://www.sphinx-doc.org/en/master/man/sphinx-build.html)/[CircleCI](https://circleci.com) for documentation build tests.
+The tests are run using [pytest](https://docs.pytest.org)/[TravisCI](https://travis-ci.org) for unit tests, and [sphinx-build](https://www.sphinx-doc.org/en/master/man/sphinx-build.html)/[CircleCI](https://circleci.com) for documentation build tests.
 
 The tests are ordered in a hierarchical fashion:
 

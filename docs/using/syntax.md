@@ -451,20 +451,32 @@ Target headers are defined with this syntax:
 (header_target)=
 ```
 
-They can then be referred to with the [ref](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref) inline role:
+They can then be referred to with the [ref inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref):
 
 ```
 {ref}`header_target`
 ```
 
-For example, see this ref: {ref}`syntax/targets` and here's a ref back to the top of
-this page {ref}`example_syntax`.
+By default, the reference will use the text of the target (such as the section title), but also you can directly specify the text:
 
-Alternatively using the markdown syntax; `[alt text](header_target)`, is synonymous with using the [any](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any) role; `` {any}`header_target` ``
-
-Using the same example, see this ref: [syntax/targets](syntax/targets) and here's a ref back to the top of
-this page [example_syntax](example_syntax).
-
-```{note}
-With the markdown syntax, the alternative text cannot be empty, e.g. `[](target)`.
 ```
+{ref}`my text <header_target>`
+```
+
+For example, see this ref: {ref}`syntax/targets`, and here's a ref back to the top of
+this page: {ref}`my text <example_syntax>`.
+
+Alternatively using the markdown syntax:
+
+```markdown
+[my text](header_target)
+```
+
+is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
+
+```
+{any}`my text <header_target>`
+```
+
+Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
+this page: [my text](example_syntax).

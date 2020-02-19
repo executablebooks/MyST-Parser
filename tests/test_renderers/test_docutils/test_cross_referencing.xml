@@ -5,8 +5,11 @@
             Title
         <paragraph>
             <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="any" refwarn="True">
-                <reference refuri="target">
+                <TextElement classes="xref any">
                     alt1
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="False" reftarget="target2" reftype="any" refwarn="True">
+                <TextElement classes="xref any">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
