@@ -451,7 +451,7 @@ Target headers are defined with this syntax:
 (header_target)=
 ```
 
-They can then be referred to with the "ref" inline role:
+They can then be referred to with the [ref](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref) inline role:
 
 ```
 {ref}`header_target`
@@ -459,3 +459,8 @@ They can then be referred to with the "ref" inline role:
 
 For example, see this ref: {ref}`syntax/targets` and here's a ref back to the top of
 this page {ref}`example_syntax`.
+
+Alternatively using the markdown syntax; `[](header_target)`, is synonymous with using the [any](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any) role; `` {any}`header_target` ``
+
+Using the same example, see this ref: [](syntax/targets) and here's a ref back to the top of
+this page [](example_syntax).

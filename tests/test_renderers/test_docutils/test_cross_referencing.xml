@@ -1,0 +1,9 @@
+<document source="">
+    <target ids="target" names="target">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="any" refwarn="True">
+                <reference refuri="target">
+                    alt

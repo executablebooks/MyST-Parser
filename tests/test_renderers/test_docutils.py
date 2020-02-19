@@ -221,6 +221,21 @@ def test_target_inline(renderer_mock):
     )
 
 
+def test_cross_referencing(sphinx_renderer, file_regression):
+    string = dedent(
+        """\
+        (target)=
+
+        Title
+        -----
+
+        [alt](target)
+        """
+    )
+    sphinx_renderer.render(Document(string))
+    file_regression.check(sphinx_renderer.document.pformat(), extension=".xml")
+
+
 def test_comment(renderer_mock):
     renderer_mock.render(tokenize([r"% a comment"])[0])
     assert renderer_mock.document.pformat() == dedent(
