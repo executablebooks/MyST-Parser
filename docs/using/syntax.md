@@ -439,7 +439,7 @@ Is below, but it won't be parsed into the document.
 
 (syntax/targets)=
 
-### Targets
+### Targets and Cross-Referencing
 
 Targets are used to define custom anchors that you can refer to elsewhere in your
 documentation. They generally go before section titles so that you can easily refer
