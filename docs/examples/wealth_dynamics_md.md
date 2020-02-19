@@ -1,5 +1,9 @@
 # Wealth Distribution Dynamics in MyST
 
+```{note}
+You can {download}`Download the source file for this page <./wealth_dynamics_md.md>`
+```
+
 In addition to what's in Anaconda, this lecture will need the following
 libraries:
 
