@@ -11,6 +11,9 @@ Testing rst
 
         contentb
 
+.. note::
+
+   normal
 
 .. note:: start writing
    and don't
