@@ -4,7 +4,7 @@
 You can {download}`Download the source file for this page <./wealth_dynamics_md.md>`
 ```
 
-```contents
+```{contents}
 :depth: 2
 ```
 
