@@ -363,7 +363,7 @@ header-rows: 1
 
 Math can be called in-line with single `$` characters around your math.
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
-This is equivalent to writing
+This is equivalent to writing:
 
 ```
 {math}`x_{hey}=it+is^{math}`

@@ -8,7 +8,6 @@ from mistletoe.span_token import (  # noqa F401
     EscapeSequence,
     AutoLink,
     Image,
-    InlineCode,
     LineBreak,
     Link,
     RawText,
@@ -35,6 +34,10 @@ __all__ = (
 # since there is no matching element in docutils
 
 
+_core_matches = local()
+_core_matches.value = {}
+
+
 class CoreTokens(span_token.SpanToken):
     precedence = 3
 
@@ -44,6 +47,12 @@ class CoreTokens(span_token.SpanToken):
     @classmethod
     def find(cls, string):
         return find_core_tokens(string, span_token._root_node)
+
+
+class InlineCode(span_token.InlineCode):
+    @classmethod
+    def find(cls, string):
+        return _core_matches.value.pop("InlineCode", [])
 
 
 class Role(span_token.SpanToken):
@@ -56,7 +65,6 @@ class Role(span_token.SpanToken):
         re.DOTALL,
     )
     parse_inner = False
-    # precedence = 6  # higher precedence than InlineCode?
 
     def __init__(self, match):
         self.name = match.group(1)
@@ -67,15 +75,16 @@ class Role(span_token.SpanToken):
 
 
 class Math(span_token.SpanToken):
+
+    pattern = re.compile(r"(?<!\\)(?:\\\\)*(\${1,2})([^\$]+?)\1")
+
     parse_inner = False
     parse_group = 0
     precedence = 2
 
     @classmethod
     def find(cls, string):
-        matches = _math_matches.value[:]
-        _math_matches.value = []
-        return matches
+        return _core_matches.value.pop("Math", [])
 
 
 class Target(span_token.SpanToken):
@@ -90,12 +99,8 @@ class Target(span_token.SpanToken):
         self.target = content
 
 
-math_pattern = re.compile(r"(?<!\\)(?:\\\\)*(\${1,2})([^\$]+?)\1")
-_math_matches = local()
-_math_matches.value = []
-
-
 def find_core_tokens(string, root):
+    # TODO add speed comparison to original mistletoe implementation
     matches = []
     # escaped denotes that the last cursor position had `\`
     escaped = False
@@ -104,33 +109,35 @@ def find_core_tokens(string, root):
     delimiters = []
     in_image = False
     start = 0
+    i = 0
 
     def _advance_block_regexes(_cursor):
-        _next_code_match = core_tokens.code_pattern.search(string, _cursor)
-        _next_math_match = math_pattern.search(string, _cursor)
-        return _cursor, _next_code_match, _next_math_match
+        # TODO Role, etc should probably be added here as well
+        return [
+            ("InlineCode", InlineCode.pattern.search(string, _cursor)),
+            ("Math", Math.pattern.search(string, _cursor)),
+        ]
 
-    i, next_code_match, next_math_match = _advance_block_regexes(0)
+    next_span_blocks = _advance_block_regexes(i)
     while i < len(string):
-        # If a code block starts here, record it and advance the cursor
-        if next_code_match is not None and i == next_code_match.start():
-            core_tokens._code_matches.append(next_code_match)
-            # advance the cursor and re-compute next blocks
-            i, next_code_match, next_math_match = _advance_block_regexes(
-                next_code_match.end()
-            )
+
+        # look for there span block (that does not nest any other spans)
+        span_block_found = False
+        for span_name, span_match in next_span_blocks:
+            if span_match is not None and i == span_match.start():
+                # restart delimiter runs:
+                if in_delimiter_run:
+                    delimiters.append(core_tokens.Delimiter(start, i, string))
+                in_delimiter_run = None
+
+                _core_matches.value.setdefault(span_name, []).append(span_match)
+                i = span_match.end()
+                next_span_blocks = _advance_block_regexes(i)
+                span_block_found = True
+                break
+        if span_block_found:
             continue
-        # If a math block starts here, record it and advance the cursor
-        if next_math_match is not None and i == next_math_match.start():
-            if in_delimiter_run:
-                delimiters.append(core_tokens.Delimiter(start, i, string))
-            in_delimiter_run = None
-            _math_matches.value.append(next_math_match)
-            # advance the cursor and re-compute next blocks
-            i, next_code_match, next_math_match = _advance_block_regexes(
-                next_math_match.end()
-            )
-            continue
+
         c = string[i]
         # if the cursor position is escaped, record and advance
         if c == "\\" and not escaped:
@@ -159,7 +166,7 @@ def find_core_tokens(string, root):
                 in_image = True
             elif c == "]":
                 i = core_tokens.find_link_image(string, i, delimiters, matches, root)
-                i, next_code_match, next_math_match = _advance_block_regexes(i)
+                next_span_blocks = _advance_block_regexes(i)
             elif in_image:
                 in_image = False
         else:
