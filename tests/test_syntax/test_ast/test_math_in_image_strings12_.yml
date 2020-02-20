@@ -1,0 +1,14 @@
+children:
+- children:
+  - children:
+    - content: $a$
+      type: Math
+    src: $b$
+    title: ''
+    type: Image
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

@@ -1,0 +1,14 @@
+children:
+- children:
+  - children:
+    - content: a
+      type: RawText
+    target: $b$
+    title: ''
+    type: Link
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document
