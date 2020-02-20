@@ -318,10 +318,7 @@ label: euler
 ---
 ```
 
-```{todo}
-Figure out why equation referencing didn't work
-```
-Euler's identity, equation {DOESN'T WORKeq}`euler`, was elected one of the
+Euler's identity, equation {math:numref}`euler`, was elected one of the
 most beautiful mathematical formulas.
 
 ## Extra markdown syntax
