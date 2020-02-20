@@ -318,10 +318,7 @@ label: euler
 ---
 ```
 
-```{todo}
-Figure out why equation referencing didn't work
-```
-Euler's identity, equation {DOESN'T WORKeq}`euler`, was elected one of the
+Euler's identity, equation {math:numref}`euler`, was elected one of the
 most beautiful mathematical formulas.
 
 ## Extra markdown syntax
@@ -363,7 +360,7 @@ header-rows: 1
 
 Math can be called in-line with single `$` characters around your math.
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
-This is equivalent to writing
+This is equivalent to writing:
 
 ```
 {math}`x_{hey}=it+is^{math}`

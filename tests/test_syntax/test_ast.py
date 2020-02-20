@@ -22,7 +22,17 @@ def ast_renderer():
         ("no_closing", ["$a"]),
         ("internal_emphasis", ["$*a*$"]),
         ("external_emphasis", ["*$a$*"]),
-        ("issue_51", ["`$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$."]),
+        ("multiline", ["$$a", "c", "b$$"]),
+        (
+            "issue_51",
+            [
+                "Math can be called in-line with single `$` characters around math.",
+                "For example, `$x_{hey}=it+is^{math}$` renders $x_{hey}=it+is^{math}$.",
+            ],
+        ),
+        ("in_link_content", ["[$a$](link)"]),
+        ("in_link_target", ["[a]($b$)"]),
+        ("in_image", ["![$a$]($b$)"]),
     ],
 )
 def test_math(name, ast_renderer, data_regression, strings):
