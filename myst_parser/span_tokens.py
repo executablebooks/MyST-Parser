@@ -112,7 +112,8 @@ def find_core_tokens(string, root):
     i = 0
 
     def _advance_block_regexes(_cursor):
-        # TODO Role, etc should probably be added here as well
+        # TODO Role, etc should probably be added here as well,
+        # but add more tests to test_ast first (particularly with mixed span blocks)
         return [
             ("InlineCode", InlineCode.pattern.search(string, _cursor)),
             ("Math", Math.pattern.search(string, _cursor)),
