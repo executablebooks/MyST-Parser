@@ -14,6 +14,26 @@ def ast_renderer():
 @pytest.mark.parametrize(
     "name,strings",
     [
+        ("basic", ["{name}`some content`"]),
+        ("indent_2", ["  {name}`some content`"]),
+        ("indent_4", ["    {name}`some econtent`"]),
+        ("escaped", ["\\{name}`some content`"]),
+        ("inline", ["a {name}`some content`"]),
+        ("multiple", ["{name}`some content`  {name2}`other`"]),
+        ("internal_emphasis", ["{name}`*content*`"]),
+        ("external_emphasis", ["*{name}`content`*"]),
+        ("internal_math", ["{name}`some $content$`"]),
+        ("external_math", ["${name}`some content`$"]),
+    ],
+)
+def test_role(name, ast_renderer, data_regression, strings):
+    document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
+
+
+@pytest.mark.parametrize(
+    "name,strings",
+    [
         ("basic", ["$a$"]),
         ("contains_special_chars", ["$a`{_*-%$"]),
         ("preceding_special_chars", ["{_*-%`$a$"]),
