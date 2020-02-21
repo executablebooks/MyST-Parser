@@ -24,6 +24,8 @@ def ast_renderer():
         ("external_emphasis", ["*{name}`content`*"]),
         ("internal_math", ["{name}`some $content$`"]),
         ("external_math", ["${name}`some content`$"]),
+        ("internal_code", ["{name}` ``some content`` `"]),
+        ("external_code", ["`` {name}`some content` ``"]),
     ],
 )
 def test_role(name, ast_renderer, data_regression, strings):
