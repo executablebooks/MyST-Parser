@@ -108,9 +108,6 @@ class DocutilsRenderer(BaseRenderer):
         since `process_doc` just converts them back to text.
 
         """
-        # TODO this data could be used to support default option values for directives
-        docinfo = nodes.docinfo()
-
         try:
             data = yaml.safe_load(token.content) or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
@@ -121,15 +118,7 @@ class DocutilsRenderer(BaseRenderer):
             self.current_node += [msg_node]
             return
 
-        for key, value in data.items():
-            if not isinstance(value, (str, int, float)):
-                continue
-            value = str(value)
-            field_node = nodes.field()
-            field_node.source = value
-            field_node += nodes.field_name(key, "", nodes.Text(key, key))
-            field_node += nodes.field_body(value, nodes.Text(value, value))
-            docinfo += field_node
+        docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
 
     def render_paragraph(self, token):
@@ -908,3 +897,22 @@ class MockStateMachine:
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
         msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
         raise AttributeError(msg).with_traceback(sys.exc_info()[2])
+
+
+def dict_to_docinfo(data):
+    """Render a key/val pair as a docutils field node."""
+    # TODO this data could be used to support default option values for directives
+    docinfo = nodes.docinfo()
+
+    # Throw away all non-stringy values
+    # TODO: support more complex data structures as values
+    for key, value in data.items():
+        if not isinstance(value, (str, int, float)):
+            continue
+        value = str(value)
+        field_node = nodes.field()
+        field_node.source = value
+        field_node += nodes.field_name(key, "", nodes.Text(key, key))
+        field_node += nodes.field_body(value, nodes.Text(value, value))
+        docinfo += field_node
+    return docinfo
