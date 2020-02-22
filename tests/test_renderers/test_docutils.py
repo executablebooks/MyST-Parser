@@ -253,6 +253,17 @@ def test_comment(renderer_mock):
     )
 
 
+def test_block_break(renderer_mock):
+    renderer_mock.render(tokenize(["+++ string"])[0])
+    assert renderer_mock.document.pformat() == dedent(
+        """\
+    <document source="">
+        <comment classes="block_break" xml:space="preserve">
+            string
+    """
+    )
+
+
 def test_footnote(renderer):
     renderer.render(
         Document(["[name][key]", "", '[key]: https://www.google.com "a title"', ""])

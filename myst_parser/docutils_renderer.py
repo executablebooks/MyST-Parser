@@ -192,6 +192,11 @@ class DocutilsRenderer(BaseRenderer):
     def render_thematic_break(self, token):
         self.current_node.append(nodes.transition())
 
+    def render_block_break(self, token):
+        block_break = nodes.comment(token.content, token.content)
+        block_break["classes"] += ["block_break"]
+        self.current_node.append(block_break)
+
     def render_math(self, token):
         if token.content.startswith("$$"):
             content = token.content[2:-2]

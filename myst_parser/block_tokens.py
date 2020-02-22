@@ -23,6 +23,7 @@ __all__ = [
     "Quote",
     "CodeFence",
     "ThematicBreak",
+    "BlockBreak",
     "List",
     "Table",
     "Footnote",
@@ -104,10 +105,13 @@ class Document(block_token.BlockToken):
 class LineComment(block_token.BlockToken):
     """Line comment start with % """
 
-    pattern = re.compile(r" {0,3}\%\s*(.*)")
+    pattern = re.compile(r"^ {0,3}\%\s*(.*)")
 
-    def __init__(self, content):
+    def __init__(self, result):
+        content, line, lineno = result
         self.content = content
+        self.raw = line.splitlines()[0]
+        self.range = (lineno, lineno)
 
     @classmethod
     def start(cls, line):
@@ -119,8 +123,38 @@ class LineComment(block_token.BlockToken):
 
     @classmethod
     def read(cls, lines):
-        next(lines)
-        return cls.content
+        line = next(lines)
+        return cls.content, line, lines.lineno
+
+
+class BlockBreak(block_token.BlockToken):
+    """Block break token ``+++``.
+
+    This syntax is myst specific, used to denote the start of a new block of text.
+    This constuct's intended use case is for mapping to cell based document formats,
+    like jupyter notebooks, to indicate a new text cell.
+    """
+
+    pattern = re.compile(r"^ {0,3}(?:(\+)\s*?)(?:\1\s*?){2,}(.*)$")
+
+    def __init__(self, result):
+        content, line, lineno = result
+        self.content = content
+        self.raw = line.splitlines()[0]
+        self.range = (lineno, lineno)
+
+    @classmethod
+    def start(cls, line):
+        match_obj = cls.pattern.match(line)
+        if match_obj is None:
+            return False
+        cls.content = (match_obj.group(2) or "").strip()
+        return True
+
+    @classmethod
+    def read(cls, lines):
+        line = next(lines)
+        return cls.content, line, lines.lineno
 
 
 class Heading(block_token.Heading):
@@ -193,6 +227,7 @@ class Quote(block_token.Quote):
             and not Heading.start(next_line)
             and not CodeFence.start(next_line)
             and not ThematicBreak.start(next_line)
+            and not BlockBreak.start(next_line)
             and not List.start(next_line)
         ):
             stripped = cls.convert_leading_tabs(next_line.lstrip())
@@ -280,8 +315,8 @@ class Paragraph(block_token.Paragraph):
                 line_buffer.append(next(lines))
                 return SetextHeading((line_buffer, (start_line, lines.lineno)))
 
-            # check if we have a ThematicBreak (has to be after setext)
-            if ThematicBreak.start(next_line):
+            # check if we have a ThematicBreak / BlockBreak (has to be after setext)
+            if ThematicBreak.start(next_line) or BlockBreak.start(next_line):
                 break
 
             # no other tokens, we're good
@@ -412,4 +447,5 @@ class ListItem(block_token.ListItem):
             or Quote.start(line)
             or CodeFence.start(line)
             or ThematicBreak.start(line)
+            or BlockBreak.start(line)
         )

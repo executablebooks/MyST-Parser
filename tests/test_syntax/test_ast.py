@@ -95,6 +95,25 @@ def test_comment(name, ast_renderer, data_regression, strings):
     data_regression.check(ast_renderer.render(document))
 
 
+@pytest.mark.parametrize(
+    "name,strings",
+    [
+        ("basic", ["+++"]),
+        ("indent_2", ["  +++"]),
+        ("indent_4", ["    +++"]),
+        ("escaped", [r"\+++"]),
+        ("inline", ["a +++"]),
+        ("following_content", ["+++ a"]),
+        ("following_space", ["+++   "]),
+        ("follows_list", ["- item", "+++"]),
+        ("following_content_no_space", ["+++a"]),
+    ],
+)
+def test_block_break(name, ast_renderer, data_regression, strings):
+    document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
+
+
 @pytest.mark.parametrize("name,strings", [("basic", ["---", "a: b", "---"])])
 def test_front_matter(name, ast_renderer, data_regression, strings):
     document = Document(strings)
