@@ -43,6 +43,12 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
                 '?config=TeX-MML-AM_CHTML"></script>\n'
             )
 
+    def render_document(self, token):
+        """
+        Optionally Append CDN link for MathJax to the end of <body>.
+        """
+        return super().render_document(token) + self.mathjax_src
+
     def render_code_fence(self, token):
         return self.render_block_code(token)
 
@@ -50,7 +56,10 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         raise NotImplementedError
 
     def render_line_comment(self, token):
-        raise NotImplementedError
+        return "<p>{}</p>".format(token.raw)
+
+    def render_block_break(self, token):
+        return "<p>{}</p>".format(token.raw)
 
     def render_target(self, token):
         raise NotImplementedError
@@ -62,9 +71,3 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         if token.content.startswith("$$"):
             return self.render_raw_text(token)
         return "${}$".format(self.render_raw_text(token))
-
-    def render_document(self, token):
-        """
-        Optionally Append CDN link for MathJax to the end of <body>.
-        """
-        return super().render_document(token) + self.mathjax_src

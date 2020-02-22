@@ -8,12 +8,12 @@ children:
       - 1
       - 1
       type: Paragraph
-    - content: comment
+    - content: ''
       range:
       - 2
       - 2
-      raw: '% comment'
-      type: LineComment
+      raw: +++
+      type: BlockBreak
     leader: '-'
     loose: false
     prepend: 2

@@ -1,0 +1,12 @@
+children:
+- children:
+  - children:
+    - content: '{name}`some content`'
+      type: RawText
+    type: InlineCode
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

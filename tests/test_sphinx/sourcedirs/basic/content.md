@@ -55,6 +55,8 @@ this is a second paragraph
 
 {ref}`target`  {ref}`target2`
 
++++ a block break
+
 [name][key]
 
 [key]: https://www.google.com "a title"

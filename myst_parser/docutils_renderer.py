@@ -80,7 +80,8 @@ class DocutilsRenderer(BaseRenderer):
             self.render(child)
 
     @contextmanager
-    def set_current_node(self, node, append=False):
+    def current_node_context(self, node, append: bool = False):
+        """Context manager for temporarily setting the current node."""
         if append:
             self.current_node.append(node)
         current_node = self.current_node
@@ -140,7 +141,7 @@ class DocutilsRenderer(BaseRenderer):
             return self.render_target(token.children[0])
         para = nodes.paragraph("")
         para.line = token.range[0]
-        with self.set_current_node(para, append=True):
+        with self.current_node_context(para, append=True):
             self.render_children(token)
 
     def render_line_comment(self, token):
@@ -170,18 +171,18 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_strong(self, token):
         node = nodes.strong()
-        with self.set_current_node(node, append=True):
+        with self.current_node_context(node, append=True):
             self.render_children(token)
 
     def render_emphasis(self, token):
         node = nodes.emphasis()
-        with self.set_current_node(node, append=True):
+        with self.current_node_context(node, append=True):
             self.render_children(token)
 
     def render_quote(self, token):
         quote = nodes.block_quote()
         quote.line = token.range[0]
-        with self.set_current_node(quote, append=True):
+        with self.current_node_context(quote, append=True):
             self.render_children(token)
 
     def render_strikethrough(self, token):
@@ -190,6 +191,11 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_thematic_break(self, token):
         self.current_node.append(nodes.transition())
+
+    def render_block_break(self, token):
+        block_break = nodes.comment(token.content, token.content)
+        block_break["classes"] += ["block_break"]
+        self.current_node.append(block_break)
 
     def render_math(self, token):
         if token.content.startswith("$$"):
@@ -316,7 +322,7 @@ class DocutilsRenderer(BaseRenderer):
             self.handle_cross_reference(token, destination)
         else:
             self.current_node.append(next_node)
-            with self.set_current_node(ref_node):
+            with self.current_node_context(ref_node):
                 self.render_children(token)
 
     def render_image(self, token):
@@ -352,7 +358,7 @@ class DocutilsRenderer(BaseRenderer):
         # list_node.line = token.range[0]
 
         self.current_node.append(list_node)
-        with self.set_current_node(list_node):
+        with self.current_node_context(list_node):
             self.render_children(token)
 
     def render_list_item(self, token: myst_block_tokens.ListItem):
@@ -360,7 +366,7 @@ class DocutilsRenderer(BaseRenderer):
         # TODO list item range
         # node.line = token.range[0]
         self.current_node.append(item_node)
-        with self.set_current_node(item_node):
+        with self.current_node_context(item_node):
             self.render_children(token)
 
     def render_table(self, token):
@@ -379,25 +385,25 @@ class DocutilsRenderer(BaseRenderer):
         if hasattr(token, "header"):
             thead = nodes.thead()
             tgroup += thead
-            with self.set_current_node(thead):
+            with self.current_node_context(thead):
                 self.render_table_row(token.header)
 
         tbody = nodes.tbody()
         tgroup += tbody
 
-        with self.set_current_node(tbody):
+        with self.current_node_context(tbody):
             self.render_children(token)
 
         self.current_node.append(table)
 
     def render_table_row(self, token):
         row = nodes.row()
-        with self.set_current_node(row, append=True):
+        with self.current_node_context(row, append=True):
             self.render_children(token)
 
     def render_table_cell(self, token):
         entry = nodes.entry()
-        with self.set_current_node(entry, append=True):
+        with self.current_node_context(entry, append=True):
             self.render_children(token)
 
     def render_auto_link(self, token):
@@ -668,7 +674,7 @@ class SphinxRenderer(DocutilsRenderer):
         self.current_node.append(wrap_node)
         text_node = nodes.TextElement("", "", classes=["xref", "any"])
         wrap_node.append(text_node)
-        with self.set_current_node(text_node):
+        with self.current_node_context(text_node):
             self.render_children(token)
 
     def mock_sphinx_env(self):
