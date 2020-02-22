@@ -1,9 +1,9 @@
 children:
-- content: comment
+- content: a
   range:
   - 1
   - 1
-  raw: '% comment'
-  type: LineComment
+  raw: +++a
+  type: BlockBreak
 footnotes: {}
 type: Document
