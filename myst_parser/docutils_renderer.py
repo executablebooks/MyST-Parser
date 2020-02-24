@@ -445,7 +445,7 @@ class DocutilsRenderer(BaseRenderer):
 
         try:
             arguments, options, body_lines = parse_directive_text(
-                directive_class, content, token
+                directive_class, token.arguments, content
             )
         except DirectiveParsingError as error:
             error = self.reporter.error(

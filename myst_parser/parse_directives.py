@@ -43,22 +43,39 @@ import yaml
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.misc import TestDirective
 
-from myst_parser.block_tokens import CodeFence
-
 
 class DirectiveParsingError(Exception):
     pass
 
 
 def parse_directive_text(
-    directive_class: Type[Directive], content: str, token: CodeFence
+    directive_class: Type[Directive], argument_str: str, content: str
 ):
     """See module docstring."""
-    arguments = parse_directive_arguments(directive_class, token.arguments)
-    body, options = parse_directive_options(content, directive_class)
+    if directive_class.option_spec:
+        body, options = parse_directive_options(content, directive_class)
+    else:
+        # If there are no possible options, we do not look for a YAML block
+        options = {}
+        body = content
 
-    # remove first line if blank
     body_lines = body.splitlines()
+
+    if not (
+        directive_class.required_arguments
+        or directive_class.optional_arguments
+        or options
+    ):
+        # If there are no possible arguments and no option block,
+        # then the body starts on the argument line
+        if argument_str:
+            body_lines.insert(0, argument_str)
+        arguments = []
+    else:
+        arguments = parse_directive_arguments(directive_class, argument_str)
+
+    # remove first line of body if blank
+    # this is to allow space between the options and the content
     if body_lines and not body_lines[0].strip():
         body_lines = body_lines[1:]
 
