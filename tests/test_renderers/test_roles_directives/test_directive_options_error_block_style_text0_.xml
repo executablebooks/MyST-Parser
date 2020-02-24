@@ -1,8 +1,8 @@
 <document source="">
     <system_message level="3" line="0" source="" type="ERROR">
         <paragraph>
-            Directive 'restructuredtext-test-directive' options:
-            Invalid YAML: mapping values are not allowed here
+            Directive 'restructuredtext-test-directive':
+            Invalid options YAML: mapping values are not allowed here
               in "<unicode string>", line 2, column 8:
                 option2: b
                        ^
