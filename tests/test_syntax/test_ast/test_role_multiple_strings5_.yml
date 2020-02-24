@@ -1,0 +1,20 @@
+children:
+- children:
+  - children:
+    - content: some content
+      type: RawText
+    name: name
+    type: Role
+  - content: '  '
+    type: RawText
+  - children:
+    - content: other
+      type: RawText
+    name: name2
+    type: Role
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

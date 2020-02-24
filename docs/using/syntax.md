@@ -40,14 +40,14 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
   ```
 - **LineComment**: `% this is a comment`. See {ref}`syntax/comments` for more
   information.
-
+- **BlockBreak**: `+++`. See {ref}`syntax/blockbreaks` for more information.
 
 #### CommonMark tokens
 
 - **HTMLBlock**: Any valid HTML (rendered in HTML output only)
 - **BlockCode**: indented text (4 spaces)
 - **Heading**: `# Heading` (levels 1-6)
-- **SetextHeading**: underlined header
+- **SetextHeading**: underlined header (using multiple `=` or `-`)
 - **Quote**: `> this is a quote`
 - **CodeFence**: enclosed in 3 or more backticks with an optional language name. E.g.:
   ````
@@ -143,6 +143,17 @@ Here is [markdown link syntax](https://jupyter.org)
 
 ```{admonition} My markdown link
 Here is [markdown link syntax](https://jupyter.org)
+```
+
+As a short-hand for directives that require no arguments, and when no paramter options are used (see below),
+you may start the content directly after the directive name.
+
+````
+```{note} Notes require **no** arguments, so content can start here.
+```
+````
+
+```{note} Notes require **no** arguments, so content can start here.
 ```
 
 ### Parameterizing directives
@@ -318,10 +329,7 @@ label: euler
 ---
 ```
 
-```{todo}
-Figure out why equation referencing didn't work
-```
-Euler's identity, equation {DOESN'T WORKeq}`euler`, was elected one of the
+Euler's identity, equation {math:numref}`euler`, was elected one of the
 most beautiful mathematical formulas.
 
 ## Extra markdown syntax
@@ -363,7 +371,7 @@ header-rows: 1
 
 Math can be called in-line with single `$` characters around your math.
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
-This is equivalent to writing
+This is equivalent to writing:
 
 ```
 {math}`x_{hey}=it+is^{math}`
@@ -422,6 +430,7 @@ This is an orphan document, not specified in any toctrees.
 ```
 
 (syntax/comments)=
+
 ### Comments
 
 You may add comments by putting the `%` character at the beginning of a line. This will
@@ -436,6 +445,26 @@ For example, this code:
 Is below, but it won't be parsed into the document.
 
 % my comment
+
+(syntax/blockbreaks)=
+
+### Block Breaks
+
+You may add a block break by putting `+++` at the beginning of a line.
+This constuct's intended use case is for mapping to cell based document formats,
+like [jupyter notebooks](https://jupyter.org/),
+to indicate a new text cell. It will not show up in the rendered text,
+but is stored in the internal document structure for use by developers.
+
+For example, this code:
+
+```
++++ some text
+```
+
+Is below, but it won't be parsed into the document.
+
++++
 
 (syntax/targets)=
 

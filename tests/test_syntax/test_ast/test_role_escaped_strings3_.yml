@@ -1,0 +1,18 @@
+children:
+- children:
+  - children:
+    - content: '{'
+      type: RawText
+    type: EscapeSequence
+  - content: name}
+    type: RawText
+  - children:
+    - content: some content
+      type: RawText
+    type: InlineCode
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

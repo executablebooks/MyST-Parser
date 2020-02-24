@@ -4,6 +4,10 @@
 You can {download}`Download the source file for this page <./wealth_dynamics_md.md>`
 ```
 
+```{contents}
+:depth: 2
+```
+
 In addition to what's in Anaconda, this lecture will need the following
 libraries:
 
@@ -15,7 +19,6 @@ class: hide-output
 ```
 
 ## Overview
-
 
 This notebook gives an introduction to wealth distribution dynamics,
 with a focus on
@@ -82,7 +85,7 @@ ax.legend()
 plt.show()
 ```
 
-This curve can be understood as follows: if point $x,y$ lies on the
+This curve can be understood as follows: if point $(x,y)$ lies on the
 curve, it means that, collectively, the bottom $(100x)\%$ of the
 population holds $(100y)\%$ of the wealth.
 

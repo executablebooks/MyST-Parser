@@ -14,6 +14,28 @@ def ast_renderer():
 @pytest.mark.parametrize(
     "name,strings",
     [
+        ("basic", ["{name}`some content`"]),
+        ("indent_2", ["  {name}`some content`"]),
+        ("indent_4", ["    {name}`some econtent`"]),
+        ("escaped", ["\\{name}`some content`"]),
+        ("inline", ["a {name}`some content`"]),
+        ("multiple", ["{name}`some content`  {name2}`other`"]),
+        ("internal_emphasis", ["{name}`*content*`"]),
+        ("external_emphasis", ["*{name}`content`*"]),
+        ("internal_math", ["{name}`some $content$`"]),
+        ("external_math", ["${name}`some content`$"]),
+        ("internal_code", ["{name}` ``some content`` `"]),
+        ("external_code", ["`` {name}`some content` ``"]),
+    ],
+)
+def test_role(name, ast_renderer, data_regression, strings):
+    document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
+
+
+@pytest.mark.parametrize(
+    "name,strings",
+    [
         ("basic", ["$a$"]),
         ("contains_special_chars", ["$a`{_*-%$"]),
         ("preceding_special_chars", ["{_*-%`$a$"]),
@@ -22,7 +44,17 @@ def ast_renderer():
         ("no_closing", ["$a"]),
         ("internal_emphasis", ["$*a*$"]),
         ("external_emphasis", ["*$a$*"]),
-        ("issue_51", ["`$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$."]),
+        ("multiline", ["$$a", "c", "b$$"]),
+        (
+            "issue_51",
+            [
+                "Math can be called in-line with single `$` characters around math.",
+                "For example, `$x_{hey}=it+is^{math}$` renders $x_{hey}=it+is^{math}$.",
+            ],
+        ),
+        ("in_link_content", ["[$a$](link)"]),
+        ("in_link_target", ["[a]($b$)"]),
+        ("in_image", ["![$a$]($b$)"]),
     ],
 )
 def test_math(name, ast_renderer, data_regression, strings):
@@ -59,6 +91,25 @@ def test_target(name, ast_renderer, data_regression, strings):
     ],
 )
 def test_comment(name, ast_renderer, data_regression, strings):
+    document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
+
+
+@pytest.mark.parametrize(
+    "name,strings",
+    [
+        ("basic", ["+++"]),
+        ("indent_2", ["  +++"]),
+        ("indent_4", ["    +++"]),
+        ("escaped", [r"\+++"]),
+        ("inline", ["a +++"]),
+        ("following_content", ["+++ a"]),
+        ("following_space", ["+++   "]),
+        ("follows_list", ["- item", "+++"]),
+        ("following_content_no_space", ["+++a"]),
+    ],
+)
+def test_block_break(name, ast_renderer, data_regression, strings):
     document = Document(strings)
     data_regression.check(ast_renderer.render(document))
 

@@ -1,0 +1,14 @@
+children:
+- children:
+  - children:
+    - content: $a$
+      type: Math
+    target: link
+    title: ''
+    type: Link
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document
