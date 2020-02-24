@@ -1,7 +1,7 @@
 # MyST-Parser
 
-[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
-[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=improvements)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=improvements)
+[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=develop)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
+[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=develop)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=develop)
 [![Documentation Status](https://readthedocs.org/projects/myst-parser/badge/?version=latest)](https://myst-parser.readthedocs.io/en/latest/?badge=latest)
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
