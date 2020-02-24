@@ -149,11 +149,11 @@ As a short-hand for directives that require no arguments, and when no paramter o
 you may start the content directly after the directive name.
 
 ````
-```{note} Notes require no arguments, so content can start here.
+```{note} Notes require **no** arguments, so content can start here.
 ```
 ````
 
-```{note} Notes require no arguments, so content can start here.
+```{note} Notes require **no** arguments, so content can start here.
 ```
 
 ### Parameterizing directives
