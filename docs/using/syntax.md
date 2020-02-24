@@ -1,13 +1,13 @@
 (example_syntax)=
 
-# Example syntax for myst
+# Example syntax for MyST
 
-As a base, Myst adheres to the [CommonMark specification](https://spec.commonmark.org/).
+As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
 For this, it uses the [Mistletoe project](https://github.com/miyuchina/mistletoe),
 which is a well-structured markdown parser for Python that is CommonMark-compliant
 and also extensible.
 
-Myst adds several new syntax options that extend its functionality to be used
+MyST adds several new syntax options that extend its functionality to be used
 with Sphinx, the documentation generation engine used extensively in the Python
 ecosystem. Sphinx uses reStructuredText by default, which is both more
 powerful than Markdown, and also (arguably) more complex to use.
@@ -96,7 +96,7 @@ defines "runnable cells". Here is the basic structure:
 ---
 header-rows: 1
 ---
-* - Myst
+* - MyST
   - reStructuredText
 * - ````markdown
     ```{directivename} arguments
@@ -276,7 +276,7 @@ role, use the following form:
 ---
 header-rows: 1
 ---
-* - Myst
+* - MyST
   - reStructuredText
 * - ````markdown
     {role-name}`role content`
@@ -327,14 +327,14 @@ Here is some extra markdown syntax which provides functionality in rST that does
 exist in CommonMark. In most cases, these are syntactic short-cuts to calling
 roles and directives. We'll cover some common ones below.
 
-This tale describes the rST and Myst equivalents:
+This tale describes the rST and MyST equivalents:
 
 ````{list-table}
 ---
 header-rows: 1
 ---
 * - Type
-  - Myst
+  - MyST
   - reStructuredText
 * - Math shortcuts
   - `$x^2$`

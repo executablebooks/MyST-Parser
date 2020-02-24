@@ -1,17 +1,17 @@
-"""myst_parser package setup."""
+"""myst-parser package setup."""
 from importlib import import_module
 
 from setuptools import find_packages, setup
 
 setup(
-    name="myst_parser",
+    name="myst-parser",
     version=import_module("myst_parser").__version__,
     description=(
         "An extended commonmark compliant parser, " "with bridges to docutils & sphinx."
     ),
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ExecutableBookProject/myst_parser",
+    url="https://github.com/ExecutableBookProject/MyST-Parser",
     author="Chris Sewell",
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",

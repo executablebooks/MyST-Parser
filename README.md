@@ -1,22 +1,22 @@
-# myst_parser
+# MyST-Parser
 
-[![Build Status](https://travis-ci.org/ExecutableBookProject/myst_parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/myst_parser)
-[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/myst_parser/badge.svg?branch=improvements)](https://coveralls.io/github/ExecutableBookProject/myst_parser?branch=improvements)
+[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
+[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=improvements)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=improvements)
 [![Documentation Status](https://readthedocs.org/projects/myst-parser/badge/?version=latest)](https://myst-parser.readthedocs.io/en/latest/?badge=latest)
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
 
 ## Usage
 
-```console
-pip install -e git+https://github.com/ExecutableBookProject/myst_parser.git#egg=myst_parser[sphinx]
+```bash
+pip install -e "git+https://github.com/ExecutableBookProject/MyST-Parser.git#egg=myst-parser[sphinx]"
 ```
 
 Or for package development:
 
 ```bash
-git clone https://github.com/ExecutableBookProject/myst_parser
-cd myst_parser
+git clone https://github.com/ExecutableBookProject/MyST-Parser
+cd MyST-Parser
 git checkout develop
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
@@ -24,7 +24,7 @@ pip install -e .[sphinx,code_style,testing,rtd]
 Note, this parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
 fork of mistletoe (included in the above installation).
 
-To use the Myst parser in sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
+To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
 ## Parsed Token Classes
 
@@ -71,13 +71,13 @@ Code style is tested using [flake8](http://flake8.pycqa.org),
 with the configuration set in `.flake8`,
 and code formatted with [black](https://github.com/ambv/black).
 
-Installing with `myst_parser[code_style]` makes the [pre-commit](https://pre-commit.com/)
+Installing with `myst-parser[code_style]` makes the [pre-commit](https://pre-commit.com/)
 package available, which will ensure this style is met before commits are submitted, by reformatting the code
 and testing for lint errors.
 It can be setup by:
 
 ```shell
->> cd myst_parser
+>> cd MyST-Parser
 >> pre-commit install
 ```
 
