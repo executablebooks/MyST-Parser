@@ -3,8 +3,7 @@ from itertools import chain
 from os.path import splitext
 import re
 import sys
-from textwrap import dedent
-from typing import Callable, Dict, List, Optional, Type
+from typing import List, Optional
 from unittest import mock
 from urllib.parse import urlparse, unquote
 
@@ -13,7 +12,6 @@ from docutils.frontend import OptionParser
 from docutils.languages import get_language
 from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
-from docutils.parsers.rst.directives.misc import TestDirective
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
 from docutils.utils import new_document, Reporter
 import yaml
@@ -23,11 +21,8 @@ from mistletoe.base_renderer import BaseRenderer
 
 from myst_parser import span_tokens as myst_span_tokens
 from myst_parser import block_tokens as myst_block_tokens
+from myst_parser.parse_directives import parse_directive_text, DirectiveParsingError
 from myst_parser.utils import escape_url
-
-
-class DirectiveParsingError(Exception):
-    pass
 
 
 class DocutilsRenderer(BaseRenderer):
@@ -434,42 +429,7 @@ class DocutilsRenderer(BaseRenderer):
             self.current_node += problematic
 
     def render_directive(self, token):
-        """parse fenced code blocks as directives.
-
-        Such a fenced code block starts with `{directive_name}`,
-        followed by arguments on the same line.
-
-        Directive options are read from a YAML block,
-        if the first content line starts with `---`, e.g.
-
-        ::
-
-            ```{directive_name} arguments
-            ---
-            option1: name
-            option2: |
-                Longer text block
-            ---
-            content...
-            ```
-
-        Or the option block will be parsed if the first content line starts with `:`,
-        as a YAML block consisting of every line that starts with a `:`, e.g.
-
-        ::
-
-            ```{directive_name} arguments
-            :option1: name
-            :option2: other
-
-            content...
-            ```
-
-        If the first line of a directive's content is blank, this will be stripped
-        from the content.
-        This is to allow for separation between the option block and content.
-
-        """
+        """Render special fenced code blocks as directives."""
         name = token.language[1:-1]
         # TODO directive name white/black lists
         content = token.children[0].content
@@ -483,38 +443,13 @@ class DocutilsRenderer(BaseRenderer):
             self.current_node += messages
             return
 
-        # get directive arguments
         try:
-            arguments = self.parse_directive_arguments(directive_class, token.arguments)
+            arguments, options, body_lines = parse_directive_text(
+                directive_class, token.arguments, content
+            )
         except DirectiveParsingError as error:
             error = self.reporter.error(
-                "Directive '{}' arguments:\n{}".format(name, error),
-                nodes.literal_block(content, content),
-                line=token.range[0],
-            )
-            self.current_node += [error]
-            return
-
-        # get directive options
-        try:
-            body, options = self.parse_directive_options(content, directive_class)
-        except DirectiveParsingError as error:
-            msg_node = self.reporter.error(
-                "Directive '{}' options:\n{}".format(name, error), line=token.range[0]
-            )
-            msg_node += nodes.literal_block(content, content)
-            self.current_node += [msg_node]
-            return
-
-        # remove first line if blank
-        body_lines = body.splitlines()
-        if body_lines and not body_lines[0].strip():
-            body_lines = body_lines[1:]
-
-        # check for body content
-        if body_lines and not directive_class.has_content:
-            error = self.reporter.error(
-                'Error in "{}" directive: no content permitted.'.format(name),
+                "Directive '{}':\n{}".format(name, error),
                 nodes.literal_block(content, content),
                 line=token.range[0],
             )
@@ -564,80 +499,6 @@ class DocutilsRenderer(BaseRenderer):
                 name, i, result[i]
             )
         self.current_node += result
-
-    @staticmethod
-    def parse_directive_options(content: str, directive_class: Type[Directive]):
-        options = {}
-        if content.startswith("---"):
-            content = "\n".join(content.splitlines()[1:])
-            match = re.search(r"^-{3,}", content, re.MULTILINE)
-            if match:
-                yaml_block = content[: match.start()]
-                content = content[match.end() + 1 :]  # TODO advance line number
-            else:
-                yaml_block = content
-                content = ""
-            yaml_block = dedent(yaml_block)
-            try:
-                options = yaml.safe_load(yaml_block) or {}
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                raise DirectiveParsingError("Invalid YAML: " + str(error))
-        elif content.lstrip().startswith(":"):
-            content_lines = content.splitlines()  # type: list
-            yaml_lines = []
-            while content_lines:
-                if not content_lines[0].lstrip().startswith(":"):
-                    break
-                yaml_lines.append(content_lines.pop(0).lstrip()[1:])
-            yaml_block = "\n".join(yaml_lines)
-            content = "\n".join(content_lines)
-            try:
-                options = yaml.safe_load(yaml_block) or {}
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-                raise DirectiveParsingError("Invalid YAML: " + str(error))
-
-        if issubclass(directive_class, TestDirective):
-            # technically this directive spec only accepts one option ('option')
-            # but since its for testing only we accept all options
-            return content, options
-
-        # check options against spec
-        options_spec = directive_class.option_spec  # type: Dict[str, Callable]
-        for name, value in list(options.items()):
-            convertor = options_spec.get(name, None)
-            if convertor is None:
-                raise DirectiveParsingError("Unknown option: {}".format(name))
-            try:
-                converted_value = convertor(value)
-            except (ValueError, TypeError) as error:
-                raise DirectiveParsingError(
-                    "Invalid option value: (option: '{}'; value: {})\n{}".format(
-                        name, value, error
-                    )
-                )
-            options[name] = converted_value
-
-        return content, options
-
-    @staticmethod
-    def parse_directive_arguments(directive, arg_text):
-        required = directive.required_arguments
-        optional = directive.optional_arguments
-        arguments = arg_text.split()
-        if len(arguments) < required:
-            raise DirectiveParsingError(
-                "{} argument(s) required, {} supplied".format(required, len(arguments))
-            )
-        elif len(arguments) > required + optional:
-            if directive.final_argument_whitespace:
-                arguments = arg_text.split(None, required + optional - 1)
-            else:
-                raise DirectiveParsingError(
-                    "maximum {} argument(s) allowed, {} supplied".format(
-                        required + optional, len(arguments)
-                    )
-                )
-        return arguments
 
 
 class SphinxRenderer(DocutilsRenderer):
