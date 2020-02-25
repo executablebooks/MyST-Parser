@@ -14,7 +14,7 @@ class MystParser(parsers.Parser):
 
     # these specs are copied verbatim from the docutils RST parser
     settings_spec = (
-        "Myst Parser Options",
+        "MyST Parser Options",
         None,
         (
             (

@@ -6,13 +6,13 @@ Code style is tested using [flake8](http://flake8.pycqa.org),
 with the configuration set in `.flake8`,
 and code formatted with [black](https://github.com/ambv/black).
 
-Installing with `myst_parser[code_style]` makes the [pre-commit](https://pre-commit.com/)
+Installing with `myst-parser[code_style]` makes the [pre-commit](https://pre-commit.com/)
 package available, which will ensure this style is met before commits are submitted, by reformatting the code
 and testing for lint errors.
 It can be setup by:
 
 ```shell
->> cd myst_parser
+>> cd MyST-Parser
 >> pre-commit install
 ```
 

@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "Myst Parser"
+project = "MyST Parser"
 copyright = "2020, Executable Book Project"
 author = "Executable Book Project"
 
