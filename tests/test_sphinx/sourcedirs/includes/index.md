@@ -3,6 +3,8 @@
 ```{include} include1.inc.md
 ```
 
+{ref}`inc_header`
+
 ```{include} include_code.py
 :code: python
 ```
@@ -18,12 +20,11 @@
 
 ```{include} include_literal.txt
 :literal:
+:name: literal_ref
 :start-line: 2
 :end-before: lines
 :number-lines: 0
 ```
-
-{ref}`inc_header`
 
 ### A Sub-sub-Heading
 

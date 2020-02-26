@@ -21,6 +21,10 @@
                 <image candidates="{'*': 'example.jpg'}" uri="example.jpg">
                 <caption>
                     Caption
+            <paragraph>
+                <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">
+                    <inline classes="xref std std-ref">
+                        inc_header
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="keyword">
                     def
@@ -76,17 +80,13 @@
                 of
                 lines
                 so we can select some
-            <literal_block source="include_literal.txt" xml:space="preserve">
+            <literal_block ids="literal-ref" names="literal_ref" source="include_literal.txt" xml:space="preserve">
                 <inline classes="ln">
                     1 
                 Lots
                 <inline classes="ln">
                     2 
                 of
-            <paragraph>
-                <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">
-                    <inline classes="xref std std-ref">
-                        inc_header
             <section ids="a-sub-sub-heading" names="a\ sub-sub-heading">
                 <title>
                     A Sub-sub-Heading
