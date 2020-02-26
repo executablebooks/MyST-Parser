@@ -494,8 +494,9 @@
         "name": "csv-table",
         "class": "sphinx.directives.patches.CSVTable",
         "args": [],
-        "options": {},
-        "output": ""
+        "options": {"header": "\"Treat\", \"Quantity\", \"Description\""},
+        "content": "\"Albatross\", 2.99, \"On a stick!\"",
+        "output": "<table>\n    <tgroup cols=\"3\">\n        <colspec colwidth=\"33\">\n        <colspec colwidth=\"33\">\n        <colspec colwidth=\"33\">\n        <tbody>\n            <row>\n                <entry>\n                    <paragraph>\n                        Albatross\n                <entry>\n                    <paragraph>\n                        2.99\n                <entry>\n                    <paragraph>\n                        On a stick!"
     },
     {
         "name": "list-table",
@@ -565,6 +566,13 @@
         ],
         "options": {},
         "output": "<productionlist>\n    <production ids=\"grammar-token-try-stmt\" tokenname=\"try_stmt\" xml:space=\"preserve\">\n         try1_stmt | try2_stmt"
+    },
+    {
+        "name": "cmdoption",
+        "class": "sphinx.domains.std.Cmdoption",
+        "args": ["a"],
+        "options": {},
+        "output": "<index entries=\"('pair',\\ 'command\\ line\\ option;\\ a',\\ 'cmdoption-arg-a',\\ '',\\ None)\">\n<desc desctype=\"cmdoption\" domain=\"std\" noindex=\"False\" objtype=\"cmdoption\">\n    <desc_signature allnames=\"a\" first=\"False\" ids=\"cmdoption-arg-a\" names=\"cmdoption-arg-a\">\n        <desc_name xml:space=\"preserve\">\n            a\n        <desc_addname xml:space=\"preserve\">\n    <desc_content>"
     },
     {
         "name": "rst:directive",

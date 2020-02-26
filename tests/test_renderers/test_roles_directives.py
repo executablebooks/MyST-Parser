@@ -247,13 +247,12 @@ def test_docutils_directives(renderer, name, directive):
 )
 def test_sphinx_directives(sphinx_renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
-    # TODO make sure all directives from domains are added
+    # TODO make sure all directives from domains are added (std and rst are done)
     # (some were erroneously added to roles)
     if name == "include":
         # this is tested in the sphinx build level tests
         return
     if name in [
-        "csv-table",
         "meta",
         # TODO to properly parse, this requires that a directive with no content,
         # and no options, can have its argument be the body

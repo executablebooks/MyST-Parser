@@ -624,7 +624,7 @@ class MockInliner:
         """
         # TODO use document.reporter mechanism?
         if hasattr(Inliner, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
@@ -750,13 +750,18 @@ class MockState:
             elements += messages
         return elements
 
+    def build_table(self, tabledata, tableline, stub_columns=0, widths=None):
+        return Body.build_table(self, tabledata, tableline, stub_columns, widths)
+
+    def build_table_row(self, rowdata, tableline):
+        return Body.build_table_row(self, rowdata, tableline)
+
     def __getattr__(self, name):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
-        # TODO use document.reporter mechanism?
         if hasattr(Body, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
@@ -784,17 +789,20 @@ class MockStateMachine:
         # and maybe self._lines = lines[:], then for AstRenderer,
         # ignore private attributes
 
+    def get_source(self, lineno: Optional[int] = None):
+        """Return document source path."""
+        return self.document["source"]
+
     def get_source_and_line(self, lineno: Optional[int] = None):
-        """Return (source, line) tuple for current or given line number."""
+        """Return (source path, line) tuple for current or given line number."""
         return self.document["source"], lineno or self._lineno
 
     def __getattr__(self, name):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
-        # TODO use document.reporter mechanism?
         if hasattr(RSTStateMachine, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
