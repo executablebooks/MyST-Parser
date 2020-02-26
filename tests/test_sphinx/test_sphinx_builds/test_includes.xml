@@ -17,8 +17,19 @@
                 Some other text with 
                 <strong>
                     syntax
+            <paragraph>
+                This relative path will refer to the importing file:
             <figure align="default" ids="id1">
-                <image candidates="{'*': 'example.jpg'}" uri="example.jpg">
+                <image candidates="{'*': 'example1.jpg'}" uri="example1.jpg">
+                <caption>
+                    Caption
+            <paragraph>
+                This absolute path will refer to the project root (where the 
+                <literal>
+                    conf.py
+                 is):
+            <figure align="default" ids="id2">
+                <image candidates="{'*': 'subfolder/example2.jpg'}" uri="subfolder/example2.jpg">
                 <caption>
                     Caption
             <paragraph>
