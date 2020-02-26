@@ -1,0 +1,94 @@
+<document source="index.md">
+    <section ids="main-title" names="main\ title">
+        <title>
+            Main Title
+        <target refid="inc-header">
+        <section ids="a-sub-heading-in-include inc-header" names="a\ sub-heading\ in\ include inc_header">
+            <title>
+                A Sub-Heading in Include
+            <paragraph>
+                Some text with 
+                <emphasis>
+                    syntax
+        <section ids="a-sub-heading-in-nested-include" names="a\ sub-heading\ in\ nested\ include">
+            <title>
+                A Sub-Heading in Nested Include
+            <paragraph>
+                Some other text with 
+                <strong>
+                    syntax
+            <figure align="default" ids="id1">
+                <image candidates="{'*': 'example.jpg'}" uri="example.jpg">
+                <caption>
+                    Caption
+            <literal_block classes="code python" source="include_code.py" xml:space="preserve">
+                <inline classes="keyword">
+                    def
+                 
+                <inline classes="name function">
+                    a_func
+                <inline classes="punctuation">
+                    (
+                <inline classes="name">
+                    param
+                <inline classes="punctuation">
+                    ):
+                
+                    
+                <inline classes="name builtin">
+                    print
+                <inline classes="punctuation">
+                    (
+                <inline classes="name">
+                    param
+                <inline classes="punctuation">
+                    )
+            <literal_block classes="code python" source="include_code.py" xml:space="preserve">
+                <inline classes="ln">
+                    1 
+                <inline classes="keyword">
+                    def
+                 
+                <inline classes="name function">
+                    a_func
+                <inline classes="punctuation">
+                    (
+                <inline classes="name">
+                    param
+                <inline classes="punctuation">
+                    ):
+                
+                <inline classes="ln">
+                    2 
+                    
+                <inline classes="name builtin">
+                    print
+                <inline classes="punctuation">
+                    (
+                <inline classes="name">
+                    param
+                <inline classes="punctuation">
+                    )
+            <literal_block source="include_literal.txt" xml:space="preserve">
+                This should be *literal*
+                
+                Lots
+                of
+                lines
+                so we can select some
+            <literal_block source="include_literal.txt" xml:space="preserve">
+                <inline classes="ln">
+                    1 
+                Lots
+                <inline classes="ln">
+                    2 
+                of
+            <paragraph>
+                <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">
+                    <inline classes="xref std std-ref">
+                        inc_header
+            <section ids="a-sub-sub-heading" names="a\ sub-sub-heading">
+                <title>
+                    A Sub-sub-Heading
+                <paragraph>
+                    some more text

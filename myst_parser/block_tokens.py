@@ -80,7 +80,7 @@ class FrontMatter(block_token.BlockToken):
 class Document(block_token.BlockToken):
     """Document token."""
 
-    def __init__(self, lines):
+    def __init__(self, lines, start_line=0, inc_front_matter=True):
 
         self.footnotes = {}
         block_token._root_node = self
@@ -89,11 +89,11 @@ class Document(block_token.BlockToken):
         if isinstance(lines, str):
             lines = lines.splitlines(keepends=True)
         lines = [line if line.endswith("\n") else "{}\n".format(line) for line in lines]
-        start_line = 0
         self.children = []
         if lines and lines[0].startswith("---"):
             front_matter = FrontMatter(lines)
-            self.children.append(front_matter)
+            if inc_front_matter:
+                self.children.append(front_matter)
             start_line = front_matter.range[1]
             lines = lines[start_line:]
         self.children.extend(tokenize(lines, start_line))

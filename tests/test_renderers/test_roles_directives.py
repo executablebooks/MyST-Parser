@@ -277,7 +277,10 @@ def test_docutils_directives(renderer, name, directive):
 )
 def test_sphinx_directives(sphinx_renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
-    if name in ["csv-table", "meta", "include"]:
+    if name == "include":
+        # this is tested in the sphinx build level tests
+        return
+    if name in ["csv-table", "meta"]:
         # TODO fix skips
         pytest.skip("awaiting fix")
     arguments = " ".join(directive["args"])
