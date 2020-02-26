@@ -808,7 +808,6 @@ class MockIncludeDirective:
     def __init__(
         self,
         renderer: DocutilsRenderer,
-        *,
         name: str,
         klass: Include,
         arguments: list,

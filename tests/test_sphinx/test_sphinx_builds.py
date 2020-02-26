@@ -100,7 +100,7 @@ def get_sphinx_app_doctree(file_regression):
             raise IOError("no output file exists: {}".format(outpath))
 
         with open(outpath, "rb") as handle:
-            doctree: document = pickle.load(handle)
+            doctree = pickle.load(handle)  # type: document
 
         # convert absolute filenames
         for node in doctree.traverse(lambda n: "source" in n):
