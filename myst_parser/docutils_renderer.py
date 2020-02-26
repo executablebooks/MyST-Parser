@@ -1,10 +1,10 @@
 from contextlib import contextmanager
 from itertools import chain
 from os.path import splitext
+from pathlib import Path
 import re
 import sys
 from typing import List, Optional
-from unittest import mock
 from urllib.parse import urlparse, unquote
 
 from docutils import nodes
@@ -12,11 +12,13 @@ from docutils.frontend import OptionParser
 from docutils.languages import get_language
 from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
+from docutils.statemachine import StringList
 from docutils.utils import new_document, Reporter
 import yaml
 
-from mistletoe import Document, block_token, span_token
+from mistletoe import block_token, span_token
 from mistletoe.base_renderer import BaseRenderer
 
 from myst_parser import span_tokens as myst_span_tokens
@@ -66,9 +68,16 @@ class DocutilsRenderer(BaseRenderer):
         span_token._token_types.value = _span_tokens
         block_token._token_types.value = _block_tokens
 
-    def new_document(self, source_name="") -> nodes.document:
+    def new_document(self, source_path="notset") -> nodes.document:
         settings = OptionParser(components=(RSTParser,)).get_default_values()
-        return new_document(source_name, settings=settings)
+        return new_document(source_path, settings=settings)
+
+    def nested_render_text(self, text: str, lineno: int):
+        """Render unparsed text."""
+        token = myst_block_tokens.Document(
+            text, start_line=lineno, inc_front_matter=False
+        )
+        self.render(token)
 
     def render_children(self, token):
         for child in token.children:
@@ -440,7 +449,12 @@ class DocutilsRenderer(BaseRenderer):
             name, self.language_module, self.document
         )  # type: (Directive, list)
         if not directive_class:
-            self.current_node += messages
+            error = self.reporter.error(
+                "Unknown directive type '{}'\n".format(name),
+                # nodes.literal_block(content, content),
+                line=token.range[0],
+            )
+            self.current_node += [error] + messages
             return
 
         try:
@@ -457,25 +471,36 @@ class DocutilsRenderer(BaseRenderer):
             return
 
         # initialise directive
-        state_machine = MockStateMachine(self, token.range[0])
-        directive_instance = directive_class(
-            name=name,
-            # the list of positional arguments
-            arguments=arguments,
-            # a dictionary mapping option names to values
-            # TODO option parsing
-            options=options,
-            # the directive content line by line
-            content=body_lines,
-            # the absolute line number of the first line of the directive
-            lineno=token.range[0],
-            # the line offset of the first line of the content
-            content_offset=0,
-            # a string containing the entire directive
-            block_text="\n".join(body_lines),
-            state=MockState(self, state_machine, token.range[0]),
-            state_machine=state_machine,
-        )
+        if issubclass(directive_class, Include):
+            directive_instance = MockIncludeDirective(
+                self,
+                name=name,
+                klass=directive_class,
+                arguments=arguments,
+                options=options,
+                body=body_lines,
+                lineno=token.range[0],
+            )
+        else:
+            state_machine = MockStateMachine(self, token.range[0])
+            state = MockState(self, state_machine, token.range[0])
+            directive_instance = directive_class(
+                name=name,
+                # the list of positional arguments
+                arguments=arguments,
+                # a dictionary mapping option names to values
+                options=options,
+                # the directive content line by line
+                content=StringList(body_lines, self.document["source"]),
+                # the absolute line number of the first line of the directive
+                lineno=token.range[0],
+                # the line offset of the first line of the content
+                content_offset=0,
+                # a string containing the entire directive
+                block_text="\n".join(body_lines),
+                state=state,
+                state_machine=state_machine,
+            )
 
         # run directive
         try:
@@ -486,9 +511,16 @@ class DocutilsRenderer(BaseRenderer):
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
-        except (AttributeError, NotImplementedError):
-            # TODO deal with directives that call unimplemented methods of State/Machine
-            raise
+        except (AttributeError, NotImplementedError) as exc:
+            error = self.reporter.error(
+                "Directive '{}' cannot be mocked:\n{}: {}".format(
+                    name, exc.__class__.__name__, exc
+                ),
+                nodes.literal_block(content, content),
+                line=token.range[0],
+            )
+            self.current_node += [error]
+            return
         assert isinstance(
             result, list
         ), 'Directive "{}" must return a list of nodes.'.format(name)
@@ -572,9 +604,7 @@ class MockInliner:
         if not hasattr(self.reporter, "get_source_and_line"):
             # TODO this is called by some roles,
             # but I can't see how that would work in RST?
-            self.reporter.get_source_and_line = mock.Mock(
-                return_value=(self.document.source, lineno)
-            )
+            self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
         self.parent = renderer.current_node
         self.language = renderer.language_module
         self.rfc_url = "rfc%d.html"
@@ -594,7 +624,7 @@ class MockInliner:
         """
         # TODO use document.reporter mechanism?
         if hasattr(Inliner, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
@@ -640,12 +670,9 @@ class MockState:
     ):
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
-        nested_renderer = self._renderer.__class__(
-            document=self.document, current_node=node
-        )
+        with self._renderer.current_node_context(node):
+            self._renderer.nested_render_text(block, self._lineno)
         self.state_machine.match_titles = current_match_titles
-        # TODO deal with starting line number
-        nested_renderer.render(Document(block))
 
     def inline_text(self, text: str, lineno: int):
         # TODO return messages?
@@ -654,7 +681,11 @@ class MockState:
         renderer = self._renderer.__class__(
             document=self.document, current_node=paragraph
         )
-        renderer.render(Document(text))
+        renderer.render(
+            myst_block_tokens.Document(
+                text, start_line=self._lineno, inc_front_matter=False
+            )
+        )
         textnodes = []
         if paragraph.children:
             # first child should be paragraph
@@ -719,13 +750,18 @@ class MockState:
             elements += messages
         return elements
 
+    def build_table(self, tabledata, tableline, stub_columns=0, widths=None):
+        return Body.build_table(self, tabledata, tableline, stub_columns, widths)
+
+    def build_table_row(self, rowdata, tableline):
+        return Body.build_table_row(self, rowdata, tableline)
+
     def __getattr__(self, name):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
-        # TODO use document.reporter mechanism?
         if hasattr(Body, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
@@ -747,23 +783,194 @@ class MockStateMachine:
         self.node = renderer.current_node
         self.match_titles = True
 
+        # TODO to allow to access like attributes like input_lines,
+        # we would need to store the input lines,
+        # probably via the `Document` token,
+        # and maybe self._lines = lines[:], then for AstRenderer,
+        # ignore private attributes
+
+    def get_source(self, lineno: Optional[int] = None):
+        """Return document source path."""
+        return self.document["source"]
+
     def get_source_and_line(self, lineno: Optional[int] = None):
-        """Return (source, line) tuple for current or given line number."""
-        # TODO return correct line source
-        return "", lineno or self._lineno
+        """Return (source path, line) tuple for current or given line number."""
+        return self.document["source"], lineno or self._lineno
 
     def __getattr__(self, name):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
-        # TODO use document.reporter mechanism?
         if hasattr(RSTStateMachine, name):
-            msg = "{cls} has not yet implemented attribute {name}".format(
+            msg = "{cls} has not yet implemented attribute '{name}'".format(
                 cls=type(self).__name__, name=name
             )
             raise NotImplementedError(msg).with_traceback(sys.exc_info()[2])
         msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
         raise AttributeError(msg).with_traceback(sys.exc_info()[2])
+
+
+class MockIncludeDirective:
+    """This directive uses a lot of statemachine logic that is not yet mocked.
+    Therefore, we treat it as a special case (at least for now).
+
+    See:
+    https://docutils.sourceforge.io/docs/ref/rst/directives.html#including-an-external-document-fragment
+    """
+
+    def __init__(
+        self,
+        renderer: DocutilsRenderer,
+        name: str,
+        klass: Include,
+        arguments: list,
+        options: dict,
+        body: List[str],
+        lineno: int,
+    ):
+        self.renderer = renderer
+        self.document = renderer.document
+        self.name = name
+        self.klass = klass
+        self.arguments = arguments
+        self.options = options
+        self.body = body
+        self.lineno = lineno
+
+    def run(self):
+
+        from docutils.parsers.rst.directives.body import CodeBlock, NumberLines
+
+        if not self.document.settings.file_insertion_enabled:
+            raise DirectiveError(2, 'Directive "{}" disabled.'.format(self.name))
+
+        source_dir = Path(self.document["source"]).absolute().parent
+        include_arg = "".join([s.strip() for s in self.arguments[0].splitlines()])
+
+        if include_arg.startswith("<") and include_arg.endswith(">"):
+            # # docutils "standard" includes
+            path = Path(self.klass.standard_include_path).joinpath(include_arg[1:-1])
+        else:
+            # if using sphinx interpret absolute paths "correctly",
+            # i.e. relative to source directory
+            try:
+                sphinx_env = self.document.settings.env
+                _, include_arg = sphinx_env.relfn2path(self.arguments[0])
+                sphinx_env.note_included(include_arg)
+            except AttributeError:
+                pass
+            path = Path(include_arg)
+        path = source_dir.joinpath(path)
+
+        # read file
+        encoding = self.options.get("encoding", self.document.settings.input_encoding)
+        error_handler = self.document.settings.input_encoding_error_handler
+        # tab_width = self.options.get("tab-width", self.document.settings.tab_width)
+        try:
+            file_content = path.read_text(encoding=encoding, errors=error_handler)
+        except Exception as error:
+            raise DirectiveError(
+                4,
+                'Directive "{}": error reading file: {}\n{error}.'.format(
+                    self.name, path, error
+                ),
+            )
+
+        # get required section of text
+        startline = self.options.get("start-line", None)
+        endline = self.options.get("end-line", None)
+        file_content = "\n".join(file_content.splitlines()[startline:endline])
+        startline = startline or 0
+        for split_on_type in ["start-after", "end-before"]:
+            split_on = self.options.get(split_on_type, None)
+            if not split_on:
+                continue
+            split_index = file_content.find(split_on)
+            if split_index < 0:
+                raise DirectiveError(
+                    4,
+                    'Directive "{}"; option "{}": text not found "{}".'.format(
+                        self.name, split_on_type, split_on
+                    ),
+                )
+            if split_on_type == "start-after":
+                startline += split_index + len(split_on)
+                file_content = file_content[split_index + len(split_on) :]
+            else:
+                file_content = file_content[:split_index]
+
+        if "literal" in self.options:
+            literal_block = nodes.literal_block(
+                file_content, source=str(path), classes=self.options.get("class", [])
+            )
+            literal_block.line = 1
+            self.add_name(literal_block)
+            if "number-lines" in self.options:
+                try:
+                    startline = int(self.options["number-lines"] or 1)
+                except ValueError:
+                    raise DirectiveError(
+                        3, ":number-lines: with non-integer " "start value"
+                    )
+                endline = startline + len(file_content.splitlines())
+                if file_content.endswith("\n"):
+                    file_content = file_content[:-1]
+                tokens = NumberLines([([], file_content)], startline, endline)
+                for classes, value in tokens:
+                    if classes:
+                        literal_block += nodes.inline(value, value, classes=classes)
+                    else:
+                        literal_block += nodes.Text(value)
+            else:
+                literal_block += nodes.Text(file_content)
+            return [literal_block]
+        if "code" in self.options:
+            self.options["source"] = str(path)
+            state_machine = MockStateMachine(self.renderer, self.lineno)
+            state = MockState(self.renderer, state_machine, self.lineno)
+            codeblock = CodeBlock(
+                name=self.name,
+                arguments=[self.options.pop("code")],
+                options=self.options,
+                content=file_content.splitlines(),
+                lineno=self.lineno,
+                content_offset=0,
+                block_text=file_content,
+                state=state,
+                state_machine=state_machine,
+            )
+            return codeblock.run()
+
+        # Here we perform a nested render, but temporarily setup the document/reporter
+        # with the correct document path and lineno for the included file.
+        source = self.renderer.document["source"]
+        rsource = self.renderer.reporter.source
+        line_func = getattr(self.renderer.reporter, "get_source_and_line", None)
+        try:
+            self.renderer.document["source"] = str(path)
+            self.renderer.reporter.source = str(path)
+            self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
+            self.renderer.nested_render_text(file_content, startline)
+        finally:
+            self.renderer.document["source"] = source
+            self.renderer.reporter.source = rsource
+            if line_func is not None:
+                self.renderer.reporter.get_source_and_line = line_func
+            else:
+                del self.renderer.reporter.get_source_and_line
+        return []
+
+    def add_name(self, node):
+        """Append self.options['name'] to node['names'] if it exists.
+
+        Also normalize the name string and register it as explicit target.
+        """
+        if "name" in self.options:
+            name = nodes.fully_normalize_name(self.options.pop("name"))
+            if "name" in node:
+                del node["name"]
+            node["names"].append(name)
+            self.renderer.document.note_explicit_target(node, node)
 
 
 def dict_to_docinfo(data):

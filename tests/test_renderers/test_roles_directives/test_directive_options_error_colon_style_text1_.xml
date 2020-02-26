@@ -1,5 +1,5 @@
-<document source="">
-    <system_message level="3" line="0" source="" type="ERROR">
+<document source="notset">
+    <system_message level="3" line="0" source="notset" type="ERROR">
         <paragraph>
             Directive 'restructuredtext-test-directive':
             Invalid options YAML: mapping values are not allowed here

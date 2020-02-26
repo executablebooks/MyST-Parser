@@ -33,9 +33,11 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 """
 import os
 import pathlib
+import pickle
 import shutil
 
 import pytest
+from docutils.nodes import document
 from sphinx.testing.path import path
 
 
@@ -83,6 +85,35 @@ def get_sphinx_app_output(file_regression):
     return read
 
 
+@pytest.fixture
+def get_sphinx_app_doctree(file_regression):
+    def read(
+        app,
+        filename="index.doctree",
+        folder="doctrees",
+        encoding="utf-8",
+        regress=False,
+    ):
+
+        outpath = path(os.path.join(str(app.srcdir), "_build", folder, filename))
+        if not outpath.exists():
+            raise IOError("no output file exists: {}".format(outpath))
+
+        with open(outpath, "rb") as handle:
+            doctree = pickle.load(handle)  # type: document
+
+        # convert absolute filenames
+        for node in doctree.traverse(lambda n: "source" in n):
+            node["source"] = pathlib.Path(node["source"]).name
+
+        if regress:
+            file_regression.check(doctree.pformat(), extension=".xml")
+
+        return doctree
+
+    return read
+
+
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "basic"), freshenv=True
 )
@@ -95,3 +126,25 @@ def test_basic(app, status, warning, get_sphinx_app_output, remove_sphinx_builds
     assert warnings == ""
 
     get_sphinx_app_output(app, filename="content.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
+)
+def test_includes(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test of include directive."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
+    get_sphinx_app_output(app, filename="index.html", regress_html=True)
