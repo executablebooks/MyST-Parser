@@ -5,7 +5,6 @@ from pathlib import Path
 import re
 import sys
 from typing import List, Optional
-from unittest import mock
 from urllib.parse import urlparse, unquote
 
 from docutils import nodes
@@ -449,7 +448,12 @@ class DocutilsRenderer(BaseRenderer):
             name, self.language_module, self.document
         )  # type: (Directive, list)
         if not directive_class:
-            self.current_node += messages
+            error = self.reporter.error(
+                "Unknown directive type '{}'\n".format(name),
+                # nodes.literal_block(content, content),
+                line=token.range[0],
+            )
+            self.current_node += [error] + messages
             return
 
         try:
@@ -597,9 +601,7 @@ class MockInliner:
         if not hasattr(self.reporter, "get_source_and_line"):
             # TODO this is called by some roles,
             # but I can't see how that would work in RST?
-            self.reporter.get_source_and_line = mock.Mock(
-                return_value=(self.document.source, lineno)
-            )
+            self.reporter.get_source_and_line = lambda l: (self.document.source, l)
         self.parent = renderer.current_node
         self.language = renderer.language_module
         self.rfc_url = "rfc%d.html"
@@ -858,6 +860,7 @@ class MockIncludeDirective:
         startline = self.options.get("start-line", None)
         endline = self.options.get("end-line", None)
         file_content = "\n".join(file_content.splitlines()[startline:endline])
+        startline = startline or 0
         for split_on_type in ["start-after", "end-before"]:
             split_on = self.options.get(split_on_type, None)
             if not split_on:
@@ -871,6 +874,7 @@ class MockIncludeDirective:
                     ),
                 )
             if split_on_type == "start-after":
+                startline += split_index + len(split_on)
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
@@ -917,13 +921,23 @@ class MockIncludeDirective:
             )
             return codeblock.run()
 
+        # Here we perform a nested render, but temporarily setup the document/reporter
+        # with the correct document path and lineno for the included file.
         source = self.renderer.document["source"]
+        rsource = self.renderer.reporter.source
+        line_func = getattr(self.renderer.reporter, "get_source_and_line", None)
         try:
             self.renderer.document["source"] = str(path)
-            self.renderer.nested_render_text(file_content, self.lineno)
+            self.renderer.reporter.source = str(path)
+            self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
+            self.renderer.nested_render_text(file_content, startline)
         finally:
             self.renderer.document["source"] = source
-
+            self.renderer.reporter.source = rsource
+            if line_func is not None:
+                self.renderer.reporter.get_source_and_line = line_func
+            else:
+                del self.renderer.reporter.get_source_and_line
         return []
 
     def add_name(self, node):
