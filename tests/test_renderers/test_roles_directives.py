@@ -38,8 +38,8 @@ def test_directive_arguments(renderer, name, arguments, body):
     )
     renderer.render(Document(content))
     expected = [
-        '<document source="">',
-        '    <system_message level="1" line="0" source="" type="INFO">',
+        '<document source="notset">',
+        '    <system_message level="1" line="0" source="notset" type="INFO">',
         "        <paragraph>",
         (
             '            Directive processed. Type="restructuredtext-test-directive", '
@@ -65,8 +65,8 @@ def test_directive_no_options(renderer, type, text):
     )
     assert renderer.document.pformat() == dedent(
         """\
-    <document source="">
-        <system_message level="1" line="0" source="" type="INFO">
+    <document source="notset">
+        <system_message level="1" line="0" source="notset" type="INFO">
             <paragraph>
                 Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content:
             <literal_block xml:space="preserve">
@@ -99,8 +99,8 @@ def test_directive_options(renderer, type, text):
     )
     assert renderer.document.pformat() == dedent(
         """\
-    <document source="">
-        <system_message level="1" line="0" source="" type="INFO">
+    <document source="notset">
+        <system_message level="1" line="0" source="notset" type="INFO">
             <paragraph>
                 Directive processed. Type="restructuredtext-test-directive", arguments=[], options={'option1': 'a', 'option2': 'b'}, content:
             <literal_block xml:space="preserve">
@@ -149,7 +149,7 @@ def test_docutils_roles(renderer, name, role_data):
         repr(renderer.document.pformat()).replace(" " * 8, "    ").replace('"', '\\"')
     )
     assert renderer.document.pformat() == (
-        role_data.get("doc_tag", '<document source="">')
+        role_data.get("doc_tag", '<document source="notset">')
         + "\n"
         + indent(role_data["output"], "    ")
         + ("\n" if role_data["output"] else "")
@@ -168,40 +168,9 @@ def test_docutils_roles(renderer, name, role_data):
 )
 def test_sphinx_roles(sphinx_renderer, name, role_data):
     """"""
-    # note, I think most of these have are actually node types rather than roles,
+    # note, I think most of these have are actually directives rather than roles,
     # that I've erroneously picked up in my gather function.
-    if name in [
-        "c:function",
-        "c:var",
-        "cpp:function",
-        "cpp:namespace",
-        "cpp:alias",
-        "cpp:namespace-pop",
-        "cpp:namespace-push",
-        "cpp:enum-struct",
-        "cpp:enum-class",
-        "js:function",
-        "js:method",
-        "js:attribute",
-        "js:module",
-        "py:function",
-        "py:exception",
-        "py:method",
-        "py:classmethod",
-        "py:staticmethod",
-        "py:attribute",
-        "py:module",
-        "py:currentmodule",
-        "py:decorator",
-        "py:decoratormethod",
-        "rst:directive",
-        "rst:directive:option",
-        "envvar",
-        "cmdoption",
-        "glossary",
-        "productionlist",
-        "abbr",
-    ]:
+    if name in ["abbr"]:  # adding class="<function class_option at 0x102260290>" ??
         # TODO fix skips
         pytest.skip("awaiting fix")
     sphinx_renderer.render(
@@ -213,7 +182,7 @@ def test_sphinx_roles(sphinx_renderer, name, role_data):
         .replace('"', '\\"')
     )
     assert sphinx_renderer.document.pformat() == (
-        role_data.get("doc_tag", '<document source="">')
+        role_data.get("doc_tag", '<document source="notset">')
         + "\n"
         + indent(role_data["output"], "    ")
         + ("\n" if role_data["output"] else "")
@@ -237,6 +206,7 @@ with open(
 )
 def test_docutils_directives(renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
+    # TODO dd domain directives
     if name in [
         "role",
         "rst-class",
@@ -260,7 +230,7 @@ def test_docutils_directives(renderer, name, directive):
         repr(renderer.document.pformat()).replace(" " * 8, "    ").replace('"', '\\"')
     )
     assert renderer.document.pformat() == (
-        directive.get("doc_tag", '<document source="">')
+        directive.get("doc_tag", '<document source="notset">')
         + "\n"
         + indent(directive["output"], "    ")
         + ("\n" if directive["output"] else "")
@@ -277,10 +247,18 @@ def test_docutils_directives(renderer, name, directive):
 )
 def test_sphinx_directives(sphinx_renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
+    # TODO make sure all directives from domains are added
+    # (some were erroneously added to roles)
     if name == "include":
         # this is tested in the sphinx build level tests
         return
-    if name in ["csv-table", "meta"]:
+    if name in [
+        "csv-table",
+        "meta",
+        # TODO to properly parse, this requires that a directive with no content,
+        # and no options, can have its argument be the body
+        "productionlist",
+    ]:
         # TODO fix skips
         pytest.skip("awaiting fix")
     arguments = " ".join(directive["args"])
@@ -299,7 +277,7 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
         .replace('"', '\\"')
     )
     assert sphinx_renderer.document.pformat() == (
-        directive.get("doc_tag", '<document source="">')
+        directive.get("doc_tag", '<document source="notset">')
         + "\n"
         + indent(directive["output"], "    ")
         + ("\n" if directive["output"] else "")

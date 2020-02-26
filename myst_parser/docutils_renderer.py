@@ -14,6 +14,7 @@ from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import RSTStateMachine, Body, Inliner
+from docutils.statemachine import StringList
 from docutils.utils import new_document, Reporter
 import yaml
 
@@ -67,9 +68,9 @@ class DocutilsRenderer(BaseRenderer):
         span_token._token_types.value = _span_tokens
         block_token._token_types.value = _block_tokens
 
-    def new_document(self, source_name="") -> nodes.document:
+    def new_document(self, source_path="notset") -> nodes.document:
         settings = OptionParser(components=(RSTParser,)).get_default_values()
-        return new_document(source_name, settings=settings)
+        return new_document(source_path, settings=settings)
 
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
@@ -490,7 +491,7 @@ class DocutilsRenderer(BaseRenderer):
                 # a dictionary mapping option names to values
                 options=options,
                 # the directive content line by line
-                content=body_lines,
+                content=StringList(body_lines, self.document["source"]),
                 # the absolute line number of the first line of the directive
                 lineno=token.range[0],
                 # the line offset of the first line of the content
@@ -510,9 +511,11 @@ class DocutilsRenderer(BaseRenderer):
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
-        except (AttributeError, NotImplementedError) as error:
+        except (AttributeError, NotImplementedError) as exc:
             error = self.reporter.error(
-                "Directive '{}' cannot be mocked:\n{}".format(name, error),
+                "Directive '{}' cannot be mocked:\n{}: {}".format(
+                    name, exc.__class__.__name__, exc
+                ),
                 nodes.literal_block(content, content),
                 line=token.range[0],
             )
@@ -601,7 +604,7 @@ class MockInliner:
         if not hasattr(self.reporter, "get_source_and_line"):
             # TODO this is called by some roles,
             # but I can't see how that would work in RST?
-            self.reporter.get_source_and_line = lambda l: (self.document.source, l)
+            self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
         self.parent = renderer.current_node
         self.language = renderer.language_module
         self.rfc_url = "rfc%d.html"
@@ -783,7 +786,7 @@ class MockStateMachine:
 
     def get_source_and_line(self, lineno: Optional[int] = None):
         """Return (source, line) tuple for current or given line number."""
-        return self.document.source, lineno or self._lineno
+        return self.document["source"], lineno or self._lineno
 
     def __getattr__(self, name):
         """This method is only be called if the attribute requested has not
@@ -837,8 +840,17 @@ class MockIncludeDirective:
         include_arg = "".join([s.strip() for s in self.arguments[0].splitlines()])
 
         if include_arg.startswith("<") and include_arg.endswith(">"):
+            # # docutils "standard" includes
             path = Path(self.klass.standard_include_path).joinpath(include_arg[1:-1])
         else:
+            # if using sphinx interpret absolute paths "correctly",
+            # i.e. relative to source directory
+            try:
+                sphinx_env = self.document.settings.env
+                _, include_arg = sphinx_env.relfn2path(self.arguments[0])
+                sphinx_env.note_included(include_arg)
+            except AttributeError:
+                pass
             path = Path(include_arg)
         path = source_dir.joinpath(path)
 

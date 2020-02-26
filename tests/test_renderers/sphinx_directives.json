@@ -74,7 +74,9 @@
     {
         "name": "admonition",
         "class": "docutils.parsers.rst.directives.admonitions.Admonition",
-        "args": ["myclass"],
+        "args": [
+            "myclass"
+        ],
         "options": {},
         "content": "a",
         "output": "<admonition classes=\"admonition-myclass\">\n    <title>\n        myclass\n    <paragraph>\n        a"
@@ -82,7 +84,9 @@
     {
         "name": "sidebar",
         "class": "docutils.parsers.rst.directives.body.Sidebar",
-        "args": ["sidebar title"],
+        "args": [
+            "sidebar title"
+        ],
         "options": {},
         "content": "a",
         "output": "<sidebar>\n    <title>\n        sidebar title\n    <paragraph>\n        a"
@@ -90,7 +94,9 @@
     {
         "name": "topic",
         "class": "docutils.parsers.rst.directives.body.Topic",
-        "args": ["Topic Title"],
+        "args": [
+            "Topic Title"
+        ],
         "options": {},
         "content": "a",
         "output": "<topic>\n    <title>\n        Topic Title\n    <paragraph>\n        a"
@@ -113,7 +119,9 @@
     {
         "name": "rubric",
         "class": "docutils.parsers.rst.directives.body.Rubric",
-        "args": ["Rubric Title"],
+        "args": [
+            "Rubric Title"
+        ],
         "options": {},
         "output": "<rubric>\n    Rubric Title"
     },
@@ -161,7 +169,9 @@
     {
         "name": "image",
         "class": "docutils.parsers.rst.directives.images.Image",
-        "args": ["path/to/image"],
+        "args": [
+            "path/to/image"
+        ],
         "options": {},
         "output": "<image uri=\"path/to/image\">"
     },
@@ -182,7 +192,9 @@
     {
         "name": "raw",
         "class": "docutils.parsers.rst.directives.misc.Raw",
-        "args": ["raw"],
+        "args": [
+            "raw"
+        ],
         "options": {},
         "content": "a",
         "output": "<raw format=\"raw\" xml:space=\"preserve\">\n    a"
@@ -206,7 +218,9 @@
     {
         "name": "class",
         "class": "docutils.parsers.rst.directives.misc.Class",
-        "args": ["myclass"],
+        "args": [
+            "myclass"
+        ],
         "options": {},
         "content": "a",
         "output": "<paragraph classes=\"myclass\">\n    a"
@@ -222,10 +236,12 @@
     {
         "name": "title",
         "class": "docutils.parsers.rst.directives.misc.Title",
-        "args": ["title"],
+        "args": [
+            "title"
+        ],
         "options": {},
         "output": "",
-        "doc_tag": "<document source=\"\" title=\"title\">"
+        "doc_tag": "<document source=\"notset\" title=\"title\">"
     },
     {
         "name": "date",
@@ -240,7 +256,7 @@
         "class": "docutils.parsers.rst.directives.misc.TestDirective",
         "args": [],
         "options": {},
-        "output": "<system_message level=\"1\" line=\"0\" source=\"\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content: None"
+        "output": "<system_message level=\"1\" line=\"0\" source=\"notset\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content: None"
     },
     {
         "name": "contents",
@@ -289,28 +305,36 @@
     {
         "name": "default-domain",
         "class": "sphinx.directives.DefaultDomain",
-        "args": ["mydomain"],
+        "args": [
+            "mydomain"
+        ],
         "options": {},
         "output": ""
     },
     {
         "name": "describe",
         "class": "sphinx.directives.ObjectDescription",
-        "args": ["something"],
+        "args": [
+            "something"
+        ],
         "options": {},
         "output": "<index entries=\"\">\n<desc desctype=\"describe\" domain=\"\" noindex=\"False\" objtype=\"describe\">\n    <desc_signature first=\"False\">\n        <desc_name xml:space=\"preserve\">\n            something\n    <desc_content>"
     },
     {
         "name": "object",
         "class": "sphinx.directives.ObjectDescription",
-        "args": ["something"],
+        "args": [
+            "something"
+        ],
         "options": {},
         "output": "<index entries=\"\">\n<desc desctype=\"object\" domain=\"\" noindex=\"False\" objtype=\"object\">\n    <desc_signature first=\"False\">\n        <desc_name xml:space=\"preserve\">\n            something\n    <desc_content>"
     },
     {
         "name": "highlight",
         "class": "sphinx.directives.code.Highlight",
-        "args": ["something"],
+        "args": [
+            "something"
+        ],
         "options": {},
         "output": "<highlightlang force=\"False\" lang=\"something\" linenothreshold=\"9223372036854775807\">"
     },
@@ -332,9 +356,11 @@
     {
         "name": "literalinclude",
         "class": "sphinx.directives.code.LiteralInclude",
-        "args": ["/path/to/file"],
+        "args": [
+            "/path/to/file"
+        ],
         "options": {},
-        "output": "<system_message level=\"2\" line=\"0\" source=\"\" type=\"WARNING\">\n    <paragraph>\n        Include file '/srcdir/path/to/file' not found or reading it failed"
+        "output": "<system_message level=\"2\" line=\"0\" source=\"notset\" type=\"WARNING\">\n    <paragraph>\n        Include file '/srcdir/path/to/file' not found or reading it failed"
     },
     {
         "name": "toctree",
@@ -346,28 +372,36 @@
     {
         "name": "sectionauthor",
         "class": "sphinx.directives.other.Author",
-        "args": ["bob geldof"],
+        "args": [
+            "bob geldof"
+        ],
         "options": {},
         "output": ""
     },
     {
         "name": "moduleauthor",
         "class": "sphinx.directives.other.Author",
-        "args": ["ringo starr"],
+        "args": [
+            "ringo starr"
+        ],
         "options": {},
         "output": ""
     },
     {
         "name": "codeauthor",
         "class": "sphinx.directives.other.Author",
-        "args": ["paul mcartney"],
+        "args": [
+            "paul mcartney"
+        ],
         "options": {},
         "output": ""
     },
     {
         "name": "index",
         "class": "sphinx.directives.other.Index",
-        "args": ["something"],
+        "args": [
+            "something"
+        ],
         "options": {},
         "output": "<index entries=\"('single',\\ 'something',\\ 'index-0',\\ '',\\ None)\" inline=\"False\">\n<target ids=\"index-0\">"
     },
@@ -382,14 +416,18 @@
     {
         "name": "tabularcolumns",
         "class": "sphinx.directives.other.TabularColumns",
-        "args": ["spec"],
+        "args": [
+            "spec"
+        ],
         "options": {},
         "output": "<tabular_col_spec spec=\"spec\">"
     },
     {
         "name": "centered",
         "class": "sphinx.directives.other.Centered",
-        "args": ["text"],
+        "args": [
+            "text"
+        ],
         "options": {},
         "output": "<centered>\n    text"
     },
@@ -412,21 +450,27 @@
     {
         "name": "only",
         "class": "sphinx.directives.other.Only",
-        "args": ["expr"],
+        "args": [
+            "expr"
+        ],
         "options": {},
         "output": "<only expr=\"expr\">"
     },
     {
         "name": "include",
         "class": "sphinx.directives.other.Include",
-        "args": ["path/to/include"],
+        "args": [
+            "path/to/include"
+        ],
         "options": {},
         "output": ""
     },
     {
         "name": "figure",
         "class": "sphinx.directives.patches.Figure",
-        "args": ["path/to/figure"],
+        "args": [
+            "path/to/figure"
+        ],
         "options": {},
         "content": "caption\n\nlegend",
         "output": "<figure>\n    <image uri=\"path/to/figure\">\n    <caption>\n        caption\n    <legend>\n        <paragraph>\n            legend"
@@ -464,7 +508,9 @@
     {
         "name": "code",
         "class": "sphinx.directives.patches.Code",
-        "args": ["python"],
+        "args": [
+            "python"
+        ],
         "options": {},
         "content": "a",
         "output": "<literal_block force=\"False\" highlight_args=\"{}\" language=\"python\" xml:space=\"preserve\">\n    a"
@@ -479,22 +525,63 @@
     {
         "name": "deprecated",
         "class": "sphinx.domains.changeset.VersionChange",
-        "args": ["0.3"],
+        "args": [
+            "0.3"
+        ],
         "options": {},
         "output": "<versionmodified type=\"deprecated\" version=\"0.3\">\n    <paragraph translatable=\"False\">\n        <inline classes=\"versionmodified deprecated\">\n            Deprecated since version 0.3."
     },
     {
         "name": "versionadded",
         "class": "sphinx.domains.changeset.VersionChange",
-        "args": ["0.2"],
+        "args": [
+            "0.2"
+        ],
         "options": {},
         "output": "<versionmodified type=\"versionadded\" version=\"0.2\">\n    <paragraph translatable=\"False\">\n        <inline classes=\"versionmodified added\">\n            New in version 0.2."
     },
     {
         "name": "versionchanged",
         "class": "sphinx.domains.changeset.VersionChange",
-        "args": ["0.1"],
+        "args": [
+            "0.1"
+        ],
         "options": {},
         "output": "<versionmodified type=\"versionchanged\" version=\"0.1\">\n    <paragraph translatable=\"False\">\n        <inline classes=\"versionmodified changed\">\n            Changed in version 0.1."
+    },
+    {
+        "name": "glossary",
+        "class": "sphinx.domains.std.Glossary",
+        "args": [],
+        "options": {},
+        "content": "term 1 : A\nterm 2 : B\n    Definition of both terms.",
+        "output": "<glossary>\n    <definition_list classes=\"glossary\">\n        <definition_list_item>\n            <term ids=\"term-term-1\">\n                term 1\n                <index entries=\"('single',\\ 'term\\ 1',\\ 'term-term-1',\\ 'main',\\ 'A')\">\n            <term ids=\"term-term-2\">\n                term 2\n                <index entries=\"('single',\\ 'term\\ 2',\\ 'term-term-2',\\ 'main',\\ 'B')\">\n            <definition>\n                <paragraph>\n                    Definition of both terms."
+    },
+    {
+        "name": "productionlist",
+        "class": "sphinx.domains.std.ProductionList",
+        "args": [
+            "try_stmt: try1_stmt | try2_stmt"
+        ],
+        "options": {},
+        "output": "<productionlist>\n    <production ids=\"grammar-token-try-stmt\" tokenname=\"try_stmt\" xml:space=\"preserve\">\n         try1_stmt | try2_stmt"
+    },
+    {
+        "name": "rst:directive",
+        "class": "sphinx.domains.rst.ReSTDirective",
+        "args": [
+            "a"
+        ],
+        "options": {},
+        "output": "<index entries=\"('single',\\ 'a\\ (directive)',\\ 'directive-a',\\ '',\\ None)\">\n<desc desctype=\"directive\" domain=\"rst\" noindex=\"False\" objtype=\"directive\">\n    <desc_signature first=\"False\" ids=\"directive-a\" names=\"directive-a\">\n        <desc_name xml:space=\"preserve\">\n            .. a::\n    <desc_content>"
+    },
+    {
+        "name": "rst:directive:option",
+        "class": "sphinx.domains.rst.ReSTDirectiveOption",
+        "args": [
+            "a"
+        ],
+        "options": {},
+        "output": "<index entries=\"('single',\\ ':a:\\ (directive\\ option)',\\ 'directive:option--a',\\ '',\\ 'A')\">\n<desc desctype=\"directive:option\" domain=\"rst\" noindex=\"False\" objtype=\"directive:option\">\n    <desc_signature first=\"False\" ids=\"directive:option--a\" names=\"directive:option--a\">\n        <desc_name xml:space=\"preserve\">\n            :a:\n    <desc_content>"
     }
 ]
