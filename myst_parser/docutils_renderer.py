@@ -829,7 +829,7 @@ class MockIncludeDirective:
         from docutils.parsers.rst.directives.body import CodeBlock, NumberLines
 
         if not self.document.settings.file_insertion_enabled:
-            raise DirectiveError(2, f'Directive "{self.name}" disabled.')
+            raise DirectiveError(2, 'Directive "{}" disabled.'.format(self.name))
 
         source_dir = Path(self.document["source"]).absolute().parent
         include_arg = "".join([s.strip() for s in self.arguments[0].splitlines()])
@@ -848,7 +848,10 @@ class MockIncludeDirective:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
         except Exception as error:
             raise DirectiveError(
-                4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
+                4,
+                'Directive "{}": error reading file: {}\n{error}.'.format(
+                    self.name, path, error
+                ),
             )
 
         # get required section of text
@@ -863,8 +866,9 @@ class MockIncludeDirective:
             if split_index < 0:
                 raise DirectiveError(
                     4,
-                    f'Directive "{self.name}"; option "{split_on_type}": '
-                    f'text not found "{split_on}".',
+                    'Directive "{}"; option "{}": text not found "{}".'.format(
+                        self.name, split_on_type, split_on
+                    ),
                 )
             if split_on_type == "start-after":
                 file_content = file_content[split_index + len(split_on) :]
