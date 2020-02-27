@@ -29,7 +29,7 @@ class AstRenderer(ast_renderer.ASTRenderer):
 
         Overrides super().render. Delegates the logic to get_ast.
         """
-        ast = ast_renderer.get_ast(token)
+        ast = get_ast(token)
         if to_json:
             return json.dumps(ast, indent=2) + "\n"
         return ast
