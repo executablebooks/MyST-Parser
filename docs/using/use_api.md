@@ -236,3 +236,42 @@ print(document.pformat())
                     <paragraph>
                         definition
 ```
+
+You can also set Sphinx configuration *via* `sphinx_conf`. This is a dictionary representation of the contents of the Sphinx `conf.py`.
+
+```{warning}
+This feature is only meant for simple testing.
+It will fail for extensions that require the full
+Sphinx build process and/or access to external files.
+```
+
+`````python
+from myst_parser import text_to_tokens, render_tokens
+from myst_parser.docutils_renderer import SphinxRenderer
+
+root = text_to_tokens("""
+````{tabs}
+
+```{tab} Apples
+
+Apples are green, or sometimes red.
+```
+````
+""")
+
+document = render_tokens(root, SphinxRenderer, load_sphinx_env=True, sphinx_conf={"extensions": ["sphinx_tabs.tabs"]})
+print(document.pformat())
+`````
+
+```xml
+<document source="notset">
+    <container classes="sphinx-tabs">
+        <container>
+            <a classes="item">
+                <container>
+                    <paragraph>
+                        Apples
+            <container classes="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active">
+                <paragraph>
+                    Apples are green, or sometimes red.
+```
