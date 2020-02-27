@@ -2,6 +2,7 @@ from textwrap import dedent
 
 import pytest
 
+from myst_parser import text_to_tokens, render_tokens
 from mistletoe.block_token import tokenize
 
 from myst_parser.html_renderer import HTMLRenderer
@@ -12,6 +13,11 @@ def renderer():
     renderer = HTMLRenderer()
     with renderer:
         yield renderer
+
+
+def test_render_tokens():
+    root = text_to_tokens("abc")
+    assert render_tokens(root, HTMLRenderer) == "<p>abc</p>\n"
 
 
 def test_math(renderer):

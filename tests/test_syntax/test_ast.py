@@ -1,5 +1,6 @@
 import pytest
 
+from myst_parser import text_to_tokens
 from myst_parser.ast_renderer import AstRenderer
 from myst_parser.block_tokens import Document
 
@@ -9,6 +10,12 @@ def ast_renderer():
     renderer = AstRenderer()
     with renderer:
         yield renderer
+
+
+def test_render_tokens():
+    root = text_to_tokens("abc")
+    assert isinstance(root, Document)
+    assert root.children, root.children
 
 
 @pytest.mark.parametrize(
