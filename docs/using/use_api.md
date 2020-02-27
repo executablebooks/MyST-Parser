@@ -6,6 +6,8 @@ MyST-Parser may be used as an API *via* the `myst_parser` package.
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.
 
+## Convert Text to Tokens
+
 To convert some text to tokens:
 
 ```python
@@ -46,9 +48,9 @@ list_token.__dict__
 {'children': [MyST.ListItem(children=1)], 'loose': False, 'start': 1}
 ```
 
-There are four principle renderers:
+## AST Renderer
 
-- `myst_parser.ast_renderer.AstRenderer` converts a token to a nested dictionary representation.
+The `myst_parser.ast_renderer.AstRenderer` converts a token to a nested dictionary representation.
 
 ```python
 from pprint import pprint
@@ -86,7 +88,9 @@ pprint(render_tokens(root, AstRenderer))
  'type': 'Document'}
 ```
 
-- `myst_parser.html_renderer.HTMLRenderer` converts a token directly to HTML.
+## HTML Renderer
+
+The `myst_parser.html_renderer.HTMLRenderer` converts a token directly to HTML.
 
 ```python
 from myst_parser import render_tokens
@@ -130,7 +134,9 @@ content
 ````
 `````
 
-- `myst_parser.docutils_renderer.DocutilsRenderer` converts a token directly to the `docutils.document` representation of the document, converting roles and directives to a `docutils.nodes` if a converter can be found for the given name.
+## Docutils Renderer
+
+The `myst_parser.docutils_renderer.DocutilsRenderer` converts a token directly to the `docutils.document` representation of the document, converting roles and directives to a `docutils.nodes` if a converter can be found for the given name.
 
 ````python
 from myst_parser import render_tokens
@@ -177,7 +183,9 @@ print(document.pformat())
             content
 ```
 
-- The `myst_parser.docutils_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
+## Sphinx Renderer
+
+The `myst_parser.docutils_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
 
 ```{note}
 To use sphinx specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `load_sphinx_env=True` option.
