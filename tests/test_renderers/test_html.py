@@ -21,7 +21,7 @@ def test_math(renderer):
 
 def test_role(renderer):
     output = renderer.render(tokenize(["{name}`content`"])[0])
-    assert output == dedent("<p>content</p>")
+    assert output == dedent('<p><span class="role" name="name">content</span></p>')
 
 
 def test_directive(renderer):

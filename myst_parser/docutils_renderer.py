@@ -1,9 +1,11 @@
 from contextlib import contextmanager
+import copy
 from itertools import chain
 from os.path import splitext
 from pathlib import Path
 import re
 import sys
+from types import ModuleType
 from typing import List, Optional
 from urllib.parse import urlparse, unquote
 
@@ -539,6 +541,10 @@ class SphinxRenderer(DocutilsRenderer):
     This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
     """
 
+    def __init__(self, *args, **kwargs):
+        self.load_sphinx_env = kwargs.pop("load_sphinx_env", False)
+        super().__init__(*args, **kwargs)
+
     def handle_cross_reference(self, token, destination):
         from sphinx import addnodes
 
@@ -589,6 +595,108 @@ class SphinxRenderer(DocutilsRenderer):
         app = MockSphinx()
         self.document.settings.env = app.env
         return app
+
+    def __enter__(self):
+        """If `load_sphinx_env=True`, we set up an environment,
+        to parse sphinx roles/directives, outside of a `sphinx-build`.
+
+        This primarily copies the code in `sphinx.util.docutils.docutils_namespace`
+        and `sphinx.util.docutils.sphinx_domains`.
+        """
+        if not self.load_sphinx_env:
+            return super().__enter__()
+
+        # TODO ideally we would just use the sphinx funtctions directly,
+        # but I don't think context managers can be used in `__enter__` methods?
+
+        # store currently loaded roles/directives, so we can revert on exit
+        self._directives = copy.copy(directives._directives)
+        self._roles = copy.copy(roles._roles)
+        # Monkey-patch directive and role dispatch,
+        # so that sphinx domain-specific markup takes precedence.
+        # (see `sphinx.util.docutils.sphinx_domains`)
+        self._directive_func = directives.directive
+        self._role_func = roles.role
+        directives.directive = self.lookup_directive
+        roles.role = self.lookup_role
+        self._env = self.mock_sphinx_env().env
+
+        return super().__enter__()
+
+    def __exit__(self, exception_type, exception_val, traceback):
+        if not self.load_sphinx_env:
+            return super().__exit__(exception_type, exception_val, traceback)
+        # revert loaded roles/directives
+        directives._directives = self._directives
+        roles._roles = self._roles
+        # unregister nodes (see `sphinx.util.docutils.docutils_namespace`)
+        from sphinx.util.docutils import additional_nodes, unregister_node
+
+        for node in list(additional_nodes):
+            unregister_node(node)
+            additional_nodes.discard(node)
+        # revert directive/role function (see `sphinx.util.docutils.sphinx_domains`)
+        directives.directive = self._directive_func
+        roles.role = self._role_func
+        return super().__exit__(exception_type, exception_val, traceback)
+
+    def lookup_domain_element(self, type: str, name: str):
+        """Lookup a markup element (directive or role), given its name which can
+        be a full name (with domain).
+
+        Taken from: `sphinx.util.docutils.sphinx_domains`
+        """
+        name = name.lower()
+        # explicit domain given?
+        if ":" in name:
+            domain_name, name = name.split(":", 1)
+            if domain_name in self._env.domains:
+                domain = self._env.get_domain(domain_name)
+                element = getattr(domain, type)(name)
+                if element is not None:
+                    return element, []
+        # else look in the default domain
+        else:
+            def_domain = self._env.temp_data.get("default_domain")
+            if def_domain is not None:
+                element = getattr(def_domain, type)(name)
+                if element is not None:
+                    return element, []
+
+        # always look in the std domain
+        element = getattr(self._env.get_domain("std"), type)(name)
+        if element is not None:
+            return element, []
+
+        from sphinx.util.docutils import ElementLookupError
+
+        raise ElementLookupError
+
+    def lookup_directive(
+        self, directive_name: str, language_module: ModuleType, document: nodes.document
+    ):
+        """Taken from: `sphinx.util.docutils.sphinx_domains`."""
+        from sphinx.util.docutils import ElementLookupError
+
+        try:
+            return self.lookup_domain_element("directive", directive_name)
+        except ElementLookupError:
+            return self._directive_func(directive_name, language_module, document)
+
+    def lookup_role(
+        self,
+        role_name: str,
+        language_module: ModuleType,
+        lineno: int,
+        reporter: Reporter,
+    ):
+        """Taken from: `sphinx.util.docutils.sphinx_domains`."""
+        from sphinx.util.docutils import ElementLookupError
+
+        try:
+            return self.lookup_domain_element("role", role_name)
+        except ElementLookupError:
+            return self._role_func(role_name, language_module, lineno, reporter)
 
 
 class MockInliner:

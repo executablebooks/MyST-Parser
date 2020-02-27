@@ -1,4 +1,21 @@
+from myst_parser.block_tokens import Document
+
 __version__ = "0.2.0"
+
+
+def text_to_tokens(text: str) -> Document:
+    """Convert some text to the MyST base AST."""
+    from myst_parser.ast_renderer import AstRenderer
+
+    # this loads the MyST specific token parsers
+    with AstRenderer():
+        return Document(text)
+
+
+def render_tokens(root_token, renderer, **kwargs):
+    """Convert a token to another format."""
+    with renderer(**kwargs) as renderer:
+        return renderer.render(root_token)
 
 
 def setup(app):

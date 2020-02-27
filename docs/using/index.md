@@ -6,4 +6,5 @@ MyST documents.
 ```{toctree}
 install.md
 syntax.md
+use_api.md
 ```

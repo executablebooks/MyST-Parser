@@ -7,7 +7,6 @@ from mistletoe.block_token import (  # noqa: F401
     tokenize,
     HTMLBlock,
     ThematicBreak,
-    List,
     Footnote,
     TableRow,
 )
@@ -30,9 +29,6 @@ __all__ = [
     "FrontMatter",
     "Paragraph",
 ]
-
-# TODO add FieldList block token, see:
-# https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists
 
 
 class FrontMatter(block_token.BlockToken):
@@ -76,6 +72,9 @@ class FrontMatter(block_token.BlockToken):
     def read(cls, lines):
         raise NotImplementedError()
 
+    def __repr__(self):
+        return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
+
 
 class Document(block_token.BlockToken):
     """Document token."""
@@ -101,6 +100,9 @@ class Document(block_token.BlockToken):
         span_token._root_node = None
         block_token._root_node = None
 
+    def __repr__(self):
+        return "MyST.{}(blocks={})".format(self.__class__.__name__, len(self.children))
+
 
 class LineComment(block_token.BlockToken):
     """Line comment start with % """
@@ -125,6 +127,9 @@ class LineComment(block_token.BlockToken):
     def read(cls, lines):
         line = next(lines)
         return cls.content, line, lines.lineno
+
+    def __repr__(self):
+        return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
 
 
 class BlockBreak(block_token.BlockToken):
@@ -156,6 +161,9 @@ class BlockBreak(block_token.BlockToken):
         line = next(lines)
         return cls.content, line, lines.lineno
 
+    def __repr__(self):
+        return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
+
 
 class Heading(block_token.Heading):
     """
@@ -176,6 +184,11 @@ class Heading(block_token.Heading):
         next(lines)
         return cls.level, cls.content, (lines.lineno, lines.lineno)
 
+    def __repr__(self):
+        return "MyST.{}(range={},level={})".format(
+            self.__class__.__name__, self.range, self.level
+        )
+
 
 class SetextHeading(block_token.SetextHeading):
     """
@@ -190,6 +203,11 @@ class SetextHeading(block_token.SetextHeading):
         content = "\n".join([line.strip() for line in lines])
         super(block_token.SetextHeading, self).__init__(
             content, span_token.tokenize_inner
+        )
+
+    def __repr__(self):
+        return "MyST.{}(range={},level={})".format(
+            self.__class__.__name__, self.range, self.level
         )
 
 
@@ -261,6 +279,11 @@ class Quote(block_token.Quote):
         Paragraph.parse_setext = True
         return parse_buffer, (start_line, lines.lineno)
 
+    def __repr__(self):
+        return "MyST.{}(range={},children={})".format(
+            self.__class__.__name__, self.range, len(self.children)
+        )
+
 
 class Paragraph(block_token.Paragraph):
     """
@@ -324,6 +347,11 @@ class Paragraph(block_token.Paragraph):
             next_line = lines.peek()
         return line_buffer, (start_line, lines.lineno)
 
+    def __repr__(self):
+        return "MyST.{}(range={},children={})".format(
+            self.__class__.__name__, self.range, len(self.children)
+        )
+
 
 class BlockCode(block_token.BlockCode):
     """
@@ -352,6 +380,11 @@ class BlockCode(block_token.BlockCode):
                 break
             line_buffer.append(cls.strip(line))
         return line_buffer, (start_line, lines.lineno)
+
+    def __repr__(self):
+        return "MyST.{}(range={},language={})".format(
+            self.__class__.__name__, self.range, self.language
+        )
 
 
 class CodeFence(block_token.CodeFence):
@@ -402,6 +435,11 @@ class CodeFence(block_token.CodeFence):
             line_buffer.append(stripped_line)
         return line_buffer, cls._open_info, (start_line, lines.lineno)
 
+    def __repr__(self):
+        return "MyST.{}(range={},language={})".format(
+            self.__class__.__name__, self.range, self.language
+        )
+
 
 class Table(block_token.Table):
     """
@@ -437,6 +475,24 @@ class Table(block_token.Table):
             return None
         return line_buffer, (start_line, lines.lineno)
 
+    def __repr__(self):
+        return "MyST.{}(range={},rows={})".format(
+            self.__class__.__name__, self.range, len(self.children)
+        )
+
+
+class List(block_token.List):
+    def __init__(self, matches):
+        self.children = [ListItem(*match) for match in matches]
+        self.loose = any(item.loose for item in self.children)
+        leader = self.children[0].leader
+        self.start = None
+        if len(leader) != 1:
+            self.start = int(leader[:-1])
+
+    def __repr__(self):
+        return "MyST.{}(items={})".format(self.__class__.__name__, len(self.children))
+
 
 class ListItem(block_token.ListItem):
     @staticmethod
@@ -448,4 +504,9 @@ class ListItem(block_token.ListItem):
             or CodeFence.start(line)
             or ThematicBreak.start(line)
             or BlockBreak.start(line)
+        )
+
+    def __repr__(self):
+        return "MyST.{}(children={})".format(
+            self.__class__.__name__, len(self.children)
         )
