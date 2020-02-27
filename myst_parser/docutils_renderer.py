@@ -73,6 +73,13 @@ class DocutilsRenderer(BaseRenderer):
         settings = OptionParser(components=(RSTParser,)).get_default_values()
         return new_document(source_path, settings=settings)
 
+    def add_line_and_source_path(self, node, token):
+        try:
+            node.line = token.range[0] + 1
+        except AttributeError:
+            pass
+        node.source = self.document["source"]
+
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
         token = myst_block_tokens.Document(
@@ -134,7 +141,7 @@ class DocutilsRenderer(BaseRenderer):
             # promote the target to block level
             return self.render_target(token.children[0])
         para = nodes.paragraph("")
-        para.line = token.range[0]
+        self.add_line_and_source_path(para, token)
         with self.current_node_context(para, append=True):
             self.render_children(token)
 
@@ -175,7 +182,7 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_quote(self, token):
         quote = nodes.block_quote()
-        quote.line = token.range[0]
+        self.add_line_and_source_path(quote, token)
         with self.current_node_context(quote, append=True):
             self.render_children(token)
 
@@ -200,17 +207,22 @@ class DocutilsRenderer(BaseRenderer):
             node = nodes.math(content, content)
         self.current_node.append(node)
 
+    def render_block_code(self, token):
+        # this should never have a language, since it is just indented text, however,
+        # creating a literal_block with no language will raise a warning in sphinx
+        text = token.children[0].content
+        language = token.language or "none"
+        node = nodes.literal_block(text, text, language=language)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
     def render_code_fence(self, token):
         if token.language.startswith("{") and token.language.endswith("}"):
             return self.render_directive(token)
-        self.render_block_code(token, default_language=True)
 
-    def render_block_code(self, token, default_language=False):
-        # indented code blocks will always have no language,
-        # but for code fences, if not set, a default_language will be retrieved
         text = token.children[0].content
         language = token.language
-        if not language and default_language:
+        if not language:
             try:
                 sphinx_env = self.document.settings.env
                 language = sphinx_env.temp_data.get(
@@ -218,9 +230,10 @@ class DocutilsRenderer(BaseRenderer):
                 )
             except AttributeError:
                 pass
-        if not language and default_language:
+        if not language:
             language = self.config.get("highlight_language", "")
         node = nodes.literal_block(text, text, language=language)
+        self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_inline_code(self, token):
@@ -255,10 +268,10 @@ class DocutilsRenderer(BaseRenderer):
                 self.current_node = self.current_node.parent
 
         title_node = nodes.title()
-        title_node.line = token.range[0]
+        self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
-        new_section.line = token.range[0]
+        self.add_line_and_source_path(new_section, token)
         new_section.append(title_node)
 
         self._add_section(new_section, token.level)
@@ -496,7 +509,7 @@ class DocutilsRenderer(BaseRenderer):
                 # the absolute line number of the first line of the directive
                 lineno=token.range[0],
                 # the line offset of the first line of the content
-                content_offset=0,
+                content_offset=0,  # TODO get content offset from `parse_directive_text`
                 # a string containing the entire directive
                 block_text="\n".join(body_lines),
                 state=state,
@@ -760,7 +773,7 @@ class MockState:
 
     def nested_parse(
         self,
-        block: List[str],
+        block: StringList,
         input_offset: int,
         node: nodes.Element,
         match_titles: bool = False,
@@ -770,7 +783,7 @@ class MockState:
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
         with self._renderer.current_node_context(node):
-            self._renderer.nested_render_text(block, self._lineno)
+            self._renderer.nested_render_text(block, self._lineno + input_offset)
         self.state_machine.match_titles = current_match_titles
 
     def inline_text(self, text: str, lineno: int):
@@ -1002,7 +1015,7 @@ class MockIncludeDirective:
             literal_block = nodes.literal_block(
                 file_content, source=str(path), classes=self.options.get("class", [])
             )
-            literal_block.line = 1
+            literal_block.line = 1  # TODO don;t think this should be 1?
             self.add_name(literal_block)
             if "number-lines" in self.options:
                 try:

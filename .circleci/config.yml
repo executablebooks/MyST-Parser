@@ -22,7 +22,7 @@ jobs:
           name: Build docs to store
           command: |
             cd docs
-            make html
+            make html-strict
 
       - store_artifacts:
           path: docs/_build/html/
