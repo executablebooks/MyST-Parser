@@ -33,11 +33,12 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
   in curly brackets `{}`. See {ref}`syntax/directives` for more details.
 - **Math**: Two `$` characters wrapping multi-line math, e.g.
 
-  ```
+  ```latex
   $$
   a=1
   $$
   ```
+
 - **LineComment**: `% this is a comment`. See {ref}`syntax/comments` for more
   information.
 - **BlockBreak**: `+++`. See {ref}`syntax/blockbreaks` for more information.
@@ -50,11 +51,13 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 - **SetextHeading**: underlined header (using multiple `=` or `-`)
 - **Quote**: `> this is a quote`
 - **CodeFence**: enclosed in 3 or more backticks with an optional language name. E.g.:
-  ````
+
+  ````md
   ```python
   print('this is python')
   ```
   ````
+
 - **ThematicBreak**: `---`
 - **List**: bullet points or enumerated.
 - **Table**: Standard markdown table styles.
@@ -85,6 +88,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 - **RawText**
 
 (syntax/directives)=
+
 ## Directives - a block-level extension point
 
 Directives syntax is defined with triple-backticks and curly-brackets. It
@@ -98,7 +102,7 @@ header-rows: 1
 ---
 * - MyST
   - reStructuredText
-* - ````markdown
+* - ````md
     ```{directivename} arguments
     ---
     key1: val1
@@ -120,7 +124,7 @@ header-rows: 1
 
 For example, the following code:
 
-````
+````md
 ```{admonition} This is my admonition
 This is my note
 ```
@@ -135,7 +139,7 @@ This is my note
 For directives that are meant to parse content for your site, you may use
 markdown as the markup language inside...
 
-````
+````md
 ```{admonition} My markdown link
 Here is [markdown link syntax](https://jupyter.org)
 ```
@@ -148,7 +152,7 @@ Here is [markdown link syntax](https://jupyter.org)
 As a short-hand for directives that require no arguments, and when no paramter options are used (see below),
 you may start the content directly after the directive name.
 
-````
+````md
 ```{note} Notes require **no** arguments, so content can start here.
 ```
 ````
@@ -163,7 +167,7 @@ beginning your directive content with YAML frontmatter. This needs to be
 surrounded by `---` lines. Everything in between will be parsed by YAML and
 passed as keyword arguments to your directive. For example:
 
-````
+````md
 ```{code-block} python
 ---
 lineno-start: 10
@@ -193,7 +197,7 @@ print(f'my {a}nd line')
 
 As a short-hand alternative, more closely resembling the reStructuredText syntax, options may also be denoted by an initial block, whereby all lines start with '`:`', for example:
 
-````
+````md
 ```{code-block} python
 :lineno-start: 10
 :emphasize-lines: 1, 3
@@ -210,7 +214,7 @@ You can nest directives by ensuring that the ticklines corresponding to the
 outermost directive are longer than the ticklines for the inner directives.
 For example, nest a warning inside a note block like so:
 
-`````
+`````md
 ````{note}
 The next info should be nested
 ```{warning}
@@ -231,7 +235,7 @@ Here's my warning
 You can indent inner-code fences, so long as they aren't indented by more than 3 spaces.
 Otherwise, they will be rendered as "raw code" blocks:
 
-`````
+`````md
 ````{note}
 The warning block will be properly-parsed
 
@@ -277,6 +281,7 @@ print('yep!')
 ``````
 
 (syntax/roles)=
+
 ## Roles - an in-line extension point
 
 Roles are similar to directives - they allow you to define arbitrary new
@@ -289,7 +294,7 @@ header-rows: 1
 ---
 * - MyST
   - reStructuredText
-* - ````markdown
+* - ````md
     {role-name}`role content`
     ````
   - ```rst
@@ -310,7 +315,7 @@ Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`
 You can use roles to do things like reference equations and other items in
 your book. For example:
 
-````
+````md
 ```{math} e^{i\pi} + 1 = 0
 ---
 label: euler
@@ -351,12 +356,12 @@ header-rows: 1
   - `$x^2$`
   - N/A
 * - Front matter
-  - ```
+  - ```md
     ---
     key: val
     ---
     ```
-  - ```
+  - ```md
     :key: val
     ```
 * - Comments
@@ -373,14 +378,14 @@ Math can be called in-line with single `$` characters around your math.
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
 This is equivalent to writing:
 
-```
+```md
 {math}`x_{hey}=it+is^{math}`
 ```
 
 Block-level math can be provided with `$$` signs that wrap the math block you'd like
 to parse. For example:
 
-```
+```latex
 $$
    \begin{eqnarray}
       y    & = & ax^2 + bx + c \\
@@ -400,7 +405,7 @@ $$
 
 This is equivalent to the following directive:
 
-````
+````md
 ```{math}
    \begin{eqnarray}
       y    & = & ax^2 + bx + c \\
@@ -410,6 +415,7 @@ This is equivalent to the following directive:
 ````
 
 (syntax/frontmatter)=
+
 ### Front Matter
 
 This is a YAML block at the start of the document, as used for example in
@@ -421,7 +427,7 @@ A classic use-case is to specify 'orphan' documents, that are not specified in a
 toctrees. For example, inserting the following syntax at the top of a page will cause
 Sphinx to treat it as an orphan page:
 
-```markdown
+```md
 ---
 orphan: true
 ---
@@ -438,7 +444,7 @@ prevent the line from being parsed into the output document.
 
 For example, this code:
 
-```
+```md
 % my comment
 ```
 
@@ -458,7 +464,7 @@ but is stored in the internal document structure for use by developers.
 
 For example, this code:
 
-```
+```md
 +++ some text
 ```
 
@@ -476,19 +482,19 @@ to them.
 
 Target headers are defined with this syntax:
 
-```
+```md
 (header_target)=
 ```
 
 They can then be referred to with the [ref inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref):
 
-```
+```md
 {ref}`header_target`
 ```
 
 By default, the reference will use the text of the target (such as the section title), but also you can directly specify the text:
 
-```
+```md
 {ref}`my text <header_target>`
 ```
 
@@ -497,13 +503,13 @@ this page: {ref}`my text <example_syntax>`.
 
 Alternatively using the markdown syntax:
 
-```markdown
+```md
 [my text](header_target)
 ```
 
 is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
 
-```
+```md
 {any}`my text <header_target>`
 ```
 

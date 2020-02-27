@@ -8,7 +8,7 @@ This project provides a parser for this flavor of markdown, as well as a bridge 
 MyST syntax and Sphinx. This allows for native markdown support for roles and
 directives.
 
-```{warn}
+```{warning}
 The MyST parser is in an alpha stage, and may have breaking syntax to its implementation
 and to the syntax that it supports. Use at your own risk. If you find any issues,
 please report them
