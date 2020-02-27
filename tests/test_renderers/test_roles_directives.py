@@ -249,7 +249,7 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
     """See https://docutils.sourceforge.io/docs/ref/rst/directives.html"""
     # TODO make sure all directives from domains are added (std and rst are done)
     # (some were erroneously added to roles)
-    if name == "include":
+    if name in ["include", "literalinclude"]:
         # this is tested in the sphinx build level tests
         return
     if name in [

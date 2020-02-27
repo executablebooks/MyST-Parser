@@ -64,6 +64,11 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
     def render_target(self, token):
         raise NotImplementedError
 
+    def render_role(self, token):
+        return '<span class="role" name="{}">{}</span>'.format(
+            token.name, self.render_raw_text(token.children[0])
+        )
+
     def render_math(self, token):
         """
         Ensure Math tokens are all enclosed in two dollar signs.
