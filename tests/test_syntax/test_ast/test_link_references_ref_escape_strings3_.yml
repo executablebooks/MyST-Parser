@@ -1,0 +1,21 @@
+children:
+- children:
+  - content: '[ref]'
+    type: RawText
+  range:
+  - 1
+  - 1
+  type: Paragraph
+- children:
+  - children:
+    - content: '['
+      type: RawText
+    type: EscapeSequence
+  - content: 'ref]: https://google.com "title"'
+    type: RawText
+  range:
+  - 3
+  - 3
+  type: Paragraph
+footnotes: {}
+type: Document

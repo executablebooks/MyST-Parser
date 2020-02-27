@@ -125,3 +125,17 @@ def test_block_break(name, ast_renderer, data_regression, strings):
 def test_front_matter(name, ast_renderer, data_regression, strings):
     document = Document(strings)
     data_regression.check(ast_renderer.render(document))
+
+
+@pytest.mark.parametrize(
+    "name,strings",
+    [
+        ("ref_first", ["[ref]", "", '[ref]: https://google.com "title"']),
+        ("ref_last", ['[ref]: https://google.com "title"', "", "[ref]"]),
+        ("ref_syntax", ["[*syntax*]", "", '[*syntax*]: https://google.com "title"']),
+        ("ref_escape", ["[ref]", "", '\\[ref]: https://google.com "title"']),
+    ],
+)
+def test_link_references(name, strings, ast_renderer, data_regression):
+    document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
