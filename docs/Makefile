@@ -19,9 +19,9 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-# raise warnings to errors
+# raise warnings to errors, but don't stop on the first error
 html-strict:
-	@$(SPHINXBUILD) -b html -nW "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -b html -nW --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
 
 clean:
 	rm -r $(BUILDDIR)
