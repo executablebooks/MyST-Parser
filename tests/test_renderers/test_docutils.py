@@ -279,9 +279,23 @@ def test_block_break(renderer_mock):
     )
 
 
-def test_footnote(renderer):
+def test_link_reference(renderer):
     renderer.render(
         Document(["[name][key]", "", '[key]: https://www.google.com "a title"', ""])
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="notset">
+        <paragraph>
+            <reference refuri="https://www.google.com" title="a title">
+                name
+    """
+    )
+
+
+def test_link_reference_no_key(renderer):
+    renderer.render(
+        Document(["[name]", "", '[name]: https://www.google.com "a title"', ""])
     )
     assert renderer.document.pformat() == dedent(
         """\

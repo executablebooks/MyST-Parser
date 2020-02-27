@@ -25,7 +25,7 @@ __all__ = [
     "BlockBreak",
     "List",
     "Table",
-    "Footnote",
+    "LinkDefinition",
     "FrontMatter",
     "Paragraph",
 ]
@@ -107,6 +107,16 @@ class Document(block_token.BlockToken):
 
     def __repr__(self):
         return "MyST.{}(blocks={})".format(self.__class__.__name__, len(self.children))
+
+
+class LinkDefinition(Footnote):
+    """This has been renamed since, these actually refer to
+    https://spec.commonmark.org/0.28/#link-reference-definitions,
+    rather than what would generally be considered a footnote:
+    https://www.markdownguide.org/extended-syntax/#footnotes
+    """
+
+    pass
 
 
 class LineComment(block_token.BlockToken):

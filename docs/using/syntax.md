@@ -61,7 +61,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
 - **ThematicBreak**: `---`
 - **List**: bullet points or enumerated.
 - **Table**: Standard markdown table styles.
-- **Footnote**: A substitution for an inline link (e.g. `[key][name]`), which can have a reference target (no spaces), and an optional title (in `"`), e.g. `[key]: https://www.google.com "a title"`
+- **LinkDefinition**: A substitution for an inline link (e.g. `[key][name]`), which can have a reference target (no spaces), and an optional title (in `"`), e.g. `[key]: https://www.google.com "a title"`
 - **Paragraph**: General inline text
 
 ### Span (Inline) Tokens
@@ -304,7 +304,7 @@ header-rows: 1
 
 For example, the following code:
 
-```
+```md
 Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`
 ```
 
