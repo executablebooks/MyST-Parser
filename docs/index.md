@@ -54,4 +54,5 @@ caption: Contents
 using/index.md
 examples/index.md
 develop/index.md
+package_api.md
 ```

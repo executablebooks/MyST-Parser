@@ -31,7 +31,7 @@ from myst_parser.utils import escape_url
 class DocutilsRenderer(BaseRenderer):
     """A mistletoe renderer to populate (in-place) a `docutils.document` AST.
 
-    Note this renderer has no dependencies in sphinx.
+    Note this renderer has no dependencies on Sphinx.
     """
 
     def __init__(
@@ -42,15 +42,10 @@ class DocutilsRenderer(BaseRenderer):
     ):
         """Initialise the renderer.
 
-        Parameters
-        ----------
-        document : docutils.nodes.document
-            The document to populate (or create a new one if None)
-        current_node : docutils.nodes.Element
-            The root node from which to begin populating (default is document)
-            (should be an ancestor of document)
-        config : dict
-            contains configuration specific to the rendering process
+        :param document: The document to populate (or create a new one if None)
+        :param current_node: The root node from which to begin populating
+            (default is document, or should be an ancestor of document)
+        :param config: contains configuration specific to the rendering process
 
         """
         self.config = config or {}
