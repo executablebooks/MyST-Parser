@@ -4,7 +4,9 @@ from unittest import mock
 from mistletoe.block_token import tokenize
 from mistletoe.span_token import tokenize_inner
 
+from myst_parser import text_to_tokens, render_tokens
 from myst_parser.block_tokens import Document
+from myst_parser.docutils_renderer import SphinxRenderer
 
 
 def render_token(
@@ -17,6 +19,19 @@ def render_token(
     for attr in without_attrs:
         delattr(mock_token, attr)
     render_func(mock_token)
+
+
+def test_render_tokens():
+    root = text_to_tokens("abc")
+    document = render_tokens(
+        root,
+        SphinxRenderer,
+        load_sphinx_env=True,
+        sphinx_conf={"project": "MyST Parser"},
+    )
+    assert document.pformat() == (
+        '<document source="notset">\n    <paragraph>\n        abc\n'
+    )
 
 
 def test_strong(renderer_mock):
