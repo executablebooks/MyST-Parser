@@ -25,6 +25,27 @@ Optionally you can run `black` and `flake8` separately:
 
 Editors like VS Code also have automatic code reformat utilities, which can adhere to this standard.
 
+## Testing
+
+For code tests:
+
+```shell
+>> cd MyST-Parser
+>> pytest
+```
+
+For documentation build tests:
+
+```shell
+>> cd MyST-Parser/docs
+>> make clean
+>> make html-strict
+```
+
+```{seealso}
+{ref}`develop/testing`
+```
+
 ## Pull Requests
 
 To contribute, make Pull Requests to the `develop` branch (this is the default branch). A PR can consist of one or multiple commits. Before you open a PR, make sure to clean up your commit history and create the commits that you think best divide up the total work as outlined above (use `git rebase` and `git commit --amend`). Ensure all commit messages clearly summarise the changes in the header and the problem that this commit is solving in the body.
