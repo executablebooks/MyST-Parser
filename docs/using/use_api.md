@@ -6,6 +6,24 @@ MyST-Parser may be used as an API *via* the `myst_parser` package.
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.
 
+The simplest way to parse text is using:
+
+```python
+from myst_parser import parse_text
+parse_text("some *text*", "html")
+```
+
+```html
+'<p>some <em>text</em></p>\n'
+```
+
+The output type can be one of:
+
+- `dict` (a.k.a ast)
+- `html`
+- `docutils`
+- `sphinx`
+
 ## Convert Text to Tokens
 
 To convert some text to tokens:
