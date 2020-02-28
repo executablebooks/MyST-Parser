@@ -186,7 +186,9 @@ class DocutilsRenderer(BaseRenderer):
         raise NotImplementedError
 
     def render_thematic_break(self, token):
-        self.current_node.append(nodes.transition())
+        node = nodes.transition()
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
 
     def render_block_break(self, token):
         block_break = nodes.comment(token.content, token.content)
@@ -284,11 +286,14 @@ class DocutilsRenderer(BaseRenderer):
         self.document.note_implicit_target(section, section)
         self.current_node = section
 
-    def handle_cross_reference(self, token, destination, ref_node):
+    def handle_cross_reference(self, token, destination):
         # TODO use the docutils error reporting mechanisms, rather than raising
-        raise NotImplementedError(
-            "reference not found in current document: {}".format(destination)
-        )
+        if not self.config.get("ignore_missing_refs", False):
+            raise NotImplementedError(
+                "reference not found in current document: {}\n{}".format(
+                    destination, token
+                )
+            )
 
     def render_link(self, token):
         ref_node = nodes.reference()

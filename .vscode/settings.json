@@ -8,9 +8,12 @@
         "**/__pycache__": true,
         "**/.pytest_cache": true
     },
-    "editor.rulers": [88],
+    "editor.rulers": [
+        88
+    ],
     "python.formatting.provider": "black",
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
+    "autoDocstring.customTemplatePath": "docstring.fmt.mustache"
 }
