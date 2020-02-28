@@ -7,5 +7,6 @@ MyST documents.
 install.md
 sphinx.md
 syntax.md
+benchmark.md
 use_api.md
 ```

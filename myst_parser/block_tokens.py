@@ -3,13 +3,7 @@ import re
 from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
 
-from mistletoe.block_token import (  # noqa: F401
-    tokenize,
-    HTMLBlock,
-    ThematicBreak,
-    Footnote,
-    TableRow,
-)
+from mistletoe.block_token import tokenize, HTMLBlock, Footnote, TableRow  # noqa: F401
 
 """
 Tokens to be included in the parsing process, in the order specified.
@@ -142,6 +136,25 @@ class LineComment(block_token.BlockToken):
     def read(cls, lines):
         line = next(lines)
         return cls.content, line, lines.lineno
+
+    def __repr__(self):
+        return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
+
+
+class ThematicBreak(block_token.ThematicBreak):
+    """
+    Thematic break token (a.k.a. horizontal rule.)
+    """
+
+    def __init__(self, result):
+        line, lineno = result
+        self.raw = line.splitlines()[0]
+        self.range = (lineno, lineno)
+
+    @classmethod
+    def read(cls, lines):
+        line = next(lines)
+        return line, lines.lineno
 
     def __repr__(self):
         return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
