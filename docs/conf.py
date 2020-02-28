@@ -117,6 +117,7 @@ nitpick_ignore = [
     ("py:class", "mistletoe.block_token.Table"),
     ("py:class", "mistletoe.block_token.Footnote"),
     ("py:class", "mistletoe.block_token.Paragraph"),
+    ("py:class", "mistletoe.block_token.ThematicBreak"),
     ("py:class", "mistletoe.base_renderer.BaseRenderer"),
     ("py:class", "mistletoe.html_renderer.HTMLRenderer"),
     ("py:class", "mistletoe.span_token.SpanToken"),
