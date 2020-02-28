@@ -7,18 +7,18 @@ some existing Markdown parsers written in Python:
 
   [src]: https://daringfireball.net/projects/markdown/syntax
 
-    $ MyST-Parser/tests/benchmark/run.py
+    $ myst-benchmark docs/using/benchmark.md
     Test document: benchmark.md
     Test iterations: 1000
     Running tests ...
     =================
-    markdown_py (3.2): 36.86 s
-    mistune (0.8.4): 13.91 s
-    commonmark (0.9.1): 52.48 s
-    mistletoe (0.8.0): 35.32 s
-    myst_parser_html (0.2.0): 43.21 s
-    myst_parser_docutils (0.2.0): 53.03 s
-    myst_parser_sphinx (0.2.0): 60.62 s
+    python-markdown:extra (3.2): 53.78 s
+    mistune (0.8.4): 15.22 s
+    commonmark.py (0.9.1): 61.92 s
+    mistletoe (0.8.0): 43.51 s
+    myst_parser:html (0.2.0): 52.47 s
+    myst_parser:docutils (0.2.0): 65.27 s
+    myst_parser:sphinx (0.2.0): 73.54 s
 
 As already noted by [mistletoe](https://github.com/miyuchina/mistletoe#performance)
 (which this package is built on), although Mistune is the fastest,
