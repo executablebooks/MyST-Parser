@@ -590,7 +590,7 @@ class SphinxRenderer(DocutilsRenderer):
         if token.title:
             wrap_node["title"] = token.title
         self.current_node.append(wrap_node)
-        text_node = nodes.TextElement("", "", classes=["xref", "any"])
+        text_node = nodes.literal("", "", classes=["xref", "any"])
         wrap_node.append(text_node)
         with self.current_node_context(text_node):
             self.render_children(token)
