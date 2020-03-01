@@ -316,6 +316,19 @@ def test_link_reference_no_key(renderer):
     )
 
 
+def test_link_reference_no_exist(renderer):
+    renderer.render(Document(["[name](foo)"]))
+    assert renderer.document.pformat() == dedent(
+        """\
+<document source="notset">
+    <paragraph>
+        <pending_xref refdomain="True" refexplicit="True" reftarget="foo" reftype="any" refwarn="True">
+            <literal classes="xref any">
+                name
+    """
+    )
+
+
 def test_block_quotes(renderer):
     renderer.render(
         Document(
