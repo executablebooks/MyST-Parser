@@ -1,6 +1,6 @@
 ---
 name: Documentation Improvements
-about: Suggests improvements to the documentation
+about: Suggest improvements to the documentation
 title: ''
 labels: documentation
 assignees: ''
