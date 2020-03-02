@@ -1,6 +1,5 @@
-# Test bibtex with missing ref
+# Hi
 
 ```{toctree}
 example_rst.rst
-example_md.md
 ```
