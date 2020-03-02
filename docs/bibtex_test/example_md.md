@@ -4,7 +4,7 @@
 
 {cite}`abc`
 
-```bibliography references2.bib
+```{bibliography} references2.bib
 ```
 
 abc
