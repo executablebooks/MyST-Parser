@@ -7,4 +7,4 @@ Test rST
 
 .. bibliography:: references3.bib
 
-xyz
+ghk
