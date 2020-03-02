@@ -44,3 +44,25 @@ def test_includes(
 
     get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
     get_sphinx_app_output(app, filename="index.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "bibtex_norefs"), freshenv=True
+)
+def test_bibtex_norefs(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test of spinxcontrib-bibtex extension."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert "citation not found: abc" in warnings
+
+    get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
+    get_sphinx_app_output(app, filename="index.html", regress_html=True)
