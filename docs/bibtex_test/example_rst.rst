@@ -3,8 +3,8 @@ Test rST
 
 :cite:`unknown`
 
-:cite:`abc`
+:cite:`xyz`
 
-.. bibliography:: references2.bib
+.. bibliography:: references3.bib
 
 xyz
