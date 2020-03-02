@@ -1,2 +1,6 @@
-Hi 2
-----
+Test rST
+--------
+
+:cite:`unknown`
+
+.. bibliography:: references2.bib
