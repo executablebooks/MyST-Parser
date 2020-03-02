@@ -54,5 +54,6 @@ caption: Contents
 using/index.md
 examples/index.md
 develop/index.md
+bibtex_test/index.md
 package_api.md
 ```
