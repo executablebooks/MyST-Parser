@@ -5,6 +5,7 @@
 Wealth Distribution Dynamics in rST
 ***********************************
 
+:cite:`unknown`
 
 .. note::
 
