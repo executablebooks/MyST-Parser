@@ -8,5 +8,3 @@
 :labelprefix: md2
 :keyprefix: md2-
 ```
-
-lmd
