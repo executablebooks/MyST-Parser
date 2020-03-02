@@ -21,7 +21,7 @@ help:
 
 # raise warnings to errors
 html-strict:
-	@$(SPHINXBUILD) -b html -nW "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -b html -nW --keep-going "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
 
 clean:
 	rm -r $(BUILDDIR)
