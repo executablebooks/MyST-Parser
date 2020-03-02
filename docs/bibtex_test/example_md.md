@@ -2,7 +2,7 @@
 
 {cite}`unknown`
 
-{cite}`md2-abc`
+
 
 ```{bibliography} references2.bib
 :labelprefix: md2
