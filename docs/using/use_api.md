@@ -151,7 +151,7 @@ print(render_tokens(root, HTMLRenderer))
 <li>a list</li>
 </ol>
 <blockquote>
-<p>a quote</p>
+<p>a <em>quote</em></p>
 </blockquote>
 ```
 
@@ -173,12 +173,42 @@ print(render_tokens(other, HTMLRenderer))
 ````
 
 ````html
-<p><span class="role" name="role:name">content</span></p>
-<pre><code class="language-{directive_name}">:option: a
+<p><span class="myst-role"><code>{role:name}content</code></span></p>
+<div class="myst-directive">
+<pre><code>{directive_name} arg
+:option: a
 content
-</code></pre>
+</code></pre></span>
+</div>
 ````
 `````
+
+You can also create a minmal page preview, including CSS:
+
+```python
+parse_text(
+    in_string,
+    "html",
+    add_mathjax=True,
+    as_standalone=True,
+    add_css=dedent(
+        """\
+        div.myst-front-matter {
+            border: 1px solid gray;
+        }
+        div.myst-directive {
+            background: lightgreen;
+        }
+        hr.myst-block-break {
+            border-top:1px dotted black;
+        }
+        span.myst-role {
+            background: lightgreen;
+        }
+        """
+    ),
+)
+```
 
 ## Docutils Renderer
 
