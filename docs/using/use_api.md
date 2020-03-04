@@ -35,7 +35,7 @@ Here's some *text*
 
 1. a list
 
-> a quote""")
+> a *quote*""")
 root
 ```
 
@@ -64,6 +64,34 @@ list_token.__dict__
 
 ```python
 {'children': [MyST.ListItem(children=1)], 'loose': False, 'start': 1}
+```
+
+You can also recursively traverse the syntax tree, yielding `TraverseResult`s that contain the element, its parent and depth from the source token:
+
+```python
+from pprint import pprint
+from myst_parser import traverse
+tree = [
+    (t.parent.__class__.__name__, t.node.__class__.__name__, t.depth)
+    for t in traverse(root)
+]
+pprint(tree)
+```
+
+```python
+[('Document', 'Paragraph', 1),
+ ('Document', 'List', 1),
+ ('Document', 'Quote', 1),
+ ('Paragraph', 'RawText', 2),
+ ('Paragraph', 'Emphasis', 2),
+ ('List', 'ListItem', 2),
+ ('Quote', 'Paragraph', 2),
+ ('Emphasis', 'RawText', 3),
+ ('ListItem', 'Paragraph', 3),
+ ('Paragraph', 'RawText', 3),
+ ('Paragraph', 'Emphasis', 3),
+ ('Paragraph', 'RawText', 4),
+ ('Emphasis', 'RawText', 4)]
 ```
 
 ## AST Renderer
