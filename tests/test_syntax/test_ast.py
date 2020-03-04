@@ -2,7 +2,7 @@ from textwrap import dedent
 
 import pytest
 
-from myst_parser import text_to_tokens, block_tokens
+from myst_parser import text_to_tokens, block_tokens, traverse
 from myst_parser.ast_renderer import AstRenderer
 from myst_parser.block_tokens import Document
 
@@ -18,6 +18,33 @@ def test_render_tokens():
     root = text_to_tokens("abc")
     assert isinstance(root, Document)
     assert root.children, root.children
+
+
+def test_traverse(ast_renderer):
+    doc = Document(
+        dedent(
+            """\
+        a **b**
+
+        c [*d*](link)
+        """
+        )
+    )
+    tree = [
+        (t.node.__class__.__name__, t.parent.__class__.__name__, t.depth)
+        for t in traverse(doc)
+    ]
+    assert tree == [
+        ("Paragraph", "Document", 1),
+        ("Paragraph", "Document", 1),
+        ("RawText", "Paragraph", 2),
+        ("Strong", "Paragraph", 2),
+        ("RawText", "Paragraph", 2),
+        ("Link", "Paragraph", 2),
+        ("RawText", "Strong", 3),
+        ("Emphasis", "Link", 3),
+        ("RawText", "Emphasis", 4),
+    ]
 
 
 @pytest.mark.parametrize(
