@@ -2,11 +2,23 @@ children:
 - children:
   - children:
     - content: $
+      range:
+      - 1
+      - 1
       type: RawText
+    range:
+    - 1
+    - 1
     type: EscapeSequence
   - content: 'a '
+    range:
+    - 1
+    - 1
     type: RawText
   - content: $b$
+    range:
+    - 1
+    - 1
     type: Math
   range:
   - 1

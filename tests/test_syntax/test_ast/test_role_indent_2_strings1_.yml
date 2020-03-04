@@ -2,8 +2,14 @@ children:
 - children:
   - children:
     - content: some content
+      range:
+      - 1
+      - 1
       type: RawText
     name: name
+    range:
+    - 1
+    - 1
     type: Role
   range:
   - 1

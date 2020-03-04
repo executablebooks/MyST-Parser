@@ -4,6 +4,9 @@ children:
     - align: null
       children:
       - content: hjk
+        range:
+        - 3
+        - 3
         type: RawText
       range:
       - 3
@@ -13,7 +16,13 @@ children:
       children:
       - children:
         - content: y
+          range:
+          - 3
+          - 3
           type: RawText
+        range:
+        - 3
+        - 3
         type: Emphasis
       range:
       - 3
@@ -22,6 +31,9 @@ children:
     - align: 0
       children:
       - content: z
+        range:
+        - 3
+        - 3
         type: RawText
       range:
       - 3

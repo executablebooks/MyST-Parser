@@ -3,6 +3,9 @@ children:
   - content: '{name}`some econtent`
 
       '
+    range:
+    - 0
+    - 1
     type: RawText
   language: ''
   range:

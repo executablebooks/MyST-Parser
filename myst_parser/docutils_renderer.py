@@ -69,6 +69,7 @@ class DocutilsRenderer(BaseRenderer):
         return new_document(source_path, settings=settings)
 
     def add_line_and_source_path(self, node, token):
+        """Copy the line number and document source path to the docutils node."""
         try:
             node.line = token.range[0] + 1
         except AttributeError:
@@ -97,7 +98,6 @@ class DocutilsRenderer(BaseRenderer):
         self.current_node = current_node
 
     def render_document(self, token):
-        # TODO deal with footnotes
         self.footnotes.update(token.footnotes)
         self.render_children(token)
         return self.document
@@ -148,6 +148,7 @@ class DocutilsRenderer(BaseRenderer):
         name = nodes.fully_normalize_name(text)
         target = nodes.target(text)
         target["names"].append(name)
+        self.add_line_and_source_path(target, token)
         self.document.note_explicit_target(target, self.current_node)
         self.current_node.append(target)
 
@@ -167,11 +168,13 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_strong(self, token):
         node = nodes.strong()
+        self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             self.render_children(token)
 
     def render_emphasis(self, token):
         node = nodes.emphasis()
+        self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             self.render_children(token)
 
@@ -193,6 +196,7 @@ class DocutilsRenderer(BaseRenderer):
     def render_block_break(self, token):
         block_break = nodes.comment(token.content, token.content)
         block_break["classes"] += ["block_break"]
+        self.add_line_and_source_path(block_break, token)
         self.current_node.append(block_break)
 
     def render_math(self, token):
@@ -202,6 +206,7 @@ class DocutilsRenderer(BaseRenderer):
         else:
             content = token.content[1:-1]
             node = nodes.math(content, content)
+        self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_block_code(self, token):
@@ -236,6 +241,7 @@ class DocutilsRenderer(BaseRenderer):
     def render_inline_code(self, token):
         text = token.children[0].content
         node = nodes.literal(text, text)
+        self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def _is_section_level(self, level, section):
@@ -297,6 +303,7 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_link(self, token):
         ref_node = nodes.reference()
+        self.add_line_and_source_path(ref_node, token)
         # Check destination is supported for cross-linking and remove extension
         # TODO escape urls?
         destination = token.target
@@ -309,8 +316,6 @@ class DocutilsRenderer(BaseRenderer):
         # if ext.replace('.', '') in self.supported:
         #     destination = destination.replace(ext, '')
         ref_node["refuri"] = destination
-        # TODO get line of Link token (requires upstream mistletoe improvements)
-        # ref_node.line = self._get_line(token)
         if token.title:
             ref_node["title"] = token.title
         next_node = ref_node
@@ -334,6 +339,7 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_image(self, token):
         img_node = nodes.image()
+        self.add_line_and_source_path(img_node, token)
         img_node["uri"] = token.src
 
         img_node["alt"] = ""
@@ -361,8 +367,7 @@ class DocutilsRenderer(BaseRenderer):
         else:
             list_node = nodes.bullet_list()
         # TODO deal with token.loose?
-        # TODO list range
-        # list_node.line = token.range[0]
+        self.add_line_and_source_path(list_node, token)
 
         self.current_node.append(list_node)
         with self.current_node_context(list_node):
@@ -370,8 +375,7 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_list_item(self, token: myst_block_tokens.ListItem):
         item_node = nodes.list_item()
-        # TODO list item range
-        # node.line = token.range[0]
+        self.add_line_and_source_path(item_node, token)
         self.current_node.append(item_node)
         with self.current_node_context(item_node):
             self.render_children(token)
@@ -419,6 +423,7 @@ class DocutilsRenderer(BaseRenderer):
         else:
             refuri = escape_url(token.target)
         ref_node = nodes.reference(token.target, token.target, refuri=refuri)
+        self.add_line_and_source_path(ref_node, token)
         self.current_node.append(ref_node)
 
     def render_html_span(self, token):
@@ -431,7 +436,10 @@ class DocutilsRenderer(BaseRenderer):
         content = token.children[0].content
         name = token.name
         # TODO role name white/black lists
-        lineno = 0  # TODO get line number
+        try:
+            lineno = token.range[0]
+        except AttributeError:
+            lineno = 0
         inliner = MockInliner(self, lineno)
         role_func, messages = roles.role(
             name, self.language_module, lineno, self.reporter
@@ -585,8 +593,7 @@ class SphinxRenderer(DocutilsRenderer):
             refexplicit=len(token.children) > 0,
             refwarn=True,
         )
-        # TODO also not correct sourcepos
-        # wrap_node.line = self._get_line(token)
+        self.add_line_and_source_path(wrap_node, token)
         if token.title:
             wrap_node["title"] = token.title
         self.current_node.append(wrap_node)

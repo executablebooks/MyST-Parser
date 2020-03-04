@@ -14,6 +14,8 @@ def render_token(
 ):
     render_func = renderer_mock.render_map[token_name]
     children = mock.MagicMock(spec=list) if children else None
+    if "range" not in kwargs:
+        kwargs["range"] = (0, 0)
     mock_token = mock.Mock(children=children, **kwargs)
     without_attrs = without_attrs or []
     for attr in without_attrs:

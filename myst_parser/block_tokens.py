@@ -1,9 +1,11 @@
 import re
+from typing import List, Union
 
 from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
-
 from mistletoe.block_token import tokenize, Footnote  # noqa: F401
+
+from myst_parser import traverse
 
 """
 Tokens to be included in the parsing process, in the order specified.
@@ -73,7 +75,22 @@ class FrontMatter(block_token.BlockToken):
 class Document(block_token.BlockToken):
     """Document token."""
 
-    def __init__(self, lines, start_line=0, inc_front_matter=True, store_lines=False):
+    def __init__(
+        self,
+        lines: Union[str, List[str]],
+        start_line: int = 0,
+        inc_front_matter: bool = True,
+        store_lines: bool = False,
+        propogate_range: bool = True,
+    ):
+        """Parse lines to a syntax token and its (recursive) children.
+
+        :param lines: string or list of strings
+        :param start_line: the initial line (used for nested parsing)
+        :param inc_front_matter: search for an initial YAML block front matter block
+        :param store_lines: store the lines on the token (as `token._lines`)
+        :param propogate_range: traverse the final syntax tree and add missing ranges
+        """
 
         self.footnotes = {}
         self._start_line = start_line
@@ -95,6 +112,16 @@ class Document(block_token.BlockToken):
             start_line = front_matter.range[1]
             lines = lines[start_line:]
         self.children.extend(tokenize(lines, start_line))
+
+        if propogate_range:
+            # TODO this is a placeholder for implementing span level range storage
+            # (with start/end character attributes)
+            for result in traverse(self):
+                if not hasattr(result.node, "range"):
+                    try:
+                        result.node.range = result.parent.range
+                    except AttributeError:
+                        pass
 
         span_token._root_node = None
         block_token._root_node = None
