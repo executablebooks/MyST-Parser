@@ -1,7 +1,7 @@
 # MyST-Parser
 
-[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=develop)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
-[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=develop)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=develop)
+[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
+[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/myst-parser/badge/?version=latest)](https://myst-parser.readthedocs.io/en/latest/?badge=latest)
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
@@ -17,7 +17,7 @@ Or for package development:
 ```bash
 git clone https://github.com/ExecutableBookProject/MyST-Parser
 cd MyST-Parser
-git checkout develop
+git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
@@ -92,7 +92,7 @@ Editors like VS Code also have automatic code reformat utilities, which can adhe
 
 ### Pull Requests
 
-To contribute, make Pull Requests to the `develop` branch (this is the default branch). A PR can consist of one or multiple commits. Before you open a PR, make sure to clean up your commit history and create the commits that you think best divide up the total work as outlined above (use `git rebase` and `git commit --amend`). Ensure all commit messages clearly summarise the changes in the header and the problem that this commit is solving in the body.
+To contribute, make Pull Requests to the `master` branch (this is the default branch). A PR can consist of one or multiple commits. Before you open a PR, make sure to clean up your commit history and create the commits that you think best divide up the total work as outlined above (use `git rebase` and `git commit --amend`). Ensure all commit messages clearly summarise the changes in the header and the problem that this commit is solving in the body.
 
 Merging pull requests: There are three ways of 'merging' pull requests on GitHub:
 
