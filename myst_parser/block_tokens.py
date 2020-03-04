@@ -3,7 +3,7 @@ import re
 from mistletoe import block_token, span_token
 import mistletoe.block_tokenizer as tokenizer
 
-from mistletoe.block_token import tokenize, HTMLBlock, Footnote, TableRow  # noqa: F401
+from mistletoe.block_token import tokenize, Footnote  # noqa: F401
 
 """
 Tokens to be included in the parsing process, in the order specified.
@@ -103,14 +103,30 @@ class Document(block_token.BlockToken):
         return "MyST.{}(blocks={})".format(self.__class__.__name__, len(self.children))
 
 
+class HTMLBlock(block_token.HTMLBlock):
+    """
+    Block-level HTML tokens.
+
+    Attributes:
+        content (str): literal strings rendered as-is.
+    """
+
+    # TODO range
+    def __repr__(self):
+        return "MyST.{}()".format(self.__class__.__name__)
+
+
 class LinkDefinition(Footnote):
-    """This has been renamed since, these actually refer to
+    """Link definition.
+
+    The constructor returns None, because the footnote information
+    is stored in Footnote.read.
+
+    Note: This has been renamed since, these actually refer to
     https://spec.commonmark.org/0.28/#link-reference-definitions,
     rather than what would generally be considered a footnote:
     https://www.markdownguide.org/extended-syntax/#footnotes
     """
-
-    pass
 
 
 class LineComment(block_token.BlockToken):
@@ -411,7 +427,7 @@ class BlockCode(block_token.BlockCode):
 
     def __repr__(self):
         return "MyST.{}(range={},language={})".format(
-            self.__class__.__name__, self.range, self.language
+            self.__class__.__name__, self.range, self.language or "none"
         )
 
 
@@ -430,7 +446,8 @@ class CodeFence(block_token.CodeFence):
     def __init__(self, match):
         lines, open_info, self.range = match
         self.language = span_token.EscapeSequence.strip(open_info[2])
-        self.arguments = span_token.EscapeSequence.strip(open_info[3].splitlines()[0])
+        arg_lines = open_info[3].splitlines() or [""]
+        self.arguments = span_token.EscapeSequence.strip(arg_lines[0])
         self.children = (span_token.RawText("".join(lines)),)
 
     @classmethod
@@ -481,15 +498,21 @@ class Table(block_token.Table):
 
     def __init__(self, result):
         lines, self.range = result
+        # TODO why minimum of 3 `-`?
         if "---" in lines[1]:
             self.column_align = [
                 self.parse_align(column) for column in self.split_delimiter(lines[1])
             ]
-            self.header = TableRow(lines[0], self.column_align)
-            self.children = [TableRow(line, self.column_align) for line in lines[2:]]
+            self.header = TableRow(lines[0], self.range[0], self.column_align)
+            self.children = [
+                TableRow(line, self.range[0] + i, self.column_align)
+                for i, line in enumerate(lines[2:], 2)
+            ]
         else:
             self.column_align = [None]
-            self.children = [TableRow(line) for line in lines]
+            self.children = [
+                TableRow(line, self.range[0] + i) for i, line in enumerate(lines)
+            ]
 
     @staticmethod
     def read(lines):
@@ -498,8 +521,10 @@ class Table(block_token.Table):
         line_buffer = [next(lines)]
         while lines.peek() is not None and "|" in lines.peek():
             line_buffer.append(next(lines))
+        # TODO why minimum of 3 `-`?
         if len(line_buffer) < 2 or "---" not in line_buffer[1]:
             lines.reset()
+            print("hi", line_buffer)
             return None
         return line_buffer, (start_line, lines.lineno)
 
@@ -509,7 +534,59 @@ class Table(block_token.Table):
         )
 
 
+class TableRow(block_token.BlockToken):
+    """
+    Table row token.
+
+    Should only be called by Table.__init__().
+    """
+
+    def __init__(self, line, lineno, row_align=None):
+        self.range = [lineno, lineno]
+        self.row_align = row_align or [None]
+        cells = filter(None, line.strip().split("|"))
+        self.children = [
+            TableCell(cell.strip() if cell else "", lineno, align)
+            for cell, align in block_token.zip_longest(cells, self.row_align)
+        ]
+
+    def __repr__(self):
+        return "MyST.{}(range={},cells={})".format(
+            self.__class__.__name__, self.range, len(self.children)
+        )
+
+
+class TableCell(block_token.BlockToken):
+    """
+    Table cell token.
+    Boundary between span-level and block-level tokens.
+
+    Should only be called by TableRow.__init__().
+
+    Attributes:
+        align (bool): align option for current cell (default to None).
+        children (list): inner (span-)tokens.
+    """
+
+    def __init__(self, content, lineno, align=None):
+        self.align = align
+        self.range = [lineno, lineno]
+        super().__init__(content, span_token.tokenize_inner)
+
+    def __repr__(self):
+        return "MyST.{}(range={})".format(self.__class__.__name__, self.range)
+
+
 class List(block_token.List):
+    """
+    List token.
+
+    Attributes:
+        children (list): a list of ListItem tokens.
+        loose (bool): whether the list is loose.
+        start (NoneType or int): None if unordered, starting number if ordered.
+    """
+
     def __init__(self, matches):
         self.children = [ListItem(*match) for match in matches]
         self.loose = any(item.loose for item in self.children)
