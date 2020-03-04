@@ -27,7 +27,9 @@ def test_math(renderer):
 
 def test_role(renderer):
     output = renderer.render(tokenize(["{name}`content`"])[0])
-    assert output == dedent('<p><span class="role" name="name">content</span></p>')
+    assert output == (
+        '<p><span class="myst-role"><code>{name}content</code></span></p>'
+    )
 
 
 def test_directive(renderer):
@@ -70,3 +72,57 @@ def test_front_matter(renderer):
         "c: 3",
         "</code></pre></div>",
     ]
+
+
+def test_minimal_html_page(file_regression):
+    in_string = dedent(
+        """\
+        ---
+        a: 1
+        ---
+        (title-target)=
+        # title
+
+        Abc $a=1$ {role}`content` then more text
+
+        +++ my break
+
+        ```{directive} args
+        :option: 1
+        content
+        ```
+
+        ```python
+        def func(a):
+            print("{}".format(a))
+        ```
+
+        % a comment
+
+        [link to target](#title-target)
+        """
+    )
+
+    out_string = parse_text(
+        in_string,
+        "html",
+        add_mathjax=True,
+        as_standalone=True,
+        add_css=dedent(
+            """\
+            div.myst-front-matter {
+                border: 1px solid gray;
+            }
+            div.myst-directive {
+                background: lightgreen;
+            }
+            hr.myst-block-break {
+                border-top:1px dotted black;
+            }
+            span.myst-role {
+                background: lightgreen;
+            }
+            """
+        ),
+    )
+    file_regression.check(out_string, extension=".html")

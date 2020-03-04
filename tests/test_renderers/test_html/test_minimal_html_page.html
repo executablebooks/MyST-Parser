@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Standalone HTML</title>
+<style>
+div.myst-front-matter {
+    border: 1px solid gray;
+}
+div.myst-directive {
+    background: lightgreen;
+}
+hr.myst-block-break {
+    border-top:1px dotted black;
+}
+span.myst-role {
+    background: lightgreen;
+}
+
+</style>
+</head>
+<body>
+<div class="myst-front-matter"><pre><code class="language-yaml">a: 1
+</code></pre></div>
+<p><a class="myst-target" href="#title-target" title="Permalink to here">(title-target)=</a></p>
+<h1>title</h1>
+<p>Abc $$a=1$$ <span class="myst-role"><code>{role}content</code></span> then more text</p>
+<!-- myst-block-data my break -->
+<hr class="myst-block-break" />
+<div class="myst-directive">
+<pre><code>{directive} args
+:option: 1
+content
+</code></pre></span>
+</div>
+<pre><code class="language-python">def func(a):
+    print(&quot;{}&quot;.format(a))
+</code></pre>
+<!-- a comment -->
+<p><a href="#title-target">link to target</a></p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+</body>
+</html>
