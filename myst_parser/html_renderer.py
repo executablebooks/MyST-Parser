@@ -13,7 +13,9 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
     def __init__(self, add_mathjax=False):
         """This HTML render uses the same block/span tokens as the docutils renderer.
 
-        It is used to test compliance with the commonmark spec.
+        It is used to test compliance with the commonmark spec,
+        and can be used for basic previews,
+        but does not run roles/directives, resolve cross-references etc...
         """
         self._suppress_ptag_stack = [False]
 
@@ -50,19 +52,40 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         return super().render_document(token) + self.mathjax_src
 
     def render_code_fence(self, token):
+        if token.language and token.language.startswith("{"):
+            return self.render_directive(token)
         return self.render_block_code(token)
 
+    def render_directive(self, token):
+        return (
+            '<div class="myst-directive">\n'
+            "<pre><code>{name} {args}\n{content}</code></pre></span>\n"
+            "</div>"
+        ).format(
+            name=self.escape_html(token.language),
+            args=self.escape_html(token.arguments),
+            content=self.escape_html(token.children[0].content),
+        )
+
     def render_front_matter(self, token):
-        raise NotImplementedError
+        return (
+            '<div class="myst-front-matter">'
+            '<pre><code class="language-yaml">{}</code></pre>'
+            "</div>"
+        ).format(self.escape_html(token.content))
 
     def render_line_comment(self, token):
-        return "<p>{}</p>".format(token.raw)
+        return "<!-- {} -->".format(self.escape_html(token.content))
 
     def render_block_break(self, token):
-        return "<p>{}</p>".format(token.raw)
+        return '<!-- myst-block-data {} -->\n<hr class="myst-block-break" />'.format(
+            self.escape_html(token.content)
+        )
 
     def render_target(self, token):
-        raise NotImplementedError
+        return (
+            '<a class="myst-target" href="#{0}" title="Permalink to here">({0})=</a>'
+        ).format(self.escape_html(token.target))
 
     def render_role(self, token):
         return '<span class="role" name="{}">{}</span>'.format(

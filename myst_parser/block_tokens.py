@@ -57,7 +57,7 @@ class FrontMatter(block_token.BlockToken):
         if end_line is None:
             end_line = len(lines)
         self.range = (0, end_line)
-        self.content = "\n".join(lines[1 : end_line - 1])
+        self.content = "".join(lines[1 : end_line - 1])
         self.children = []
 
     @classmethod

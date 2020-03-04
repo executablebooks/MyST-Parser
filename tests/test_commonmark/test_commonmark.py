@@ -15,8 +15,12 @@ with open(os.path.join(os.path.dirname(__file__), "commonmark.json"), "r") as fi
 
 @pytest.mark.parametrize("entry", tests)
 def test_commonmark(entry):
+    if entry["example"] == 14:
+        # This is just a test that +++ are not parsed as thematic breaks
+        pytest.skip("Expects '+++' to be unconverted (not block break).")
     if entry["example"] in [65, 67]:
-        # This is supported by numerous Markdown flavours, but not strictly CommonMark
+        # Front matter is supported by numerous Markdown flavours,
+        # but not strictly CommonMark,
         # see: https://talk.commonmark.org/t/metadata-in-documents/721/86
         pytest.skip(
             "Thematic breaks on the first line conflict with front matter syntax"
