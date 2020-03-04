@@ -1,0 +1,28 @@
+children:
+- children:
+  - children:
+    - children:
+      - content: syntax
+        range:
+        - 1
+        - 1
+        type: RawText
+      range:
+      - 1
+      - 1
+      type: Emphasis
+    range:
+    - 1
+    - 1
+    target: https://google.com
+    title: title
+    type: Link
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes:
+  '*syntax*':
+  - https://google.com
+  - title
+type: Document

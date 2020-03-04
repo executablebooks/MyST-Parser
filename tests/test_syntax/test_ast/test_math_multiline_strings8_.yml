@@ -1,0 +1,17 @@
+children:
+- children:
+  - content: '$$a
+
+      c
+
+      b$$'
+    range:
+    - 1
+    - 3
+    type: Math
+  range:
+  - 1
+  - 3
+  type: Paragraph
+footnotes: {}
+type: Document

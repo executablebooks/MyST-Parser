@@ -1,0 +1,9 @@
+children:
+- content: comment
+  range:
+  - 1
+  - 1
+  raw: '  % comment'
+  type: LineComment
+footnotes: {}
+type: Document

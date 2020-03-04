@@ -1,0 +1,24 @@
+children:
+- children:
+  - content: 'a '
+    range:
+    - 1
+    - 1
+    type: RawText
+  - children:
+    - content: target
+      range:
+      - 1
+      - 1
+      type: RawText
+    range:
+    - 1
+    - 1
+    target: target
+    type: Target
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

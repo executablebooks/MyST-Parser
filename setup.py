@@ -1,22 +1,24 @@
-"""myst_parser package setup."""
+"""myst-parser package setup."""
 from importlib import import_module
 
 from setuptools import find_packages, setup
 
 setup(
-    name="myst_parser",
+    name="myst-parser",
     version=import_module("myst_parser").__version__,
     description=(
         "An extended commonmark compliant parser, " "with bridges to docutils & sphinx."
     ),
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ExecutableBookProject/myst_parser",
+    url="https://github.com/ExecutableBookProject/MyST-Parser",
     author="Chris Sewell",
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",
     packages=find_packages(),
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": ["myst-benchmark = myst_parser.cli.benchmark:main"]
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -33,8 +35,14 @@ setup(
     ],
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.5",
-    install_requires=["mistletoe"],
+    install_requires=[
+        (
+            "mistletoe @ "
+            "https://github.com/ExecutableBookProject/mistletoe/archive/myst.zip"
+        )
+    ],
     extras_require={
+        "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",
@@ -43,7 +51,14 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "sphinx": ["docutils>=0.15", "sphinx>=2,<3"],
+        "rtd": [
+            "sphinxcontrib-bibtex",
+            "ipython",
+            (
+                "pandas_sphinx_theme @ "
+                "https://github.com/pandas-dev/pandas-sphinx-theme/archive/master.zip"
+            ),
+        ],
     },
-    zip_safe=False,
+    zip_safe=True,
 )

@@ -1,0 +1,18 @@
+children:
+- children:
+  - children:
+    - content: $a$
+      range:
+      - 1
+      - 1
+      type: Math
+    range:
+    - 1
+    - 1
+    type: Emphasis
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

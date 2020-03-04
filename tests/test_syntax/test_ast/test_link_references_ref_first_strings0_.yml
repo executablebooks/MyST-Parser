@@ -1,0 +1,23 @@
+children:
+- children:
+  - children:
+    - content: ref
+      range:
+      - 1
+      - 1
+      type: RawText
+    range:
+    - 1
+    - 1
+    target: https://google.com
+    title: title
+    type: Link
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes:
+  ref:
+  - https://google.com
+  - title
+type: Document

@@ -1,0 +1,20 @@
+children:
+- children:
+  - children:
+    - content: $a$
+      range:
+      - 1
+      - 1
+      type: Math
+    range:
+    - 1
+    - 1
+    src: $b$
+    title: ''
+    type: Image
+  range:
+  - 1
+  - 1
+  type: Paragraph
+footnotes: {}
+type: Document

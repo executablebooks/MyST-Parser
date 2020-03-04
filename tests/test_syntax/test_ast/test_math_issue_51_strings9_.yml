@@ -1,0 +1,64 @@
+children:
+- children:
+  - content: 'Math can be called in-line with single '
+    range:
+    - 1
+    - 2
+    type: RawText
+  - children:
+    - content: $
+      range:
+      - 1
+      - 2
+      type: RawText
+    range:
+    - 1
+    - 2
+    type: InlineCode
+  - content: ' characters around math.'
+    range:
+    - 1
+    - 2
+    type: RawText
+  - content: ''
+    range:
+    - 1
+    - 2
+    soft: true
+    type: LineBreak
+  - content: 'For example, '
+    range:
+    - 1
+    - 2
+    type: RawText
+  - children:
+    - content: $x_{hey}=it+is^{math}$
+      range:
+      - 1
+      - 2
+      type: RawText
+    range:
+    - 1
+    - 2
+    type: InlineCode
+  - content: ' renders '
+    range:
+    - 1
+    - 2
+    type: RawText
+  - content: $x_{hey}=it+is^{math}$
+    range:
+    - 1
+    - 2
+    type: Math
+  - content: .
+    range:
+    - 1
+    - 2
+    type: RawText
+  range:
+  - 1
+  - 2
+  type: Paragraph
+footnotes: {}
+type: Document
