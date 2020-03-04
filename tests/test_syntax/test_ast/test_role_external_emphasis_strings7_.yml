@@ -3,9 +3,18 @@ children:
   - children:
     - children:
       - content: content
+        range:
+        - 1
+        - 1
         type: RawText
       name: name
+      range:
+      - 1
+      - 1
       type: Role
+    range:
+    - 1
+    - 1
     type: Emphasis
   range:
   - 1

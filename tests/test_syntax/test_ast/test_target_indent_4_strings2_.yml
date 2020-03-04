@@ -3,6 +3,9 @@ children:
   - content: '(target)=
 
       '
+    range:
+    - 0
+    - 1
     type: RawText
   language: ''
   range:

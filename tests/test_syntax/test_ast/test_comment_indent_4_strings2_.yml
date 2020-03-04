@@ -3,6 +3,9 @@ children:
   - content: '% comment
 
       '
+    range:
+    - 0
+    - 1
     type: RawText
   language: ''
   range:

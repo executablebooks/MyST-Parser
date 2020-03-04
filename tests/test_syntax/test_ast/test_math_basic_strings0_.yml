@@ -1,6 +1,9 @@
 children:
 - children:
   - content: $a$
+    range:
+    - 1
+    - 1
     type: Math
   range:
   - 1

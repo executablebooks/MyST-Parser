@@ -3,6 +3,9 @@ children:
   - content: '+++
 
       '
+    range:
+    - 0
+    - 1
     type: RawText
   language: ''
   range:

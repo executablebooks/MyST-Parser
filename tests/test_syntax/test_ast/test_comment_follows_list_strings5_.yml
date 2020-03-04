@@ -3,6 +3,9 @@ children:
   - children:
     - children:
       - content: item
+        range:
+        - 1
+        - 1
         type: RawText
       range:
       - 1

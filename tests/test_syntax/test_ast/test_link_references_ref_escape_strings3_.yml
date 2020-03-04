@@ -1,6 +1,9 @@
 children:
 - children:
   - content: '[ref]'
+    range:
+    - 1
+    - 1
     type: RawText
   range:
   - 1
@@ -9,9 +12,18 @@ children:
 - children:
   - children:
     - content: '['
+      range:
+      - 3
+      - 3
       type: RawText
+    range:
+    - 3
+    - 3
     type: EscapeSequence
   - content: 'ref]: https://google.com "title"'
+    range:
+    - 3
+    - 3
     type: RawText
   range:
   - 3

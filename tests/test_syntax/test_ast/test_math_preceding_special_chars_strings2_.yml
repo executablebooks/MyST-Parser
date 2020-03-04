@@ -1,8 +1,14 @@
 children:
 - children:
   - content: '{_*-%`'
+    range:
+    - 1
+    - 1
     type: RawText
   - content: $a$
+    range:
+    - 1
+    - 1
     type: Math
   range:
   - 1
