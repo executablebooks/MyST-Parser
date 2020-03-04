@@ -1,0 +1,81 @@
+children:
+- children:
+  - children:
+    - align: null
+      children:
+      - content: hjk
+        type: RawText
+      range:
+      - 3
+      - 3
+      type: TableCell
+    - align: null
+      children:
+      - children:
+        - content: y
+          type: RawText
+        type: Emphasis
+      range:
+      - 3
+      - 3
+      type: TableCell
+    - align: 0
+      children:
+      - content: z
+        type: RawText
+      range:
+      - 3
+      - 3
+      type: TableCell
+    range:
+    - 3
+    - 3
+    row_align:
+    - null
+    - null
+    - 0
+    type: TableRow
+  column_align:
+  - null
+  - null
+  - 0
+  header:
+    children:
+    - align: null
+      children:
+      - content: abc
+        type: RawText
+      range:
+      - 1
+      - 1
+      type: TableCell
+    - align: null
+      children:
+      - content: d
+        type: RawText
+      range:
+      - 1
+      - 1
+      type: TableCell
+    - align: 0
+      children:
+      - content: e
+        type: RawText
+      range:
+      - 1
+      - 1
+      type: TableCell
+    range:
+    - 1
+    - 1
+    row_align:
+    - null
+    - null
+    - 0
+    type: TableRow
+  range:
+  - 1
+  - 3
+  type: Table
+footnotes: {}
+type: Document

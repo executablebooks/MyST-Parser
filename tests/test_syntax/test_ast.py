@@ -1,6 +1,8 @@
+from textwrap import dedent
+
 import pytest
 
-from myst_parser import text_to_tokens
+from myst_parser import text_to_tokens, block_tokens
 from myst_parser.ast_renderer import AstRenderer
 from myst_parser.block_tokens import Document
 
@@ -16,6 +18,63 @@ def test_render_tokens():
     root = text_to_tokens("abc")
     assert isinstance(root, Document)
     assert root.children, root.children
+
+
+@pytest.mark.parametrize(
+    "token,args,repr_str",
+    [
+        (block_tokens.HTMLBlock, ([],), "MyST.HTMLBlock()"),
+        (block_tokens.LineComment, (("", "%", 0),), "MyST.LineComment(range=(0, 0))"),
+        (
+            block_tokens.BlockCode,
+            ([[], (1, 3)],),
+            "MyST.BlockCode(range=(1, 3),language=none)",
+        ),
+        (
+            block_tokens.Heading,
+            ([2, "abc", (4, 5)],),
+            "MyST.Heading(range=(4, 5),level=2)",
+        ),
+        (block_tokens.Quote, ([[], (1, 2)],), "MyST.Quote(range=(1, 2),children=0)"),
+        (
+            block_tokens.CodeFence,
+            ([[], [None, None, "python", "\n"], (8, 9)],),
+            "MyST.CodeFence(range=(8, 9),language=python)",
+        ),
+        (block_tokens.ThematicBreak, (["---", 6],), "MyST.ThematicBreak(range=(6, 6))"),
+        (
+            block_tokens.BlockBreak,
+            (["abc", "+++ abc", 2],),
+            "MyST.BlockBreak(range=(2, 2))",
+        ),
+        # TODO commented out tests
+        # (block_tokens.List, ([],), ""),
+        (
+            block_tokens.Table,
+            ([["a", "---", "b"], (0, 3)],),
+            "MyST.Table(range=(0, 3),rows=1)",
+        ),
+        (
+            block_tokens.TableRow,
+            ("abc | xyz", 4),
+            "MyST.TableRow(range=[4, 4],cells=2)",
+        ),
+        (block_tokens.LinkDefinition, ([],), "None"),
+        (
+            block_tokens.FrontMatter,
+            (["---", "a: b", "---"],),
+            "MyST.FrontMatter(range=(0, 3))",
+        ),
+        (
+            block_tokens.Paragraph,
+            ([[], (0, 0)],),
+            "MyST.Paragraph(range=(0, 0),children=0)",
+        ),
+    ],
+)
+def test_repr(token, args, repr_str):
+    print(token(*args))
+    assert repr(token(*args)) == repr_str
 
 
 @pytest.mark.parametrize(
@@ -138,4 +197,16 @@ def test_front_matter(name, ast_renderer, data_regression, strings):
 )
 def test_link_references(name, strings, ast_renderer, data_regression):
     document = Document(strings)
+    data_regression.check(ast_renderer.render(document))
+
+
+def test_table(ast_renderer, data_regression):
+    string = dedent(
+        """\
+        | abc | d   | e     |
+        | --- | --- | :---: |
+        | hjk | *y* | z     |
+        """
+    )
+    document = Document(string)
     data_regression.check(ast_renderer.render(document))
