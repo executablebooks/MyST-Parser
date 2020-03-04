@@ -16,7 +16,7 @@ Or for package development:
 ```bash
 git clone https://github.com/ExecutableBookProject/MyST-Parser
 cd MyST-Parser
-git checkout develop
+git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
