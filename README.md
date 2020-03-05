@@ -1,15 +1,18 @@
 # MyST-Parser
 
-[![Build Status](https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master)](https://travis-ci.org/ExecutableBookProject/MyST-Parser)
-[![Coverage Status](https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master)](https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master)
-[![Documentation Status](https://readthedocs.org/projects/myst-parser/badge/?version=latest)](https://myst-parser.readthedocs.io/en/latest/?badge=latest)
+[![CI Status][travis-badge]][travis-link]
+[![Coverage][coveralls-badge]][coveralls-link]
+[![Documentation Status][rtd-badge]][rtd-link]
+[![Code style: black][black-badge]][black-link]
+[![PyPI][pypi-badge]][pypi-link]
+<!-- [![Conda][conda-badge]][conda-link] -->
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
 
 ## Usage
 
 ```bash
-pip install -e "git+https://github.com/ExecutableBookProject/MyST-Parser.git#egg=myst-parser[sphinx]"
+pip install myst-parser[sphinx]
 ```
 
 Or for package development:
@@ -20,9 +23,6 @@ cd MyST-Parser
 git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
-
-Note, this parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
-fork of mistletoe (included in the above installation).
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
@@ -104,3 +104,17 @@ Merging pull requests: There are three ways of 'merging' pull requests on GitHub
     Examples: PRs that contain multiple commits with individually significant changes; PRs that have commits from different authors (squashing commits would remove attribution)
 - Merge with merge commit: put all commits as they are on the base branch, with a merge commit on top
     Choose for collaborative PRs with many commits. Here, the merge commit provides actual benefits.
+
+
+[travis-badge]: https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master
+[travis-link]: https://travis-ci.org/ExecutableBookProject/MyST-Parser
+[coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
+[coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
+[rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
+[rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
+[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg
+[pypi-link]: https://pypi.org/project/myst-parser
+[conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
+[conda-link]: https://anaconda.org/conda-forge/myst-parser
+[black-link]: https://github.com/ambv/black
