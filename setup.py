@@ -46,14 +46,7 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "rtd": [
-            "sphinxcontrib-bibtex",
-            "ipython",
-            (
-                "pandas_sphinx_theme @ "
-                "https://github.com/pandas-dev/pandas-sphinx-theme/archive/master.zip"
-            ),
-        ],
+        "rtd": ["sphinxcontrib-bibtex", "ipython"],
     },
     zip_safe=True,
 )
