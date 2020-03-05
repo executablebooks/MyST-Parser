@@ -1,6 +1,6 @@
 from .utils import traverse  # noqa: F401
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
 def text_to_tokens(text: str):
