@@ -19,6 +19,3 @@ cd MyST-Parser
 git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
-
-This should install the myst fork of mistletoe, along with the Sphinx parser
-that is included in the "extensions" configuration of this site.

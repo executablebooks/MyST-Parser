@@ -21,9 +21,6 @@ git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
 
-Note, this parser currently requires the [ExecutableBookProject/mistletoe](https://github.com/ExecutableBookProject/mistletoe)
-fork of mistletoe (included in the above installation).
-
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
 ## Parsed Token Classes
