@@ -32,6 +32,7 @@ extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
 ]
 
@@ -72,7 +73,7 @@ def run_apidoc(app):
     logger.info("running apidoc")
     # get correct paths
     this_folder = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    api_folder = os.path.join(this_folder, "api")
+    api_folder = os.path.join(this_folder, "_api")
     module_path = os.path.normpath(os.path.join(this_folder, "../"))
     ignore_paths = ["../setup.py", "../conftest.py", "../tests"]
     ignore_paths = [
@@ -92,7 +93,11 @@ def run_apidoc(app):
         os.remove(os.path.join(api_folder, "modules.rst"))
 
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3.7", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.7", None),
+    "mistletoe": ("https://mistletoe-ebp.readthedocs.io/en/latest", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
 
 autodoc_default_options = {
     "show-inheritance": True,
@@ -105,27 +110,6 @@ autodoc_default_options = {
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
-    ("py:class", "mistletoe.base_elements.Token"),
-    ("py:class", "mistletoe.base_elements.BlockToken"),
-    ("py:class", "mistletoe.block_tokens.BlockCode"),
-    ("py:class", "mistletoe.block_tokens.Heading"),
-    ("py:class", "mistletoe.block_tokens.Quote"),
-    ("py:class", "mistletoe.block_tokens.CodeFence"),
-    ("py:class", "mistletoe.block_tokens.Document"),
-    ("py:class", "mistletoe.block_tokens.List"),
-    ("py:class", "mistletoe.block_tokens.ListItem"),
-    ("py:class", "mistletoe.block_tokens.Table"),
-    ("py:class", "mistletoe.block_tokens.TableRow"),
-    ("py:class", "mistletoe.block_tokens.Footnote"),
-    ("py:class", "mistletoe.block_tokens.Paragraph"),
-    ("py:class", "mistletoe.block_tokens.ThematicBreak"),
-    ("py:class", "mistletoe.block_tokens.HTMLBlock"),
-    ("py:class", "mistletoe.renderers.json.JsonRenderer"),
-    ("py:class", "mistletoe.renderers.base.BaseRenderer"),
-    ("py:class", "mistletoe.renderers.html.HTMLRenderer"),
-    ("py:class", "mistletoe.base_elements.SpanToken"),
-    ("py:class", "mistletoe.span_tokens.InlineCode"),
-    ("py:class", "docutils.parsers.Parser"),
     ("py:class", "Tuple"),
     ("py:class", "ForwardRef"),
     ("py:class", "NoneType"),
@@ -135,4 +119,4 @@ nitpick_ignore = [
 
 def setup(app):
     """Add functions to the Sphinx setup."""
-    app.connect("builder-inited", run_apidoc)
+    # app.connect("builder-inited", run_apidoc)

@@ -5,7 +5,7 @@ MyST is a markdown flavor that implements the best parts of reStructuredText.
 It is a *slight* extension of CommonMark markdown.
 
 This project provides a parser for this flavor of markdown, as well as a bridge between
-MyST syntax and Sphinx. This allows for native markdown support for roles and
+MyST syntax and {doc}`Sphinx <sphinx:intro>`. This allows for native markdown support for roles and
 directives.
 
 ```{warning}
@@ -24,7 +24,7 @@ but there is no community standard around various syntactic choices for these fe
 Sphinx is a documentation generation framework written in Python. It heavily-utilizes
 reStructuredText syntax, which is another markup language for writing documents. In
 particular, Sphinx defines two extension points that are extremely useful:
-in-line **roles** and block-level **directives**.
+**{ref}`in-line roles<sphinx:rst-roles-alt>`** and **{ref}`block-level directives <sphinx:rst-directives>`**.
 
 **This project is an attempt at combining the simplicity and readability of Markdown
 with the power and flexibility of reStructuredText and the Sphinx platform.** It
@@ -54,5 +54,5 @@ caption: Contents
 using/index.md
 examples/index.md
 develop/index.md
-package_api.md
+api/index.md
 ```
