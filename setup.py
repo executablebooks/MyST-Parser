@@ -35,7 +35,7 @@ setup(
         "Topic :: Text Processing :: Markup",
     ],
     keywords="markdown lexer parser development docutils sphinx",
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=["mistletoe-ebp~=0.9.2"],
     extras_require={
         "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
