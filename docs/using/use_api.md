@@ -2,7 +2,8 @@
 
 % TODO eventually this should be wrote as a notebook (with MyST-NB)!
 
-MyST-Parser may be used as an API *via* the `myst_parser` package.
+MyST-Parser may be used as an API *via* the `myst_parser` package, see {ref}`api/main` for full details.
+
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.
 

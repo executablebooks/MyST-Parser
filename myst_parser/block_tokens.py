@@ -15,6 +15,7 @@ from mistletoe.block_tokens import (  # noqa: F401
     BlockCode,
     CodeFence,
 )
+from mistletoe.attr_doc import autodoc
 
 """
 Tokens to be included in the parsing process, in the order specified.
@@ -36,6 +37,7 @@ __all__ = [
 ]
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class Document(block_tokens.Document):
     """Document token."""
@@ -75,6 +77,7 @@ class Document(block_tokens.Document):
         return doc
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class LineComment(block_tokens.BlockToken):
     """Line comment start with % """
@@ -107,6 +110,7 @@ class LineComment(block_tokens.BlockToken):
         )
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class BlockBreak(block_tokens.BlockToken):
     """Block break token ``+++``.
@@ -150,6 +154,7 @@ class BlockBreak(block_tokens.BlockToken):
         )
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class Quote(block_tokens.Quote):
     """Quote token. (`["> # heading\\n", "> paragraph\\n"]`)."""
@@ -168,6 +173,7 @@ class Quote(block_tokens.Quote):
         )
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class Paragraph(block_tokens.Paragraph):
     """Paragraph token. (`["some\\n", "continuous\\n", "lines\\n"]`)
@@ -188,6 +194,7 @@ class Paragraph(block_tokens.Paragraph):
         )
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class List(block_tokens.List):
     """List token (unordered or ordered)"""
@@ -231,6 +238,7 @@ class List(block_tokens.List):
         )
 
 
+@autodoc
 @attr.s(slots=True, kw_only=True)
 class ListItem(block_tokens.ListItem):
     """List items.

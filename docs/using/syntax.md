@@ -3,7 +3,7 @@
 # Example syntax for MyST
 
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
-For this, it uses the [Mistletoe project](https://github.com/miyuchina/mistletoe),
+For this, it uses the {ref}`mistletoe:intro/top-level` parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
 and also extensible.
 
@@ -16,7 +16,11 @@ This project is an attempt to have the best of both worlds: the flexibility
 and extensibility of Sphinx with the simplicity and readability of Markdown.
 
 Below is a summary of the syntax 'tokens' parsed,
-and further details of a few major extensions from the CommonMark flavor of markdown
+and further details of a few major extensions from the CommonMark flavor of markdown.
+
+```{seealso}
+{ref}`MyST Extended AST Tokens API <api/tokens>`
+```
 
 ## Parsed Token Classes
 

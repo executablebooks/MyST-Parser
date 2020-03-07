@@ -1,10 +1,11 @@
-from docutils import frontend, parsers
+from docutils import frontend, nodes
+from sphinx.parsers import Parser
 
 from myst_parser.docutils_renderer import SphinxRenderer
 from myst_parser.block_tokens import Document
 
 
-class MystParser(parsers.Parser):
+class MystParser(Parser):
     """Docutils parser for CommonMark + Math + Tables + RST Extensions """
 
     supported = ("md", "markdown")
@@ -159,7 +160,12 @@ class MystParser(parsers.Parser):
     config_section = "myst parser"
     config_section_dependencies = ("parsers",)
 
-    def parse(self, inputstring, document):
+    def parse(self, inputstring: str, document: nodes.document):
+        """Parse source text.
+
+        :param inputstring: The source string to parse
+        :param document: The root docutils node to add AST elements to
+        """
         # TODO add conf.py configurable settings
         self.config = self.default_config.copy()
         try:
