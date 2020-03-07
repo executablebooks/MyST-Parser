@@ -1,9 +1,10 @@
 children:
 - content: ''
-  range:
+  position:
   - 1
   - 1
   raw: '  +++'
   type: BlockBreak
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

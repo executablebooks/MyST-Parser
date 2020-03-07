@@ -1,16 +1,14 @@
-from .utils import traverse  # noqa: F401
-
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 
 def text_to_tokens(text: str):
     """Convert some text to the MyST base AST."""
     from myst_parser.block_tokens import Document
-    from myst_parser.ast_renderer import AstRenderer
+    from myst_parser.json_renderer import JsonRenderer
 
     # this loads the MyST specific token parsers
-    with AstRenderer():
-        return Document(text)
+    with JsonRenderer():
+        return Document.read(text)
 
 
 def render_tokens(root_token, renderer, **kwargs):
@@ -39,7 +37,7 @@ def parse_text(text: str, output_type: str, **kwargs):
     from myst_parser.block_tokens import Document
 
     with renderer_cls(**kwargs) as renderer:
-        return renderer.render(Document(text))
+        return renderer.render(Document.read(text))
 
 
 def setup(app):

@@ -2,21 +2,22 @@ children:
 - children:
   - children:
     - content: ref
-      range:
+      position:
       - 3
       - 3
       type: RawText
-    range:
+    position:
     - 3
     - 3
     target: https://google.com
     title: title
     type: Link
-  range:
+  position:
   - 3
   - 3
   type: Paragraph
-footnotes:
+front_matter: null
+link_definitions:
   ref:
   - https://google.com
   - title

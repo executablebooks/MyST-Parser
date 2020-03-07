@@ -1,8 +1,8 @@
 from textwrap import dedent
 from unittest import mock
 
-from mistletoe.block_token import tokenize
-from mistletoe.span_token import tokenize_inner
+from mistletoe.block_tokenizer import tokenize_main
+from mistletoe.span_tokenizer import tokenize_span
 
 from myst_parser import text_to_tokens, render_tokens, parse_text
 from myst_parser.block_tokens import Document
@@ -14,8 +14,8 @@ def render_token(
 ):
     render_func = renderer_mock.render_map[token_name]
     children = mock.MagicMock(spec=list) if children else None
-    if "range" not in kwargs:
-        kwargs["range"] = (0, 0)
+    if "position" not in kwargs:
+        kwargs["position"] = (0, 0)
     mock_token = mock.Mock(children=children, **kwargs)
     without_attrs = without_attrs or []
     for attr in without_attrs:
@@ -76,7 +76,7 @@ def test_raw_text(renderer_mock):
 
 
 def test_inline_code(renderer_mock):
-    renderer_mock.render(tokenize_inner("`foo`")[0])
+    renderer_mock.render(tokenize_span("`foo`")[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -87,7 +87,7 @@ def test_inline_code(renderer_mock):
 
 
 def test_paragraph(renderer_mock):
-    render_token(renderer_mock, "Paragraph", range=(0, 1))
+    render_token(renderer_mock, "Paragraph", position=(0, 1))
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -97,7 +97,7 @@ def test_paragraph(renderer_mock):
 
 
 def test_heading(renderer_mock):
-    render_token(renderer_mock, "Heading", level=1, range=(0, 0))
+    render_token(renderer_mock, "Heading", level=1, position=(0, 0))
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -109,7 +109,7 @@ def test_heading(renderer_mock):
 
 def test_block_code(renderer_mock):
 
-    renderer_mock.render(tokenize(["```sh\n", "foo\n", "```\n"])[0])
+    renderer_mock.render(tokenize_main(["```sh\n", "foo\n", "```\n"])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -121,7 +121,7 @@ def test_block_code(renderer_mock):
 
 def test_block_code_no_language(renderer_mock):
 
-    renderer_mock.render(tokenize(["```\n", "foo\n", "```\n"])[0])
+    renderer_mock.render(tokenize_main(["```\n", "foo\n", "```\n"])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -142,7 +142,7 @@ def test_image(renderer_mock):
 
 
 def test_image_with_alt(renderer_mock):
-    renderer_mock.render(tokenize([r"![alt](path/to/image.jpeg)"])[0])
+    renderer_mock.render(tokenize_main([r"![alt](path/to/image.jpeg)"])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -153,7 +153,7 @@ def test_image_with_alt(renderer_mock):
 
 
 def test_quote(renderer_mock):
-    render_token(renderer_mock, "Quote", range=(0, 0))
+    render_token(renderer_mock, "Quote", position=(0, 0))
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -163,7 +163,7 @@ def test_quote(renderer_mock):
 
 
 def test_bullet_list(renderer_mock):
-    render_token(renderer_mock, "List", start=None)
+    render_token(renderer_mock, "List", start_at=None)
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -173,7 +173,7 @@ def test_bullet_list(renderer_mock):
 
 
 def test_enumerated_list(renderer_mock):
-    render_token(renderer_mock, "List", start=1)
+    render_token(renderer_mock, "List", start_at=1)
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -215,7 +215,7 @@ def test_math_block(renderer_mock):
 
 
 def test_role_code(renderer_mock):
-    renderer_mock.render(tokenize_inner("{code}`` a=1{`} ``")[0])
+    renderer_mock.render(tokenize_span("{code}`` a=1{`} ``")[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -226,7 +226,7 @@ def test_role_code(renderer_mock):
 
 
 def test_target_block(renderer_mock):
-    renderer_mock.render(tokenize(["(target)="])[0])
+    renderer_mock.render(tokenize_main(["(target)="])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -236,7 +236,7 @@ def test_target_block(renderer_mock):
 
 
 def test_target_inline(renderer_mock):
-    renderer_mock.render(tokenize(["A b(target)="])[0])
+    renderer_mock.render(tokenize_main(["A b(target)="])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -264,12 +264,12 @@ def test_cross_referencing(sphinx_renderer, file_regression):
         [alt3](#target3)
         """
     )
-    sphinx_renderer.render(Document(string))
+    sphinx_renderer.render(Document.read(string))
     file_regression.check(sphinx_renderer.document.pformat(), extension=".xml")
 
 
 def test_comment(renderer_mock):
-    renderer_mock.render(tokenize([r"% a comment"])[0])
+    renderer_mock.render(tokenize_main([r"% a comment"])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -280,7 +280,7 @@ def test_comment(renderer_mock):
 
 
 def test_block_break(renderer_mock):
-    renderer_mock.render(tokenize(["+++ string"])[0])
+    renderer_mock.render(tokenize_main(["+++ string"])[0])
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
@@ -292,7 +292,9 @@ def test_block_break(renderer_mock):
 
 def test_link_reference(renderer):
     renderer.render(
-        Document(["[name][key]", "", '[key]: https://www.google.com "a title"', ""])
+        Document.read(
+            ["[name][key]", "", '[key]: https://www.google.com "a title"', ""]
+        )
     )
     assert renderer.document.pformat() == dedent(
         """\
@@ -306,7 +308,7 @@ def test_link_reference(renderer):
 
 def test_link_reference_no_key(renderer):
     renderer.render(
-        Document(["[name]", "", '[name]: https://www.google.com "a title"', ""])
+        Document.read(["[name]", "", '[name]: https://www.google.com "a title"', ""])
     )
     assert renderer.document.pformat() == dedent(
         """\
@@ -320,7 +322,7 @@ def test_link_reference_no_key(renderer):
 
 def test_block_quotes(renderer):
     renderer.render(
-        Document(
+        Document.read(
             dedent(
                 """\
             ```{epigraph}
@@ -387,5 +389,5 @@ def test_full_run(sphinx_renderer, file_regression):
         """
     )
 
-    sphinx_renderer.render(Document(string))
+    sphinx_renderer.render(Document.read(string))
     file_regression.check(sphinx_renderer.document.pformat(), extension=".xml")

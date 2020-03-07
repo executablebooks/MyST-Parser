@@ -2,34 +2,35 @@ children:
 - children:
   - children:
     - content: some content
-      range:
+      position:
       - 1
       - 1
       type: RawText
-    name: name
-    range:
+    position:
     - 1
     - 1
+    role_name: name
     type: Role
   - content: '  '
-    range:
+    position:
     - 1
     - 1
     type: RawText
   - children:
     - content: other
-      range:
+      position:
       - 1
       - 1
       type: RawText
-    name: name2
-    range:
+    position:
     - 1
     - 1
+    role_name: name2
     type: Role
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

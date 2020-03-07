@@ -5,13 +5,14 @@ children:
       c
 
       b$$'
-    range:
+    position:
     - 1
     - 3
     type: Math
-  range:
+  position:
   - 1
   - 3
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

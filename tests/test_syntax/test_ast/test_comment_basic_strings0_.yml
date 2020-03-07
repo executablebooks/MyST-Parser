@@ -1,9 +1,10 @@
 children:
 - content: comment
-  range:
+  position:
   - 1
   - 1
   raw: '% comment'
   type: LineComment
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

@@ -1,13 +1,14 @@
 children:
 - children:
   - content: ${name}`some content`$
-    range:
+    position:
     - 1
     - 1
     type: Math
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

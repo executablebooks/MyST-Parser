@@ -3,25 +3,26 @@ children:
   - children:
     - children:
       - content: syntax
-        range:
+        position:
         - 1
         - 1
         type: RawText
-      range:
+      position:
       - 1
       - 1
       type: Emphasis
-    range:
+    position:
     - 1
     - 1
     target: https://google.com
     title: title
     type: Link
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes:
+front_matter: null
+link_definitions:
   '*syntax*':
   - https://google.com
   - title

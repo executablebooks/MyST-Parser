@@ -1,18 +1,19 @@
 children:
 - children:
   - content: '{_*-%`'
-    range:
+    position:
     - 1
     - 1
     type: RawText
   - content: $a$
-    range:
+    position:
     - 1
     - 1
     type: Math
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

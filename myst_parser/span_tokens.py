@@ -1,8 +1,8 @@
 import re
 from threading import local
 
-from mistletoe import span_token, core_tokens
-from mistletoe.span_token import (  # noqa F401
+from mistletoe import span_tokens, nested_tokenizer
+from mistletoe.span_tokens import (  # noqa F401
     HTMLSpan,
     Emphasis,
     EscapeSequence,
@@ -38,7 +38,7 @@ _core_matches = local()
 _core_matches.value = {}
 
 
-class CoreTokens(span_token.SpanToken):
+class CoreTokens(span_tokens.SpanToken):
     precedence = 3
 
     def __new__(self, match):
@@ -46,16 +46,16 @@ class CoreTokens(span_token.SpanToken):
 
     @classmethod
     def find(cls, string):
-        return find_core_tokens(string, span_token._root_node)
+        return find_core_tokens(string)
 
 
-class InlineCode(span_token.InlineCode):
+class InlineCode(span_tokens.InlineCode):
     @classmethod
     def find(cls, string):
         return _core_matches.value.pop("InlineCode", [])
 
 
-class Role(span_token.SpanToken):
+class Role(span_tokens.SpanToken):
     """
     Inline role tokens. ("{name}`some code`")
     """
@@ -67,14 +67,14 @@ class Role(span_token.SpanToken):
     parse_inner = False
 
     def __init__(self, match):
-        self.name = match.group(1)
+        self.role_name = match.group(1)
         content = match.group(3)
         self.children = (
-            span_token.RawText(" ".join(re.split("[ \n]+", content.strip()))),
+            span_tokens.RawText(" ".join(re.split("[ \n]+", content.strip()))),
         )
 
 
-class Math(span_token.SpanToken):
+class Math(span_tokens.SpanToken):
 
     pattern = re.compile(r"(?<!\\)(?:\\\\)*(\${1,2})([^\$]+?)\1")
 
@@ -87,7 +87,7 @@ class Math(span_token.SpanToken):
         return _core_matches.value.pop("Math", [])
 
 
-class Target(span_token.SpanToken):
+class Target(span_tokens.SpanToken):
     """Target tokens. ("(target name)")"""
 
     pattern = re.compile(r"(?<!\\)(?:\\\\)*\((.+?)\)\=", re.DOTALL)
@@ -99,7 +99,7 @@ class Target(span_token.SpanToken):
         self.target = content
 
 
-def find_core_tokens(string, root):
+def find_core_tokens(string):
     # TODO add speed comparison to original mistletoe implementation
     matches = []
     # escaped denotes that the last cursor position had `\`
@@ -129,7 +129,7 @@ def find_core_tokens(string, root):
             if span_match is not None and i == span_match.start():
                 # restart delimiter runs:
                 if in_delimiter_run:
-                    delimiters.append(core_tokens.Delimiter(start, i, string))
+                    delimiters.append(nested_tokenizer.Delimiter(start, i, string))
                 in_delimiter_run = None
 
                 _core_matches.value.setdefault(span_name, []).append(span_match)
@@ -150,7 +150,7 @@ def find_core_tokens(string, root):
         # record the delimiter and reset
         if in_delimiter_run is not None and (c != in_delimiter_run or escaped):
             delimiters.append(
-                core_tokens.Delimiter(start, i if not escaped else i - 1, string)
+                nested_tokenizer.Delimiter(start, i if not escaped else i - 1, string)
             )
             in_delimiter_run = None
         # if the cursor reaches a new delimiter, start a delimiter run
@@ -160,14 +160,14 @@ def find_core_tokens(string, root):
         if not escaped:
             if c == "[":
                 if not in_image:
-                    delimiters.append(core_tokens.Delimiter(i, i + 1, string))
+                    delimiters.append(nested_tokenizer.Delimiter(i, i + 1, string))
                 else:
-                    delimiters.append(core_tokens.Delimiter(i - 1, i + 1, string))
+                    delimiters.append(nested_tokenizer.Delimiter(i - 1, i + 1, string))
                     in_image = False
             elif c == "!":
                 in_image = True
             elif c == "]":
-                i = core_tokens.find_link_image(string, i, delimiters, matches, root)
+                i = nested_tokenizer.find_link_image(string, i, delimiters, matches)
                 next_span_blocks = _advance_block_regexes(i)
             elif in_image:
                 in_image = False
@@ -175,6 +175,6 @@ def find_core_tokens(string, root):
             escaped = False
         i += 1
     if in_delimiter_run:
-        delimiters.append(core_tokens.Delimiter(start, i, string))
-    core_tokens.process_emphasis(string, None, delimiters, matches)
+        delimiters.append(nested_tokenizer.Delimiter(start, i, string))
+    nested_tokenizer.process_emphasis(string, None, delimiters, matches)
     return matches

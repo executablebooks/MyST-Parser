@@ -2,19 +2,20 @@ children:
 - children:
   - children:
     - content: $a$
-      range:
+      position:
       - 1
       - 1
       type: Math
-    range:
+    position:
     - 1
     - 1
     target: link
     title: ''
     type: Link
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

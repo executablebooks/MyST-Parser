@@ -170,5 +170,5 @@ class MystParser(parsers.Parser):
         renderer = SphinxRenderer(document=document)
         with renderer:
             # TODO capture parsing errors and report via docutils/sphinx
-            tokens = Document(inputstring)
-            renderer.render(tokens)
+            doc = Document.read(inputstring)
+            renderer.render(doc)

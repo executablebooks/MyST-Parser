@@ -2,12 +2,12 @@ language: python
 cache: pip
 matrix:
     include:
-      - python: 3.5
-        env: TEST_TYPE="pytest"
       - python: 3.6
         env: TEST_TYPE="pytest"
       - python: 3.7
         env: TEST_TYPE="pytest" PYPI_DEPLOY=true
+      - python: 3.8
+        env: TEST_TYPE="pytest"
       - python: 3.7
         env: TEST_TYPE="pre-commit"
 install:

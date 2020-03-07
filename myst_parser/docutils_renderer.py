@@ -19,11 +19,12 @@ from docutils.statemachine import StringList
 from docutils.utils import new_document, Reporter
 import yaml
 
-from mistletoe import block_token, span_token
-from mistletoe.base_renderer import BaseRenderer
+from mistletoe import span_tokens
+from mistletoe.renderers.base import BaseRenderer
 
 from myst_parser import span_tokens as myst_span_tokens
 from myst_parser import block_tokens as myst_block_tokens
+from mistletoe.parse_context import ParseContext, set_parse_context, tokens_from_module
 from myst_parser.parse_directives import parse_directive_text, DirectiveParsingError
 from myst_parser.utils import escape_url
 
@@ -56,13 +57,20 @@ class DocutilsRenderer(BaseRenderer):
         get_language(self.language_module)
         self._level_to_elem = {0: self.document}
 
-        _span_tokens = self._tokens_from_module(myst_span_tokens)
-        _block_tokens = self._tokens_from_module(myst_block_tokens)
+        super().__init__()
 
-        super().__init__(*chain(_block_tokens, _span_tokens))
+        _myst_span_tokens = tokens_from_module(myst_span_tokens)
+        _myst_block_tokens = tokens_from_module(myst_block_tokens)
 
-        span_token._token_types.value = _span_tokens
-        block_token._token_types.value = _block_tokens
+        for token in chain(_myst_span_tokens, _myst_block_tokens):
+            render_func = getattr(self, self._cls_to_func(token.__name__))
+            self.render_map[token.__name__] = render_func
+
+        parse_context = ParseContext(
+            block_tokens=_myst_block_tokens, span_tokens=_myst_span_tokens
+        )
+        set_parse_context(parse_context)
+        self.parse_context = parse_context.copy()
 
     def new_document(self, source_path="notset") -> nodes.document:
         settings = OptionParser(components=(RSTParser,)).get_default_values()
@@ -71,16 +79,19 @@ class DocutilsRenderer(BaseRenderer):
     def add_line_and_source_path(self, node, token):
         """Copy the line number and document source path to the docutils node."""
         try:
-            node.line = token.range[0] + 1
+            node.line = token.position[0] + 1
         except AttributeError:
             pass
         node.source = self.document["source"]
 
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
-        token = myst_block_tokens.Document(
-            text, start_line=lineno, inc_front_matter=False
+        token = myst_block_tokens.Document.read(
+            text, start_line=lineno, front_matter=True
         )
+        # TODO think if this is the best way: here we consume front matter,
+        # but then remove it. this is for example if includes have front matter
+        token.front_matter = None
         self.render(token)
 
     def render_children(self, token):
@@ -98,7 +109,9 @@ class DocutilsRenderer(BaseRenderer):
         self.current_node = current_node
 
     def render_document(self, token):
-        self.footnotes.update(token.footnotes)
+        self.link_definitions.update(token.link_definitions)
+        if token.front_matter:
+            self.render_front_matter(token.front_matter)
         self.render_children(token)
         return self.document
 
@@ -120,7 +133,7 @@ class DocutilsRenderer(BaseRenderer):
             data = yaml.safe_load(token.content) or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             msg_node = self.reporter.error(
-                "Front matter block:\n" + str(error), line=token.range[0]
+                "Front matter block:\n" + str(error), line=token.position[0]
             )
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
@@ -354,9 +367,9 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_list(self, token):
         list_node = None
-        if token.start is not None:
+        if token.start_at is not None:
             list_node = nodes.enumerated_list()
-            # TODO deal with token.start?
+            # TODO deal with token.start_at?
             # TODO support numerals/letters for lists
             # (see https://stackoverflow.com/a/48372856/5033292)
             # See docutils/docutils/parsers/rst/states.py:Body.enumerator
@@ -434,10 +447,10 @@ class DocutilsRenderer(BaseRenderer):
 
     def render_role(self, token):
         content = token.children[0].content
-        name = token.name
+        name = token.role_name
         # TODO role name white/black lists
         try:
-            lineno = token.range[0]
+            lineno = token.position[0]
         except AttributeError:
             lineno = 0
         inliner = MockInliner(self, lineno)
@@ -446,7 +459,7 @@ class DocutilsRenderer(BaseRenderer):
         )
         rawsource = ":{}:`{}`".format(name, content)
         # # backslash escapes converted to nulls (``\x00``)
-        text = span_token.EscapeSequence.strip(content)
+        text = span_tokens.EscapeSequence.strip(content)
         if role_func:
             nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
             # return nodes, messages + messages2
@@ -464,7 +477,7 @@ class DocutilsRenderer(BaseRenderer):
         name = token.language[1:-1]
         # TODO directive name white/black lists
         content = token.children[0].content
-        self.document.current_line = token.range[0]
+        self.document.current_line = token.position[0]
 
         # get directive class
         directive_class, messages = directives.directive(
@@ -474,7 +487,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Unknown directive type '{}'\n".format(name),
                 # nodes.literal_block(content, content),
-                line=token.range[0],
+                line=token.position[0],
             )
             self.current_node += [error] + messages
             return
@@ -487,7 +500,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Directive '{}':\n{}".format(name, error),
                 nodes.literal_block(content, content),
-                line=token.range[0],
+                line=token.position[0],
             )
             self.current_node += [error]
             return
@@ -501,11 +514,11 @@ class DocutilsRenderer(BaseRenderer):
                 arguments=arguments,
                 options=options,
                 body=body_lines,
-                lineno=token.range[0],
+                lineno=token.position[0],
             )
         else:
-            state_machine = MockStateMachine(self, token.range[0])
-            state = MockState(self, state_machine, token.range[0])
+            state_machine = MockStateMachine(self, token.position[0])
+            state = MockState(self, state_machine, token.position[0])
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
@@ -515,7 +528,7 @@ class DocutilsRenderer(BaseRenderer):
                 # the directive content line by line
                 content=StringList(body_lines, self.document["source"]),
                 # the absolute line number of the first line of the directive
-                lineno=token.range[0],
+                lineno=token.position[0],
                 # the line offset of the first line of the content
                 content_offset=0,  # TODO get content offset from `parse_directive_text`
                 # a string containing the entire directive
@@ -529,7 +542,7 @@ class DocutilsRenderer(BaseRenderer):
             result = directive_instance.run()
         except DirectiveError as error:
             msg_node = self.reporter.system_message(
-                error.level, error.msg, line=token.range[0]
+                error.level, error.msg, line=token.position[0]
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
@@ -539,7 +552,7 @@ class DocutilsRenderer(BaseRenderer):
                     name, exc.__class__.__name__, exc
                 ),
                 nodes.literal_block(content, content),
-                line=token.range[0],
+                line=token.position[0],
             )
             self.current_node += [error]
             return
@@ -575,7 +588,7 @@ class SphinxRenderer(DocutilsRenderer):
             from myst_parser.block_tokens import Document
 
             with SphinxRenderer(load_sphinx_env=True, sphinx_conf={}) as renderer:
-                renderer.render(Document("source text"))
+                renderer.render(Document.read("source text"))
 
         """
         self.load_sphinx_env = kwargs.pop("load_sphinx_env", False)
@@ -801,8 +814,8 @@ class MockState:
             document=self.document, current_node=paragraph
         )
         renderer.render(
-            myst_block_tokens.Document(
-                text, start_line=self._lineno, inc_front_matter=False
+            myst_block_tokens.Document.read(
+                text, start_line=self._lineno, front_matter=False
             )
         )
         textnodes = []

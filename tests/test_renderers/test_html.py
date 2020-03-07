@@ -3,7 +3,7 @@ from textwrap import dedent
 import pytest
 
 from myst_parser import text_to_tokens, render_tokens, parse_text
-from mistletoe.block_token import tokenize
+from mistletoe.block_tokenizer import tokenize_main
 
 from myst_parser.html_renderer import HTMLRenderer
 
@@ -21,19 +21,19 @@ def test_render_tokens():
 
 
 def test_math(renderer):
-    output = renderer.render(tokenize(["$a=1$"])[0])
+    output = renderer.render(tokenize_main(["$a=1$"])[0])
     assert output == dedent("<p>$$a=1$$</p>")
 
 
 def test_role(renderer):
-    output = renderer.render(tokenize(["{name}`content`"])[0])
+    output = renderer.render(tokenize_main(["{name}`content`"])[0])
     assert output == (
         '<p><span class="myst-role"><code>{name}content</code></span></p>'
     )
 
 
 def test_directive(renderer):
-    output = renderer.render(tokenize(["```{name} arg\n", "foo\n", "```\n"])[0])
+    output = renderer.render(tokenize_main(["```{name} arg\n", "foo\n", "```\n"])[0])
     assert output == dedent(
         """\
         <div class="myst-directive">
@@ -53,7 +53,7 @@ def test_block_break(renderer):
 
 
 def test_line_comment(renderer):
-    output = renderer.render(tokenize([r"% abc"])[0])
+    output = renderer.render(tokenize_main([r"% abc"])[0])
     assert output == "<!-- abc -->"
 
 
