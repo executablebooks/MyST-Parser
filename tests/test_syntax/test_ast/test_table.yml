@@ -4,11 +4,11 @@ children:
     - align: null
       children:
       - content: hjk
-        range:
+        position:
         - 3
         - 3
         type: RawText
-      range:
+      position:
       - 3
       - 3
       type: TableCell
@@ -16,30 +16,30 @@ children:
       children:
       - children:
         - content: y
-          range:
+          position:
           - 3
           - 3
           type: RawText
-        range:
+        position:
         - 3
         - 3
         type: Emphasis
-      range:
+      position:
       - 3
       - 3
       type: TableCell
     - align: 0
       children:
       - content: z
-        range:
+        position:
         - 3
         - 3
         type: RawText
-      range:
+      position:
       - 3
       - 3
       type: TableCell
-    range:
+    position:
     - 3
     - 3
     row_align:
@@ -56,28 +56,37 @@ children:
     - align: null
       children:
       - content: abc
+        position:
+        - 1
+        - 1
         type: RawText
-      range:
+      position:
       - 1
       - 1
       type: TableCell
     - align: null
       children:
       - content: d
+        position:
+        - 1
+        - 1
         type: RawText
-      range:
+      position:
       - 1
       - 1
       type: TableCell
     - align: 0
       children:
       - content: e
+        position:
+        - 1
+        - 1
         type: RawText
-      range:
+      position:
       - 1
       - 1
       type: TableCell
-    range:
+    position:
     - 1
     - 1
     row_align:
@@ -85,9 +94,10 @@ children:
     - null
     - 0
     type: TableRow
-  range:
+  position:
   - 1
   - 3
   type: Table
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

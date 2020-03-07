@@ -3,11 +3,11 @@ from itertools import chain
 import re
 from textwrap import dedent
 
-from mistletoe import block_token, span_token
-from mistletoe import html_renderer
+from mistletoe.parse_context import ParseContext, set_parse_context, tokens_from_module
+from mistletoe.renderers import html as html_renderer
 
-from myst_parser import span_tokens as myst_span_tokens
-from myst_parser import block_tokens as myst_block_tokens
+from myst_parser import span_tokens
+from myst_parser import block_tokens
 
 
 class HTMLRenderer(html_renderer.HTMLRenderer):
@@ -27,15 +27,18 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         """
         self._suppress_ptag_stack = [False]
 
-        _span_tokens = self._tokens_from_module(myst_span_tokens)
-        _block_tokens = self._tokens_from_module(myst_block_tokens)
+        super(html_renderer.HTMLRenderer, self).__init__()
 
-        super(html_renderer.HTMLRenderer, self).__init__(
-            *chain(_block_tokens, _span_tokens)
-        )
+        myst_span_tokens = tokens_from_module(span_tokens)
+        myst_block_tokens = tokens_from_module(block_tokens)
 
-        span_token._token_types.value = _span_tokens
-        block_token._token_types.value = _block_tokens
+        for token in chain(myst_span_tokens, myst_block_tokens):
+            render_func = getattr(self, self._cls_to_func(token.__name__))
+            self.render_map[token.__name__] = render_func
+
+        parse_context = ParseContext(myst_block_tokens, myst_span_tokens)
+        set_parse_context(parse_context)
+        self.parse_context = parse_context.copy()
 
         # html.entities.html5 includes entitydefs not ending with ';',
         # CommonMark seems to hate them, so...
@@ -59,7 +62,14 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         """
         Optionally Append CDN link for MathJax to the end of <body>.
         """
-        body = super().render_document(token) + self.mathjax_src
+        front_matter = ""
+        if token.front_matter:
+            front_matter = (
+                '<div class="myst-front-matter">'
+                '<pre><code class="language-yaml">{}</code></pre>'
+                "</div>\n"
+            ).format(self.escape_html(token.front_matter.content))
+        body = front_matter + super().render_document(token) + self.mathjax_src
         if not self.as_standalone:
             return body
         return minimal_html_page(body, css=self.add_css or "")
@@ -80,13 +90,6 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
             content=self.escape_html(token.children[0].content),
         )
 
-    def render_front_matter(self, token):
-        return (
-            '<div class="myst-front-matter">'
-            '<pre><code class="language-yaml">{}</code></pre>'
-            "</div>"
-        ).format(self.escape_html(token.content))
-
     def render_line_comment(self, token):
         return "<!-- {} -->".format(self.escape_html(token.content))
 
@@ -102,7 +105,7 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
 
     def render_role(self, token):
         return ('<span class="myst-role"><code>{{{0}}}{1}</code></span>').format(
-            self.escape_html(token.name), self.render_raw_text(token.children[0])
+            self.escape_html(token.role_name), self.render_raw_text(token.children[0])
         )
 
     def render_math(self, token):

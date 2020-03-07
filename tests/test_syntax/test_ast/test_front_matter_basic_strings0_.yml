@@ -1,11 +1,10 @@
-children:
-- children: []
+children: []
+front_matter:
   content: 'a: b
 
     '
-  range:
+  position:
   - 0
   - 3
-  type: FrontMatter
-footnotes: {}
+link_definitions: {}
 type: Document

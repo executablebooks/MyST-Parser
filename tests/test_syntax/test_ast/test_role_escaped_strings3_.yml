@@ -2,32 +2,33 @@ children:
 - children:
   - children:
     - content: '{'
-      range:
+      position:
       - 1
       - 1
       type: RawText
-    range:
+    position:
     - 1
     - 1
     type: EscapeSequence
   - content: name}
-    range:
+    position:
     - 1
     - 1
     type: RawText
   - children:
     - content: some content
-      range:
+      position:
       - 1
       - 1
       type: RawText
-    range:
+    position:
     - 1
     - 1
     type: InlineCode
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

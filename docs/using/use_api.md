@@ -40,7 +40,7 @@ root
 ```
 
 ```python
-MyST.Document(blocks=3)
+Document(children=3, link_definitions=0, front_matter=None)
 ```
 
 All non-terminal tokens may contain children:
@@ -50,9 +50,9 @@ root.children
 ```
 
 ```python
-[MyST.Paragraph(range=(2, 2),children=2),
- MyST.List(items=1),
- MyST.Quote(range=(6, 6),children=1)]
+[Paragraph(children=2, position=(2, 2)),
+ List(children=1, loose=False, start_at=1, position=(3, 4)),
+ Quote(children=1, position=(6, 6))]
 ```
 
 Then each token has attributes specific to its type:
@@ -63,17 +63,24 @@ list_token.__dict__
 ```
 
 ```python
-{'children': [MyST.ListItem(children=1)], 'loose': False, 'start': 1}
+{'children': [{'children': [{'children': [RawText()], 'position': [4, 4]}],
+   'loose': False,
+   'leader': '1.',
+   'prepend': 3,
+   'next_marker': None,
+   'position': [3, 4]}],
+ 'loose': False,
+ 'start_at': 1,
+ 'position': [3, 4]}
 ```
 
-You can also recursively traverse the syntax tree, yielding `TraverseResult`s that contain the element, its parent and depth from the source token:
+You can also recursively traverse the syntax tree, yielding `WalkItem`s that contain the element, its parent and depth from the source token:
 
 ```python
 from pprint import pprint
-from myst_parser import traverse
 tree = [
     (t.parent.__class__.__name__, t.node.__class__.__name__, t.depth)
-    for t in traverse(root)
+    for t in root.walk()
 ]
 pprint(tree)
 ```
@@ -94,43 +101,58 @@ pprint(tree)
  ('Emphasis', 'RawText', 4)]
 ```
 
-## AST Renderer
+## JSON Renderer
 
-The `myst_parser.ast_renderer.AstRenderer` converts a token to a nested dictionary representation.
+The `myst_parser.json_renderer.JsonRenderer` converts a token to a nested dictionary representation.
 
 ```python
-from pprint import pprint
+from json import loads
 from myst_parser import render_tokens
-from myst_parser.ast_renderer import AstRenderer
+from myst_parser.json_renderer import JsonRenderer
 
-pprint(render_tokens(root, AstRenderer))
+pprint(loads(render_tokens(root, JsonRenderer)))
 ```
 
 ```python
-{'children': [{'children': [{'content': "Here's some ", 'type': 'RawText'},
+{'children': [{'children': [{'content': "Here's some ",
+                             'position': [2, 2],
+                             'type': 'RawText'},
                             {'children': [{'content': 'text',
+                                           'position': [2, 2],
                                            'type': 'RawText'}],
+                             'position': [2, 2],
                              'type': 'Emphasis'}],
-               'range': (2, 2),
+               'position': [2, 2],
                'type': 'Paragraph'},
               {'children': [{'children': [{'children': [{'content': 'a list',
+                                                         'position': [4, 4],
                                                          'type': 'RawText'}],
-                                           'range': (1, 1),
+                                           'position': [4, 4],
                                            'type': 'Paragraph'}],
                              'leader': '1.',
                              'loose': False,
+                             'next_marker': None,
+                             'position': [3, 4],
                              'prepend': 3,
                              'type': 'ListItem'}],
                'loose': False,
-               'start': 1,
+               'position': [3, 4],
+               'start_at': 1,
                'type': 'List'},
-              {'children': [{'children': [{'content': 'a quote',
-                                           'type': 'RawText'}],
-                             'range': (7, 7),
+              {'children': [{'children': [{'content': 'a ',
+                                           'position': [7, 7],
+                                           'type': 'RawText'},
+                                          {'children': [{'content': 'quote',
+                                                         'position': [7, 7],
+                                                         'type': 'RawText'}],
+                                           'position': [7, 7],
+                                           'type': 'Emphasis'}],
+                             'position': [7, 7],
                              'type': 'Paragraph'}],
-               'range': (6, 6),
+               'position': [6, 6],
                'type': 'Quote'}],
- 'footnotes': {},
+ 'front_matter': None,
+ 'link_definitions': {},
  'type': 'Document'}
 ```
 

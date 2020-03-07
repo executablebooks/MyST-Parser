@@ -3,26 +3,34 @@ children:
   - children:
     - children:
       - content: item
-        range:
+        position:
         - 1
         - 1
         type: RawText
-      range:
+      position:
       - 1
       - 1
       type: Paragraph
-    - content: ''
-      range:
-      - 2
-      - 2
-      raw: +++
-      type: BlockBreak
     leader: '-'
     loose: false
+    next_marker: null
+    position:
+    - 0
+    - 1
     prepend: 2
     type: ListItem
   loose: false
-  start: null
+  position:
+  - 0
+  - 1
+  start_at: null
   type: List
-footnotes: {}
+- content: ''
+  position:
+  - 2
+  - 2
+  raw: +++
+  type: BlockBreak
+front_matter: null
+link_definitions: {}
 type: Document

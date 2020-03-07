@@ -105,7 +105,6 @@ autodoc_default_options = {
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
-    ("py:class", "mistletoe.ast_renderer.ASTRenderer"),
     ("py:class", "mistletoe.block_token.BlockToken"),
     ("py:class", "mistletoe.block_token.BlockCode"),
     ("py:class", "mistletoe.block_token.Heading"),
@@ -119,8 +118,9 @@ nitpick_ignore = [
     ("py:class", "mistletoe.block_token.Paragraph"),
     ("py:class", "mistletoe.block_token.ThematicBreak"),
     ("py:class", "mistletoe.block_token.HTMLBlock"),
-    ("py:class", "mistletoe.base_renderer.BaseRenderer"),
-    ("py:class", "mistletoe.html_renderer.HTMLRenderer"),
+    ("py:class", "mistletoe.renderers.json.JsonRenderer"),
+    ("py:class", "mistletoe.renderers.base.BaseRenderer"),
+    ("py:class", "mistletoe.renderers.html.HTMLRenderer"),
     ("py:class", "mistletoe.span_token.SpanToken"),
     ("py:class", "mistletoe.span_token.InlineCode"),
     ("py:class", "docutils.parsers.Parser"),

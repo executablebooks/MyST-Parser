@@ -27,5 +27,5 @@ def test_commonmark(entry):
         )
     test_case = entry["markdown"].splitlines(keepends=True)
     with HTMLRenderer() as renderer:
-        output = renderer.render(Document(test_case))
+        output = renderer.render(Document.read(test_case))
     assert output == entry["html"]

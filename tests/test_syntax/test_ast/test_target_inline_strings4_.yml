@@ -1,24 +1,25 @@
 children:
 - children:
   - content: 'a '
-    range:
+    position:
     - 1
     - 1
     type: RawText
   - children:
     - content: target
-      range:
+      position:
       - 1
       - 1
       type: RawText
-    range:
+    position:
     - 1
     - 1
     target: target
     type: Target
-  range:
+  position:
   - 1
   - 1
   type: Paragraph
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

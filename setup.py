@@ -12,6 +12,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/ExecutableBookProject/MyST-Parser",
+    project_urls={"Documentation": "https://myst-parser.readthedocs.io"},
     author="Chris Sewell",
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",
@@ -35,7 +36,7 @@ setup(
     ],
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.5",
-    install_requires=["mistletoe-ebp==0.8.2"],
+    install_requires=["mistletoe-ebp~=0.9.1"],
     extras_require={
         "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],

@@ -3,14 +3,15 @@ children:
   - content: '+++
 
       '
-    range:
+    position:
     - 0
     - 1
     type: RawText
   language: ''
-  range:
+  position:
   - 0
   - 1
   type: BlockCode
-footnotes: {}
+front_matter: null
+link_definitions: {}
 type: Document

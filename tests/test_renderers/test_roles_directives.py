@@ -10,7 +10,7 @@ from textwrap import dedent, indent
 
 import pytest
 
-from mistletoe.block_token import tokenize
+from mistletoe.block_tokenizer import tokenize_main
 
 from myst_parser.block_tokens import Document
 
@@ -36,10 +36,10 @@ def test_directive_arguments(renderer, name, arguments, body):
         + (["content"] if body else [])
         + ["```"]
     )
-    renderer.render(Document(content))
+    renderer.render(Document.read(content))
     expected = [
         '<document source="notset">',
-        '    <system_message level="1" line="0" source="notset" type="INFO">',
+        '    <system_message level="1" line="1" source="notset" type="INFO">',
         "        <paragraph>",
         (
             '            Directive processed. Type="restructuredtext-test-directive", '
@@ -61,12 +61,12 @@ def test_directive_arguments(renderer, name, arguments, body):
 )
 def test_directive_no_options(renderer, type, text):
     renderer.render(
-        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+        Document.read(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
     )
     assert renderer.document.pformat() == dedent(
         """\
     <document source="notset">
-        <system_message level="1" line="0" source="notset" type="INFO">
+        <system_message level="1" line="1" source="notset" type="INFO">
             <paragraph>
                 Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content:
             <literal_block xml:space="preserve">
@@ -95,12 +95,12 @@ def test_directive_no_options(renderer, type, text):
 )
 def test_directive_options(renderer, type, text):
     renderer.render(
-        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+        Document.read(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
     )
     assert renderer.document.pformat() == dedent(
         """\
     <document source="notset">
-        <system_message level="1" line="0" source="notset" type="INFO">
+        <system_message level="1" line="1" source="notset" type="INFO">
             <paragraph>
                 Directive processed. Type="restructuredtext-test-directive", arguments=[], options={'option1': 'a', 'option2': 'b'}, content:
             <literal_block xml:space="preserve">
@@ -118,7 +118,7 @@ def test_directive_options(renderer, type, text):
 )
 def test_directive_options_error(renderer, type, text, file_regression):
     renderer.render(
-        Document(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
+        Document.read(["```{restructuredtext-test-directive}"] + list(text) + ["```"])
     )
     file_regression.check(renderer.document.pformat(), extension=".xml")
 
@@ -144,7 +144,7 @@ def test_docutils_roles(renderer, name, role_data):
         pytest.skip("awaiting fix")
     text = "{{{0}}}`{1}`".format(name, role_data.get("content", " "))
     print(text)
-    renderer.render(tokenize([text])[0])
+    renderer.render(tokenize_main([text])[0])
     print(
         repr(renderer.document.pformat()).replace(" " * 8, "    ").replace('"', '\\"')
     )
@@ -174,7 +174,7 @@ def test_sphinx_roles(sphinx_renderer, name, role_data):
         # TODO fix skips
         pytest.skip("awaiting fix")
     sphinx_renderer.render(
-        tokenize(["{{{}}}`{}`".format(name, role_data.get("content", "a"))])[0]
+        tokenize_main(["{{{}}}`{}`".format(name, role_data.get("content", "a"))])[0]
     )
     print(
         repr(sphinx_renderer.document.pformat())
@@ -218,7 +218,7 @@ def test_docutils_directives(renderer, name, directive):
         pytest.skip("awaiting fix")
     arguments = " ".join(directive["args"])
     renderer.render(
-        tokenize(
+        tokenize_main(
             [
                 "```{{{}}} {}\n".format(name, arguments),
                 directive.get("content", "") + "\n",
@@ -262,7 +262,7 @@ def test_sphinx_directives(sphinx_renderer, name, directive):
         pytest.skip("awaiting fix")
     arguments = " ".join(directive["args"])
     sphinx_renderer.render(
-        tokenize(
+        tokenize_main(
             [
                 "```{{{}}} {}\n".format(name, arguments),
                 directive.get("content", "") + "\n",

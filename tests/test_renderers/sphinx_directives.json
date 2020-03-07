@@ -256,7 +256,7 @@
         "class": "docutils.parsers.rst.directives.misc.TestDirective",
         "args": [],
         "options": {},
-        "output": "<system_message level=\"1\" line=\"0\" source=\"notset\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content: None"
+        "output": "<system_message level=\"1\" line=\"1\" source=\"notset\" type=\"INFO\">\n    <paragraph>\n        Directive processed. Type=\"restructuredtext-test-directive\", arguments=[], options={}, content: None"
     },
     {
         "name": "contents",
