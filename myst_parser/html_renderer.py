@@ -1,52 +1,67 @@
-import html
-from itertools import chain
-import re
 from textwrap import dedent
 
-from mistletoe.parse_context import ParseContext, set_parse_context, tokens_from_module
+from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers import html as html_renderer
 
-from myst_parser import span_tokens
-from myst_parser import block_tokens
+from myst_parser.block_tokens import LineComment, BlockBreak, Quote, Paragraph, List
+from myst_parser.span_tokens import Role, Target
 
 
 class HTMLRenderer(html_renderer.HTMLRenderer):
-    """This HTML render uses the same block/span tokens as the docutils renderer.
+    """This HTML render uses the uses the MyST spec block and span tokens.
 
     It is used to test compliance with the commonmark spec,
     and can be used for basic previews,
     but does not run roles/directives, resolve cross-references etc...
     """
 
-    def __init__(self, add_mathjax=False, as_standalone=False, add_css=None):
+    default_block_tokens = (
+        block_tokens.HTMLBlock,
+        LineComment,
+        block_tokens.BlockCode,
+        block_tokens.Heading,
+        Quote,
+        block_tokens.CodeFence,
+        block_tokens.ThematicBreak,
+        BlockBreak,
+        List,
+        block_tokens_ext.Table,
+        block_tokens.LinkDefinition,
+        Paragraph,
+    )
+
+    default_span_tokens = (
+        span_tokens.EscapeSequence,
+        Role,
+        span_tokens.HTMLSpan,
+        span_tokens.AutoLink,
+        Target,
+        span_tokens.CoreTokens,
+        span_tokens_ext.Math,
+        # TODO there is no matching core element in docutils for strikethrough
+        # span_tokens_ext.Strikethrough,
+        span_tokens.InlineCode,
+        span_tokens.LineBreak,
+        span_tokens.RawText,
+    )
+
+    def __init__(
+        self,
+        find_blocks=None,
+        find_spans=None,
+        add_mathjax=False,
+        as_standalone=False,
+        add_css=None,
+    ):
         """Intitalise HTML renderer
 
+        :param find_blocks: override the default block tokens (classes or class paths)
+        :param find_spans: override the default span tokens (classes or class paths)
         :param add_mathjax: add the mathjax CDN
         :param as_standalone: return the HTML body within a minmal HTML page
         :param add_css: if as_standalone=True, CSS to add to the header
         """
-        self._suppress_ptag_stack = [False]
-
-        super(html_renderer.HTMLRenderer, self).__init__()
-
-        myst_span_tokens = tokens_from_module(span_tokens)
-        myst_block_tokens = tokens_from_module(block_tokens)
-
-        for token in chain(myst_span_tokens, myst_block_tokens):
-            render_func = getattr(self, self._cls_to_func(token.__name__))
-            self.render_map[token.__name__] = render_func
-
-        parse_context = ParseContext(myst_block_tokens, myst_span_tokens)
-        set_parse_context(parse_context)
-        self.parse_context = parse_context.copy()
-
-        # html.entities.html5 includes entitydefs not ending with ';',
-        # CommonMark seems to hate them, so...
-        self._stdlib_charref = html._charref
-        _charref = re.compile(
-            r"&(#[0-9]+;" r"|#[xX][0-9a-fA-F]+;" r"|[^\t\n\f <&#;]{1,32};)"
-        )
-        html._charref = _charref
+        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
 
         self.mathjax_src = ""
         if add_mathjax:

@@ -1,24 +1,41 @@
 """JSON renderer for myst."""
-from itertools import chain
-
-from mistletoe.parse_context import ParseContext, set_parse_context, tokens_from_module
+from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers import json
 
-from myst_parser import span_tokens
-from myst_parser import block_tokens
+from myst_parser.block_tokens import LineComment, BlockBreak, Quote, Paragraph, List
+from myst_parser.span_tokens import Role, Target
 
 
 class JsonRenderer(json.JsonRenderer):
-    def __init__(self):
-        """This AST render uses the same block/span tokens as the docutils renderer."""
-        super().__init__()
-        myst_span_tokens = tokens_from_module(span_tokens)
-        myst_block_tokens = tokens_from_module(block_tokens)
+    """This JSON render uses the MyST spec block and span tokens.
+    """
 
-        for token in chain(myst_span_tokens, myst_block_tokens):
-            render_func = getattr(self, self._cls_to_func(token.__name__))
-            self.render_map[token.__name__] = render_func
+    default_block_tokens = (
+        block_tokens.HTMLBlock,
+        LineComment,
+        block_tokens.BlockCode,
+        block_tokens.Heading,
+        Quote,
+        block_tokens.CodeFence,
+        block_tokens.ThematicBreak,
+        BlockBreak,
+        List,
+        block_tokens_ext.Table,
+        block_tokens.LinkDefinition,
+        Paragraph,
+    )
 
-        parse_context = ParseContext(myst_block_tokens, myst_span_tokens)
-        set_parse_context(parse_context)
-        self.parse_context = parse_context.copy()
+    default_span_tokens = (
+        span_tokens.EscapeSequence,
+        Role,
+        span_tokens.HTMLSpan,
+        span_tokens.AutoLink,
+        Target,
+        span_tokens.CoreTokens,
+        span_tokens_ext.Math,
+        # TODO there is no matching core element in docutils for strikethrough
+        # span_tokens_ext.Strikethrough,
+        span_tokens.InlineCode,
+        span_tokens.LineBreak,
+        span_tokens.RawText,
+    )
