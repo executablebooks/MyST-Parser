@@ -91,6 +91,7 @@ class DocutilsRenderer(BaseRenderer):
         super().__init__(find_blocks=find_blocks, find_spans=find_spans)
 
     def new_document(self, source_path="notset") -> nodes.document:
+        """Create a new docutils document."""
         settings = OptionParser(components=(RSTParser,)).get_default_values()
         return new_document(source_path, settings=settings)
 
@@ -634,7 +635,9 @@ class SphinxRenderer(DocutilsRenderer):
             self.render_children(token)
 
     def mock_sphinx_env(self, configuration=None, sourcedir=None):
-        """Load sphinx roles, directives, etc."""
+        """Create a minimimal Sphinx environment;
+        loading sphinx roles, directives, etc.
+        """
         from sphinx.application import builtin_extensions, Sphinx
         from sphinx.config import Config
         from sphinx.environment import BuildEnvironment

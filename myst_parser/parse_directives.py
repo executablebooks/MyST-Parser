@@ -1,10 +1,9 @@
-"""Module to parse fenced code blocks as directives.
-
-Such a fenced code block starts with `{directive_name}`,
+"""Fenced code blocks are parsed as directives,
+if the block starts with ``{directive_name}``,
 followed by arguments on the same line.
 
 Directive options are read from a YAML block,
-if the first content line starts with `---`, e.g.
+if the first content line starts with ``---``, e.g.
 
 ::
 
@@ -17,8 +16,8 @@ if the first content line starts with `---`, e.g.
     content...
     ```
 
-Or the option block will be parsed if the first content line starts with `:`,
-as a YAML block consisting of every line that starts with a `:`, e.g.
+Or the option block will be parsed if the first content line starts with ``:``,
+as a YAML block consisting of every line that starts with a ``:``, e.g.
 
 ::
 
@@ -45,13 +44,15 @@ from docutils.parsers.rst.directives.misc import TestDirective
 
 
 class DirectiveParsingError(Exception):
+    """Raise on parsing/validation error."""
+
     pass
 
 
 def parse_directive_text(
     directive_class: Type[Directive], argument_str: str, content: str
 ):
-    """See module docstring."""
+    """Parse (and validate) the full directive text."""
     if directive_class.option_spec:
         body, options = parse_directive_options(content, directive_class)
     else:
@@ -87,6 +88,7 @@ def parse_directive_text(
 
 
 def parse_directive_options(content: str, directive_class: Type[Directive]):
+    """Parse (and validate) the directive option section."""
     options = {}
     if content.startswith("---"):
         content = "\n".join(content.splitlines()[1:])
@@ -141,6 +143,7 @@ def parse_directive_options(content: str, directive_class: Type[Directive]):
 
 
 def parse_directive_arguments(directive, arg_text):
+    """Parse (and validate) the directive argument section."""
     required = directive.required_arguments
     optional = directive.optional_arguments
     arguments = arg_text.split()

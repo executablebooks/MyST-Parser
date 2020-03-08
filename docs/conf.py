@@ -99,14 +99,14 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
 }
 
-autodoc_default_options = {
-    "show-inheritance": True,
-    "special-members": "__init__, __enter__, __exit__",
-    "members": True,
-    # 'exclude-members': '',
-    "undoc-members": True,
-    # 'inherited-members': True
-}
+# autodoc_default_options = {
+#     "show-inheritance": True,
+#     "special-members": "__init__, __enter__, __exit__",
+#     "members": True,
+#     # 'exclude-members': '',
+#     "undoc-members": True,
+#     # 'inherited-members': True
+# }
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
