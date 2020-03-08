@@ -110,6 +110,7 @@ autodoc_default_options = {
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
+    ("py:class", "Any"),
     ("py:class", "Tuple"),
     ("py:class", "ForwardRef"),
     ("py:class", "NoneType"),
