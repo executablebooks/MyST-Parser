@@ -4,37 +4,8 @@ from typing import Tuple
 import attr
 
 from mistletoe import block_tokens
-from mistletoe.block_tokens import (  # noqa: F401
-    FrontMatter,
-    HTMLBlock,
-    Heading,
-    LinkDefinition,
-    ThematicBreak,
-    Table,
-    TableRow,
-    BlockCode,
-    CodeFence,
-)
+from mistletoe.block_tokens import Heading, ThematicBreak, CodeFence
 from mistletoe.attr_doc import autodoc
-
-"""
-Tokens to be included in the parsing process, in the order specified.
-"""
-__all__ = [
-    "HTMLBlock",
-    "LineComment",
-    "BlockCode",
-    "Heading",
-    "Quote",
-    "CodeFence",
-    "ThematicBreak",
-    "BlockBreak",
-    "List",
-    "Table",
-    "LinkDefinition",
-    "Paragraph",
-    "FrontMatter",
-]
 
 
 @autodoc
@@ -69,10 +40,10 @@ class Document(block_tokens.Document):
             # TODO this is a placeholder for implementing span level range storage
             # (with start/end character attributes)
             for result in doc.walk():
-                if not hasattr(result.node, "position"):
+                if getattr(result.node, "position", None) is None:
                     try:
                         result.node.position = result.parent.position
-                    except AttributeError:
+                    except (AttributeError, TypeError):
                         raise
         return doc
 
@@ -157,7 +128,10 @@ class BlockBreak(block_tokens.BlockToken):
 @autodoc
 @attr.s(slots=True, kw_only=True)
 class Quote(block_tokens.Quote):
-    """Quote token. (`["> # heading\\n", "> paragraph\\n"]`)."""
+    """Quote token. (`["> # heading\\n", "> paragraph\\n"]`).
+
+    MyST variant, that includes transitions to `LineComment` and `BlockBreak`.
+    """
 
     @classmethod
     def transition(cls, next_line):
@@ -179,6 +153,8 @@ class Paragraph(block_tokens.Paragraph):
     """Paragraph token. (`["some\\n", "continuous\\n", "lines\\n"]`)
 
     Boundary between span-level and block-level tokens.
+
+    MyST variant, that includes transitions to `LineComment` and `BlockBreak`.
     """
 
     @classmethod
@@ -197,7 +173,10 @@ class Paragraph(block_tokens.Paragraph):
 @autodoc
 @attr.s(slots=True, kw_only=True)
 class List(block_tokens.List):
-    """List token (unordered or ordered)"""
+    """List token (unordered or ordered)
+
+    MyST variant, that includes transitions to `LineComment` and `BlockBreak`.
+    """
 
     @classmethod
     def read(cls, lines):
@@ -244,6 +223,8 @@ class ListItem(block_tokens.ListItem):
     """List items.
 
     Not included in the parsing process, but called by List.
+
+    MyST variant, that includes transitions to `LineComment` and `BlockBreak`.
     """
 
     @staticmethod

@@ -45,9 +45,9 @@ def test_walk(json_renderer):
         ("RawText()", "Paragraph(children=2, position=(1, 1))", 2),
         ("Strong(children=1)", "Paragraph(children=2, position=(1, 1))", 2),
         ("RawText()", "Paragraph(children=2, position=(3, 3))", 2),
-        ("Link(children=1)", "Paragraph(children=2, position=(3, 3))", 2),
+        ("Link(target='link', title='')", "Paragraph(children=2, position=(3, 3))", 2),
         ("RawText()", "Strong(children=1)", 3),
-        ("Emphasis(children=1)", "Link(children=1)", 3),
+        ("Emphasis(children=1)", "Link(target='link', title='')", 3),
         ("RawText()", "Emphasis(children=1)", 4),
     ]
 

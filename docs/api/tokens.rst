@@ -43,16 +43,6 @@ Role
     :exclude-members: __init__
 
 
-Math
-....
-
-.. autoclass:: myst_parser.span_tokens.Math
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
-    :exclude-members: __init__
-
-
 Target
 ......
 

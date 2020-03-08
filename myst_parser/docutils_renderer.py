@@ -1,6 +1,5 @@
 from contextlib import contextmanager
 import copy
-from itertools import chain
 from os.path import splitext
 from pathlib import Path
 import re
@@ -19,12 +18,11 @@ from docutils.statemachine import StringList
 from docutils.utils import new_document, Reporter
 import yaml
 
-from mistletoe import span_tokens
+from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers.base import BaseRenderer
 
-from myst_parser import span_tokens as myst_span_tokens
 from myst_parser import block_tokens as myst_block_tokens
-from mistletoe.parse_context import ParseContext, set_parse_context, tokens_from_module
+from myst_parser import span_tokens as myst_span_tokens
 from myst_parser.parse_directives import parse_directive_text, DirectiveParsingError
 from myst_parser.utils import escape_url
 
@@ -35,11 +33,43 @@ class DocutilsRenderer(BaseRenderer):
     Note this renderer has no dependencies on Sphinx.
     """
 
+    default_block_tokens = (
+        block_tokens.HTMLBlock,
+        myst_block_tokens.LineComment,
+        block_tokens.BlockCode,
+        block_tokens.Heading,
+        myst_block_tokens.Quote,
+        block_tokens.CodeFence,
+        block_tokens.ThematicBreak,
+        myst_block_tokens.BlockBreak,
+        myst_block_tokens.List,
+        block_tokens_ext.Table,
+        block_tokens.LinkDefinition,
+        myst_block_tokens.Paragraph,
+    )
+
+    default_span_tokens = (
+        span_tokens.EscapeSequence,
+        myst_span_tokens.Role,
+        span_tokens.HTMLSpan,
+        span_tokens.AutoLink,
+        myst_span_tokens.Target,
+        span_tokens.CoreTokens,
+        span_tokens_ext.Math,
+        # TODO there is no matching core element in docutils for strikethrough
+        # span_tokens_ext.Strikethrough,
+        span_tokens.InlineCode,
+        span_tokens.LineBreak,
+        span_tokens.RawText,
+    )
+
     def __init__(
         self,
         document: Optional[nodes.document] = None,
         current_node: Optional[nodes.Element] = None,
         config: Optional[dict] = None,
+        find_blocks=None,
+        find_spans=None,
     ):
         """Initialise the renderer.
 
@@ -47,7 +77,8 @@ class DocutilsRenderer(BaseRenderer):
         :param current_node: The root node from which to begin populating
             (default is document, or should be an ancestor of document)
         :param config: contains configuration specific to the rendering process
-
+        :param find_blocks: override the default block tokens (classes or class paths)
+        :param find_spans: override the default span tokens (classes or class paths)
         """
         self.config = config or {}
         self.document = document or self.new_document()  # type: nodes.document
@@ -57,20 +88,7 @@ class DocutilsRenderer(BaseRenderer):
         get_language(self.language_module)
         self._level_to_elem = {0: self.document}
 
-        super().__init__()
-
-        _myst_span_tokens = tokens_from_module(myst_span_tokens)
-        _myst_block_tokens = tokens_from_module(myst_block_tokens)
-
-        for token in chain(_myst_span_tokens, _myst_block_tokens):
-            render_func = getattr(self, self._cls_to_func(token.__name__))
-            self.render_map[token.__name__] = render_func
-
-        parse_context = ParseContext(
-            block_tokens=_myst_block_tokens, span_tokens=_myst_span_tokens
-        )
-        set_parse_context(parse_context)
-        self.parse_context = parse_context.copy()
+        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
 
     def new_document(self, source_path="notset") -> nodes.document:
         settings = OptionParser(components=(RSTParser,)).get_default_values()
@@ -80,7 +98,7 @@ class DocutilsRenderer(BaseRenderer):
         """Copy the line number and document source path to the docutils node."""
         try:
             node.line = token.position[0] + 1
-        except AttributeError:
+        except (AttributeError, TypeError):
             pass
         node.source = self.document["source"]
 
@@ -356,7 +374,7 @@ class DocutilsRenderer(BaseRenderer):
         img_node["uri"] = token.src
 
         img_node["alt"] = ""
-        if token.children and isinstance(token.children[0], myst_span_tokens.RawText):
+        if token.children and isinstance(token.children[0], span_tokens.RawText):
             img_node["alt"] = token.children[0].content
             token.children[0].content = ""
 
@@ -451,7 +469,7 @@ class DocutilsRenderer(BaseRenderer):
         # TODO role name white/black lists
         try:
             lineno = token.position[0]
-        except AttributeError:
+        except (AttributeError, TypeError):
             lineno = 0
         inliner = MockInliner(self, lineno)
         role_func, messages = roles.role(
