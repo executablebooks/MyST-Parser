@@ -77,35 +77,6 @@ def test_role(name, json_renderer, data_regression, strings):
 @pytest.mark.parametrize(
     "name,strings",
     [
-        ("basic", ["$a$"]),
-        ("contains_special_chars", ["$a`{_*-%$"]),
-        ("preceding_special_chars", ["{_*-%`$a$"]),
-        ("multiple", ["$a$ $b$"]),
-        ("escaped_opening", ["\\$a $b$"]),
-        ("no_closing", ["$a"]),
-        ("internal_emphasis", ["$*a*$"]),
-        ("external_emphasis", ["*$a$*"]),
-        ("multiline", ["$$a", "c", "b$$"]),
-        (
-            "issue_51",
-            [
-                "Math can be called in-line with single `$` characters around math.",
-                "For example, `$x_{hey}=it+is^{math}$` renders $x_{hey}=it+is^{math}$.",
-            ],
-        ),
-        ("in_link_content", ["[$a$](link)"]),
-        ("in_link_target", ["[a]($b$)"]),
-        ("in_image", ["![$a$]($b$)"]),
-    ],
-)
-def test_math(name, json_renderer, data_regression, strings):
-    document = Document.read(strings)
-    data_regression.check(json_renderer.render(document, as_string=False))
-
-
-@pytest.mark.parametrize(
-    "name,strings",
-    [
         ("basic", ["(target)="]),
         ("indent_2", ["  (target)="]),
         ("indent_4", ["    (target)="]),

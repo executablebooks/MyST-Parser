@@ -12,8 +12,10 @@ HTML
 ....
 
 .. autoclass:: myst_parser.html_renderer.HTMLRenderer
-    :members:
+    :special-members: __init__, __enter__, __exit__
+    :members: default_block_tokens, default_span_tokens
     :undoc-members:
+    :member-order: alphabetical
     :show-inheritance:
 
 
@@ -21,16 +23,20 @@ JSON
 ....
 
 .. autoclass:: myst_parser.json_renderer.JsonRenderer
-    :members:
+    :special-members: __init__, __enter__, __exit__
+    :members: default_block_tokens, default_span_tokens
     :undoc-members:
+    :member-order: alphabetical
     :show-inheritance:
 
 Docutils
 ........
 
 .. autoclass:: myst_parser.docutils_renderer.DocutilsRenderer
-    :members:
+    :special-members: __init__, __enter__, __exit__
+    :members: default_block_tokens, default_span_tokens, new_document
     :undoc-members:
+    :member-order: alphabetical
     :show-inheritance:
 
 
@@ -58,6 +64,10 @@ Sphinx
 ......
 
 .. autoclass:: myst_parser.docutils_renderer.SphinxRenderer
-    :members:
+    :special-members: __init__, __enter__, __exit__
+    :members: default_block_tokens, default_span_tokens, mock_sphinx_env
     :undoc-members:
+    :member-order: alphabetical
     :show-inheritance:
+
+.. autofunction:: myst_parser.docutils_renderer.dict_to_docinfo

@@ -3,10 +3,12 @@
 Extended AST Tokens
 -------------------
 
-MyST builds on the mistletoe
-:ref:`core block tokens <mistletoe:tokens/block>` and
-:ref:`core span tokens <mistletoe:tokens/span>`
-to extend the syntax (as discussed in :ref:`example_syntax`).
+MyST builds on the mistletoe tokens, to extend the syntax:
+
+- :ref:`Core block tokens <mistletoe:tokens/block>`
+- :ref:`Core span tokens <mistletoe:tokens/span>`
+- :ref:`Extension tokens <mistletoe:tokens/extension>`
+
 
 .. seealso::
 
