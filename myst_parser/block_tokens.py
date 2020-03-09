@@ -13,30 +13,15 @@ from mistletoe.attr_doc import autodoc
 class Document(block_tokens.Document):
     """Document token."""
 
+    # TODO this class should eventually be removed
+
     @classmethod
-    def read(
-        cls,
-        lines,
-        start_line: int = 0,
-        reset_definitions=True,
-        store_definitions=False,
-        front_matter=True,
-        propogate_pos: bool = True,
-    ):
-        """Read a document
+    def read(cls, *args, **kwargs):
+        # default to front matter is True
+        kwargs["front_matter"] = kwargs.get("front_matter", True)
+        doc = super().read(*args, **kwargs)
 
-        :param lines:  Lines or string to parse
-        :param start_line: The initial line (used for nested parsing)
-        :param reset_definitions: remove any previously stored link_definitions
-        :param store_definitions: store LinkDefinitions or ignore them
-        :param front_matter: search for an initial YAML block front matter block
-            (note this is not strictly CommonMark compliant)
-        """
-        doc = super().read(
-            lines, start_line, reset_definitions, store_definitions, front_matter
-        )
-
-        if propogate_pos:
+        if kwargs.get("propogate_pos", True):
             # TODO this is a placeholder for implementing span level range storage
             # (with start/end character attributes)
             for result in doc.walk():
