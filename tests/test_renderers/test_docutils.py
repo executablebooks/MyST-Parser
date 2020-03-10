@@ -400,6 +400,34 @@ def test_link_def_in_directive_nested(renderer, file_regression):
     file_regression.check(renderer.document.pformat(), extension=".xml")
 
 
+def test_footnotes(renderer):
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            [^a]
+
+            [^a]: footnote*text*
+            """
+            )
+        )
+    )
+    print(renderer.document.pformat())
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="notset">
+        <paragraph>
+            <footnote_reference auto="1" ids="id1" refname="a">
+        <transition>
+        <footnote auto="1" ids="a" names="a">
+            <paragraph>
+                footnote
+                <emphasis>
+                    text
+    """
+    )
+
+
 def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\

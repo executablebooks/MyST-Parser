@@ -20,6 +20,7 @@ import yaml
 
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers.base import BaseRenderer
+from mistletoe.parse_context import get_parse_context
 
 from myst_parser import block_tokens as myst_block_tokens
 from myst_parser import span_tokens as myst_span_tokens
@@ -44,6 +45,7 @@ class DocutilsRenderer(BaseRenderer):
         myst_block_tokens.BlockBreak,
         myst_block_tokens.List,
         block_tokens_ext.Table,
+        block_tokens_ext.Footnote,
         block_tokens.LinkDefinition,
         myst_block_tokens.Paragraph,
     )
@@ -55,6 +57,7 @@ class DocutilsRenderer(BaseRenderer):
         span_tokens.AutoLink,
         myst_span_tokens.Target,
         span_tokens.CoreTokens,
+        span_tokens_ext.FootReference,
         span_tokens_ext.Math,
         # TODO there is no matching core element in docutils for strikethrough
         # span_tokens_ext.Strikethrough,
@@ -105,13 +108,15 @@ class DocutilsRenderer(BaseRenderer):
 
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
-        token = myst_block_tokens.Document.read(
+        doc_token = myst_block_tokens.Document.read(
             text, start_line=lineno, front_matter=True, reset_definitions=False
         )
         # TODO think if this is the best way: here we consume front matter,
         # but then remove it. this is for example if includes have front matter
-        token.front_matter = None
-        self.render(token)
+        doc_token.front_matter = None
+        # we mark the token as nested so that footnotes etc aren't rendered
+        doc_token.is_nested = True
+        self.render(doc_token)
 
     def render_children(self, token):
         for child in token.children:
@@ -127,11 +132,27 @@ class DocutilsRenderer(BaseRenderer):
         yield
         self.current_node = current_node
 
-    def render_document(self, token):
+    def render_document(self, token: block_tokens.Document):
         self.link_definitions.update(token.link_definitions)
         if token.front_matter:
             self.render_front_matter(token.front_matter)
         self.render_children(token)
+
+        if getattr(token, "is_nested", False):
+            # if the document is nested in another, we don't want to output footnotes
+            return self.document
+
+        # we use the footnotes stored in the global context,
+        # rather than those stored on the document,
+        # since additional references may have been made in nested parses
+        foot_refs = get_parse_context().foot_references
+        footnotes = get_parse_context().foot_definitions
+        if foot_refs:
+            self.current_node.append(nodes.transition())
+        for footref in foot_refs:
+            if footref in footnotes:
+                self.render_footnote(footnotes[footref])
+
         return self.document
 
     def render_front_matter(self, token):
@@ -160,6 +181,37 @@ class DocutilsRenderer(BaseRenderer):
 
         docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
+
+    def render_footnote(self, token: block_tokens_ext.Footnote):
+        footnote = nodes.footnote()
+        self.add_line_and_source_path(footnote, token)
+        # footnote += nodes.label('', token.target)
+        footnote["names"].append(token.target)
+        footnote["auto"] = 1
+        self.document.note_autofootnote(footnote)
+        self.document.note_explicit_target(footnote, footnote)
+        # TODO for now we wrap the content (which are list of spans tokens)
+        # in a paragraph, but eventually upstream in mistletoe this will already be
+        # block level tokens
+        self.current_node.append(footnote)
+        paragraph = nodes.paragraph("")
+        self.add_line_and_source_path(paragraph, token)
+        footnote.append(paragraph)
+        with self.current_node_context(paragraph, append=False):
+            self.render_children(token)
+
+    def render_foot_reference(self, token):
+        """Footnote references are added as auto-numbered,
+        .i.e. `[^a]` is read as rST `[#a]_`
+        """
+        refnode = nodes.footnote_reference("[^{}]".format(token.target))
+        self.add_line_and_source_path(refnode, token)
+        refnode["auto"] = 1
+        refnode["refname"] = token.target
+        # refnode += nodes.Text(token.target)
+        self.document.note_autofootnote_ref(refnode)
+        self.document.note_footnote_ref(refnode)
+        self.current_node.append(refnode)
 
     def render_paragraph(self, token):
         if len(token.children) == 1 and isinstance(
@@ -834,14 +886,12 @@ class MockState:
         renderer = self._renderer.__class__(
             document=self.document, current_node=paragraph
         )
-        renderer.render(
-            myst_block_tokens.Document.read(
-                text,
-                start_line=self._lineno,
-                front_matter=False,
-                reset_definitions=False,
-            )
+        doc_token = myst_block_tokens.Document.read(
+            text, start_line=self._lineno, front_matter=False, reset_definitions=False
         )
+        # we mark the token as nested so that footnotes etc aren't rendered
+        doc_token.is_nested = True
+        renderer.render(doc_token)
         textnodes = []
         if paragraph.children:
             # first child should be paragraph

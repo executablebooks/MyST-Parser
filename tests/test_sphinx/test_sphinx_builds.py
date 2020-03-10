@@ -44,3 +44,24 @@ def test_includes(
 
     get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
     get_sphinx_app_output(app, filename="index.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
+)
+def test_footnotes(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test of include directive."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+    get_sphinx_app_doctree(app, filename="footnote_md.doctree", regress=True)
+    get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)

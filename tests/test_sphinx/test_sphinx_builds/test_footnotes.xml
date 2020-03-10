@@ -1,0 +1,51 @@
+<document source="footnote_md.md">
+    <section ids="footnotes-with-markdown" names="footnotes\ with\ markdown">
+        <title>
+            Footnotes with Markdown
+        <paragraph>
+            <footnote_reference auto="1" docname="footnote_md" ids="id1" refid="c">
+                1
+        <note>
+            <paragraph>
+                <footnote_reference auto="1" docname="footnote_md" ids="id2" refid="d">
+                    5
+        <paragraph>
+            <footnote_reference auto="1" docname="footnote_md" ids="id3" refid="a">
+                2
+        <paragraph>
+            <footnote_reference auto="1" docname="footnote_md" ids="id4" refid="b">
+                3
+        <paragraph>
+            <footnote_reference auto="1" docname="footnote_md" ids="id5" refid="id7">
+                4
+             
+            <footnote_reference auto="1" docname="footnote_md" ids="id6" refid="id7">
+                4
+        <transition>
+        <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
+            <label>
+                1
+            <paragraph>
+                a footnote referenced first
+        <footnote auto="1" backrefs="id3" docname="footnote_md" ids="a" names="a">
+            <label>
+                2
+            <paragraph>
+                some footnote 
+                <emphasis>
+                    text
+        <footnote auto="1" backrefs="id4" docname="footnote_md" ids="b" names="b">
+            <label>
+                3
+            <paragraph>
+                a footnote before its reference
+        <footnote auto="1" backrefs="id5 id6" docname="footnote_md" ids="id7" names="123">
+            <label>
+                4
+            <paragraph>
+                multiple references footnote
+        <footnote auto="1" backrefs="id2" docname="footnote_md" ids="d" names="d">
+            <label>
+                5
+            <paragraph>
+                a footnote referenced in a directive
