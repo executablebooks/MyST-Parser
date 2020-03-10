@@ -36,7 +36,7 @@ setup(
     ],
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.6",
-    install_requires=["mistletoe-ebp~=0.10.0a1"],
+    install_requires=["mistletoe-ebp~=0.10.0a2"],
     extras_require={
         "sphinx": ["pyyaml", "docutils>=0.15", "sphinx>=2,<3"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
