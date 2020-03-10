@@ -31,6 +31,8 @@ children:
   - 2
   raw: +++
   type: BlockBreak
+footnotes: {}
+footref_order: []
 front_matter: null
 link_definitions: {}
 type: Document

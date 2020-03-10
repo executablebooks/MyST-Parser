@@ -21,6 +21,7 @@ class JsonRenderer(json.JsonRenderer):
         BlockBreak,
         List,
         block_tokens_ext.Table,
+        block_tokens_ext.Footnote,
         block_tokens.LinkDefinition,
         Paragraph,
     )
@@ -32,6 +33,7 @@ class JsonRenderer(json.JsonRenderer):
         span_tokens.AutoLink,
         Target,
         span_tokens.CoreTokens,
+        span_tokens_ext.FootReference,
         span_tokens_ext.Math,
         # TODO there is no matching core element in docutils for strikethrough
         # span_tokens_ext.Strikethrough,

@@ -34,12 +34,14 @@ def test_walk(json_renderer):
     assert tree == [
         (
             "Paragraph(children=2, position=(1, 1))",
-            "Document(children=2, link_definitions=0, front_matter=None)",
+            "Document(children=2, link_definitions=0, footnotes=0, "
+            "footref_order=0, front_matter=None)",
             1,
         ),
         (
             "Paragraph(children=2, position=(3, 3))",
-            "Document(children=2, link_definitions=0, front_matter=None)",
+            "Document(children=2, link_definitions=0, footnotes=0, "
+            "footref_order=0, front_matter=None)",
             1,
         ),
         ("RawText()", "Paragraph(children=2, position=(1, 1))", 2),

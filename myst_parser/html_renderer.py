@@ -1,5 +1,3 @@
-from textwrap import dedent
-
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers import html as html_renderer
 
@@ -26,6 +24,7 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         BlockBreak,
         List,
         block_tokens_ext.Table,
+        block_tokens_ext.Footnote,
         block_tokens.LinkDefinition,
         Paragraph,
     )
@@ -37,6 +36,7 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         span_tokens.AutoLink,
         Target,
         span_tokens.CoreTokens,
+        span_tokens_ext.FootReference,
         span_tokens_ext.Math,
         # TODO there is no matching core element in docutils for strikethrough
         # span_tokens_ext.Strikethrough,
@@ -61,7 +61,9 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         :param as_standalone: return the HTML body within a minmal HTML page
         :param add_css: if as_standalone=True, CSS to add to the header
         """
-        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
+        super().__init__(
+            find_blocks=find_blocks, find_spans=find_spans, as_standalone=False
+        )
 
         self.mathjax_src = ""
         if add_mathjax:
@@ -70,8 +72,8 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
                 '"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js'
                 '?config=TeX-MML-AM_CHTML"></script>\n'
             )
-        self.as_standalone = as_standalone
-        self.add_css = add_css
+        self._as_standalone = as_standalone
+        self._add_css = add_css
 
     def render_document(self, token):
         """
@@ -85,9 +87,9 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
                 "</div>\n"
             ).format(self.escape_html(token.front_matter.content))
         body = front_matter + super().render_document(token) + self.mathjax_src
-        if not self.as_standalone:
+        if not self._as_standalone:
             return body
-        return minimal_html_page(body, css=self.add_css or "")
+        return html_renderer.minimal_html_page(body, css=self._add_css or "")
 
     def render_code_fence(self, token):
         if token.language and token.language.startswith("{"):
@@ -130,25 +132,3 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         if token.content.startswith("$$"):
             return self.render_raw_text(token)
         return "${}$".format(self.render_raw_text(token))
-
-
-def minimal_html_page(
-    body: str, css: str = "", title: str = "Standalone HTML", lang: str = "en"
-):
-    return dedent(
-        """\
-    <!DOCTYPE html>
-    <html lang="{lang}">
-    <head>
-    <meta charset="utf-8">
-    <title>{title}</title>
-    <style>
-    {css}
-    </style>
-    </head>
-    <body>
-    {body}
-    </body>
-    </html>
-    """
-    ).format(title=title, lang=lang, css=css, body=body)
