@@ -31,6 +31,8 @@ children:
   - 2
   raw: '% comment'
   type: LineComment
+footnotes: {}
+footref_order: []
 front_matter: null
 link_definitions: {}
 type: Document
