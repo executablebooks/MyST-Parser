@@ -269,12 +269,16 @@ def test_cross_referencing(sphinx_renderer, file_regression):
 
 
 def test_comment(renderer_mock):
-    renderer_mock.render(tokenize_main([r"% a comment"])[0])
+    renderer_mock.render(Document.read(["line 1", r"% a comment", "line 2"]))
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
+        <paragraph>
+            line 1
         <comment xml:space="preserve">
             a comment
+        <paragraph>
+            line 2
     """
     )
 

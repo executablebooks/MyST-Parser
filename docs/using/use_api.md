@@ -2,7 +2,13 @@
 
 % TODO eventually this should be wrote as a notebook (with MyST-NB)!
 
-MyST-Parser may be used as an API *via* the `myst_parser` package, see {ref}`api/main` for full details.
+MyST-Parser may be used as an API *via* the `myst_parser` package.
+
+```{seealso}
+% - {ref}`Programmatic Use of Mistletoe <mistletoe:intro/api_use>`
+- {ref}`Programmatic Use of Mistletoe <mistletoe:intro/usage>`
+- {ref}`The MyST-Parser API <api/main>`
+```
 
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.

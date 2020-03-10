@@ -1,6 +1,6 @@
 (example_syntax)=
 
-# Example syntax for MyST
+# The MyST Syntax Guide
 
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
 For this, it uses the {ref}`mistletoe:intro/top-level` parser,
@@ -24,72 +24,241 @@ and further details of a few major extensions from the CommonMark flavor of mark
 
 ## Parsed Token Classes
 
+MyST builds on the tokens defined by mistletoe, to extend the syntax:
+
+- {ref}`Core block tokens <mistletoe:tokens/block>`
+- {ref}`Core span tokens <mistletoe:tokens/span>`
+- {ref}`Extension tokens <mistletoe:tokens/extension>`
+
 Tokens are listed in their order of precedence.
 For more information, also see the [CommonMark Spec](https://spec.commonmark.org/0.28/), which the parser is tested against.
+
+```{seealso}
+{ref}`Token API <api/tokens>`
+```
 
 ### Block Tokens
 
 #### Extended block tokens
 
-- **FrontMatter**: A YAML block at the start of the document enclosed by `---`. See
-  {ref}`syntax/frontmatter` for more information.
-- **Directives**: enclosed in 3 or more backticks followed by the directive name wrapped
+`````{list-table}
+:header-rows: 1
+:widths: 10 20 20
+
+* - Token
+  - Description
+  - Example
+* - FrontMatter
+  - A YAML block at the start of the document enclosed by `---`
+  - ```yaml
+    ---
+    key: value
+    ---
+    ```
+* - Directives
+  - enclosed in 3 or more backticks followed by the directive name wrapped
   in curly brackets `{}`. See {ref}`syntax/directives` for more details.
-- **Math**: Two `$` characters wrapping multi-line math, e.g.
+  - ````md
+    ```{directive}
+    :option: value
 
-  ```latex
-  $$
-  a=1
-  $$
-  ```
-
-- **LineComment**: `% this is a comment`. See {ref}`syntax/comments` for more
-  information.
-- **BlockBreak**: `+++`. See {ref}`syntax/blockbreaks` for more information.
+    content
+    ```
+    ````
+* - Math
+  - Two `$` characters wrapping multi-line math
+  - ```latex
+    $$
+    a=1
+    $$
+    ```
+* - Table
+  - Standard markdown table style, with pipe separation.
+  - ```md
+    | a    | b    |
+    | :--- | ---: |
+    | c    | d    |
+    ```
+* - LineComment
+  - A commented line. See {ref}`syntax/comments` for more information.
+  - ```latex
+    % this is a comment
+    ```
+* - BlockBreak
+  - Define blocks of text. See {ref}`syntax/blockbreaks` for more information.
+  - ```md
+    +++ {"meta": "data"}
+    ```
+* - Footnote
+  - A definition for a referencing footnote, that is placed at the bottom of the document.
+   See {ref}`syntax/footnotes` for more details.
+  - ```md
+    [^ref]: Some footnote text
+    ```
+`````
 
 #### CommonMark tokens
 
-- **HTMLBlock**: Any valid HTML (rendered in HTML output only)
-- **BlockCode**: indented text (4 spaces)
-- **Heading**: `# Heading` (levels 1-6)
-- **SetextHeading**: underlined header (using multiple `=` or `-`)
-- **Quote**: `> this is a quote`
-- **CodeFence**: enclosed in 3 or more backticks with an optional language name. E.g.:
+`````{list-table}
+:header-rows: 1
+:widths: 10 20 20
 
-  ````md
-  ```python
-  print('this is python')
-  ```
-  ````
+* - Token
+  - Description
+  - Example
+* - HTMLBlock
+  - Any valid HTML (rendered in HTML output only)
+  - ```html
+    <p>some text</p>
+    ```
+* - BlockCode
+  - indented text (4 spaces or a tab)
+  - ```md
+        included as literal *text*
+    ```
+* - Heading
+  - Level 1-6 headings, denoted by number of `#`
+  - ```md
+    ### Heading level 3
+    ```
+* - SetextHeading
+  - Underlined header (using multiple `=` or `-`)
+  - ```md
+    Header
+    ======
+    ```
+* - Quote
+  - quoted text
+  - ```md
+    > this is a quote
+    ```
+* - CodeFence
+  - enclosed in 3 or more backticks with an optional language name
+  - ````md
+    ```python
+    print('this is python')
+    ```
+    ````
+* - ThematicBreak
+  - Creates a horizontal line in the output
+  - ```md
+    ---
+    ```
+* - List
+  - bullet points or enumerated.
+  - ```md
+    - item
+      - nested item
+    1. numbered item
+    ```
+* - LinkDefinition
+  -  A substitution for an inline link, which can have a reference target (no spaces), and an optional title (in `"`)
+  - ```md
+    [key]: https://www.google.com "a title"
+    ```
+* - Paragraph
+  - General inline text
+  - ```md
+    any *text*
+    ```
 
-- **ThematicBreak**: `---`
-- **List**: bullet points or enumerated.
-- **Table**: Standard markdown table styles.
-- **LinkDefinition**: A substitution for an inline link (e.g. `[key][name]`), which can have a reference target (no spaces), and an optional title (in `"`), e.g. `[key]: https://www.google.com "a title"`
-- **Paragraph**: General inline text
+`````
 
 ### Span (Inline) Tokens
 
 #### Extended inline tokens
 
-- **Role**: `` `{rolename}`interpreted text` ``. See {ref}`syntax/roles` for more
+`````{list-table}
+:header-rows: 1
+:widths: 10 20 20
+
+* - Token
+  - Description
+  - Example
+* - Role
+  - See {ref}`syntax/roles` for more
   information.
-- **Target**: `(target)=` (precedes element to target, e.g. header). See
+  - ```md
+    `{rolename}`interpreted text`
+    ```
+* - Target
+  - Precedes element to target, e.g. header. See
   {ref}`syntax/targets` for more information.
-- **Math**: `$a=1$` or `$$a=1$$`
+  - ```md
+    (target)=
+    ```
+* - Math
+  - dollar enclosed math
+  - ```latex
+    $a=1$ or $$a=1$$
+    ```
+* - FootReference
+  - Reference a footnote. See {ref}`syntax/footnotes` for more details.
+  - ```md
+    [^abc]
+    ```
+`````
 
 #### CommonMark inline tokens
 
-- **HTMLSpan**: any valid HTML (rendered in HTML output only)
-- **EscapeSequence**: `\*`
-- **AutoLink**: `<http://www.google.com>`
-- **InlineCode**: `` `a=1` ``
-- **LineBreak**: Soft or hard (ends with spaces or `\`)
-- **Image**: `![alt](src "title")`
-- **Link**: `[text](target "title")` or `[text][key]` (key from `Footnote`)
-- **Strong**: `**strong**`
-- **Emphasis**: `*emphasis*`
-- **RawText**
+`````{list-table}
+:header-rows: 1
+:widths: 10 20 20
+
+* - Token
+  - Description
+  - Example
+* - HTMLSpan
+  - any valid HTML (rendered in HTML output only)
+  - ```html
+    <p>some text</p>
+    ```
+* - EscapeSequence
+  - escaped symbols (to avoid them being interpreted as other syntax elements)
+  - ```md
+    \*
+    ```
+* - AutoLink
+  - link that is shown in final output
+  - ```md
+    <http://www.google.com>
+    ```
+* - InlineCode
+  - literal text
+  - ```md
+    `a=1`
+    ```
+* - LineBreak
+  - Soft or hard (ends with spaces or \)
+  - ```md
+    A hard break\
+    ```
+* - Image
+  - link to an image
+  - ```md
+    ![alt](src "title")
+    ```
+* - Link
+  - Reference `LinkDefinitions`
+  - ```md
+    [text](target "title") or [text][key]
+    ```
+* - Strong
+  - bold text
+  - ```md
+    **strong**
+    ```
+* - Emphasis
+  - italic text
+  - ```md
+    *emphasis*
+    ```
+* - RawText
+  - any text
+  - ```md
+    any text
+    ```
+`````
 
 (syntax/directives)=
 
@@ -456,6 +625,22 @@ Is below, but it won't be parsed into the document.
 
 % my comment
 
+````{important}
+Since comments are a block level entity, they will terminate the previous block.
+In practical terms, this means that the following lines
+will be broken up into two paragraphs, resulting in a new line between them:
+
+```
+a line
+% a comment
+another line
+```
+
+a line
+% a comment
+another line
+````
+
 (syntax/blockbreaks)=
 
 ### Block Breaks
@@ -519,3 +704,61 @@ is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/mas
 
 Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
 this page: [my text](example_syntax).
+
+(syntax/footnotes)=
+
+### Footnotes
+
+Footnote labels can be any alpha-numeric string (no spaces), and are case-insensitive.
+The actual label is not displayed in the rendered text; instead they are numbered,
+in the order which they are referenced.
+All footnote definitions are collected, and displayed at the bottom of the page
+(ordered by number).
+Note that un-referenced footnote definitions will not be displayed.
+
+```md
+This is a footnote reference.[^myref]
+
+[^myref]: This is the footnote definition.
+```
+
+This is a footnote reference.[^myref]
+
+[^myref]: This is the footnote definition.
+
+````{important}
+Although footnote references can be used just fine within directives, e.g.[^myref],
+it it recommended that footnote definitions are not set within directives,
+unless they will only be referenced within that same directive:
+
+```md
+[^other]
+
+[^other]: A definition within a directive
+```
+
+[^other]
+
+[^other]: A definition within a directive
+
+This is because, in the current implementation, they may not be available to
+reference in text above that particular directive.
+````
+
+````{note}
+Currently, footnote definitions may only be on a single line.
+However, it is intended in an update to come, that any preceding text which is
+indented by four or more spaces, will also be included in the footnote definition, e.g.
+
+```md
+[^myref]: This is the footnote definition.
+
+    That continues for all indented lines
+
+    Plus any precding unindented lines,
+that are not separated by a blank line
+
+This is not part of the footnote.
+```
+
+````

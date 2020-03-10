@@ -5,8 +5,8 @@ MyST documents.
 
 ```{toctree}
 install.md
-sphinx.md
 syntax.md
+sphinx.md
 benchmark.md
 use_api.md
 ```
