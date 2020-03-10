@@ -1,4 +1,7 @@
+from typing import Optional
+
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
+from mistletoe.parse_context import ParseContext
 from mistletoe.renderers import html as html_renderer
 
 from myst_parser.block_tokens import LineComment, BlockBreak, Quote, Paragraph, List
@@ -47,23 +50,25 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
 
     def __init__(
         self,
-        find_blocks=None,
-        find_spans=None,
+        parse_context: Optional[ParseContext] = None,
         add_mathjax=False,
         as_standalone=False,
         add_css=None,
     ):
         """Intitalise HTML renderer
 
-        :param find_blocks: override the default block tokens (classes or class paths)
-        :param find_spans: override the default span tokens (classes or class paths)
+        :param parse_context: the parse context stores global parsing variables,
+            such as the block/span tokens to search for,
+            and link/footnote definitions that have been collected.
+            If None, a new context will be instatiated, with the default
+            block/span tokens for this renderer.
+            These will be re-instatiated on ``__enter__``.
+        :type parse_context: mistletoe.parse_context.ParseContext
         :param add_mathjax: add the mathjax CDN
         :param as_standalone: return the HTML body within a minmal HTML page
         :param add_css: if as_standalone=True, CSS to add to the header
         """
-        super().__init__(
-            find_blocks=find_blocks, find_spans=find_spans, as_standalone=False
-        )
+        super().__init__(parse_context=parse_context, as_standalone=False)
 
         self.mathjax_src = ""
         if add_mathjax:

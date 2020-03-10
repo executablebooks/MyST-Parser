@@ -20,7 +20,7 @@ import yaml
 
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
 from mistletoe.renderers.base import BaseRenderer
-from mistletoe.parse_context import get_parse_context
+from mistletoe.parse_context import get_parse_context, ParseContext
 
 from myst_parser import block_tokens as myst_block_tokens
 from myst_parser import span_tokens as myst_span_tokens
@@ -71,8 +71,7 @@ class DocutilsRenderer(BaseRenderer):
         document: Optional[nodes.document] = None,
         current_node: Optional[nodes.Element] = None,
         config: Optional[dict] = None,
-        find_blocks=None,
-        find_spans=None,
+        parse_context: Optional[ParseContext] = None,
     ):
         """Initialise the renderer.
 
@@ -80,8 +79,13 @@ class DocutilsRenderer(BaseRenderer):
         :param current_node: The root node from which to begin populating
             (default is document, or should be an ancestor of document)
         :param config: contains configuration specific to the rendering process
-        :param find_blocks: override the default block tokens (classes or class paths)
-        :param find_spans: override the default span tokens (classes or class paths)
+        :param parse_context: the parse context stores global parsing variables,
+            such as the block/span tokens to search for,
+            and link/footnote definitions that have been collected.
+            If None, a new context will be instatiated, with the default
+            block/span tokens for this renderer.
+            These will be re-instatiated on ``__enter__``.
+        :type parse_context: mistletoe.parse_context.ParseContext
         """
         self.config = config or {}
         self.document = document or self.new_document()  # type: nodes.document
@@ -91,7 +95,7 @@ class DocutilsRenderer(BaseRenderer):
         get_language(self.language_module)
         self._level_to_elem = {0: self.document}
 
-        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
+        super().__init__(parse_context=parse_context)
 
     def new_document(self, source_path="notset") -> nodes.document:
         """Create a new docutils document."""
@@ -133,7 +137,6 @@ class DocutilsRenderer(BaseRenderer):
         self.current_node = current_node
 
     def render_document(self, token: block_tokens.Document):
-        self.link_definitions.update(token.link_definitions)
         if token.front_matter:
             self.render_front_matter(token.front_matter)
         self.render_children(token)
@@ -141,12 +144,12 @@ class DocutilsRenderer(BaseRenderer):
         if getattr(token, "is_nested", False):
             # if the document is nested in another, we don't want to output footnotes
             return self.document
-
         # we use the footnotes stored in the global context,
         # rather than those stored on the document,
         # since additional references may have been made in nested parses
         foot_refs = get_parse_context().foot_references
         footnotes = get_parse_context().foot_definitions
+
         if foot_refs:
             self.current_node.append(nodes.transition())
         for footref in foot_refs:
@@ -589,7 +592,7 @@ class DocutilsRenderer(BaseRenderer):
             )
         else:
             state_machine = MockStateMachine(self, token.position[0])
-            state = MockState(self, state_machine, token.position[0])
+            state = MockState(self, state_machine, token.position[0], token=token)
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
@@ -846,10 +849,15 @@ class MockState:
     """
 
     def __init__(
-        self, renderer: DocutilsRenderer, state_machine: "MockStateMachine", lineno: int
+        self,
+        renderer: DocutilsRenderer,
+        state_machine: "MockStateMachine",
+        lineno: int,
+        token=None,
     ):
         self._renderer = renderer
         self._lineno = lineno
+        self._token = token
         self.document = renderer.document
         self.state_machine = state_machine
 
@@ -883,8 +891,14 @@ class MockState:
         # TODO return messages?
         messages = []
         paragraph = nodes.paragraph("")
+        # here we instatiate a new renderer,
+        # so that the nested parse does not effect the current renderer,
+        # but we use the same global parse context, so that link references, etc
+        # are added to the global parse.
         renderer = self._renderer.__class__(
-            document=self.document, current_node=paragraph
+            document=self.document,
+            current_node=paragraph,
+            parse_context=get_parse_context(),
         )
         doc_token = myst_block_tokens.Document.read(
             text, start_line=self._lineno, front_matter=False, reset_definitions=False
