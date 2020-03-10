@@ -375,6 +375,31 @@ def test_link_def_in_directive(renderer):
     )
 
 
+def test_link_def_in_directive_nested(renderer, file_regression):
+    # TODO document or 'fix' the fact that [ref2] here isn't resolved
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            ```{note}
+            [ref1]: link
+            ```
+
+            ```{note}
+            [ref1]
+            [ref2]
+            ```
+
+            ```{note}
+            [ref2]: link
+            ```
+            """
+            )
+        )
+    )
+    file_regression.check(renderer.document.pformat(), extension=".xml")
+
+
 def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\
