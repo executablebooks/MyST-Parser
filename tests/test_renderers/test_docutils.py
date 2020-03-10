@@ -349,6 +349,32 @@ def test_block_quotes(renderer):
     )
 
 
+def test_link_def_in_directive(renderer):
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            ```{note}
+            [a]
+            ```
+
+            [a]: link
+            """
+            )
+        )
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="notset">
+        <note>
+            <paragraph>
+                <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="any" refwarn="True">
+                    <literal classes="xref any">
+                        a
+    """  # noqa: E501
+    )
+
+
 def test_full_run(sphinx_renderer, file_regression):
     string = dedent(
         """\

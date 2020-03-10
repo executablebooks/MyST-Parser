@@ -106,7 +106,7 @@ class DocutilsRenderer(BaseRenderer):
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
         token = myst_block_tokens.Document.read(
-            text, start_line=lineno, front_matter=True
+            text, start_line=lineno, front_matter=True, reset_definitions=False
         )
         # TODO think if this is the best way: here we consume front matter,
         # but then remove it. this is for example if includes have front matter
@@ -836,7 +836,10 @@ class MockState:
         )
         renderer.render(
             myst_block_tokens.Document.read(
-                text, start_line=self._lineno, front_matter=False
+                text,
+                start_line=self._lineno,
+                front_matter=False,
+                reset_definitions=False,
             )
         )
         textnodes = []
