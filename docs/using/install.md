@@ -1,5 +1,8 @@
 # Installing the MyST Parser
 
+[![PyPI][pypi-badge]][pypi-link]
+[![Conda][conda-badge]][conda-link]
+
 Installing the MyST parser provides access to two tools:
 
 * A MyST-to-docutils parser and renderer.
@@ -26,3 +29,8 @@ cd MyST-Parser
 git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
 ```
+
+[pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg
+[pypi-link]: https://pypi.org/project/myst-parser
+[conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
+[conda-link]: https://anaconda.org/conda-forge/myst-parser
