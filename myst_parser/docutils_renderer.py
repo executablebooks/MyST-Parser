@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from contextlib import contextmanager
 import copy
 from os.path import splitext
@@ -144,11 +145,21 @@ class DocutilsRenderer(BaseRenderer):
         if getattr(token, "is_nested", False):
             # if the document is nested in another, we don't want to output footnotes
             return self.document
+
         # we use the footnotes stored in the global context,
         # rather than those stored on the document,
         # since additional references may have been made in nested parses
-        foot_refs = get_parse_context().foot_references
         footnotes = get_parse_context().foot_definitions
+
+        # we don't use the foot_references stored on the global context,
+        # since references within directives/roles will have been added after
+        # those from the initial markdown parse
+        # instead we gather them from a walk of the created document
+        # foot_refs = get_parse_context().foot_references
+        foot_refs = OrderedDict()
+        for refnode in self.document.traverse(nodes.footnote_reference):
+            if refnode["refname"] not in foot_refs:
+                foot_refs[refnode["refname"]] = True
 
         if foot_refs:
             self.current_node.append(nodes.transition())
