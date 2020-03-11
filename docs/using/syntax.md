@@ -229,7 +229,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
     `a=1`
     ```
 * - LineBreak
-  - Soft or hard (ends with spaces or \)
+  - Soft or hard (ends with spaces or backslash)
   - ```md
     A hard break\
     ```
@@ -709,7 +709,8 @@ this page: [my text](example_syntax).
 
 ### Footnotes
 
-Footnote labels can be any alpha-numeric string (no spaces), and are case-insensitive.
+Footnote labels **start with `^`** and can then be any alpha-numeric string (no spaces),
+which is case-insensitive.
 The actual label is not displayed in the rendered text; instead they are numbered,
 in the order which they are referenced.
 All footnote definitions are collected, and displayed at the bottom of the page
@@ -719,12 +720,12 @@ Note that un-referenced footnote definitions will not be displayed.
 ```md
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote definition.
+[^myref]: This **is** the footnote definition.
 ```
 
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote definition.
+[^myref]: This **is** the footnote definition.
 
 ````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
