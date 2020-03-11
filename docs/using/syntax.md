@@ -229,7 +229,7 @@ For more information, also see the [CommonMark Spec](https://spec.commonmark.org
     `a=1`
     ```
 * - LineBreak
-  - Soft or hard (ends with spaces or \)
+  - Soft or hard (ends with spaces or backslash)
   - ```md
     A hard break\
     ```
