@@ -720,12 +720,12 @@ Note that un-referenced footnote definitions will not be displayed.
 ```md
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote definition.
+[^myref]: This **is** the footnote definition.
 ```
 
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote definition.
+[^myref]: This **is** the footnote definition.
 
 ````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
