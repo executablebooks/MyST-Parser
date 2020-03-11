@@ -625,6 +625,22 @@ Is below, but it won't be parsed into the document.
 
 % my comment
 
+````{important}
+Since comments are a block level entity, they will terminate the previous block.
+In practical terms, this means that the following lines
+will be broken up into two paragraphs, resulting in a new line between them:
+
+```
+a line
+% a comment
+another line
+```
+
+a line
+% a comment
+another line
+````
+
 (syntax/blockbreaks)=
 
 ### Block Breaks
@@ -696,9 +712,35 @@ this page: [my text](example_syntax).
 ```md
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote text
+[^myref]: This is the footnote definition.
 ```
 
 This is a footnote reference.[^myref]
 
-[^myref]: This is the footnote text.
+[^myref]: This is the footnote definition.
+
+```{important}
+Although footnote references can be used just fine within directives, e.g.[^myref],
+it it recommended that footnote definitions are not set here.
+
+This is because, in the current implementation, they may not be available to
+reference in text above that particular directive.
+```
+
+````{note}
+Currently, footnote definitions may only be on a single line.
+However, it is intended in an update to come, that any preceding text which is
+indented by four or more spaces, will also be included in the footnote definition, e.g.
+
+```md
+[^myref]: This is the footnote definition.
+
+    That continues for all indented lines
+
+    Plus any precding unindented lines,
+that are not separated by a blank line
+
+This is not part of the footnote.
+```
+
+````

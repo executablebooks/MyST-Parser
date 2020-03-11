@@ -5,7 +5,8 @@
 MyST-Parser may be used as an API *via* the `myst_parser` package.
 
 ```{seealso}
-- {ref}`Programmatic Use of Mistletoe <mistletoe:intro/api_use>`
+% - {ref}`Programmatic Use of Mistletoe <mistletoe:intro/api_use>`
+- {ref}`Programmatic Use of Mistletoe <mistletoe:intro/usage>`
 - {ref}`The MyST-Parser API <api/main>`
 ```
 
