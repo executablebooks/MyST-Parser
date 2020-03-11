@@ -1,4 +1,4 @@
-# Parsing MyST with the Sphinx Document Generator
+# Parsing MyST with Sphinx
 
 Sphinx is a documentation generator for building a website or book from multiple source documents and assets. To get started with Sphinx, see their [Quickstart Guide](https://www.sphinx-doc.org/en/master/usage/quickstart.html).
 

@@ -709,6 +709,13 @@ this page: [my text](example_syntax).
 
 ### Footnotes
 
+Footnote labels can be any alpha-numeric string (no spaces), and are case-insensitive.
+The actual label is not displayed in the rendered text; instead they are numbered,
+in the order which they are referenced.
+All footnote definitions are collected, and displayed at the bottom of the page
+(ordered by number).
+Note that un-referenced footnote definitions will not be displayed.
+
 ```md
 This is a footnote reference.[^myref]
 
@@ -719,13 +726,24 @@ This is a footnote reference.[^myref]
 
 [^myref]: This is the footnote definition.
 
-```{important}
+````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
-it it recommended that footnote definitions are not set here.
+it it recommended that footnote definitions are not set within directives,
+unless they will only be referenced within that same directive:
+
+```md
+[^other]
+
+[^other]: A definition within a directive
+```
+
+[^other]
+
+[^other]: A definition within a directive
 
 This is because, in the current implementation, they may not be available to
 reference in text above that particular directive.
-```
+````
 
 ````{note}
 Currently, footnote definitions may only be on a single line.
