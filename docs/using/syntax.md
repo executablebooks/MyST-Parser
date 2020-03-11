@@ -709,7 +709,8 @@ this page: [my text](example_syntax).
 
 ### Footnotes
 
-Footnote labels can be any alpha-numeric string (no spaces), and are case-insensitive.
+Footnote labels **start with `^`** and can then be any alpha-numeric string (no spaces),
+which is case-insensitive.
 The actual label is not displayed in the rendered text; instead they are numbered,
 in the order which they are referenced.
 All footnote definitions are collected, and displayed at the bottom of the page
