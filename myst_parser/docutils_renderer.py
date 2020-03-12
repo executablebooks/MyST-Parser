@@ -20,6 +20,7 @@ from docutils.utils import new_document, Reporter
 import yaml
 
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
+from mistletoe.base_elements import SourceLines
 from mistletoe.renderers.base import BaseRenderer
 from mistletoe.parse_context import get_parse_context, ParseContext
 
@@ -113,8 +114,10 @@ class DocutilsRenderer(BaseRenderer):
 
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
+        # TODO propogate SourceLines metadata from parent document
+        lines = SourceLines(text, start_line=lineno, standardize_ends=True)
         doc_token = myst_block_tokens.Document.read(
-            text, start_line=lineno, front_matter=True, reset_definitions=False
+            lines, front_matter=True, reset_definitions=False
         )
         # TODO think if this is the best way: here we consume front matter,
         # but then remove it. this is for example if includes have front matter
@@ -184,7 +187,7 @@ class DocutilsRenderer(BaseRenderer):
 
         """
         try:
-            data = yaml.safe_load(token.content) or {}
+            data = token.get_data()
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             msg_node = self.reporter.error(
                 "Front matter block:\n" + str(error), line=token.position[0]
@@ -911,8 +914,10 @@ class MockState:
             current_node=paragraph,
             parse_context=get_parse_context(),
         )
+        # TODO propogate SourceLines metadata from parent document
+        lines = SourceLines(text, start_line=self._lineno, standardize_ends=True)
         doc_token = myst_block_tokens.Document.read(
-            text, start_line=self._lineno, front_matter=False, reset_definitions=False
+            lines, front_matter=False, reset_definitions=False
         )
         # we mark the token as nested so that footnotes etc aren't rendered
         doc_token.is_nested = True
