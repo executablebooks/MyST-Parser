@@ -107,15 +107,20 @@ class DocutilsRenderer(BaseRenderer):
     def add_line_and_source_path(self, node, token):
         """Copy the line number and document source path to the docutils node."""
         try:
-            node.line = token.position[0] + 1
+            node.line = token.position.line_start + 1
         except (AttributeError, TypeError):
             pass
         node.source = self.document["source"]
 
-    def nested_render_text(self, text: str, lineno: int):
+    def nested_render_text(self, text: str, lineno: int, token):
         """Render unparsed text."""
-        # TODO propogate SourceLines metadata from parent document
-        lines = SourceLines(text, start_line=lineno, standardize_ends=True)
+        lines = SourceLines(
+            text,
+            start_line=lineno,
+            uri=self.document["source"],
+            metadata=token.position.data,
+            standardize_ends=True,
+        )
         doc_token = myst_block_tokens.Document.read(
             lines, front_matter=True, reset_definitions=False
         )
@@ -190,7 +195,7 @@ class DocutilsRenderer(BaseRenderer):
             data = token.get_data()
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             msg_node = self.reporter.error(
-                "Front matter block:\n" + str(error), line=token.position[0]
+                "Front matter block:\n" + str(error), line=token.position.line_start
             )
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
@@ -538,7 +543,7 @@ class DocutilsRenderer(BaseRenderer):
         name = token.role_name
         # TODO role name white/black lists
         try:
-            lineno = token.position[0]
+            lineno = token.position.line_start
         except (AttributeError, TypeError):
             lineno = 0
         inliner = MockInliner(self, lineno)
@@ -565,7 +570,7 @@ class DocutilsRenderer(BaseRenderer):
         name = token.language[1:-1]
         # TODO directive name white/black lists
         content = token.children[0].content
-        self.document.current_line = token.position[0]
+        self.document.current_line = token.position.line_start
 
         # get directive class
         directive_class, messages = directives.directive(
@@ -575,7 +580,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Unknown directive type '{}'\n".format(name),
                 # nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error] + messages
             return
@@ -588,7 +593,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Directive '{}':\n{}".format(name, error),
                 nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error]
             return
@@ -602,11 +607,13 @@ class DocutilsRenderer(BaseRenderer):
                 arguments=arguments,
                 options=options,
                 body=body_lines,
-                lineno=token.position[0],
+                token=token,
             )
         else:
-            state_machine = MockStateMachine(self, token.position[0])
-            state = MockState(self, state_machine, token.position[0], token=token)
+            state_machine = MockStateMachine(self, token.position.line_start)
+            state = MockState(
+                self, state_machine, token.position.line_start, token=token
+            )
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
@@ -616,7 +623,7 @@ class DocutilsRenderer(BaseRenderer):
                 # the directive content line by line
                 content=StringList(body_lines, self.document["source"]),
                 # the absolute line number of the first line of the directive
-                lineno=token.position[0],
+                lineno=token.position.line_start,
                 # the line offset of the first line of the content
                 content_offset=0,  # TODO get content offset from `parse_directive_text`
                 # a string containing the entire directive
@@ -630,7 +637,7 @@ class DocutilsRenderer(BaseRenderer):
             result = directive_instance.run()
         except DirectiveError as error:
             msg_node = self.reporter.system_message(
-                error.level, error.msg, line=token.position[0]
+                error.level, error.msg, line=token.position.line_start
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
@@ -640,7 +647,7 @@ class DocutilsRenderer(BaseRenderer):
                     name, exc.__class__.__name__, exc
                 ),
                 nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error]
             return
@@ -867,7 +874,7 @@ class MockState:
         renderer: DocutilsRenderer,
         state_machine: "MockStateMachine",
         lineno: int,
-        token=None,
+        token,
     ):
         self._renderer = renderer
         self._lineno = lineno
@@ -898,7 +905,9 @@ class MockState:
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
         with self._renderer.current_node_context(node):
-            self._renderer.nested_render_text(block, self._lineno + input_offset)
+            self._renderer.nested_render_text(
+                block, self._lineno + input_offset, token=self._token
+            )
         self.state_machine.match_titles = current_match_titles
 
     def inline_text(self, text: str, lineno: int):
@@ -914,8 +923,13 @@ class MockState:
             current_node=paragraph,
             parse_context=get_parse_context(),
         )
-        # TODO propogate SourceLines metadata from parent document
-        lines = SourceLines(text, start_line=self._lineno, standardize_ends=True)
+        lines = SourceLines(
+            text,
+            start_line=self._lineno,
+            uri=self.document["source"],
+            metadata=self._token.position.data,
+            standardize_ends=True,
+        )
         doc_token = myst_block_tokens.Document.read(
             lines, front_matter=False, reset_definitions=False
         )
@@ -1062,7 +1076,7 @@ class MockIncludeDirective:
         arguments: list,
         options: dict,
         body: List[str],
-        lineno: int,
+        token,
     ):
         self.renderer = renderer
         self.document = renderer.document
@@ -1071,7 +1085,8 @@ class MockIncludeDirective:
         self.arguments = arguments
         self.options = options
         self.body = body
-        self.lineno = lineno
+        self.lineno = token.position.line_start
+        self.token = token
 
     def run(self):
 
@@ -1163,7 +1178,7 @@ class MockIncludeDirective:
         if "code" in self.options:
             self.options["source"] = str(path)
             state_machine = MockStateMachine(self.renderer, self.lineno)
-            state = MockState(self.renderer, state_machine, self.lineno)
+            state = MockState(self.renderer, state_machine, self.lineno, self.token)
             codeblock = CodeBlock(
                 name=self.name,
                 arguments=[self.options.pop("code")],
@@ -1186,7 +1201,7 @@ class MockIncludeDirective:
             self.renderer.document["source"] = str(path)
             self.renderer.reporter.source = str(path)
             self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
-            self.renderer.nested_render_text(file_content, startline)
+            self.renderer.nested_render_text(file_content, startline, token=self.token)
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource
