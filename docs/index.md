@@ -2,6 +2,7 @@ MyST - Markedly Structured Text
 ===============================
 
 MyST is a markdown flavor that implements the best parts of reStructuredText.
+It provides a way to call Sphinx directives and roles from within Markdown.
 It is a *slight* extension of CommonMark markdown.
 
 This project provides a parser for this flavor of markdown, as well as a bridge between
