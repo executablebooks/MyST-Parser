@@ -3,21 +3,29 @@ children:
   - children:
     - content: '%'
       position:
-      - 1
-      - 1
+        data: {}
+        line_end: 1
+        line_start: 1
+        uri: null
       type: RawText
     position:
-    - 1
-    - 1
+      data: {}
+      line_end: 1
+      line_start: 1
+      uri: null
     type: EscapeSequence
   - content: ' comment'
     position:
-    - 1
-    - 1
+      data: {}
+      line_end: 1
+      line_start: 1
+      uri: null
     type: RawText
   position:
-  - 1
-  - 1
+    data: {}
+    line_end: 1
+    line_start: 1
+    uri: null
   type: Paragraph
 footnotes: {}
 footref_order: []

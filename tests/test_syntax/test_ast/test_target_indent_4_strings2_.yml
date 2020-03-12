@@ -4,13 +4,17 @@ children:
 
       '
     position:
-    - 0
-    - 1
+      data: {}
+      line_end: 1
+      line_start: 0
+      uri: null
     type: RawText
   language: ''
   position:
-  - 0
-  - 1
+    data: {}
+    line_end: 1
+    line_start: 0
+    uri: null
   type: BlockCode
 footnotes: {}
 footref_order: []

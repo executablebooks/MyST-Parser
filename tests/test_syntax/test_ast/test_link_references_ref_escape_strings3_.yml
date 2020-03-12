@@ -2,32 +2,44 @@ children:
 - children:
   - content: '[ref]'
     position:
-    - 1
-    - 1
+      data: {}
+      line_end: 1
+      line_start: 1
+      uri: null
     type: RawText
   position:
-  - 1
-  - 1
+    data: {}
+    line_end: 1
+    line_start: 1
+    uri: null
   type: Paragraph
 - children:
   - children:
     - content: '['
       position:
-      - 3
-      - 3
+        data: {}
+        line_end: 3
+        line_start: 3
+        uri: null
       type: RawText
     position:
-    - 3
-    - 3
+      data: {}
+      line_end: 3
+      line_start: 3
+      uri: null
     type: EscapeSequence
   - content: 'ref]: https://google.com "title"'
     position:
-    - 3
-    - 3
+      data: {}
+      line_end: 3
+      line_start: 3
+      uri: null
     type: RawText
   position:
-  - 3
-  - 3
+    data: {}
+    line_end: 3
+    line_start: 3
+    uri: null
   type: Paragraph
 footnotes: {}
 footref_order: []
