@@ -1,4 +1,4 @@
-__version__ = "0.6.0a2"
+__version__ = "0.6.0a3"
 
 
 def text_to_tokens(text: str):
