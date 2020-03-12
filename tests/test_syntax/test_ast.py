@@ -20,7 +20,7 @@ def test_render_tokens():
     assert root.children, root.children
 
 
-def test_walk(json_renderer):
+def test_walk(json_renderer, data_regression):
     doc = Document.read(
         dedent(
             """\
@@ -31,25 +31,7 @@ def test_walk(json_renderer):
         )
     )
     tree = [(repr(t.node), repr(t.parent), t.depth) for t in doc.walk()]
-    assert tree == [
-        (
-            "Paragraph(children=2, position=(1, 1))",
-            "Document(children=2, link_definitions=0, front_matter=None)",
-            1,
-        ),
-        (
-            "Paragraph(children=2, position=(3, 3))",
-            "Document(children=2, link_definitions=0, front_matter=None)",
-            1,
-        ),
-        ("RawText()", "Paragraph(children=2, position=(1, 1))", 2),
-        ("Strong(children=1)", "Paragraph(children=2, position=(1, 1))", 2),
-        ("RawText()", "Paragraph(children=2, position=(3, 3))", 2),
-        ("Link(target='link', title='')", "Paragraph(children=2, position=(3, 3))", 2),
-        ("RawText()", "Strong(children=1)", 3),
-        ("Emphasis(children=1)", "Link(target='link', title='')", 3),
-        ("RawText()", "Emphasis(children=1)", 4),
-    ]
+    data_regression.check(tree)
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,7 @@
-from textwrap import dedent
+from typing import Optional
 
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
+from mistletoe.parse_context import ParseContext
 from mistletoe.renderers import html as html_renderer
 
 from myst_parser.block_tokens import LineComment, BlockBreak, Quote, Paragraph, List
@@ -26,6 +27,7 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         BlockBreak,
         List,
         block_tokens_ext.Table,
+        block_tokens_ext.Footnote,
         block_tokens.LinkDefinition,
         Paragraph,
     )
@@ -37,6 +39,7 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         span_tokens.AutoLink,
         Target,
         span_tokens.CoreTokens,
+        span_tokens_ext.FootReference,
         span_tokens_ext.Math,
         # TODO there is no matching core element in docutils for strikethrough
         # span_tokens_ext.Strikethrough,
@@ -47,21 +50,25 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
 
     def __init__(
         self,
-        find_blocks=None,
-        find_spans=None,
+        parse_context: Optional[ParseContext] = None,
         add_mathjax=False,
         as_standalone=False,
         add_css=None,
     ):
         """Intitalise HTML renderer
 
-        :param find_blocks: override the default block tokens (classes or class paths)
-        :param find_spans: override the default span tokens (classes or class paths)
+        :param parse_context: the parse context stores global parsing variables,
+            such as the block/span tokens to search for,
+            and link/footnote definitions that have been collected.
+            If None, a new context will be instatiated, with the default
+            block/span tokens for this renderer.
+            These will be re-instatiated on ``__enter__``.
+        :type parse_context: mistletoe.parse_context.ParseContext
         :param add_mathjax: add the mathjax CDN
         :param as_standalone: return the HTML body within a minmal HTML page
         :param add_css: if as_standalone=True, CSS to add to the header
         """
-        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
+        super().__init__(parse_context=parse_context, as_standalone=False)
 
         self.mathjax_src = ""
         if add_mathjax:
@@ -70,8 +77,8 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
                 '"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js'
                 '?config=TeX-MML-AM_CHTML"></script>\n'
             )
-        self.as_standalone = as_standalone
-        self.add_css = add_css
+        self._as_standalone = as_standalone
+        self._add_css = add_css
 
     def render_document(self, token):
         """
@@ -85,9 +92,9 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
                 "</div>\n"
             ).format(self.escape_html(token.front_matter.content))
         body = front_matter + super().render_document(token) + self.mathjax_src
-        if not self.as_standalone:
+        if not self._as_standalone:
             return body
-        return minimal_html_page(body, css=self.add_css or "")
+        return html_renderer.minimal_html_page(body, css=self._add_css or "")
 
     def render_code_fence(self, token):
         if token.language and token.language.startswith("{"):
@@ -130,25 +137,3 @@ class HTMLRenderer(html_renderer.HTMLRenderer):
         if token.content.startswith("$$"):
             return self.render_raw_text(token)
         return "${}$".format(self.render_raw_text(token))
-
-
-def minimal_html_page(
-    body: str, css: str = "", title: str = "Standalone HTML", lang: str = "en"
-):
-    return dedent(
-        """\
-    <!DOCTYPE html>
-    <html lang="{lang}">
-    <head>
-    <meta charset="utf-8">
-    <title>{title}</title>
-    <style>
-    {css}
-    </style>
-    </head>
-    <body>
-    {body}
-    </body>
-    </html>
-    """
-    ).format(title=title, lang=lang, css=css, body=body)

@@ -269,12 +269,16 @@ def test_cross_referencing(sphinx_renderer, file_regression):
 
 
 def test_comment(renderer_mock):
-    renderer_mock.render(tokenize_main([r"% a comment"])[0])
+    renderer_mock.render(Document.read(["line 1", r"% a comment", "line 2"]))
     assert renderer_mock.document.pformat() == dedent(
         """\
     <document source="notset">
+        <paragraph>
+            line 1
         <comment xml:space="preserve">
             a comment
+        <paragraph>
+            line 2
     """
     )
 
@@ -345,6 +349,85 @@ def test_block_quotes(renderer):
                 a
                 <strong>
                     b
+    """
+    )
+
+
+def test_link_def_in_directive(renderer):
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            ```{note}
+            [a]
+            ```
+
+            [a]: link
+            """
+            )
+        )
+    )
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="notset">
+        <note>
+            <paragraph>
+                <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="any" refwarn="True">
+                    <literal classes="xref any">
+                        a
+    """  # noqa: E501
+    )
+
+
+def test_link_def_in_directive_nested(renderer, file_regression):
+    # TODO document or 'fix' the fact that [ref2] here isn't resolved
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            ```{note}
+            [ref1]: link
+            ```
+
+            ```{note}
+            [ref1]
+            [ref2]
+            ```
+
+            ```{note}
+            [ref2]: link
+            ```
+            """
+            )
+        )
+    )
+    file_regression.check(renderer.document.pformat(), extension=".xml")
+
+
+def test_footnotes(renderer):
+    renderer.render(
+        Document.read(
+            dedent(
+                """\
+            [^a]
+
+            [^a]: footnote*text*
+            """
+            )
+        )
+    )
+    print(renderer.document.pformat())
+    assert renderer.document.pformat() == dedent(
+        """\
+    <document source="notset">
+        <paragraph>
+            <footnote_reference auto="1" ids="id1" refname="a">
+        <transition>
+        <footnote auto="1" ids="a" names="a">
+            <paragraph>
+                footnote
+                <emphasis>
+                    text
     """
     )
 

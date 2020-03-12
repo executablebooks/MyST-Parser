@@ -4,23 +4,33 @@ children:
     - children:
       - content: syntax
         position:
-        - 1
-        - 1
+          data: {}
+          line_end: 1
+          line_start: 1
+          uri: null
         type: RawText
       position:
-      - 1
-      - 1
+        data: {}
+        line_end: 1
+        line_start: 1
+        uri: null
       type: Emphasis
     position:
-    - 1
-    - 1
+      data: {}
+      line_end: 1
+      line_start: 1
+      uri: null
     target: https://google.com
     title: title
     type: Link
   position:
-  - 1
-  - 1
+    data: {}
+    line_end: 1
+    line_start: 1
+    uri: null
   type: Paragraph
+footnotes: {}
+footref_order: []
 front_matter: null
 link_definitions:
   '*syntax*':

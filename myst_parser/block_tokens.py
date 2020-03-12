@@ -9,7 +9,7 @@ from mistletoe.attr_doc import autodoc
 
 
 @autodoc
-@attr.s(slots=True, kw_only=True)
+@attr.s(slots=False, kw_only=True)
 class Document(block_tokens.Document):
     """Document token."""
 

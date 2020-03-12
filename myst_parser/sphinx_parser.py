@@ -1,8 +1,12 @@
 from docutils import frontend, nodes
 from sphinx.parsers import Parser
+from sphinx.util import logging
 
+from mistletoe.base_elements import SourceLines
 from myst_parser.docutils_renderer import SphinxRenderer
 from myst_parser.block_tokens import Document
+
+SPHINX_LOGGER = logging.getLogger(__name__)
 
 
 class MystParser(Parser):
@@ -175,6 +179,10 @@ class MystParser(Parser):
             pass
         renderer = SphinxRenderer(document=document)
         with renderer:
-            # TODO capture parsing errors and report via docutils/sphinx
-            doc = Document.read(inputstring)
+            # Log to sphinx (e.g. to warn of duplicate link/footnote definitions)
+            renderer.parse_context.logger = SPHINX_LOGGER
+            lines = SourceLines(
+                inputstring, uri=document["source"], standardize_ends=True
+            )
+            doc = Document.read(lines)
             renderer.render(doc)

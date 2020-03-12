@@ -1,11 +1,15 @@
 children: []
+footnotes: {}
+footref_order: []
 front_matter:
   content: 'a: b
 
     '
   position:
-  - 0
-  - 3
+    data: {}
+    line_end: 3
+    line_start: 1
+    uri: null
   type: FrontMatter
 link_definitions: {}
 type: Document

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from contextlib import contextmanager
 import copy
 from os.path import splitext
@@ -19,7 +20,9 @@ from docutils.utils import new_document, Reporter
 import yaml
 
 from mistletoe import block_tokens, block_tokens_ext, span_tokens, span_tokens_ext
+from mistletoe.base_elements import SourceLines
 from mistletoe.renderers.base import BaseRenderer
+from mistletoe.parse_context import get_parse_context, ParseContext
 
 from myst_parser import block_tokens as myst_block_tokens
 from myst_parser import span_tokens as myst_span_tokens
@@ -44,6 +47,7 @@ class DocutilsRenderer(BaseRenderer):
         myst_block_tokens.BlockBreak,
         myst_block_tokens.List,
         block_tokens_ext.Table,
+        block_tokens_ext.Footnote,
         block_tokens.LinkDefinition,
         myst_block_tokens.Paragraph,
     )
@@ -55,6 +59,7 @@ class DocutilsRenderer(BaseRenderer):
         span_tokens.AutoLink,
         myst_span_tokens.Target,
         span_tokens.CoreTokens,
+        span_tokens_ext.FootReference,
         span_tokens_ext.Math,
         # TODO there is no matching core element in docutils for strikethrough
         # span_tokens_ext.Strikethrough,
@@ -68,8 +73,7 @@ class DocutilsRenderer(BaseRenderer):
         document: Optional[nodes.document] = None,
         current_node: Optional[nodes.Element] = None,
         config: Optional[dict] = None,
-        find_blocks=None,
-        find_spans=None,
+        parse_context: Optional[ParseContext] = None,
     ):
         """Initialise the renderer.
 
@@ -77,8 +81,13 @@ class DocutilsRenderer(BaseRenderer):
         :param current_node: The root node from which to begin populating
             (default is document, or should be an ancestor of document)
         :param config: contains configuration specific to the rendering process
-        :param find_blocks: override the default block tokens (classes or class paths)
-        :param find_spans: override the default span tokens (classes or class paths)
+        :param parse_context: the parse context stores global parsing variables,
+            such as the block/span tokens to search for,
+            and link/footnote definitions that have been collected.
+            If None, a new context will be instatiated, with the default
+            block/span tokens for this renderer.
+            These will be re-instatiated on ``__enter__``.
+        :type parse_context: mistletoe.parse_context.ParseContext
         """
         self.config = config or {}
         self.document = document or self.new_document()  # type: nodes.document
@@ -88,7 +97,7 @@ class DocutilsRenderer(BaseRenderer):
         get_language(self.language_module)
         self._level_to_elem = {0: self.document}
 
-        super().__init__(find_blocks=find_blocks, find_spans=find_spans)
+        super().__init__(parse_context=parse_context)
 
     def new_document(self, source_path="notset") -> nodes.document:
         """Create a new docutils document."""
@@ -98,20 +107,29 @@ class DocutilsRenderer(BaseRenderer):
     def add_line_and_source_path(self, node, token):
         """Copy the line number and document source path to the docutils node."""
         try:
-            node.line = token.position[0] + 1
+            node.line = token.position.line_start + 1
         except (AttributeError, TypeError):
             pass
         node.source = self.document["source"]
 
-    def nested_render_text(self, text: str, lineno: int):
+    def nested_render_text(self, text: str, lineno: int, token):
         """Render unparsed text."""
-        token = myst_block_tokens.Document.read(
-            text, start_line=lineno, front_matter=True
+        lines = SourceLines(
+            text,
+            start_line=lineno,
+            uri=self.document["source"],
+            metadata=token.position.data,
+            standardize_ends=True,
+        )
+        doc_token = myst_block_tokens.Document.read(
+            lines, front_matter=True, reset_definitions=False
         )
         # TODO think if this is the best way: here we consume front matter,
         # but then remove it. this is for example if includes have front matter
-        token.front_matter = None
-        self.render(token)
+        doc_token.front_matter = None
+        # we mark the token as nested so that footnotes etc aren't rendered
+        doc_token.is_nested = True
+        self.render(doc_token)
 
     def render_children(self, token):
         for child in token.children:
@@ -127,11 +145,36 @@ class DocutilsRenderer(BaseRenderer):
         yield
         self.current_node = current_node
 
-    def render_document(self, token):
-        self.link_definitions.update(token.link_definitions)
+    def render_document(self, token: block_tokens.Document):
         if token.front_matter:
             self.render_front_matter(token.front_matter)
         self.render_children(token)
+
+        if getattr(token, "is_nested", False):
+            # if the document is nested in another, we don't want to output footnotes
+            return self.document
+
+        # we use the footnotes stored in the global context,
+        # rather than those stored on the document,
+        # since additional references may have been made in nested parses
+        footnotes = get_parse_context().foot_definitions
+
+        # we don't use the foot_references stored on the global context,
+        # since references within directives/roles will have been added after
+        # those from the initial markdown parse
+        # instead we gather them from a walk of the created document
+        # foot_refs = get_parse_context().foot_references
+        foot_refs = OrderedDict()
+        for refnode in self.document.traverse(nodes.footnote_reference):
+            if refnode["refname"] not in foot_refs:
+                foot_refs[refnode["refname"]] = True
+
+        if foot_refs:
+            self.current_node.append(nodes.transition())
+        for footref in foot_refs:
+            if footref in footnotes:
+                self.render_footnote(footnotes[footref])
+
         return self.document
 
     def render_front_matter(self, token):
@@ -149,10 +192,10 @@ class DocutilsRenderer(BaseRenderer):
 
         """
         try:
-            data = yaml.safe_load(token.content) or {}
+            data = token.get_data()
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             msg_node = self.reporter.error(
-                "Front matter block:\n" + str(error), line=token.position[0]
+                "Front matter block:\n" + str(error), line=token.position.line_start
             )
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
@@ -160,6 +203,37 @@ class DocutilsRenderer(BaseRenderer):
 
         docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
+
+    def render_footnote(self, token: block_tokens_ext.Footnote):
+        footnote = nodes.footnote()
+        self.add_line_and_source_path(footnote, token)
+        # footnote += nodes.label('', token.target)
+        footnote["names"].append(token.target)
+        footnote["auto"] = 1
+        self.document.note_autofootnote(footnote)
+        self.document.note_explicit_target(footnote, footnote)
+        # TODO for now we wrap the content (which are list of spans tokens)
+        # in a paragraph, but eventually upstream in mistletoe this will already be
+        # block level tokens
+        self.current_node.append(footnote)
+        paragraph = nodes.paragraph("")
+        self.add_line_and_source_path(paragraph, token)
+        footnote.append(paragraph)
+        with self.current_node_context(paragraph, append=False):
+            self.render_children(token)
+
+    def render_foot_reference(self, token):
+        """Footnote references are added as auto-numbered,
+        .i.e. `[^a]` is read as rST `[#a]_`
+        """
+        refnode = nodes.footnote_reference("[^{}]".format(token.target))
+        self.add_line_and_source_path(refnode, token)
+        refnode["auto"] = 1
+        refnode["refname"] = token.target
+        # refnode += nodes.Text(token.target)
+        self.document.note_autofootnote_ref(refnode)
+        self.document.note_footnote_ref(refnode)
+        self.current_node.append(refnode)
 
     def render_paragraph(self, token):
         if len(token.children) == 1 and isinstance(
@@ -469,7 +543,7 @@ class DocutilsRenderer(BaseRenderer):
         name = token.role_name
         # TODO role name white/black lists
         try:
-            lineno = token.position[0]
+            lineno = token.position.line_start
         except (AttributeError, TypeError):
             lineno = 0
         inliner = MockInliner(self, lineno)
@@ -496,7 +570,7 @@ class DocutilsRenderer(BaseRenderer):
         name = token.language[1:-1]
         # TODO directive name white/black lists
         content = token.children[0].content
-        self.document.current_line = token.position[0]
+        self.document.current_line = token.position.line_start
 
         # get directive class
         directive_class, messages = directives.directive(
@@ -506,7 +580,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Unknown directive type '{}'\n".format(name),
                 # nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error] + messages
             return
@@ -519,7 +593,7 @@ class DocutilsRenderer(BaseRenderer):
             error = self.reporter.error(
                 "Directive '{}':\n{}".format(name, error),
                 nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error]
             return
@@ -533,11 +607,13 @@ class DocutilsRenderer(BaseRenderer):
                 arguments=arguments,
                 options=options,
                 body=body_lines,
-                lineno=token.position[0],
+                token=token,
             )
         else:
-            state_machine = MockStateMachine(self, token.position[0])
-            state = MockState(self, state_machine, token.position[0])
+            state_machine = MockStateMachine(self, token.position.line_start)
+            state = MockState(
+                self, state_machine, token.position.line_start, token=token
+            )
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
@@ -547,7 +623,7 @@ class DocutilsRenderer(BaseRenderer):
                 # the directive content line by line
                 content=StringList(body_lines, self.document["source"]),
                 # the absolute line number of the first line of the directive
-                lineno=token.position[0],
+                lineno=token.position.line_start,
                 # the line offset of the first line of the content
                 content_offset=0,  # TODO get content offset from `parse_directive_text`
                 # a string containing the entire directive
@@ -561,7 +637,7 @@ class DocutilsRenderer(BaseRenderer):
             result = directive_instance.run()
         except DirectiveError as error:
             msg_node = self.reporter.system_message(
-                error.level, error.msg, line=token.position[0]
+                error.level, error.msg, line=token.position.line_start
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
@@ -571,7 +647,7 @@ class DocutilsRenderer(BaseRenderer):
                     name, exc.__class__.__name__, exc
                 ),
                 nodes.literal_block(content, content),
-                line=token.position[0],
+                line=token.position.line_start,
             )
             self.current_node += [error]
             return
@@ -794,10 +870,15 @@ class MockState:
     """
 
     def __init__(
-        self, renderer: DocutilsRenderer, state_machine: "MockStateMachine", lineno: int
+        self,
+        renderer: DocutilsRenderer,
+        state_machine: "MockStateMachine",
+        lineno: int,
+        token,
     ):
         self._renderer = renderer
         self._lineno = lineno
+        self._token = token
         self.document = renderer.document
         self.state_machine = state_machine
 
@@ -824,21 +905,37 @@ class MockState:
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
         with self._renderer.current_node_context(node):
-            self._renderer.nested_render_text(block, self._lineno + input_offset)
+            self._renderer.nested_render_text(
+                block, self._lineno + input_offset, token=self._token
+            )
         self.state_machine.match_titles = current_match_titles
 
     def inline_text(self, text: str, lineno: int):
         # TODO return messages?
         messages = []
         paragraph = nodes.paragraph("")
+        # here we instatiate a new renderer,
+        # so that the nested parse does not effect the current renderer,
+        # but we use the same global parse context, so that link references, etc
+        # are added to the global parse.
         renderer = self._renderer.__class__(
-            document=self.document, current_node=paragraph
+            document=self.document,
+            current_node=paragraph,
+            parse_context=get_parse_context(),
         )
-        renderer.render(
-            myst_block_tokens.Document.read(
-                text, start_line=self._lineno, front_matter=False
-            )
+        lines = SourceLines(
+            text,
+            start_line=self._lineno,
+            uri=self.document["source"],
+            metadata=self._token.position.data,
+            standardize_ends=True,
         )
+        doc_token = myst_block_tokens.Document.read(
+            lines, front_matter=False, reset_definitions=False
+        )
+        # we mark the token as nested so that footnotes etc aren't rendered
+        doc_token.is_nested = True
+        renderer.render(doc_token)
         textnodes = []
         if paragraph.children:
             # first child should be paragraph
@@ -979,7 +1076,7 @@ class MockIncludeDirective:
         arguments: list,
         options: dict,
         body: List[str],
-        lineno: int,
+        token,
     ):
         self.renderer = renderer
         self.document = renderer.document
@@ -988,7 +1085,8 @@ class MockIncludeDirective:
         self.arguments = arguments
         self.options = options
         self.body = body
-        self.lineno = lineno
+        self.lineno = token.position.line_start
+        self.token = token
 
     def run(self):
 
@@ -1080,7 +1178,7 @@ class MockIncludeDirective:
         if "code" in self.options:
             self.options["source"] = str(path)
             state_machine = MockStateMachine(self.renderer, self.lineno)
-            state = MockState(self.renderer, state_machine, self.lineno)
+            state = MockState(self.renderer, state_machine, self.lineno, self.token)
             codeblock = CodeBlock(
                 name=self.name,
                 arguments=[self.options.pop("code")],
@@ -1103,7 +1201,7 @@ class MockIncludeDirective:
             self.renderer.document["source"] = str(path)
             self.renderer.reporter.source = str(path)
             self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
-            self.renderer.nested_render_text(file_content, startline)
+            self.renderer.nested_render_text(file_content, startline, token=self.token)
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource
