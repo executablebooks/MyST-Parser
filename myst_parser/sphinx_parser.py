@@ -182,9 +182,7 @@ class MystParser(Parser):
             # Log to sphinx (e.g. to warn of duplicate link/footnote definitions)
             renderer.parse_context.logger = SPHINX_LOGGER
             lines = SourceLines(
-                inputstring,
-                metadata={"docname": self.env.docname},
-                standardize_ends=True,
+                inputstring, uri=document["source"], standardize_ends=True
             )
             doc = Document.read(lines)
             renderer.render(doc)

@@ -6,8 +6,10 @@ front_matter:
 
     '
   position:
-  - 1
-  - 3
+    data: {}
+    line_end: 3
+    line_start: 1
+    uri: null
   type: FrontMatter
 link_definitions: {}
 type: Document
