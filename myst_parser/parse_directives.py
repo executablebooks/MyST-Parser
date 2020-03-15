@@ -50,11 +50,16 @@ class DirectiveParsingError(Exception):
 
 
 def parse_directive_text(
-    directive_class: Type[Directive], argument_str: str, content: str
+    directive_class: Type[Directive],
+    argument_str: str,
+    content: str,
+    validate_options: bool = True,
 ):
     """Parse (and validate) the full directive text."""
     if directive_class.option_spec:
-        body, options = parse_directive_options(content, directive_class)
+        body, options = parse_directive_options(
+            content, directive_class, validate=validate_options
+        )
     else:
         # If there are no possible options, we do not look for a YAML block
         options = {}
@@ -87,7 +92,9 @@ def parse_directive_text(
     return arguments, options, body_lines
 
 
-def parse_directive_options(content: str, directive_class: Type[Directive]):
+def parse_directive_options(
+    content: str, directive_class: Type[Directive], validate: bool = True
+):
     """Parse (and validate) the directive option section."""
     options = {}
     if content.startswith("---"):
@@ -118,7 +125,7 @@ def parse_directive_options(content: str, directive_class: Type[Directive]):
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             raise DirectiveParsingError("Invalid options YAML: " + str(error))
 
-    if issubclass(directive_class, TestDirective):
+    if (not validate) or issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
         return content, options
