@@ -1,10 +1,11 @@
 import re
-from typing import Pattern, Tuple
+from typing import Pattern
 
 import attr
 
 from mistletoe import span_tokens
 from mistletoe.attr_doc import autodoc
+from mistletoe.base_elements import Position
 
 __all__ = ("Role", "Target")
 
@@ -24,7 +25,7 @@ class Role(span_tokens.SpanToken):
 
     role_name: str = attr.ib(metadata={"doc": "The name of the extension point"})
     children = attr.ib(metadata={"doc": "a single RawText node for alternative text."})
-    position: Tuple[int, int] = attr.ib(
+    position: Position = attr.ib(
         default=None,
         repr=False,
         metadata={"doc": "Line position in source text (start, end)"},
@@ -53,7 +54,7 @@ class Target(span_tokens.SpanToken):
     children = attr.ib(
         factory=list, metadata={"doc": "a single RawText node for alternative text."}
     )
-    position: Tuple[int, int] = attr.ib(
+    position: Position = attr.ib(
         default=None,
         repr=False,
         metadata={"doc": "Line position in source text (start, end)"},

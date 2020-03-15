@@ -1,8 +1,10 @@
 children:
 - content: ''
   position:
-  - 1
-  - 1
+    data: {}
+    line_end: null
+    line_start: 1
+    uri: null
   raw: +++
   type: BlockBreak
 footnotes: {}

@@ -4,6 +4,7 @@ from typing import Tuple
 import attr
 
 from mistletoe import block_tokens
+from mistletoe.base_elements import Position
 from mistletoe.block_tokens import Heading, ThematicBreak, CodeFence
 from mistletoe.attr_doc import autodoc
 
@@ -62,7 +63,7 @@ class LineComment(block_tokens.BlockToken):
         return cls(
             raw=line.splitlines()[0],
             content=cls.content,
-            position=(lines.lineno, lines.lineno),
+            position=Position.from_source_lines(lines),
         )
 
 
@@ -106,7 +107,7 @@ class BlockBreak(block_tokens.BlockToken):
         return cls(
             raw=line.splitlines()[0],
             content=cls.content,
-            position=(lines.lineno, lines.lineno),
+            position=Position.from_source_lines(lines),
         )
 
 
@@ -198,7 +199,7 @@ class List(block_tokens.List):
             children=children,
             loose=loose,
             start_at=start,
-            position=(start_line, lines.lineno),
+            position=Position.from_source_lines(lines, start_line=start_line),
         )
 
 

@@ -1,8 +1,10 @@
 children:
 - content: comment
   position:
-  - 1
-  - 1
+    data: {}
+    line_end: null
+    line_start: 1
+    uri: null
   raw: '  % comment'
   type: LineComment
 footnotes: {}

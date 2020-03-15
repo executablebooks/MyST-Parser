@@ -27,14 +27,18 @@ children:
     type: ListItem
   loose: false
   position:
-  - 0
-  - 1
+    data: {}
+    line_end: 1
+    line_start: 0
+    uri: null
   start_at: null
   type: List
 - content: ''
   position:
-  - 2
-  - 2
+    data: {}
+    line_end: null
+    line_start: 2
+    uri: null
   raw: +++
   type: BlockBreak
 footnotes: {}
