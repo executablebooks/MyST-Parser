@@ -16,6 +16,11 @@ please report them
 [in the MyST issues](https://github.com/ExecutableBookProject/meta/issues/24)
 ```
 
+```{tip}
+Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight),
+for MyST extended syntax highlighting.
+```
+
 ## Why a new flavor of markdown?
 
 While markdown is ubiquitous, it is not powerful enough for writing modern,
