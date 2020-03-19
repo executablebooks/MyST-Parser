@@ -9,7 +9,7 @@ from myst_parser.span_tokens import Role, Target
 
 
 class HTMLRenderer(html_renderer.HTMLRenderer):
-    """This HTML render uses the uses the MyST spec block and span tokens.
+    """This HTML renderer uses the uses the MyST spec block and span tokens.
 
     It is used to test compliance with the commonmark spec,
     and can be used for basic previews,

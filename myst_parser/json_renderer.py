@@ -7,7 +7,7 @@ from myst_parser.span_tokens import Role, Target
 
 
 class JsonRenderer(json.JsonRenderer):
-    """This JSON render uses the MyST spec block and span tokens.
+    """This JSON renderer uses the MyST spec block and span tokens.
     """
 
     default_block_tokens = (
