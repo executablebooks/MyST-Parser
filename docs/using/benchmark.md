@@ -67,9 +67,9 @@ Readability, however, is emphasized above all else. A Markdown-formatted
 document should be publishable as-is, as plain text, without looking
 like it's been marked up with tags or formatting instructions. While
 Markdown's syntax has been influenced by several existing text-to-HTML
-filters -- including [Setext] [1], [atx] [2], [Textile] [3], [reStructuredText] [4],
-[Grutatext] [5], and [EtText] [6] -- the single biggest source of
-inspiration for Markdown's syntax is the format of plain text email.
+filters -- including [Setext][1], [atx][2], [Textile][3], [reStructuredText][4],
+[Grutatext][5], and [EtText][6] -- the single biggest source of
+inspiration for Markdown's syntax is the format of plain-text email.
 
   [1]: http://docutils.sourceforge.net/mirror/setext.html
   [2]: http://www.aaronsw.com/2002/atx/
@@ -226,7 +226,7 @@ work best -- and look better -- when you format them with hard breaks.
 
 <h3 id="header">Headers</h3>
 
-Markdown supports two styles of headers, [Setext] [1] and [atx] [2].
+Markdown supports two styles of headers, [Setext][1] and [atx][2].
 
 Setext-style headers are "underlined" using equal signs (for first-level
 headers) and dashes (for second-level headers). For example:
