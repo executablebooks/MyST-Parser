@@ -72,8 +72,8 @@ class LineComment(block_tokens.BlockToken):
 class BlockBreak(block_tokens.BlockToken):
     """Block break token ``+++``.
 
-    This syntax is myst specific, used to denote the start of a new block of text.
-    This constuct's intended use case is for mapping to cell based document formats,
+    This myst-specific syntax is used to denote the start of a new block of text.
+    This construct's intended use-case is for mapping to cell-based document formats,
     like jupyter notebooks, to indicate a new text cell.
     """
 
