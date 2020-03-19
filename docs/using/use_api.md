@@ -289,10 +289,10 @@ print(document.pformat())
 
 ## Sphinx Renderer
 
-The `myst_parser.docutils_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
+The `myst_parser.docutils_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx-specific nodes, e.g. for cross-referencing between documents.
 
 ```{note}
-To use sphinx specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `load_sphinx_env=True` option.
+To use sphinx-specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `load_sphinx_env=True` option.
 ```
 
 ````python
