@@ -458,7 +458,7 @@ print('yep!')
 ## Roles - an in-line extension point
 
 Roles are similar to directives - they allow you to define arbitrary new
-functionality in Sphinx, but they are use *in-line*. To define an in-line
+functionality in Sphinx, but they are used *in-line*. To define an in-line
 role, use the following form:
 
 ````{list-table}
@@ -592,8 +592,8 @@ This is equivalent to the following directive:
 ### Front Matter
 
 This is a YAML block at the start of the document, as used for example in
-[jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts this data and
-stores it within the global environment (as discussed
+[jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts these data and
+stores them within the global environment (as discussed
 [here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
 
 A classic use-case is to specify 'orphan' documents, that are not specified in any
@@ -626,7 +626,7 @@ Is below, but it won't be parsed into the document.
 % my comment
 
 ````{important}
-Since comments are a block level entity, they will terminate the previous block.
+Since comments are a block-level entity, they will terminate the previous block.
 In practical terms, this means that the following lines
 will be broken up into two paragraphs, resulting in a new line between them:
 
@@ -756,7 +756,7 @@ indented by four or more spaces, will also be included in the footnote definitio
 
     That continues for all indented lines
 
-    Plus any precding unindented lines,
+    Plus any preceding unindented lines,
 that are not separated by a blank line
 
 This is not part of the footnote.
