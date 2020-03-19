@@ -79,7 +79,7 @@ inspiration for Markdown's syntax is the format of plain-text email.
   [6]: http://ettext.taint.org/doc/
 
 To this end, Markdown's syntax is comprised entirely of punctuation
-characters, which punctuation characters have been carefully chosen so
+characters which have been carefully chosen so
 as to look like what they mean. E.g., asterisks around a word actually
 look like \*emphasis\*. Markdown lists look like, well, lists. Even
 blockquotes look like quoted passages of text, assuming you've ever
