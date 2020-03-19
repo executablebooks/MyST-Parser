@@ -237,8 +237,8 @@ headers) and dashes (for second-level headers). For example:
     This is an H2
     -------------
 
-This is an H2
--------------
+% This is an H2
+% -------------
 
 Any number of underlining `=`'s or `-`'s will work.
 
