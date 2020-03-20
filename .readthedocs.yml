@@ -8,4 +8,3 @@ python:
         extra_requirements:
           - sphinx
           - rtd
-      - requirements: docs/requirements.txt
