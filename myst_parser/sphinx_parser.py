@@ -2,9 +2,8 @@ from docutils import frontend, nodes
 from sphinx.parsers import Parser
 from sphinx.util import logging
 
-from mistletoe.base_elements import SourceLines
-from myst_parser.docutils_renderer import SphinxRenderer
-from myst_parser.block_tokens import Document
+from myst_parser.main import to_docutils
+
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
@@ -12,7 +11,7 @@ SPHINX_LOGGER = logging.getLogger(__name__)
 class MystParser(Parser):
     """Docutils parser for CommonMark + Math + Tables + RST Extensions """
 
-    supported = ("md", "markdown")
+    supported = ("md", "markdown", "myst")
     translate_section_name = None
 
     default_config = {"known_url_schemes": None}
@@ -177,12 +176,5 @@ class MystParser(Parser):
             self.config.update(new_cfg)
         except AttributeError:
             pass
-        renderer = SphinxRenderer(document=document)
-        with renderer:
-            # Log to sphinx (e.g. to warn of duplicate link/footnote definitions)
-            renderer.parse_context.logger = SPHINX_LOGGER
-            lines = SourceLines(
-                inputstring, uri=document["source"], standardize_ends=True
-            )
-            doc = Document.read(lines)
-            renderer.render(doc)
+
+        to_docutils(inputstring, options=self.config, document=document)
