@@ -10,7 +10,6 @@ MyST-Parser may be used as an API *via* the `myst_parser` package.
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.
 
-
 ## Quick-Start
 
 The simplest way to understand how text will be parsed is using:
