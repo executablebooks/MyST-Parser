@@ -4,8 +4,14 @@ import pytest
 
 from markdown_it.utils import read_fixture_file
 from myst_parser.main import to_docutils
+from myst_parser.sphinx_renderer import mock_sphinx_env
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
+
+
+def test_minimal_sphinx():
+    with mock_sphinx_env(conf={"author": "bob geldof"}) as app:
+        assert app.config["author"] == "bob geldof"
 
 
 @pytest.mark.parametrize(
