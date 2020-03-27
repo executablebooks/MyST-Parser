@@ -104,8 +104,19 @@ Heading Levels:
             d
 .
 
+
 --------------------------
 Block Code:
+.
+    foo
+.
+<document source="notset">
+    <literal_block language="none" xml:space="preserve">
+        foo
+.
+
+--------------------------
+Fenced Code:
 .
 ```sh
 foo
@@ -117,7 +128,7 @@ foo
 .
 
 --------------------------
-Block Code no language:
+Fenced Code no language:
 .
 ```
 foo

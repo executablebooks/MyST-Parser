@@ -33,9 +33,9 @@ def test_tables(line, title, input, expected):
 
 @pytest.mark.parametrize(
     "line,title,input,expected",
-    read_fixture_file(FIXTURE_PATH.joinpath("role_options.md")),
+    read_fixture_file(FIXTURE_PATH.joinpath("directive_options.md")),
 )
-def test_role_options(line, title, input, expected):
+def test_directive_options(line, title, input, expected):
     document = to_docutils(input)
     print(document.pformat())
     assert "\n".join(

@@ -1,4 +1,4 @@
-Test Role 1:
+Test Directive 1:
 .
 ```{restructuredtext-test-directive}
 ```
@@ -10,7 +10,7 @@ Test Role 1:
 .
 
 -----------------------------
-Test Role 2:
+Test Directive 2:
 .
 ```{restructuredtext-test-directive}
 foo
@@ -25,7 +25,7 @@ foo
 .
 
 -----------------------------
-Test Role 3:
+Test Directive 3:
 .
 ```{restructuredtext-test-directive} foo
 ```
@@ -37,7 +37,7 @@ Test Role 3:
 .
 
 -----------------------------
-Test Role 4:
+Test Directive 4:
 .
 ```{restructuredtext-test-directive} foo
 bar
@@ -52,7 +52,7 @@ bar
 .
 
 -----------------------------
-Test Role 5:
+Test Directive 5:
 .
 ```{restructuredtext-test-directive} foo bar
 ```
@@ -64,7 +64,7 @@ Test Role 5:
 .
 
 -----------------------------
-Test Role 6:
+Test Directive 6:
 .
 ```{restructuredtext-test-directive} foo bar
 baz
@@ -79,7 +79,7 @@ baz
 .
 
 -----------------------------
-Test Role 7:
+Test Directive 7:
 .
 ```{restructuredtext-test-directive}
 
@@ -95,7 +95,7 @@ foo
 .
 
 -----------------------------
-Test Role Options 1:
+Test Directive Options 1:
 .
 ```{restructuredtext-test-directive}
 ---
@@ -114,7 +114,7 @@ foo
 .
 
 -----------------------------
-Test Role Options 2:
+Test Directive Options 2:
 .
 ```{restructuredtext-test-directive}
 :option1: a
@@ -131,7 +131,7 @@ foo
 .
 
 -----------------------------
-Test Role Options Error:
+Test Directive Options Error:
 .
 ```{restructuredtext-test-directive}
 :option1
@@ -151,4 +151,21 @@ foo
             :option1
             :option2: b
             foo
+.
+
+
+-----------------------------
+Unknown Directive:
+.
+```{unknown}
+```
+.
+<document source="notset">
+    <system_message level="3" line="1" source="notset" type="ERROR">
+        <paragraph>
+            Unknown directive type 'unknown'
+    <system_message level="1" line="1" source="notset" type="INFO">
+        <paragraph>
+            Problem retrieving directive entry from language module 'en': 'str' object has no attribute 'directives'.
+            Trying "unknown" as canonical directive name.
 .
