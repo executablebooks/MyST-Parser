@@ -573,6 +573,26 @@ c:
 .
 
 --------------------------
+Front Matter Bad Yaml:
+.
+---
+a: {
+---
+.
+<document source="notset">
+    <system_message level="3" line="2" source="notset" type="ERROR">
+        <paragraph>
+            Front matter block:
+            while parsing a flow node
+            expected the node content, but found '<stream end>'
+              in "<unicode string>", line 1, column 5:
+                a: {
+                    ^
+        <literal_block xml:space="preserve">
+            a: {
+.
+
+--------------------------
 Full Test:
 .
 ---
