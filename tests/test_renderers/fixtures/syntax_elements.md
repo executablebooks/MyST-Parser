@@ -468,6 +468,50 @@ Footnotes:
 .
 
 --------------------------
+Footnotes nested blocks:
+.
+[^a]
+
+[^a]: footnote*text*
+
+    abc
+xyz
+
+    > a
+
+    - b
+
+    c
+
+finish
+.
+<document source="notset">
+    <paragraph>
+        <footnote_reference auto="1" ids="id1" refname="a">
+    <paragraph>
+        finish
+    <transition>
+    <footnote auto="1" ids="a" names="a">
+        <paragraph>
+            footnote
+            <emphasis>
+                text
+        <paragraph>
+            abc
+
+            xyz
+        <block_quote>
+            <paragraph>
+                a
+        <bullet_list>
+            <list_item>
+                <paragraph>
+                    b
+        <paragraph>
+            c
+.
+
+--------------------------
 Front Matter:
 .
 ---
