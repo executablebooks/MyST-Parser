@@ -1,6 +1,6 @@
 # Contributing
 
-[![CI Status][travis-badge]][travis-link]
+[![Github-CI][github-ci]][github-link]
 [![Coverage][coveralls-badge]][coveralls-link]
 [![CircleCI][circleci-badge]][circleci-link]
 [![Documentation Status][rtd-badge]][rtd-link]
@@ -70,8 +70,8 @@ Merging pull requests: There are three ways of 'merging' pull requests on GitHub
 - Merge with merge commit: put all commits as they are on the base branch, with a merge commit on top
     Choose for collaborative PRs with many commits. Here, the merge commit provides actual benefits.
 
-[travis-badge]: https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master
-[travis-link]: https://travis-ci.org/ExecutableBookProject/MyST-Parser
+[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/Python%20package/badge.svg?branch=master
+[github-link]: https://github.com/ExecutableBookProject/MyST-Parser
 [coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
 [coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
 [circleci-badge]: https://circleci.com/gh/ExecutableBookProject/MyST-Parser.svg?style=shield

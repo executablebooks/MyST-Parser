@@ -1,6 +1,6 @@
 # MyST-Parser
 
-[![CI Status][travis-badge]][travis-link]
+[![Github-CI][github-ci]][github-link]
 [![Coverage][coveralls-badge]][coveralls-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
@@ -35,8 +35,8 @@ pip install -e .[sphinx,code_style,testing,rtd]
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
-[travis-badge]: https://travis-ci.org/ExecutableBookProject/MyST-Parser.svg?branch=master
-[travis-link]: https://travis-ci.org/ExecutableBookProject/MyST-Parser
+[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/Python%20package/badge.svg?branch=master
+[github-link]: https://github.com/ExecutableBookProject/MyST-Parser
 [coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
 [coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
