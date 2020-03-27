@@ -1,4 +1,5 @@
 """NOTE: this will eventually be moved out of core"""
+from collections import OrderedDict
 from contextlib import contextmanager
 import inspect
 import json
@@ -84,11 +85,12 @@ class DocutilsRenderer:
         tokens = nest_tokens(tokens)
 
         # move footnote definitions to env
-        self.env.setdefault("foot_refs", [])
+        self.env.setdefault("foot_refs", {})
         new_tokens = []
         for token in tokens:
             if token.type == "footnote_reference_open":
-                self.env["foot_refs"].append(token)
+                label = token.meta["label"]
+                self.env["foot_refs"].setdefault(label, []).append(token)
             else:
                 new_tokens.append(token)
         tokens = new_tokens
@@ -107,17 +109,19 @@ class DocutilsRenderer:
         if not self.config.get("output_footnotes", True):
             return self.document
 
-        # add footnotes
-        referenced = {
-            v["label"] for v in self.env.get("footnotes", {}).get("list", {}).values()
-        }
-        # only output referenced
-        foot_refs = [f for f in self.env["foot_refs"] if f.meta["label"] in referenced]
+        # we don't use the foot_references stored in the env
+        # since references within directives/roles will have been added after
+        # those from the initial markdown parse
+        # instead we gather them from a walk of the created document
+        foot_refs = OrderedDict()
+        for refnode in self.document.traverse(nodes.footnote_reference):
+            if refnode["refname"] not in foot_refs:
+                foot_refs[refnode["refname"]] = True
 
         if foot_refs:
             self.current_node.append(nodes.transition())
-        for footref in foot_refs:  # TODO sort by referenced
-            self.render_footnote_reference_open(footref)
+        for footref in foot_refs:
+            self.render_footnote_reference_open(self.env["foot_refs"][footref][0])
 
         return self.document
 
@@ -145,11 +149,12 @@ class DocutilsRenderer:
         tokens = nest_tokens(tokens)
 
         # move footnote definitions to env
-        self.env.setdefault("foot_refs", [])
+        self.env.setdefault("foot_refs", {})
         new_tokens = []
         for token in tokens:
             if token.type == "footnote_reference_open":
-                self.env["foot_refs"].append(token)
+                label = token.meta["label"]
+                self.env["foot_refs"].setdefault(label, []).append(token)
             else:
                 new_tokens.append(token)
         tokens = new_tokens
@@ -223,7 +228,6 @@ class DocutilsRenderer:
             #     result += self.renderInlineAsText(token.children)
             else:
                 result += self.renderInlineAsText(token.children)
-
         return result
 
     # ### render methods for commonmark tokens

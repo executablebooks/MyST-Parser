@@ -7,5 +7,6 @@ def setup(app):
 
     app.add_source_suffix(".md", "markdown")
     app.add_source_parser(MystParser)
+    app.add_config_value("myst_config", {}, "env")
 
     return {"version": __version__, "parallel_read_safe": True}

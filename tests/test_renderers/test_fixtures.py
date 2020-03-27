@@ -9,10 +9,11 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 @pytest.mark.parametrize(
-    "line,title,input,expected", read_fixture_file(FIXTURE_PATH.joinpath("basic.md"))
+    "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("syntax_elements.md")),
 )
-def test_basic(line, title, input, expected):
-    document = to_docutils(input)
+def test_syntax_elements(line, title, input, expected):
+    document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     assert "\n".join(
         [l.rstrip() for l in document.pformat().splitlines()]

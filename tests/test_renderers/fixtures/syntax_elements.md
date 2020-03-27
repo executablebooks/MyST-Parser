@@ -124,7 +124,7 @@ foo
 ```
 .
 <document source="notset">
-    <literal_block language="" xml:space="preserve">
+    <literal_block language="default" xml:space="preserve">
         foo
 .
 
@@ -261,6 +261,30 @@ $$foo$$
 .
 <document source="notset">
     <math_block nowrap="False" number="True" xml:space="preserve">
+        foo
+.
+
+--------------------------
+Math Block With Equation Label:
+.
+$$foo$$ (abc)
+.
+<document source="notset">
+    <target ids="equation-abc">
+    <math_block docname="mock_docname" label="abc" nowrap="False" number="1" xml:space="preserve">
+        foo
+.
+
+--------------------------
+Table:
+.
+a|b
+-|-
+1|2
+.
+<document source="notset">
+    <target ids="equation-abc">
+    <math_block label="abc" math_number="1" nowrap="False" number="True" xml:space="preserve">
         foo
 .
 

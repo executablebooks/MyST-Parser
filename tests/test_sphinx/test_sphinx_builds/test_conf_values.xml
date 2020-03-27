@@ -1,0 +1,8 @@
+<document source="index.md">
+    <section ids="test" names="test">
+        <title>
+            Test
+        <paragraph>
+            *disabled*
+        <math_block nowrap="False" number="True" xml:space="preserve">
+            a=1

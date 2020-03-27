@@ -34,6 +34,10 @@ Caption
 
 $$b=2$$
 
+$$c=2$$ (eq:label)
+
+{eq}`eq:label`
+
 `` a=1{`} ``
 
 | a   | b |

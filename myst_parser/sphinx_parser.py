@@ -14,7 +14,11 @@ class MystParser(Parser):
     supported = ("md", "markdown", "myst")
     translate_section_name = None
 
-    default_config = {"known_url_schemes": None}
+    default_config = {
+        "known_url_schemes": None,
+        "disable_syntax": (),
+        "math_delimiters": "dollars",
+    }
 
     # these specs are copied verbatim from the docutils RST parser
     settings_spec = (
@@ -169,12 +173,30 @@ class MystParser(Parser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
-        # TODO add conf.py configurable settings
         self.config = self.default_config.copy()
         try:
-            new_cfg = self.document.settings.env.config.myst_config
+            new_cfg = document.settings.env.config.myst_config
             self.config.update(new_cfg)
         except AttributeError:
             pass
 
-        to_docutils(inputstring, options=self.config, document=document)
+        # TODO raise errors or log error with sphinx?
+        try:
+            for s in self.config["disable_syntax"]:
+                assert isinstance(s, str)
+        except (AssertionError, TypeError):
+            raise TypeError("disable_syntax not of type List[str]")
+
+        allowed_delimiters = ["brackets", "kramdown", "dollars", "julia"]
+        if not self.config["math_delimiters"] in allowed_delimiters:
+            raise ValueError(
+                f"math_delimiters config not an allowed name: {allowed_delimiters}"
+            )
+
+        to_docutils(
+            inputstring,
+            options=self.config,
+            document=document,
+            disable_syntax=self.config["disable_syntax"] or [],
+            math_delimiters=self.config["math_delimiters"],
+        )

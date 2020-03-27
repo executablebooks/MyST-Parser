@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import copy
 from urllib.parse import unquote
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -8,6 +9,7 @@ from docutils.parsers.rst import directives, roles
 from sphinx import addnodes
 from sphinx.application import builtin_extensions, Sphinx
 from sphinx.config import Config
+from sphinx.domains.math import MathDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.project import Project
@@ -42,6 +44,34 @@ class SphinxRenderer(DocutilsRenderer):
         wrap_node.append(text_node)
         with self.current_node_context(text_node):
             self.render_children(token)
+
+    def render_math_block_eqno(self, token):
+        label = token.info
+        content = token.content
+        node = nodes.math_block(
+            content, content, nowrap=False, number=None, label=label
+        )
+        target = self.add_math_target(node)
+        self.add_line_and_source_path(target, token)
+        self.current_node.append(target)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def add_math_target(self, node):
+        # Code mainly copied from sphinx.directives.patches.MathDirective
+        env = self.document.settings.env
+
+        # register label to domain
+        domain = cast(MathDomain, env.get_domain("math"))
+        domain.note_equation(env.docname, node["label"], location=node)
+        node["number"] = domain.get_equation_number_for(node["label"])
+        node["docname"] = env.docname
+
+        # create target node
+        node_id = nodes.make_id("equation-%s" % node["label"])
+        target = nodes.target("", "", ids=[node_id])
+        self.document.note_explicit_target(target)
+        return target
 
 
 def minimal_sphinx_app(configuration=None, sourcedir=None):
