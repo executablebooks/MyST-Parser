@@ -271,6 +271,9 @@ class DocutilsRenderer:
     def render_softbreak(self, token):
         self.current_node.append(nodes.Text("\n"))
 
+    def render_hardbreak(self, token):
+        self.current_node.append(nodes.raw("", "<br />\n", format="html"))
+
     def render_strong_open(self, token):
         node = nodes.strong()
         self.add_line_and_source_path(node, token)
@@ -290,6 +293,16 @@ class DocutilsRenderer:
 
     def render_code_inline(self, token):
         node = nodes.literal(token.content, token.content)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def render_code_block(self, token):
+        # this should never have a language, since it is just indented text, however,
+        # creating a literal_block with no language will raise a warning in sphinx
+        text = token.content
+        language = token.info.split()[0] if token.info else "none"
+        language = language or "none"
+        node = nodes.literal_block(text, text, language=language)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
@@ -446,26 +459,60 @@ class DocutilsRenderer:
         docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
 
-    # def render_table_open(self, token):
-    #     # print(token)
-    #     # raise
+    def render_table_open(self, token):
 
-    #     table = nodes.table()
-    #     table["classes"] += ["colwidths-auto"]
-    #     self.add_line_and_source_path(table, token)
+        # markdown-it table always contains two elements:
+        header = token.children[0]
+        body = token.children[1]
+        # with one header row
+        header_row = header.children[0]
 
-    #     thead = nodes.thead()
-    #     # TODO there can never be more than one header row (at least in mardown-it)
-    #     header = token.children[0].children[0]
-    #     for hrow in header.children:
-    #         nodes.t
-    #         style = hrow.attrGet("style")
+        # top-level element
+        table = nodes.table()
+        table["classes"] += ["colwidths-auto"]
+        self.add_line_and_source_path(table, token)
+        self.current_node.append(table)
 
-    #     tgroup = nodes.tgroup(cols)
-    #     table += tgroup
-    #     tgroup += thead
+        # column settings element
+        maxcols = len(header_row.children)
+        colwidths = [round(100 / maxcols, 2)] * maxcols
+        tgroup = nodes.tgroup(cols=len(colwidths))
+        table += tgroup
+        for colwidth in colwidths:
+            colspec = nodes.colspec(colwidth=colwidth)
+            tgroup += colspec
+
+        # header
+        thead = nodes.thead()
+        tgroup += thead
+        with self.current_node_context(thead):
+            self.render_table_row(header_row)
+
+        # body
+        tbody = nodes.tbody()
+        tgroup += tbody
+        with self.current_node_context(tbody):
+            for body_row in body.children:
+                self.render_table_row(body_row)
+
+    def render_table_row(self, token):
+        row = nodes.row()
+        with self.current_node_context(row, append=True):
+            for child in token.children:
+                entry = nodes.entry()
+                style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
+                if style:
+                    entry["classes"].append(style)
+                with self.current_node_context(entry, append=True):
+                    self.render_children(child)
 
     def render_math_inline(self, token):
+        content = token.content
+        node = nodes.math(content, content)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def render_math_single(self, token):
         content = token.content
         node = nodes.math(content, content)
         self.add_line_and_source_path(node, token)

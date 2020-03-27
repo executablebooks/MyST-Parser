@@ -21,6 +21,17 @@ def test_syntax_elements(line, title, input, expected):
 
 
 @pytest.mark.parametrize(
+    "line,title,input,expected", read_fixture_file(FIXTURE_PATH.joinpath("tables.md"))
+)
+def test_tables(line, title, input, expected):
+    document = to_docutils(input, in_sphinx_env=True)
+    print(document.pformat())
+    assert "\n".join(
+        [l.rstrip() for l in document.pformat().splitlines()]
+    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+
+
+@pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("role_options.md")),
 )

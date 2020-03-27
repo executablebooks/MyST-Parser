@@ -12,6 +12,8 @@ from docutils.nodes import document as docutils_doc
 from myst_parser.docutils_renderer import DocutilsRenderer
 from myst_parser.docutils_renderer import make_document
 
+from . import __version__  # noqa: F401
+
 
 def default_parser(
     renderer="sphinx", disable_syntax=(), math_delimiters="dollars"
@@ -51,6 +53,7 @@ def to_docutils(
     options=None,
     env=None,
     document: docutils_doc = None,
+    renderer="sphinx",
     in_sphinx_env: bool = False,
     disable_syntax: List[str] = (),
     math_delimiters: str = "dollars",
@@ -66,7 +69,11 @@ def to_docutils(
     :param disable_syntax: list of syntax element names to disable
 
     """
-    md = default_parser(disable_syntax=disable_syntax, math_delimiters=math_delimiters)
+    md = default_parser(
+        renderer=renderer,
+        disable_syntax=disable_syntax,
+        math_delimiters=math_delimiters,
+    )
     if options:
         md.options.update(options)
     md.options["document"] = document or make_document()

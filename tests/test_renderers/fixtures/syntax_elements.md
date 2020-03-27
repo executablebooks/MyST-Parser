@@ -276,19 +276,6 @@ $$foo$$ (abc)
 .
 
 --------------------------
-Table:
-.
-a|b
--|-
-1|2
-.
-<document source="notset">
-    <target ids="equation-abc">
-    <math_block label="abc" math_number="1" nowrap="False" number="True" xml:space="preserve">
-        foo
-.
-
---------------------------
 Sphinx Role containing backtick:
 .
 {code}``a=1{`}``

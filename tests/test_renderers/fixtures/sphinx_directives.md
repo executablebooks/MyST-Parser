@@ -264,7 +264,6 @@ foo
 
 --------------------------------
 table (`sphinx.directives.patches.RSTTable`):
-SKIP: Need to implement tables render
 .
 ```{table}
 

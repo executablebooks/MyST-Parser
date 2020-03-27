@@ -1,18 +1,20 @@
 import argparse
 from importlib import import_module
-import os
+from pathlib import Path
 import re
 from time import perf_counter
 
 ALL_PACKAGES = (
     "python-markdown:extra",
-    "mistune",
     "commonmark.py",
     "mistletoe",
-    "myst_parser:html",
-    "myst_parser:docutils",
-    "myst_parser:sphinx",
+    "mistune",
+    "markdown-it-py",
+    "myst-parser:sphinx",
 )
+OPT_PACKAGES = ("myst-parser:html", "myst-parser:docutils")
+
+DEFAULT_FILE = Path(__file__).parent.joinpath("spec.md")
 
 
 def benchmark(package_name, version=None):
@@ -55,27 +57,41 @@ def run_mistletoe(package, text):
     return package.markdown(text)
 
 
-@benchmark("myst_parser")
+@benchmark("markdown_it")
+def run_markdown_it_py(package, text):
+    md = package.MarkdownIt("commonmark")
+    return md.render(text)
+
+
+@benchmark("myst_parser.main")
 def run_myst_parser_html(package, text):
-    package.parse_text(text, "html")
+    package.to_html(text)
 
 
-@benchmark("myst_parser")
+@benchmark("myst_parser.main")
 def run_myst_parser_docutils(package, text):
-    package.parse_text(text, "docutils", config={"ignore_missing_refs": True})
+    package.to_docutils(
+        text, renderer="docutils", options={"ignore_missing_refs": True}
+    )
 
 
-@benchmark("myst_parser")
+@benchmark("myst_parser.main")
 def run_myst_parser_sphinx(package, text):
-    package.parse_text(text, "sphinx", load_sphinx_env=True)
+    package.to_docutils(
+        text,
+        renderer="sphinx",
+        options={"ignore_missing_refs": True},
+        in_sphinx_env=True,
+    )
 
 
 def run_all(package_names, text, num_parses):
     prompt = "Running {} test(s) ...".format(len(package_names))
     print(prompt)
     print("=" * len(prompt))
+    max_len = max(len(p) for p in package_names)
     for package_name in package_names:
-        print(package_name, end=" ")
+        print(package_name + " " * (max_len - len(package_name)), end=" ")
         func_name = re.sub(r"[\.\-\:]", "_", package_name.lower())
         print(
             "{:.2f} s".format(globals()["run_{}".format(func_name)](text, num_parses))
@@ -85,14 +101,16 @@ def run_all(package_names, text, num_parses):
 
 def main(args=None):
     parser = argparse.ArgumentParser(description="Run benchmark test.")
-    parser.add_argument("path", type=str, help="the path to the file to parse")
+    parser.add_argument(
+        "-f", "--file", default=None, type=str, help="the path to the file to parse"
+    )
     parser.add_argument(
         "-n",
         "--num-parses",
         metavar="NPARSES",
-        default=1000,
+        default=10,
         type=int,
-        help="The number of parse iterations (default: 1000)",
+        help="The number of parse iterations (default: 10)",
     )
     parser.add_argument(
         "-p",
@@ -100,14 +118,13 @@ def main(args=None):
         action="append",
         default=[],
         help="The package(s) to run (use -p multiple times).",
-        choices=ALL_PACKAGES,
+        choices=ALL_PACKAGES + OPT_PACKAGES,
         metavar="PACKAGE_NAME",
     )
     args = parser.parse_args(args)
+    path = Path(args.file) if args.file else DEFAULT_FILE
 
-    assert os.path.exists(args.path), "path does not exist"
-    print("Test document: {}".format(os.path.basename(args.path)))
+    assert path.exists(), "path does not exist"
+    print("Test document: {}".format(path.name))
     print("Test iterations: {}".format(args.num_parses))
-    with open(args.path, "r") as handle:
-        text = handle.read()
-    return run_all(args.package or ALL_PACKAGES, text, args.num_parses)
+    return run_all(args.package or ALL_PACKAGES, path.read_text(), args.num_parses)

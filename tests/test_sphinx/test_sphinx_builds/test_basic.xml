@@ -47,6 +47,23 @@
         <paragraph>
             <literal>
                 a=1{`}
+        <table align="default" classes="colwidths-auto">
+            <tgroup cols="2">
+                <colspec colwidth="50.0">
+                <colspec colwidth="50.0">
+                <thead>
+                    <row>
+                        <entry>
+                            a
+                        <entry classes="text-align:right">
+                            b
+                <tbody>
+                    <row>
+                        <entry>
+                            <emphasis>
+                                a
+                        <entry classes="text-align:right">
+                            2
         <paragraph>
             this
             

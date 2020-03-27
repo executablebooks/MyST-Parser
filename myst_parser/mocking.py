@@ -114,8 +114,9 @@ class MockState:
         from myst_parser.docutils_renderer import DocutilsRenderer
 
         nested_renderer = DocutilsRenderer(self._renderer.md)
-        options = dict(
-            document=self.document, current_node=paragraph, output_footnotes=False
+        options = {k: v for k, v in self._renderer.config.items()}
+        options.update(
+            dict(document=self.document, current_node=paragraph, output_footnotes=False)
         )
         nested_renderer.render(tokens, options, self._renderer.env)
         return paragraph.children, messages
