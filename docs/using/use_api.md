@@ -1,252 +1,245 @@
 # Using `myst_parser` as an API
 
-% TODO eventually this should be wrote as a notebook (with MyST-NB)!
-
 MyST-Parser may be used as an API *via* the `myst_parser` package.
 
 ```{seealso}
-- {ref}`Programmatic Use of Mistletoe <mistletoe:intro/api_use>`
+- The [markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) package
 - {ref}`The MyST-Parser API <api/main>`
 ```
 
 The raw text is first parsed to syntax 'tokens',
 then these are converted to other formats using 'renderers'.
 
-The simplest way to parse text is using:
+
+## Quick-Start
+
+The simplest way to understand how text will be parsed is using:
 
 ```python
-from myst_parser import parse_text
-parse_text("some *text*", "html")
+from myst_parser.main import to_html
+to_html("some *text*")
 ```
 
+<!-- #region -->
 ```html
 '<p>some <em>text</em></p>\n'
 ```
-
-The output type can be one of:
-
-- `dict` (a.k.a ast)
-- `html`
-- `docutils`
-- `sphinx`
-
-## Convert Text to Tokens
-
-To convert some text to tokens:
+<!-- #endregion -->
 
 ```python
-from myst_parser import text_to_tokens
-root = text_to_tokens("""
+from myst_parser.main import to_docutils
+print(to_docutils("some *text*").pformat())
+```
+
+```xml
+<document source="notset">
+    <paragraph>
+        some
+        <emphasis>
+            text
+```
+
+```python
+from pprint import pprint
+from myst_parser.main import to_tokens
+
+for token in to_tokens("some *text*"):
+    print(token)
+    print()
+```
+
+<!-- #region -->
+```python
+Token(type='paragraph_open', tag='p', nesting=1, attrs=None, map=[0, 1], level=0, children=None, content='', markup='', info='', meta={}, block=True, hidden=False)
+
+Token(type='inline', tag='', nesting=0, attrs=None, map=[0, 1], level=1, children=[Token(type='text', tag='', nesting=0, attrs=None, map=None, level=0, children=None, content='some ', markup='', info='', meta={}, block=False, hidden=False), Token(type='em_open', tag='em', nesting=1, attrs=None, map=None, level=0, children=None, content='', markup='*', info='', meta={}, block=False, hidden=False), Token(type='text', tag='', nesting=0, attrs=None, map=None, level=1, children=None, content='text', markup='', info='', meta={}, block=False, hidden=False), Token(type='em_close', tag='em', nesting=-1, attrs=None, map=None, level=0, children=None, content='', markup='*', info='', meta={}, block=False, hidden=False)], content='some *text*', markup='', info='', meta={}, block=True, hidden=False)
+
+Token(type='paragraph_close', tag='p', nesting=-1, attrs=None, map=None, level=0, children=None, content='', markup='', info='', meta={}, block=True, hidden=False)
+```
+<!-- #endregion -->
+
+# The Parser
+
+
+The `default_parser` function loads a standard markdown-it parser with the default syntax rules for MyST.
+
+```python
+from myst_parser.main import default_parser
+parser = default_parser("html")
+parser
+```
+
+<!-- #region -->
+```python
+markdown_it.main.MarkdownIt()
+```
+<!-- #endregion -->
+
+```python
+pprint(parser.get_active_rules())
+```
+
+<!-- #region -->
+```python
+{'block': ['front_matter',
+           'table',
+           'code',
+           'math_block_eqno',
+           'math_block',
+           'fence',
+           'myst_line_comment',
+           'blockquote',
+           'myst_block_break',
+           'myst_target',
+           'hr',
+           'list',
+           'footnote_def',
+           'reference',
+           'heading',
+           'lheading',
+           'html_block',
+           'paragraph'],
+ 'core': ['normalize', 'block', 'inline'],
+ 'inline': ['text',
+            'newline',
+            'math_inline',
+            'math_single',
+            'escape',
+            'myst_role',
+            'backticks',
+            'emphasis',
+            'link',
+            'image',
+            'footnote_ref',
+            'autolink',
+            'html_inline',
+            'entity'],
+ 'inline2': ['balance_pairs', 'emphasis', 'text_collapse']}
+```
+<!-- #endregion -->
+
+```python
+parser.render("*abc*")
+```
+
+<!-- #region -->
+```html
+'<p><em>abc</em></p>\n'
+```
+<!-- #endregion -->
+
+Any of these rules can be disabled:
+
+```python
+parser.disable("emphasis").render("*abc*")
+```
+
+<!-- #region -->
+```html
+'<p>*abc*</p>\n'
+```
+<!-- #endregion -->
+
+`renderInline` turns off any block syntax rules.
+
+```python
+parser.enable("emphasis").renderInline("- *abc*")
+```
+
+<!-- #region -->
+```html
+'- <em>abc</em>'
+```
+<!-- #endregion -->
+
+## The Token Stream
+
+
+
+
+The text is parsed to a flat token stream:
+
+```python
+from myst_parser.main import to_tokens
+tokens = to_tokens("""
 Here's some *text*
 
 1. a list
 
 > a *quote*""")
-root
+[t.type for t in tokens]
 ```
+
+<!-- #region -->
+```python
+['paragraph_open',
+ 'inline',
+ 'paragraph_close',
+ 'ordered_list_open',
+ 'list_item_open',
+ 'paragraph_open',
+ 'inline',
+ 'paragraph_close',
+ 'list_item_close',
+ 'ordered_list_close',
+ 'blockquote_open',
+ 'paragraph_open',
+ 'inline',
+ 'paragraph_close',
+ 'blockquote_close']
+```
+<!-- #endregion -->
+
+Inline type tokens contain the inline tokens as children:
 
 ```python
-Document(children=3, link_definitions=0, front_matter=None)
+tokens[6]
 ```
 
-All non-terminal tokens may contain children:
+<!-- #region -->
+```python
+Token(type='inline', tag='', nesting=0, attrs=None, map=[3, 4], level=3, children=[Token(type='text', tag='', nesting=0, attrs=None, map=None, level=0, children=None, content='a list', markup='', info='', meta={}, block=False, hidden=False)], content='a list', markup='', info='', meta={}, block=True, hidden=False)
+```
+<!-- #endregion -->
+
+The sphinx renderer first converts the token to a nested structure, collapsing the opening/closing tokens into single tokens:
 
 ```python
-root.children
+from markdown_it.token import nest_tokens
+nested = nest_tokens(tokens)
+[t.type for t in nested]
 ```
+
+<!-- #region -->
+```python
+['paragraph_open', 'ordered_list_open', 'blockquote_open']
+```
+<!-- #endregion -->
 
 ```python
-[Paragraph(children=2, position=(2, 2)),
- List(children=1, loose=False, start_at=1, position=(3, 4)),
- Quote(children=1, position=(6, 6))]
+print(nested[0].opening, end="\n\n")
+print(nested[0].closing, end="\n\n")
+print(nested[0].children, end="\n\n")
 ```
 
-Then each token has attributes specific to its type:
-
+<!-- #region -->
 ```python
-list_token = root.children[1]
-list_token.__dict__
+Token(type='paragraph_open', tag='p', nesting=1, attrs=None, map=[1, 2], level=0, children=None, content='', markup='', info='', meta={}, block=True, hidden=False)
+
+Token(type='paragraph_close', tag='p', nesting=-1, attrs=None, map=None, level=0, children=None, content='', markup='', info='', meta={}, block=True, hidden=False)
+
+[Token(type='inline', tag='', nesting=0, attrs=None, map=[1, 2], level=1, children=[Token(type='text', tag='', nesting=0, attrs=None, map=None, level=0, children=None, content="Here's some ", markup='', info='', meta={}, block=False, hidden=False), NestedTokens(opening=Token(type='em_open', tag='em', nesting=1, attrs=None, map=None, level=0, children=None, content='', markup='*', info='', meta={}, block=False, hidden=False), closing=Token(type='em_close', tag='em', nesting=-1, attrs=None, map=None, level=0, children=None, content='', markup='*', info='', meta={}, block=False, hidden=False), children=[Token(type='text', tag='', nesting=0, attrs=None, map=None, level=1, children=None, content='text', markup='', info='', meta={}, block=False, hidden=False)])], content="Here's some *text*", markup='', info='', meta={}, block=True, hidden=False)]
 ```
+<!-- #endregion -->
 
-```python
-{'children': [{'children': [{'children': [RawText()], 'position': [4, 4]}],
-   'loose': False,
-   'leader': '1.',
-   'prepend': 3,
-   'next_marker': None,
-   'position': [3, 4]}],
- 'loose': False,
- 'start_at': 1,
- 'position': [3, 4]}
-```
-
-You can also recursively traverse the syntax tree, yielding `WalkItem`s that contain the element, its parent and depth from the source token:
-
-```python
-from pprint import pprint
-tree = [
-    (t.parent.__class__.__name__, t.node.__class__.__name__, t.depth)
-    for t in root.walk()
-]
-pprint(tree)
-```
-
-```python
-[('Document', 'Paragraph', 1),
- ('Document', 'List', 1),
- ('Document', 'Quote', 1),
- ('Paragraph', 'RawText', 2),
- ('Paragraph', 'Emphasis', 2),
- ('List', 'ListItem', 2),
- ('Quote', 'Paragraph', 2),
- ('Emphasis', 'RawText', 3),
- ('ListItem', 'Paragraph', 3),
- ('Paragraph', 'RawText', 3),
- ('Paragraph', 'Emphasis', 3),
- ('Paragraph', 'RawText', 4),
- ('Emphasis', 'RawText', 4)]
-```
-
-## JSON Renderer
-
-The `myst_parser.json_renderer.JsonRenderer` converts a token to a nested dictionary representation.
-
-```python
-from json import loads
-from myst_parser import render_tokens
-from myst_parser.json_renderer import JsonRenderer
-
-pprint(loads(render_tokens(root, JsonRenderer)))
-```
-
-```python
-{'children': [{'children': [{'content': "Here's some ",
-                             'position': [2, 2],
-                             'type': 'RawText'},
-                            {'children': [{'content': 'text',
-                                           'position': [2, 2],
-                                           'type': 'RawText'}],
-                             'position': [2, 2],
-                             'type': 'Emphasis'}],
-               'position': [2, 2],
-               'type': 'Paragraph'},
-              {'children': [{'children': [{'children': [{'content': 'a list',
-                                                         'position': [4, 4],
-                                                         'type': 'RawText'}],
-                                           'position': [4, 4],
-                                           'type': 'Paragraph'}],
-                             'leader': '1.',
-                             'loose': False,
-                             'next_marker': None,
-                             'position': [3, 4],
-                             'prepend': 3,
-                             'type': 'ListItem'}],
-               'loose': False,
-               'position': [3, 4],
-               'start_at': 1,
-               'type': 'List'},
-              {'children': [{'children': [{'content': 'a ',
-                                           'position': [7, 7],
-                                           'type': 'RawText'},
-                                          {'children': [{'content': 'quote',
-                                                         'position': [7, 7],
-                                                         'type': 'RawText'}],
-                                           'position': [7, 7],
-                                           'type': 'Emphasis'}],
-                             'position': [7, 7],
-                             'type': 'Paragraph'}],
-               'position': [6, 6],
-               'type': 'Quote'}],
- 'front_matter': None,
- 'link_definitions': {},
- 'type': 'Document'}
-```
-
-## HTML Renderer
-
-The `myst_parser.html_renderer.HTMLRenderer` converts a token directly to HTML.
-
-```python
-from myst_parser import render_tokens
-from myst_parser.html_renderer import HTMLRenderer
-
-print(render_tokens(root, HTMLRenderer))
-```
-
-```html
-<p>Here's some <em>text</em></p>
-<ol>
-<li>a list</li>
-</ol>
-<blockquote>
-<p>a <em>quote</em></p>
-</blockquote>
-```
-
-`````{note}
-This render will not actually 'assess' roles and directives,
-just represent their raw content:
-
-````python
-other = text_to_tokens("""
-{role:name}`content`
-
-```{directive_name} arg
-:option: a
-content
-```
-""")
-
-print(render_tokens(other, HTMLRenderer))
-````
-
-````html
-<p><span class="myst-role"><code>{role:name}content</code></span></p>
-<div class="myst-directive">
-<pre><code>{directive_name} arg
-:option: a
-content
-</code></pre></span>
-</div>
-````
-`````
-
-You can also create a minmal page preview, including CSS:
-
-```python
-parse_text(
-    in_string,
-    "html",
-    add_mathjax=True,
-    as_standalone=True,
-    add_css=dedent(
-        """\
-        div.myst-front-matter {
-            border: 1px solid gray;
-        }
-        div.myst-directive {
-            background: lightgreen;
-        }
-        hr.myst-block-break {
-            border-top:1px dotted black;
-        }
-        span.myst-role {
-            background: lightgreen;
-        }
-        """
-    ),
-)
-```
-
-## Docutils Renderer
+## Renderers
 
 The `myst_parser.docutils_renderer.DocutilsRenderer` converts a token directly to the `docutils.document` representation of the document, converting roles and directives to a `docutils.nodes` if a converter can be found for the given name.
 
-````python
-from myst_parser import render_tokens
-from myst_parser.docutils_renderer import DocutilsRenderer
+```python
+from myst_parser.main import to_docutils
 
-root = text_to_tokens("""
+document = to_docutils("""
 Here's some *text*
 
 1. a list
@@ -260,9 +253,8 @@ content
 ```
 """)
 
-document = render_tokens(root, DocutilsRenderer)
 print(document.pformat())
-````
+```
 
 ```xml
 <document source="notset">
@@ -287,19 +279,13 @@ print(document.pformat())
             content
 ```
 
-## Sphinx Renderer
 
-The `myst_parser.docutils_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
+The `myst_parser.sphinx_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
 
-```{note}
-To use sphinx specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `load_sphinx_env=True` option.
-```
+To use the sphinx specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `in_sphinx_env` option.
 
 ````python
-from myst_parser import text_to_tokens, render_tokens
-from myst_parser.docutils_renderer import SphinxRenderer
-
-root = text_to_tokens("""
+document = to_docutils("""
 Here's some *text*
 
 1. a list
@@ -312,9 +298,8 @@ Here's some *text*
 name
     definition
 ```
-""")
-
-document = render_tokens(root, SphinxRenderer, load_sphinx_env=True)
+""",
+    in_sphinx_env=True)
 print(document.pformat())
 ````
 
@@ -349,6 +334,7 @@ print(document.pformat())
                         definition
 ```
 
+
 You can also set Sphinx configuration *via* `sphinx_conf`. This is a dictionary representation of the contents of the Sphinx `conf.py`.
 
 ```{warning}
@@ -358,10 +344,7 @@ Sphinx build process and/or access to external files.
 ```
 
 `````python
-from myst_parser import text_to_tokens, render_tokens
-from myst_parser.docutils_renderer import SphinxRenderer
-
-root = text_to_tokens("""
+document = to_docutils("""
 ````{tabs}
 
 ```{tab} Apples
@@ -369,9 +352,10 @@ root = text_to_tokens("""
 Apples are green, or sometimes red.
 ```
 ````
-""")
-
-document = render_tokens(root, SphinxRenderer, load_sphinx_env=True, sphinx_conf={"extensions": ["sphinx_tabs.tabs"]})
+""",
+    in_sphinx_env=True,
+    conf={"extensions": ["sphinx_tabs.tabs"]}
+)
 print(document.pformat())
 `````
 

@@ -132,8 +132,8 @@ def mock_sphinx_env(conf=None, srcdir=None, document=None):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.
 
-    :param sphinx_conf: a dictionary representation of the sphinx `conf.py`
-    :param sphinx_srcdir: a path to a source directory
+    :param conf: a dictionary representation of the sphinx `conf.py`
+    :param srcdir: a path to a source directory
         (for example, can be used for `include` statements)
 
     This primarily copies the code in `sphinx.util.docutils.docutils_namespace`

@@ -8,10 +8,6 @@ from markdown_it.extensions.myst_role import myst_role_plugin
 from markdown_it.extensions.texmath import texmath_plugin
 from markdown_it.extensions.footnote import footnote_plugin
 
-from docutils.nodes import document as docutils_doc
-from myst_parser.docutils_renderer import DocutilsRenderer
-from myst_parser.docutils_renderer import make_document
-
 from . import __version__  # noqa: F401
 
 
@@ -19,14 +15,18 @@ def default_parser(
     renderer="sphinx", disable_syntax=(), math_delimiters="dollars"
 ) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
-    from myst_parser.sphinx_renderer import SphinxRenderer
+    if renderer == "sphinx":
+        from myst_parser.sphinx_renderer import SphinxRenderer
 
-    renderers = {
-        "sphinx": SphinxRenderer,
-        "docutils": DocutilsRenderer,
-        "html": RendererHTML,
-    }
-    renderer_cls = renderers[renderer]
+        renderer_cls = SphinxRenderer
+    elif renderer == "html":
+        renderer_cls = RendererHTML
+    elif renderer == "docutils":
+        from myst_parser.docutils_renderer import DocutilsRenderer
+
+        renderer_cls = DocutilsRenderer
+    else:
+        raise ValueError("unknown renderer type: {0}".format(renderer))
 
     md = (
         MarkdownIt("commonmark", renderer_cls=renderer_cls)
@@ -52,12 +52,13 @@ def to_docutils(
     text: str,
     options=None,
     env=None,
-    document: docutils_doc = None,
+    document=None,
     renderer="sphinx",
     in_sphinx_env: bool = False,
+    conf=None,
     disable_syntax: List[str] = (),
     math_delimiters: str = "dollars",
-) -> docutils_doc:
+):
     """Render text to the docutils AST
 
     :param text: the text to render
@@ -68,7 +69,10 @@ def to_docutils(
     :param in_sphinx_env: initialise a minimal sphinx environment (useful for testing)
     :param disable_syntax: list of syntax element names to disable
 
+    :returns: docutils document
     """
+    from myst_parser.docutils_renderer import make_document
+
     md = default_parser(
         renderer=renderer,
         disable_syntax=disable_syntax,
@@ -80,7 +84,7 @@ def to_docutils(
     if in_sphinx_env:
         from myst_parser.sphinx_renderer import mock_sphinx_env
 
-        with mock_sphinx_env(document=md.options["document"]):
+        with mock_sphinx_env(conf=conf, document=md.options["document"]):
             return md.render(text, env)
     else:
         return md.render(text, env)
@@ -92,5 +96,5 @@ def to_html(text: str, env=None):
 
 
 def to_tokens(text: str, env=None):
-    md = default_parser()
+    md = default_parser("html")
     return md.parse(text, env)
