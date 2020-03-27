@@ -3,7 +3,7 @@
 # The MyST Syntax Guide
 
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
-For this, it uses the {ref}`mistletoe:intro/top-level` parser,
+For this, it uses the [markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
 and also extensible.
 
@@ -18,24 +18,16 @@ and extensibility of Sphinx with the simplicity and readability of Markdown.
 Below is a summary of the syntax 'tokens' parsed,
 and further details of a few major extensions from the CommonMark flavor of markdown.
 
-```{seealso}
-{ref}`MyST Extended AST Tokens API <api/tokens>`
-```
+% ```{seealso}
+% {ref}`MyST Extended AST Tokens API <api/tokens>`
+% ```
 
-## Parsed Token Classes
+## Parsed Token
 
-MyST builds on the tokens defined by mistletoe, to extend the syntax:
+MyST builds on the tokens defined by markdown-it, to extend the syntax
+described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the parser is tested against.
 
-- {ref}`Core block tokens <mistletoe:tokens/block>`
-- {ref}`Core span tokens <mistletoe:tokens/span>`
-- {ref}`Extension tokens <mistletoe:tokens/extension>`
-
-Tokens are listed in their order of precedence.
-For more information, also see the [CommonMark Spec](https://spec.commonmark.org/0.28/), which the parser is tested against.
-
-```{seealso}
-{ref}`Token API <api/tokens>`
-```
+% TODO link to markdown-it documentation
 
 ### Block Tokens
 
@@ -587,6 +579,22 @@ This is equivalent to the following directive:
 ```
 ````
 
+You can also add labels to block equations:
+
+```latex
+$$
+e = mc^2
+$$ (eqn:best)
+
+This is the best equation {eq}`eqn:best`
+```
+
+$$
+e = mc^2
+$$ (eqn:best)
+
+This is the best equation {eq}`eqn:best`
+
 (syntax/frontmatter)=
 
 ### Front Matter
@@ -727,6 +735,37 @@ This is a footnote reference.[^myref]
 
 [^myref]: This **is** the footnote definition.
 
+Any preceding text after a footnote definitions, which is
+indented by four or more spaces, will also be included in the footnote definition, e.g.
+
+```md
+A longer footnote definition.[^mylongdef]
+
+[^mylongdef]: This is the footnote definition.
+
+    That continues for all indented lines
+
+    - even other block elements
+
+    Plus any preceding unindented lines,
+that are not separated by a blank line
+
+This is not part of the footnote.
+```
+
+A longer footnote definition.[^mylongdef]
+
+[^mylongdef]: This is the footnote definition.
+
+    That continues for all indented lines
+
+    - even other block elements
+
+    Plus any preceding unindented lines,
+that are not separated by a blank line
+
+This is not part of the footnote.
+
 ````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
 it it recommended that footnote definitions are not set within directives,
@@ -744,22 +783,4 @@ unless they will only be referenced within that same directive:
 
 This is because, in the current implementation, they may not be available to
 reference in text above that particular directive.
-````
-
-````{note}
-Currently, footnote definitions may only be on a single line.
-However, it is intended in an update to come, that any preceding text which is
-indented by four or more spaces, will also be included in the footnote definition, e.g.
-
-```md
-[^myref]: This is the footnote definition.
-
-    That continues for all indented lines
-
-    Plus any precding unindented lines,
-that are not separated by a blank line
-
-This is not part of the footnote.
-```
-
 ````

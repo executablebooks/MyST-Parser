@@ -5,6 +5,7 @@ import re
 from time import perf_counter
 
 ALL_PACKAGES = (
+    # "panflute",
     "python-markdown:extra",
     "commonmark.py",
     "mistletoe",
@@ -55,6 +56,11 @@ def run_commonmark_py(package, text):
 @benchmark("mistletoe")
 def run_mistletoe(package, text):
     return package.markdown(text)
+
+
+@benchmark("panflute")
+def run_panflute(package, text):
+    return package.convert_text(text, input_format="markdown", output_format="html")
 
 
 @benchmark("markdown_it")

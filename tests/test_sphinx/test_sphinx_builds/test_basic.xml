@@ -37,6 +37,8 @@
             <strong>
                 <math>
                     a=1
+        <math_block nowrap="False" number="True" xml:space="preserve">
+            b=2
         <target refid="equation-eq-label">
         <math_block docname="content" ids="equation-eq-label" label="eq:label" nowrap="False" number="1" xml:space="preserve">
             c=2

@@ -27,7 +27,7 @@ class SphinxRenderer(DocutilsRenderer):
     """
 
     def handle_cross_reference(self, token, destination):
-
+        """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
             reftarget=unquote(destination),
             reftype="any",
@@ -46,6 +46,7 @@ class SphinxRenderer(DocutilsRenderer):
             self.render_children(token)
 
     def render_math_block_eqno(self, token):
+        """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
         content = token.content
         node = nodes.math_block(

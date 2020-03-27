@@ -44,6 +44,7 @@ class DocutilsRenderer:
     __output__ = "docutils"
 
     def __init__(self, parser: MarkdownIt):
+        """Load the renderer (called by ``MarkdownIt``)"""
         self.md = parser
         self.rules = {
             k: v

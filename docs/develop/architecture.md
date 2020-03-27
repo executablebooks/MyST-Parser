@@ -3,16 +3,9 @@
 This page describes implementation details to help you understand the structure
 of the project.
 
-```{note}
-MyST currently relies on
-[a fork of the Mistletoe project](https://github.com/ExecutableBookProject/mistletoe).
-We hope to upstream these changes, but in the meantime make sure that you are using
-this fork.
-```
+## A Renderer for markdown-it tokens
 
-## An extension to Mistletoe syntax
-
-At a high level, the MyST parser is an extension of the Mistletoe project. Mistletoe
+At a high level, the MyST parser is an extension of th project. Markdown-It-Py
 is a well-structured Python parser for CommonMark text. It also defines an extension
 point to include more syntax in parsed files. The MyST parser uses this extension
 point to define its own syntax options (e.g., for Sphinx roles and directives).

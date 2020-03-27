@@ -276,6 +276,27 @@ $$foo$$ (abc)
 .
 
 --------------------------
+Math Block multiple:
+.
+$$
+a = 1
+$$
+
+$$
+b = 2
+$$ (a)
+.
+<document source="notset">
+    <math_block nowrap="False" number="True" xml:space="preserve">
+
+        a = 1
+    <target ids="equation-a">
+    <math_block docname="mock_docname" label="a" nowrap="False" number="1" xml:space="preserve">
+
+        b = 2
+.
+
+--------------------------
 Sphinx Role containing backtick:
 .
 {code}``a=1{`}``
