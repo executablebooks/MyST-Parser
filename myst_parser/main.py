@@ -52,12 +52,13 @@ def to_docutils(
     text: str,
     options=None,
     env=None,
-    document=None,
-    renderer="sphinx",
-    in_sphinx_env: bool = False,
-    conf=None,
     disable_syntax: List[str] = (),
     math_delimiters: str = "dollars",
+    renderer="sphinx",
+    document=None,
+    in_sphinx_env: bool = False,
+    conf=None,
+    srcdir=None,
 ):
     """Render text to the docutils AST
 
@@ -65,9 +66,11 @@ def to_docutils(
     :param options: options to update the parser with
     :param env: The sandbox environment for the parse
         (will contain e.g. reference definitions)
+    :param disable_syntax: list of syntax element names to disable
     :param document: the docutils root node to use (otherwise a new one will be created)
     :param in_sphinx_env: initialise a minimal sphinx environment (useful for testing)
-    :param disable_syntax: list of syntax element names to disable
+    :param conf: the sphinx conf.py as a dictionary
+    :param srcdir: to parse to the mock sphinc env
 
     :returns: docutils document
     """
@@ -84,7 +87,7 @@ def to_docutils(
     if in_sphinx_env:
         from myst_parser.sphinx_renderer import mock_sphinx_env
 
-        with mock_sphinx_env(conf=conf, document=md.options["document"]):
+        with mock_sphinx_env(conf=conf, srcdir=srcdir, document=md.options["document"]):
             return md.render(text, env)
     else:
         return md.render(text, env)

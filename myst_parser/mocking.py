@@ -374,9 +374,7 @@ class MockIncludeDirective:
             self.renderer.document["source"] = str(path)
             self.renderer.reporter.source = str(path)
             self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
-            self.renderer.nested_render_text(
-                file_content, startline, disable_front_matter=False
-            )
+            self.renderer.nested_render_text(file_content, startline + 1)
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource

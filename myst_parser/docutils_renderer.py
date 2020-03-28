@@ -139,18 +139,11 @@ class DocutilsRenderer:
 
         return self.document
 
-    def nested_render_text(self, text: str, lineno: int, disable_front_matter=True):
+    def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
-
-        if disable_front_matter:
-            # parse without front matter
-            with self.md.reset_rules():
-                self.md.disable("front_matter", True)
-                tokens = self.md.parse(text, self.env)
-        else:
-            tokens = self.md.parse(text, self.env)
-            if tokens[0].type == "front_matter":
-                tokens.pop(0)
+        tokens = self.md.parse(text + "\n", self.env)
+        if tokens and tokens[0].type == "front_matter":
+            tokens.pop(0)
 
         # set correct line numbers
         for token in tokens:
