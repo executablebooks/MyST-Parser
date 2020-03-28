@@ -45,6 +45,27 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
+Some configuration options are also available using `myst_config` in your `conf.py`.
+You can currently change the math bracket setting, and disable parsing of any of the syntax elements:
+
+```python
+extensions = ["myst_parser"]
+myst_config = {"disable_syntax": ["emphasis"], "math_delimiters": "brackets"}
+```
+
+```md
+*emphasis is now disabled*
+
+\[a=1\]
+```
+
+```{seealso}
+The {py:class}`~myst_parser.sphinx_parser.MystParser` class API
+and
+[markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py)
+for the list of syntax elements (known as rules) that you can disable.
+```
+
 ## Parsing Performance Benchmark
 
 MyST-Parser uses the fastest, __*CommonMark compliant*__, parser written in python!

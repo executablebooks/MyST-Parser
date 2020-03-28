@@ -38,7 +38,7 @@ These classes are parsed to sphinx roles and directives,
 to mimic the original docutls rST specific parser elements,
 but instead run nested parsing with the markdown parser.
 
-. autoclass:: myst_parser.mocking.MockInliner
+.. autoclass:: myst_parser.mocking.MockInliner
     :members:
     :undoc-members:
     :show-inheritance:
