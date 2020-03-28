@@ -142,8 +142,7 @@ foo
 <document source="notset">
     <system_message level="3" line="1" source="notset" type="ERROR">
         <paragraph>
-            Directive 'restructuredtext-test-directive':
-            Invalid options YAML: mapping values are not allowed here
+            Directive 'restructuredtext-test-directive': Invalid options YAML: mapping values are not allowed here
               in "<unicode string>", line 2, column 8:
                 option2: b
                        ^
@@ -163,7 +162,7 @@ Unknown Directive:
 <document source="notset">
     <system_message level="3" line="1" source="notset" type="ERROR">
         <paragraph>
-            Unknown directive type 'unknown'
+            Unknown directive type "unknown".
     <system_message level="1" line="1" source="notset" type="INFO">
         <paragraph>
             Problem retrieving directive entry from language module 'en': 'str' object has no attribute 'directives'.

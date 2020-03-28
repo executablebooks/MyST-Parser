@@ -102,10 +102,21 @@ class DocutilsRenderer:
             if f"render_{token.type}" in self.rules:
                 self.rules[f"render_{token.type}"](token)
             else:
-                # TODO make this reporter warning
-                print(f"no render method for: {token.type}")
+                self.current_node.append(
+                    self.reporter.warning(
+                        f"No render method for: {token.type}", line=token.map[0]
+                    )
+                )
 
-        # TODO log warning for duplicate reference definitions
+        # log warnings for duplicate reference definitions
+        # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
+        for dup_ref in self.env.get("duplicate_refs", []):
+            self.document.append(
+                self.reporter.warning(
+                    f"Duplicate reference definition: {dup_ref['label']}",
+                    line=dup_ref["map"][0] + 1,
+                )
+            )
 
         if not self.config.get("output_footnotes", True):
             return self.document
@@ -118,6 +129,8 @@ class DocutilsRenderer:
         for refnode in self.document.traverse(nodes.footnote_reference):
             if refnode["refname"] not in foot_refs:
                 foot_refs[refnode["refname"]] = True
+
+        # TODO log warning for duplicate footnote definitions
 
         if foot_refs:
             self.current_node.append(nodes.transition())
@@ -166,8 +179,11 @@ class DocutilsRenderer:
             if f"render_{token.type}" in self.rules:
                 self.rules[f"render_{token.type}"](token)
             else:
-                # TODO make this reporter warning
-                print(f"no render method for: {token.type}")
+                self.current_node.append(
+                    self.reporter.warning(
+                        f"No render method for: {token.type}", line=token.map[0]
+                    )
+                )
 
     @contextmanager
     def current_node_context(self, node, append: bool = False):
@@ -189,7 +205,7 @@ class DocutilsRenderer:
     def add_line_and_source_path(self, node, token):
         """Copy the line number and document source path to the docutils node."""
         try:
-            node.line = token.map[0] + 1
+            node.line = token.map[0]
         except (AttributeError, TypeError):
             pass
         node.source = self.document["source"]
@@ -402,11 +418,10 @@ class DocutilsRenderer:
                 self.render_children(token)
 
     def handle_cross_reference(self, token, destination):
-        # TODO use the docutils error reporting mechanisms, rather than raising
         if not self.config.get("ignore_missing_refs", False):
-            raise NotImplementedError(
-                "reference not found in current document: {} (lines: {})".format(
-                    destination, token.map
+            self.current_node.append(
+                self.reporter.warning(
+                    f"Reference not found: {destination}", line=token.map[0]
                 )
             )
 
@@ -426,7 +441,8 @@ class DocutilsRenderer:
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
         img_node["uri"] = token.attrGet("src")
-        # TODO ideally we would render proper markup here
+        # TODO ideally we would render proper markup here,
+        # this probably requires an upstream change in sphinx
         img_node["alt"] = self.renderInlineAsText(token.children)
 
         self.current_node.append(img_node)
@@ -451,7 +467,7 @@ class DocutilsRenderer:
             data = yaml.safe_load(token.content)
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             msg_node = self.reporter.error(
-                "Front matter block:\n" + str(error), line=token.map[0] + 1
+                "Front matter block:\n" + str(error), line=token.map[0]
             )
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
@@ -606,7 +622,7 @@ class DocutilsRenderer:
         )  # type: (Directive, list)
         if not directive_class:
             error = self.reporter.error(
-                "Unknown directive type '{}'\n".format(name),
+                'Unknown directive type "{}".\n'.format(name),
                 # nodes.literal_block(content, content),
                 line=position,
             )
@@ -619,7 +635,7 @@ class DocutilsRenderer:
             )
         except DirectiveParsingError as error:
             error = self.reporter.error(
-                "Directive '{}':\n{}".format(name, error),
+                "Directive '{}': {}".format(name, error),
                 nodes.literal_block(content, content),
                 line=position,
             )
@@ -669,7 +685,7 @@ class DocutilsRenderer:
             result = [msg_node]
         except MockingError as exc:
             error = self.reporter.error(
-                "Directive '{}' cannot be mocked:\n{}: {}".format(
+                "Directive '{}' cannot be mocked: {}: {}".format(
                     name, exc.__class__.__name__, exc
                 ),
                 nodes.literal_block(content, content),
@@ -691,7 +707,6 @@ class DocutilsRenderer:
 
 def dict_to_docinfo(data):
     """Render a key/val pair as a docutils field node."""
-    # TODO this data could be used to support default option values for directives
     docinfo = nodes.docinfo()
 
     for key, value in data.items():

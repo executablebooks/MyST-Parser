@@ -295,7 +295,7 @@ class MockIncludeDirective:
         except Exception as error:
             raise DirectiveError(
                 4,
-                'Directive "{}": error reading file: {}\n{error}.'.format(
+                'Directive "{}": error reading file: {}\n{}.'.format(
                     self.name, path, error
                 ),
             )

@@ -580,7 +580,7 @@ a: {
 ---
 .
 <document source="notset">
-    <system_message level="3" line="2" source="notset" type="ERROR">
+    <system_message level="3" line="1" source="notset" type="ERROR">
         <paragraph>
             Front matter block:
             while parsing a flow node
