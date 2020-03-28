@@ -10,7 +10,7 @@ MyST syntax and {doc}`Sphinx <sphinx:intro>`. This allows for native markdown su
 directives.
 
 ```{warning}
-The MyST parser is in an alpha stage, and may have breaking syntax to its implementation
+The MyST parser is in an alpha stage, and may have breaking changes to its implementation
 and to the syntax that it supports. Use at your own risk. If you find any issues,
 please report them
 [in the MyST issues](https://github.com/ExecutableBookProject/meta/issues/24)

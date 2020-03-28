@@ -12,7 +12,7 @@ The tests are run using [pytest](https://docs.pytest.org)/[GitHub Actions](https
 
 The tests are ordered in a hierarchical fashion:
 
-1. In `tests/test_commonmark` the [CommonMark](https://github.com/commonmark/CommonMark.git) test set is run; to check that the parser is complying with the CommonMark specification.
+1. In `tests/test_commonmark` the [CommonMark](https://github.com/commonmark/CommonMark.git) test set is run to check that the parser is complying with the CommonMark specification.
 2. In `tests/test_renderers` are tests that check that the Markdown AST is being correctly converted to the docutils/sphinx AST. This includes testing that roles and directives are correctly parsed and run.
 3. In `tests/test_sphinx` are tests that check that minimal sphinx project builds are running correctly, to convert MyST markdown files to HTML.
 4. In `.circleci` the package documentation (written in MyST format) is built and tested for build errors/warnings.
