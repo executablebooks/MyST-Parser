@@ -456,15 +456,18 @@ class DocutilsRenderer:
         since `process_doc` just converts them back to text.
 
         """
-        try:
-            data = yaml.safe_load(token.content)
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-            msg_node = self.reporter.error(
-                "Front matter block:\n" + str(error), line=token.map[0]
-            )
-            msg_node += nodes.literal_block(token.content, token.content)
-            self.current_node += [msg_node]
-            return
+        if not isinstance(token.content, dict):
+            try:
+                data = yaml.safe_load(token.content)
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                msg_node = self.reporter.error(
+                    "Front matter block:\n" + str(error), line=token.map[0]
+                )
+                msg_node += nodes.literal_block(token.content, token.content)
+                self.current_node += [msg_node]
+                return
+        else:
+            data = token.content
 
         docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
