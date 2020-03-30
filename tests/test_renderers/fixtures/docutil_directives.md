@@ -294,10 +294,12 @@ a
 image (`docutils.parsers.rst.directives.images.Image`):
 .
 ```{image} path/to/image
+:alt: abc
+:name: name
 ```
 .
 <document source="notset">
-    <image uri="path/to/image">
+    <image alt="abc" ids="name" names="name" uri="path/to/image">
 .
 
 --------------------------------

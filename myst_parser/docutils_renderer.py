@@ -193,7 +193,11 @@ class DocutilsRenderer:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
             else:
-                print(f"no render method for: {child.type}")
+                self.current_node.append(
+                    self.reporter.warning(
+                        f"No render method for: {child.type}", line=child.map[0]
+                    )
+                )
 
     def add_line_and_source_path(self, node, token):
         """Copy the line number and document source path to the docutils node."""
@@ -437,7 +441,9 @@ class DocutilsRenderer:
         # TODO ideally we would render proper markup here,
         # this probably requires an upstream change in sphinx
         img_node["alt"] = self.renderInlineAsText(token.children)
-
+        title = token.attrGet("title")
+        if title:
+            img_node["title"] = token.attrGet("title")
         self.current_node.append(img_node)
 
     # ### render methods for plugin tokens

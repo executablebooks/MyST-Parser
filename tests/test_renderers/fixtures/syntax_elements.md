@@ -156,7 +156,7 @@ Image with alt and title:
 .
 <document source="notset">
     <paragraph>
-        <image alt="alt" uri="src">
+        <image alt="alt" title="title" uri="src">
 .
 
 --------------------------

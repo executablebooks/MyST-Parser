@@ -236,7 +236,7 @@ figure (`sphinx.directives.patches.Figure`):
 .
 ```{figure} path/to/figure
 
-caption
+*caption*
 
 legend
 ```
@@ -245,7 +245,8 @@ legend
     <figure>
         <image uri="path/to/figure">
         <caption>
-            caption
+            <emphasis>
+                caption
         <legend>
             <paragraph>
                 legend
@@ -265,7 +266,8 @@ foo
 --------------------------------
 table (`sphinx.directives.patches.RSTTable`):
 .
-```{table}
+```{table} *title*
+:name: name
 
 | a | b |
 |---|---|
@@ -273,7 +275,10 @@ table (`sphinx.directives.patches.RSTTable`):
 ```
 .
 <document source="notset">
-    <table classes="colwidths-auto">
+    <table classes="colwidths-auto" ids="name" names="name">
+        <title>
+            <emphasis>
+                title
         <tgroup cols="2">
             <colspec colwidth="50.0">
             <colspec colwidth="50.0">
