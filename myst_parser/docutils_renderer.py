@@ -216,6 +216,17 @@ class DocutilsRenderer:
             for section_level in self._level_to_elem
             if level > section_level
         )
+
+        if (level > parent_level) and (parent_level + 1 != level):
+            self.current_node.append(
+                self.reporter.warning(
+                    "Non-consecutive header level increase; {} to {}".format(
+                        parent_level, level
+                    ),
+                    line=section.line,
+                )
+            )
+
         parent = self._level_to_elem[parent_level]
         parent.append(section)
         self._level_to_elem[level] = section
@@ -356,8 +367,6 @@ class DocutilsRenderer:
         self.add_line_and_source_path(new_section, token)
         new_section.append(title_node)
 
-        # TODO add extra virtual section for non-consecutive levels
-        # (e.g. 1 to 3) or raise warning?
         self.add_section(new_section, level)
 
         self.current_node = title_node

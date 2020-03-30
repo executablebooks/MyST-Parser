@@ -63,3 +63,11 @@ x
 .
 source/path:2: (ERROR/3) Invalid context: the "date" directive can only be used within a substitution definition.
 .
+
+Non-consecutive headings:
+.
+# title 1
+### title 3
+.
+source/path:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
+.
