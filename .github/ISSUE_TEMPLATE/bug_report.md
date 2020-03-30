@@ -20,8 +20,17 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+If relevant, a minimal example of the input text should be supplied,
+together with a screen-shot of the output Sphinx document and/or command-line output, e.g.
+
+```markdown
+some text...
+```
+
+```console
+$ make html
+ERROR ...
+```
 
 **Environment (please complete the following information):**
  - Python Version [e.g. 3.7.1]
