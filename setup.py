@@ -33,6 +33,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Text Processing :: Markup",
+        "Framework :: Sphinx :: Extension",
     ],
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.6",
