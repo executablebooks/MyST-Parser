@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import copy
 from urllib.parse import unquote
+import tempfile
 from typing import cast
 
 from docutils import nodes
@@ -115,7 +116,6 @@ def minimal_sphinx_app(configuration=None, sourcedir=None):
             self.preload_builder(buildername)
             self.config.init_values()
             self.events.emit("config-inited", self.config)
-            import tempfile
 
             with tempfile.TemporaryDirectory() as tempdir:
                 # creating a builder attempts to make the doctreedir

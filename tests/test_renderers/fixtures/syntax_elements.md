@@ -266,6 +266,35 @@ $foo$
 .
 
 --------------------------
+Inline Math, multi-line:
+.
+a $foo
+bar$ b
+.
+<document source="notset">
+    <paragraph>
+        a 
+        <math>
+            foo
+            bar
+         b
+.
+
+--------------------------
+Inline Math, multi-line with line break (invalid):
+.
+a $foo
+
+bar$ b
+.
+<document source="notset">
+    <paragraph>
+        a $foo
+    <paragraph>
+        bar$ b
+.
+
+--------------------------
 Math Block:
 .
 $$foo$$
