@@ -2,9 +2,8 @@ from docutils import frontend, nodes
 from sphinx.parsers import Parser
 from sphinx.util import logging
 
-from mistletoe.base_elements import SourceLines
-from myst_parser.docutils_renderer import SphinxRenderer
-from myst_parser.block_tokens import Document
+from myst_parser.main import to_docutils
+
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
@@ -12,10 +11,14 @@ SPHINX_LOGGER = logging.getLogger(__name__)
 class MystParser(Parser):
     """Docutils parser for CommonMark + Math + Tables + RST Extensions """
 
-    supported = ("md", "markdown")
+    supported = ("md", "markdown", "myst")
     translate_section_name = None
 
-    default_config = {"known_url_schemes": None}
+    default_config = {
+        "known_url_schemes": None,
+        "disable_syntax": (),
+        "math_delimiters": "dollars",
+    }
 
     # these specs are copied verbatim from the docutils RST parser
     settings_spec = (
@@ -170,19 +173,30 @@ class MystParser(Parser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
-        # TODO add conf.py configurable settings
         self.config = self.default_config.copy()
         try:
-            new_cfg = self.document.settings.env.config.myst_config
+            new_cfg = document.settings.env.config.myst_config
             self.config.update(new_cfg)
         except AttributeError:
             pass
-        renderer = SphinxRenderer(document=document)
-        with renderer:
-            # Log to sphinx (e.g. to warn of duplicate link/footnote definitions)
-            renderer.parse_context.logger = SPHINX_LOGGER
-            lines = SourceLines(
-                inputstring, uri=document["source"], standardize_ends=True
+
+        # TODO raise errors or log error with sphinx?
+        try:
+            for s in self.config["disable_syntax"]:
+                assert isinstance(s, str)
+        except (AssertionError, TypeError):
+            raise TypeError("disable_syntax not of type List[str]")
+
+        allowed_delimiters = ["brackets", "kramdown", "dollars", "julia"]
+        if not self.config["math_delimiters"] in allowed_delimiters:
+            raise ValueError(
+                f"math_delimiters config not an allowed name: {allowed_delimiters}"
             )
-            doc = Document.read(lines)
-            renderer.render(doc)
+
+        to_docutils(
+            inputstring,
+            options=self.config,
+            document=document,
+            disable_syntax=self.config["disable_syntax"] or [],
+            math_delimiters=self.config["math_delimiters"],
+        )

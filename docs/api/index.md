@@ -5,7 +5,6 @@
 ```{toctree}
 :maxdepth: 2
 
-tokens.rst
 directive.rst
 renderers.rst
 sphinx_parser.rst

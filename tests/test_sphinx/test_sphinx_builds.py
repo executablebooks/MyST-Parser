@@ -13,7 +13,14 @@ SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "basic"), freshenv=True
 )
-def test_basic(app, status, warning, get_sphinx_app_output, remove_sphinx_builds):
+def test_basic(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
     """basic test."""
     app.build()
 
@@ -21,7 +28,24 @@ def test_basic(app, status, warning, get_sphinx_app_output, remove_sphinx_builds
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
+    get_sphinx_app_doctree(app, filename="content.doctree", regress=True)
     get_sphinx_app_output(app, filename="content.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "conf_values"), freshenv=True
+)
+def test_conf_values(
+    app, status, warning, get_sphinx_app_doctree, remove_sphinx_builds
+):
+    """basic test."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
 
 
 @pytest.mark.sphinx(
