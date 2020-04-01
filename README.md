@@ -35,7 +35,7 @@ pip install -e .[sphinx,code_style,testing,rtd]
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
-[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/Python%20package/badge.svg?branch=master
+[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/ExecutableBookProject/MyST-Parser
 [coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
 [coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
