@@ -1,7 +1,7 @@
 # Contributing
 
 [![Github-CI][github-ci]][github-link]
-[![Coverage][coveralls-badge]][coveralls-link]
+[![Coverage Status][codecov-badge]][codecov-link]
 [![CircleCI][circleci-badge]][circleci-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
@@ -72,8 +72,8 @@ Merging pull requests: There are three ways of 'merging' pull requests on GitHub
 
 [github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/ExecutableBookProject/MyST-Parser
-[coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
-[coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
+[codecov-badge]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser
 [circleci-badge]: https://circleci.com/gh/ExecutableBookProject/MyST-Parser.svg?style=shield
 [circleci-link]: https://circleci.com/gh/ExecutableBookProject/MyST-Parser
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest

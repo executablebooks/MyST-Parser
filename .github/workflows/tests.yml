@@ -42,7 +42,7 @@ jobs:
     # cd tests/test_commonmark && ./spec.sh
     - name: Run pytest
       run: |
-        pytest --durations=10 --cov=myst_nb --cov-report=xml --cov-report=term-missing
+        pytest --durations=10 --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
     - name: Upload to Codecov
       if: matrix.python-version == 3.7 && github.repository == 'ExecutableBookProject/MyST-Parser'
