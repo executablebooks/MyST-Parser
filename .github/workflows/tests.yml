@@ -40,16 +40,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[sphinx,testing]
     # cd tests/test_commonmark && ./spec.sh
-    - name: Test with pytest
+    - name: Run pytest
       run: |
-        pip install pytest
-        pytest --cov=myst_parser --cov-report=
-    - name: Upload to coveralls
-      run: |
-        pip install coveralls
-        coveralls
-      env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_KEY }}
+        pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
+        coverage xml
+    - name: Upload to Codecov
+      if: matrix.python-version == 3.7 && github.repository == 'ExecutableBookProject/MyST-Parser'
+      uses: codecov/codecov-action@v1
+      with:
+        name: myst-nb-pytests-py3.7
+        flags: pytests
+        file: ./coverage.xml
+        fail_ci_if_error: true
 
   publish:
 

@@ -1,7 +1,7 @@
 # MyST-Parser
 
 [![Github-CI][github-ci]][github-link]
-[![Coverage][coveralls-badge]][coveralls-link]
+[![Coverage Status][codecov-badge]][codecov-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
 [![PyPI][pypi-badge]][pypi-link]
@@ -37,8 +37,8 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 [github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/ExecutableBookProject/MyST-Parser
-[coveralls-badge]: https://coveralls.io/repos/github/ExecutableBookProject/MyST-Parser/badge.svg?branch=master
-[coveralls-link]: https://coveralls.io/github/ExecutableBookProject/MyST-Parser?branch=master
+[codecov-badge]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
 [rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
