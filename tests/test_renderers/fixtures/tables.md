@@ -99,3 +99,35 @@ Nested syntax:
                             <subscript>
                                 x
 .
+
+--------------------------
+External links:
+.
+a|b
+|-|-|
+[link-a](https://www.google.com/)|[link-b](https://www.python.org/)
+.
+<document source="notset">
+    <table classes="colwidths-auto">
+        <tgroup cols="2">
+            <colspec colwidth="50.0">
+            <colspec colwidth="50.0">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://www.google.com/">
+                                link-a
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://www.python.org/">
+                                link-b
+.

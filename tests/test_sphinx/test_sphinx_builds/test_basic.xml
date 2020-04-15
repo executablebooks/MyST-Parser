@@ -70,6 +70,15 @@
                         <entry classes="text-align:right">
                             <paragraph>
                                 2
+                    <row>
+                        <entry>
+                            <paragraph>
+                                <reference refuri="https://google.com">
+                                    link-a
+                        <entry classes="text-align:right">
+                            <paragraph>
+                                <reference refuri="https://python.org">
+                                    link-b
         <paragraph>
             this
             
