@@ -534,7 +534,7 @@ class DocutilsRenderer:
                     entry["classes"].append(style)
                 with self.current_node_context(entry, append=True):
                     with self.current_node_context(para, append=True):
-                            self.render_children(child)
+                        self.render_children(child)
 
     def render_math_inline(self, token):
         content = token.content
