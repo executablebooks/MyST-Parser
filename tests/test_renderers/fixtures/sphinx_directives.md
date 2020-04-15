@@ -285,15 +285,19 @@ table (`sphinx.directives.patches.RSTTable`):
             <thead>
                 <row>
                     <entry>
-                        a
+                        <paragraph>
+                            a
                     <entry>
-                        b
+                        <paragraph>
+                            b
             <tbody>
                 <row>
                     <entry>
-                        1
+                        <paragraph>
+                            1
                     <entry>
-                        2
+                        <paragraph>
+                            2
 .
 
 --------------------------------

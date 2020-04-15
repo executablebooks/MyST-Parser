@@ -13,15 +13,19 @@ a|b
             <thead>
                 <row>
                     <entry>
-                        a
+                        <paragraph>
+                            a
                     <entry>
-                        b
+                        <paragraph>
+                            b
             <tbody>
                 <row>
                     <entry>
-                        1
+                        <paragraph>
+                            1
                     <entry>
-                        2
+                        <paragraph>
+                            2
 .
 
 --------------------------
@@ -40,19 +44,25 @@ a | b | c
             <thead>
                 <row>
                     <entry classes="text-align:left">
-                        a
+                        <paragraph>
+                            a
                     <entry classes="text-align:center">
-                        b
+                        <paragraph>
+                            b
                     <entry classes="text-align:right">
-                        c
+                        <paragraph>
+                            c
             <tbody>
                 <row>
                     <entry classes="text-align:left">
-                        1
+                        <paragraph>
+                            1
                     <entry classes="text-align:center">
-                        2
+                        <paragraph>
+                            2
                     <entry classes="text-align:right">
-                        3
+                        <paragraph>
+                            3
 .
 
 --------------------------
@@ -70,18 +80,22 @@ Nested syntax:
             <thead>
                 <row>
                     <entry>
-                        <emphasis>
-                            a
-                    <entry>
-                        <strong>
+                        <paragraph>
                             <emphasis>
-                                b
+                                a
+                    <entry>
+                        <paragraph>
+                            <strong>
+                                <emphasis>
+                                    b
             <tbody>
                 <row>
                     <entry>
-                        <math>
-                            1
+                        <paragraph>
+                            <math>
+                                1
                     <entry>
-                        <subscript>
-                            x
+                        <paragraph>
+                            <subscript>
+                                x
 .
