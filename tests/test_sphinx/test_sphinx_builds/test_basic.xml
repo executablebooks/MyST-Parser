@@ -56,16 +56,20 @@
                 <thead>
                     <row>
                         <entry>
-                            a
+                            <paragraph>
+                                a
                         <entry classes="text-align:right">
-                            b
+                            <paragraph>
+                                b
                 <tbody>
                     <row>
                         <entry>
-                            <emphasis>
-                                a
+                            <paragraph>
+                                <emphasis>
+                                    a
                         <entry classes="text-align:right">
-                            2
+                            <paragraph>
+                                2
         <paragraph>
             this
             
