@@ -528,11 +528,13 @@ class DocutilsRenderer:
         with self.current_node_context(row, append=True):
             for child in token.children:
                 entry = nodes.entry()
+                para = nodes.paragraph("")
                 style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
                 if style:
                     entry["classes"].append(style)
                 with self.current_node_context(entry, append=True):
-                    self.render_children(child)
+                    with self.current_node_context(para, append=True):
+                        self.render_children(child)
 
     def render_math_inline(self, token):
         content = token.content

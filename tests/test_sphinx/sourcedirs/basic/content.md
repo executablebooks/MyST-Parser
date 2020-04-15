@@ -43,6 +43,7 @@ $$c=2$$ (eq:label)
 | a   | b |
 |-----|--:|
 | *a* | 2 |
+| [link-a](https://google.com) | [link-b](https://python.org) |
 
 this
 is
