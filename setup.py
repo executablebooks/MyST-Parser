@@ -48,7 +48,7 @@ setup(
             "pytest-regressions",
             "beautifulsoup4",
         ],
-        "rtd": ["sphinxcontrib-bibtex", "ipython", "pydata-sphinx-theme"],
+        "rtd": ["sphinxcontrib-bibtex", "ipython", "sphinx-book-theme"],
     },
     zip_safe=True,
 )
