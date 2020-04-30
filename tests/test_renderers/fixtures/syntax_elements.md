@@ -140,6 +140,18 @@ foo
 .
 
 --------------------------
+Fenced Code no language with trailing whitespace:
+.
+```  
+foo
+```
+.
+<document source="notset">
+    <literal_block language="default" xml:space="preserve">
+        foo
+.
+
+--------------------------
 Image empty:
 .
 ![]()
