@@ -26,7 +26,7 @@ pip install myst-parser[sphinx]
 Or for package development:
 
 ```bash
-git clone https://github.com/ExecutableBookProject/MyST-Parser
+git clone https://github.com/executablebooks/MyST-Parser
 cd MyST-Parser
 git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
@@ -37,6 +37,7 @@ pip install -e .[sphinx,code_style,testing,rtd]
 [conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
 [conda-link]: https://anaconda.org/conda-forge/myst-parser
 
+(parse-with-sphinx)=
 ## Parsing MyST with Sphinx
 
 Sphinx is a documentation generator for building a website or book from multiple source documents and assets. To get started with Sphinx, see their [Quickstart Guide](https://www.sphinx-doc.org/en/master/usage/quickstart.html).
@@ -62,7 +63,7 @@ myst_config = {"disable_syntax": ["emphasis"], "math_delimiters": "brackets"}
 ```{seealso}
 The {py:class}`~myst_parser.sphinx_parser.MystParser` class API
 and
-[markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py)
+[markdown-it-py](https://github.com/executablebooks/markdown-it-py)
 for the list of syntax elements (known as rules) that you can disable.
 ```
 

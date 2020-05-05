@@ -1,19 +1,31 @@
 MyST - Markedly Structured Text
 ===============================
 
-MyST is a markdown flavor that implements the best parts of reStructuredText.
-It provides a way to call Sphinx directives and roles from within Markdown.
-It is a *slight* extension of CommonMark markdown.
+**A fully-functional markdown flavor and parser for Sphinx.**
 
-This project provides a parser for this flavor of markdown, as well as a bridge between
-MyST syntax and {doc}`Sphinx <sphinx:intro>`. This allows for native markdown support for roles and
-directives.
+MyST allows you to write Sphinx documentation entirely in markdown.
+It is an attempt to have the best of both worlds: the flexibility
+and extensibility of Sphinx with the simplicity and readability of Markdown.
 
-```{warning}
-The MyST parser is in an alpha stage, and may have breaking changes to its implementation
-and to the syntax that it supports. Use at your own risk. If you find any issues,
-please report them
-[in the MyST issues](https://github.com/ExecutableBookProject/meta/issues/24)
+MyST has the following main features:
+
+* **[A markdown parser for Sphinx](parse-with-sphinx)**. You can write your entire
+  {doc}`Sphinx documentation <sphinx:intro>` in markdown.
+* **[Call Sphinx directives and roles from within Markdown](syntax/directives)**,
+  allowing you to extend your document via Sphinx extensions.
+* **[Extended Markdown syntax for useful rST features](extended-block-tokens)**, such
+  as line commenting and footnotes.
+* **[A Sphinx-independent parser of MyST markdown](using/use_api)** that can be extended
+  to add new functionality and outputs for MyST.
+* **[A superset of CommonMark markdown][commonmark]**. Any CommonMark markdown
+  (such as Jupyter Notebook markdown) is natively supported by the MyST parser.
+
+See {doc}`using/intro` to get started.
+
+```{note}
+The MyST parser is in a beta stage, and may change rapidly in its implementation
+and machinery. Use at your own risk. If you find any issues, please report them
+[in the MyST issues](https://github.com/executablebooks/meta/issues/24)
 ```
 
 ```{tip}
@@ -21,7 +33,29 @@ Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio
 for MyST extended syntax highlighting.
 ```
 
-## Why a new flavor of markdown?
+## Site contents
+
+```{toctree}
+---
+maxdepth: 2
+caption: Using MyST Markdown
+---
+using/intro.md
+using/syntax.md
+using/use_api.md
+```
+
+```{toctree}
+---
+maxdepth: 2
+caption: Reference and contributing
+---
+examples/index.md
+develop/index.md
+api/index.md
+```
+
+## Why MyST markdown?
 
 While markdown is ubiquitous, it is not powerful enough for writing modern,
 fully-featured documentation. Some flavors of markdown support features needed for this,
@@ -34,7 +68,7 @@ particular, Sphinx defines two extension points that are extremely useful:
 
 **This project is an attempt at combining the simplicity and readability of Markdown
 with the power and flexibility of reStructuredText and the Sphinx platform.** It
-starts with the CommonMark markdown specification, and selectively adds a few extra
+starts with the [CommonMark markdown specification][commonmark], and selectively adds a few extra
 syntax pieces to utilize the most powerful parts of reStructuredText.
 
 ```{note}
@@ -50,15 +84,9 @@ decides on an "official" extension syntax, we will likely utilize this syntax fo
 MyST.
 ```
 
-Here are the site contents:
+## Acknowledgements
 
-```{toctree}
----
-maxdepth: 2
-caption: Contents
----
-using/index.md
-examples/index.md
-develop/index.md
-api/index.md
-```
+The MyST markdown language and MyST parser are both supported by the open community,
+[The Executable Book Project](https://executablebooks.org).
+
+[commonmark]: https://commonmark.org/
