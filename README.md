@@ -27,7 +27,7 @@ pip install myst-parser[sphinx]
 Or for package development:
 
 ```bash
-git clone https://github.com/ExecutableBookProject/MyST-Parser
+git clone https://github.com/executablebooks/MyST-Parser
 cd MyST-Parser
 git checkout master
 pip install -e .[sphinx,code_style,testing,rtd]
@@ -35,10 +35,10 @@ pip install -e .[sphinx,code_style,testing,rtd]
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
-[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
-[github-link]: https://github.com/ExecutableBookProject/MyST-Parser
-[codecov-badge]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser/branch/master/graph/badge.svg
-[codecov-link]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser
+[github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
+[github-link]: https://github.com/executablebooks/MyST-Parser
+[codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/executablebooks/MyST-Parser
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
 [rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg

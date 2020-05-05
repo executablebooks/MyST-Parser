@@ -3,7 +3,7 @@
 MyST-Parser may be used as an API *via* the `myst_parser` package.
 
 ```{seealso}
-- The [markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) package
+- The [markdown-it-py](https://github.com/executablebooks/markdown-it-py) package
 - {ref}`The MyST-Parser API <api/main>`
 ```
 

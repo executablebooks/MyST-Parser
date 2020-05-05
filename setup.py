@@ -11,7 +11,7 @@ setup(
     ),
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ExecutableBookProject/MyST-Parser",
+    url="https://github.com/executablebooks/MyST-Parser",
     project_urls={"Documentation": "https://myst-parser.readthedocs.io"},
     author="Chris Sewell",
     author_email="chrisj_sewell@hotmail.com",

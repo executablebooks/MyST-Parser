@@ -3,17 +3,13 @@
 # The MyST Syntax Guide
 
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
-For this, it uses the [markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) parser,
+For this, it uses the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
 and also extensible.
 
-MyST adds several new syntax options that extend its functionality to be used
+MyST adds several new syntax options to CommonMark in order to be used
 with Sphinx, the documentation generation engine used extensively in the Python
-ecosystem. Sphinx uses reStructuredText by default, which is both more
-powerful than Markdown, and also (arguably) more complex to use.
-
-This project is an attempt to have the best of both worlds: the flexibility
-and extensibility of Sphinx with the simplicity and readability of Markdown.
+ecosystem.
 
 Below is a summary of the syntax 'tokens' parsed,
 and further details of a few major extensions from the CommonMark flavor of markdown.
@@ -22,16 +18,20 @@ and further details of a few major extensions from the CommonMark flavor of mark
 % {ref}`MyST Extended AST Tokens API <api/tokens>`
 % ```
 
-## Parsed Token
-
 MyST builds on the tokens defined by markdown-it, to extend the syntax
 described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the parser is tested against.
 
 % TODO link to markdown-it documentation
 
-### Block Tokens
+## Block Tokens
 
-#### Extended block tokens
+Block tokens span multiple lines of content. They are broken down into two sections:
+
+* {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
+* {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
+
+(extended-block-tokens)=
+### Extended block tokens
 
 `````{list-table}
 :header-rows: 1
@@ -89,7 +89,8 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
     ```
 `````
 
-#### CommonMark tokens
+(commonmark-block-tokens)=
+### CommonMark tokens
 
 `````{list-table}
 :header-rows: 1
@@ -156,9 +157,16 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
 
 `````
 
-### Span (Inline) Tokens
+## Span (Inline) Tokens
 
-#### Extended inline tokens
+Span (or inline) tokens are defined on a single line of content. They are broken down into two
+sections below:
+
+* {ref}`extended-span-tokens` contains *extra* tokens that are not in CommonMark.
+* {ref}`commonmark-span-tokens` contains CommonMark tokens that also work, for reference.
+
+(extended-span-tokens)=
+### Extended inline tokens
 
 `````{list-table}
 :header-rows: 1
@@ -191,7 +199,8 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
     ```
 `````
 
-#### CommonMark inline tokens
+(commonmark-span-tokens)=
+### CommonMark inline tokens
 
 `````{list-table}
 :header-rows: 1

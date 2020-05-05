@@ -53,9 +53,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_book_theme"
 html_logo = "_static/logo.png"
 html_theme_options = {
-    "github_url": "https://github.com/ExecutableBookProject/MyST-Parser",
-    "repository_url": "https://github.com/ExecutableBookProject/MyST-Parser",
-    "expand_sections": ["using/index"],
+    "github_url": "https://github.com/executablebooks/MyST-Parser",
+    "repository_url": "https://github.com/executablebooks/MyST-Parser",
+    "expand_sections": ["examples/index"],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
