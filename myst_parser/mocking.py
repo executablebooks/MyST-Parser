@@ -102,11 +102,12 @@ class MockState:
         """
         Taken from https://github.com/docutils-mirror/docutils/blob/e88c5fb08d5cdfa8b4ac1020dd6f7177778d5990/docutils/parsers/rst/states.py#L1927  # noqa: E501
         """
-        if block and block[-1].strip()[-1:] == "_":  # possible indirect target
-            reference = " ".join([line.strip() for line in block])
-            refname = self.is_reference(reference)
-            if refname:
-                return "refname", refname
+        # Commenting out this code because it only applies to rST
+        # if block and block[-1].strip()[-1:] == "_":  # possible indirect target
+        #     reference = " ".join([line.strip() for line in block])
+        #     refname = self.is_reference(reference)
+        #     if refname:
+        #         return "refname", refname
         reference = "".join(["".join(line.split()) for line in block])
         return "refuri", unescape(reference)
 
