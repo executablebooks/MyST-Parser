@@ -8,6 +8,7 @@ from docutils.parsers.rst.states import Inliner, RSTStateMachine, Body
 from docutils.parsers.rst import DirectiveError
 from docutils.parsers.rst.directives.misc import Include
 from docutils.statemachine import StringList
+from docutils.utils import unescape
 
 
 class MockingError(Exception):
@@ -96,6 +97,18 @@ class MockState:
                 "\n".join(block), self._lineno + input_offset
             )
         self.state_machine.match_titles = current_match_titles
+
+    def parse_target(self, block, block_text, lineno):
+        """
+        Taken from https://github.com/docutils-mirror/docutils/blob/e88c5fb08d5cdfa8b4ac1020dd6f7177778d5990/docutils/parsers/rst/states.py#L1927  # noqa: E501
+        """
+        if block and block[-1].strip()[-1:] == "_":  # possible indirect target
+            reference = " ".join([line.strip() for line in block])
+            refname = self.is_reference(reference)
+            if refname:
+                return "refname", refname
+        reference = "".join(["".join(line.split()) for line in block])
+        return "refuri", unescape(reference)
 
     def inline_text(self, text: str, lineno: int):
         # TODO return messages?
