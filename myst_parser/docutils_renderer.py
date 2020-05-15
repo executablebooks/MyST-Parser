@@ -403,7 +403,7 @@ class DocutilsRenderer:
         ref_node["refuri"] = destination
 
         if title:
-            ref_node["title"] = title
+            ref_node["reftitle"] = title
         next_node = ref_node
 
         url_check = urlparse(destination)
