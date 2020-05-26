@@ -8,3 +8,8 @@ contributing.md
 architecture.md
 test_infrastructure.md
 ```
+
+## Code of Conduct
+
+The MyST-parser project follows the
+[Executable Book Project code of conduct](https://executablebooks.org/en/latest/about.html#code-of-conduct).
