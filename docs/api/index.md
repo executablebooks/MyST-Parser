@@ -1,6 +1,6 @@
 (api/main)=
 
-# MyST-Parser API
+# MyST-Parser API reference
 
 ```{toctree}
 :maxdepth: 2

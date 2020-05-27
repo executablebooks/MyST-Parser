@@ -12,6 +12,8 @@ MyST - Markedly Structured Text
 **A fully-functional markdown flavor and parser for Sphinx.**
 
 MyST allows you to write Sphinx documentation entirely in markdown.
+MyST markdown provides a markdown equivalent of the reStructuredText syntax,
+meaning that you can do anything in MyST that you can do with reStructuredText.
 It is an attempt to have the best of both worlds: the flexibility
 and extensibility of Sphinx with the simplicity and readability of Markdown.
 
@@ -36,11 +38,6 @@ and machinery. Use at your own risk. If you find any issues, please report them
 [in the MyST issues](https://github.com/executablebooks/meta/issues/24)
 ```
 
-```{tip}
-Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight),
-for MyST extended syntax highlighting.
-```
-
 ## Site contents
 
 ```{toctree}
@@ -50,6 +47,8 @@ caption: Using MyST Markdown
 ---
 using/intro.md
 using/syntax.md
+using/howto.md
+using/faq.md
 using/use_api.md
 ```
 
