@@ -1,4 +1,4 @@
-# How-to
+# How-To Guides
 
 This page describes several common uses of MyST parser and how to accomplish them.
 
