@@ -6,6 +6,17 @@
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
 
+## Install for development
+
+To install `myst-parser` for development, take the following steps:
+
+```bash
+git clone https://github.com/executablebooks/MyST-Parser
+cd MyST-Parser
+git checkout master
+pip install -e .[sphinx,code_style,testing,rtd]
+```
+
 ## Code Style
 
 Code style is tested using [flake8](http://flake8.pycqa.org),
