@@ -1,11 +1,6 @@
 MyST - Markedly Structured Text
 ===============================
 
-[![github][github-badge]][github-link]
-[![Github-CI][github-ci]][github-link]
-[![Coverage Status][codecov-badge]][codecov-link]
-[![Documentation Status][rtd-badge]][rtd-link]
-[![Code style: black][black-badge]][black-link]
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
 
