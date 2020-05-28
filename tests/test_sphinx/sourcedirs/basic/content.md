@@ -18,6 +18,7 @@ abcd *abc* [google](https://www.google.com)
 ```{figure} example.jpg
 ---
 height: 40px
+target: https://www.google.com
 ---
 Caption
 ```
