@@ -686,6 +686,12 @@ Targets are used to define custom anchors that you can refer to elsewhere in you
 documentation. They generally go before section titles so that you can easily refer
 to them.
 
+```{tip}
+If you'd like to *automatically* generate targets for each of your section headers,
+check out the [`autosectionlabel`](https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
+sphinx feature. See {ref}`autosectionlabel` for more details.
+```
+
 Target headers are defined with this syntax:
 
 ```md
