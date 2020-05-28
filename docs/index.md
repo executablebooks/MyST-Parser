@@ -1,6 +1,14 @@
 MyST - Markedly Structured Text
 ===============================
 
+[![github][github-badge]][github-link]
+[![Github-CI][github-ci]][github-link]
+[![Coverage Status][codecov-badge]][codecov-link]
+[![Documentation Status][rtd-badge]][rtd-link]
+[![Code style: black][black-badge]][black-link]
+[![PyPI][pypi-badge]][pypi-link]
+[![Conda][conda-badge]][conda-link]
+
 **A fully-functional markdown flavor and parser for Sphinx.**
 
 MyST allows you to write Sphinx documentation entirely in markdown.
@@ -53,6 +61,7 @@ caption: Reference and contributing
 examples/index.md
 develop/index.md
 api/index.md
+GitHub repo <https://github.com/executablebooks/myst-parser>
 ```
 
 ## Why MyST markdown?
@@ -90,3 +99,16 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [The Executable Book Project](https://executablebooks.org).
 
 [commonmark]: https://commonmark.org/
+[github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
+[github-link]: https://github.com/executablebooks/MyST-Parser
+[codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/executablebooks/MyST-Parser
+[rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
+[rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
+[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg
+[pypi-link]: https://pypi.org/project/myst-parser
+[conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
+[conda-link]: https://anaconda.org/conda-forge/myst-parser
+[black-link]: https://github.com/ambv/black
+[github-badge]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=github
