@@ -1,0 +1,13 @@
+<document source="index.md">
+    <target refid="title">
+    <section dupnames="title" ids="title id1" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference refuri="https://example.com">
+                <emphasis>
+                    text
+        <paragraph>
+            <reference internal="True" refid="title">
+                <inline classes="std std-ref std std-ref">
+                    text

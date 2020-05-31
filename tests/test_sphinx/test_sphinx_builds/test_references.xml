@@ -1,0 +1,14 @@
+<document source="index.md">
+    <target refid="title">
+    <section dupnames="title" ids="title id1" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference refuri="https://example.com">
+                <emphasis>
+                    text
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="any" refwarn="True">
+                <literal classes="xref any">
+                    <emphasis>
+                        text
