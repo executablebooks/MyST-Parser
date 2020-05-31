@@ -22,8 +22,8 @@ def test_syntax_elements(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -33,8 +33,8 @@ def test_tables(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -45,8 +45,8 @@ def test_directive_options(line, title, input, expected):
     document = to_docutils(input)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -57,8 +57,8 @@ def test_docutils_roles(line, title, input, expected):
     document = to_docutils(input)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -73,8 +73,8 @@ def test_docutils_directives(line, title, input, expected):
     document = to_docutils(input)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -89,8 +89,8 @@ def test_sphinx_directives(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
 
 
 @pytest.mark.parametrize(
@@ -103,5 +103,5 @@ def test_sphinx_roles(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     assert "\n".join(
-        [l.rstrip() for l in document.pformat().splitlines()]
-    ) == "\n".join([l.rstrip() for l in expected.splitlines()])
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])

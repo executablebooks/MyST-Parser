@@ -1,9 +1,14 @@
 MyST - Markedly Structured Text
 ===============================
 
+[![PyPI][pypi-badge]][pypi-link]
+[![Conda][conda-badge]][conda-link]
+
 **A fully-functional markdown flavor and parser for Sphinx.**
 
 MyST allows you to write Sphinx documentation entirely in markdown.
+MyST markdown provides a markdown equivalent of the reStructuredText syntax,
+meaning that you can do anything in MyST that you can do with reStructuredText.
 It is an attempt to have the best of both worlds: the flexibility
 and extensibility of Sphinx with the simplicity and readability of Markdown.
 
@@ -28,11 +33,6 @@ and machinery. Use at your own risk. If you find any issues, please report them
 [in the MyST issues](https://github.com/executablebooks/meta/issues/24)
 ```
 
-```{tip}
-Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight),
-for MyST extended syntax highlighting.
-```
-
 ## Site contents
 
 ```{toctree}
@@ -42,6 +42,8 @@ caption: Using MyST Markdown
 ---
 using/intro.md
 using/syntax.md
+using/howto.md
+using/faq.md
 using/use_api.md
 ```
 
@@ -53,6 +55,7 @@ caption: Reference and contributing
 examples/index.md
 develop/index.md
 api/index.md
+GitHub repo <https://github.com/executablebooks/myst-parser>
 ```
 
 ## Why MyST markdown?
@@ -90,3 +93,16 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [The Executable Book Project](https://executablebooks.org).
 
 [commonmark]: https://commonmark.org/
+[github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
+[github-link]: https://github.com/executablebooks/MyST-Parser
+[codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/executablebooks/MyST-Parser
+[rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
+[rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
+[black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
+[pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg
+[pypi-link]: https://pypi.org/project/myst-parser
+[conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
+[conda-link]: https://anaconda.org/conda-forge/myst-parser
+[black-link]: https://github.com/ambv/black
+[github-badge]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=github
