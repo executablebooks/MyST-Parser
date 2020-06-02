@@ -1,14 +1,46 @@
 <document source="index.md">
     <target refid="title">
-    <section dupnames="title" ids="title id1" names="title">
+    <section ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title">
         <title>
-            Title
+            Title with 
+            <strong>
+                nested
+             
+            <math>
+                a=1
         <paragraph>
             <reference refuri="https://example.com">
-                <emphasis>
-                    text
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <reference refuri="https://example.com">
+                plain text
+        <paragraph>
+            <reference refuri="https://example.com">
+                nested 
+                <emphasis>
+                    syntax
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="False" reftarget="title" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    plain text
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    nested 
                     <emphasis>
-                        text
+                        syntax
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="False" reftarget="index.md" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    plain text
+        <paragraph>
+            <pending_xref refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    nested 
+                    <emphasis>
+                        syntax

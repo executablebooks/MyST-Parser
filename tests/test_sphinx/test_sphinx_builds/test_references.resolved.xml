@@ -1,13 +1,48 @@
 <document source="index.md">
     <target refid="title">
-    <section dupnames="title" ids="title id1" names="title">
+    <section ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title">
         <title>
-            Title
+            Title with 
+            <strong>
+                nested
+             
+            <math>
+                a=1
         <paragraph>
             <reference refuri="https://example.com">
+        <paragraph>
+            <reference refuri="https://example.com">
+                plain text
+        <paragraph>
+            <reference refuri="https://example.com">
+                nested 
                 <emphasis>
-                    text
+                    syntax
         <paragraph>
             <reference internal="True" refid="title">
-                <inline classes="std std-ref std std-ref">
-                    text
+                <inline classes="std std-ref">
+                    Title with nested a=1
+        <paragraph>
+            <reference internal="True" refid="title">
+                <inline classes="std std-ref">
+                    plain text
+        <paragraph>
+            <reference internal="True" refid="title">
+                <inline classes="std std-ref">
+                    nested 
+                    <emphasis>
+                        syntax
+        <paragraph>
+            <reference internal="True" refuri="">
+                <inline classes="doc std std-doc">
+                    Title with nested a=1
+        <paragraph>
+            <reference internal="True" refuri="">
+                <inline classes="doc std std-doc">
+                    plain text
+        <paragraph>
+            <reference internal="True" refuri="">
+                <inline classes="doc std std-doc">
+                    nested 
+                    <emphasis>
+                        syntax

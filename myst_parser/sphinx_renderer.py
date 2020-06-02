@@ -31,7 +31,7 @@ class SphinxRenderer(DocutilsRenderer):
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
             reftarget=unquote(destination),
-            reftype="any",
+            reftype="myst",
             refdomain=None,  # Added to enable cross-linking
             refexplicit=len(token.children) > 0,
             refwarn=True,
@@ -41,9 +41,10 @@ class SphinxRenderer(DocutilsRenderer):
         if title:
             wrap_node["title"] = title
         self.current_node.append(wrap_node)
-        text_node = nodes.literal("", "", classes=["xref", "any"])
-        wrap_node.append(text_node)
-        with self.current_node_context(text_node):
+
+        inner_node = nodes.inline("", "", classes=["xref", "myst"])
+        wrap_node.append(inner_node)
+        with self.current_node_context(inner_node):
             self.render_children(token)
 
     def render_math_block_eqno(self, token):
