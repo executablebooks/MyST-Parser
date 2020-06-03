@@ -179,7 +179,7 @@ sections below:
   - See {ref}`syntax/roles` for more
   information.
   - ```md
-    `{rolename}`interpreted text`
+    {rolename}`interpreted text`
     ```
 * - Target
   - Precedes element to target, e.g. header. See
