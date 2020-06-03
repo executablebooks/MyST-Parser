@@ -15,7 +15,7 @@ and extensibility of Sphinx with the simplicity and readability of Markdown.
 MyST has the following main features:
 
 * **[A markdown parser for Sphinx](parse-with-sphinx)**. You can write your entire
-  {doc}`Sphinx documentation <sphinx:/usage/quickstart>` in markdown.
+  {doc}`Sphinx documentation <sphinx:usage/quickstart>` in markdown.
 * **[Call Sphinx directives and roles from within Markdown](syntax/directives)**,
   allowing you to extend your document via Sphinx extensions.
 * **[Extended Markdown syntax for useful rST features](extended-block-tokens)**, such
