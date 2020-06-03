@@ -43,5 +43,6 @@ Use `sphinx-quickstart` to create your `conf.py` file and make the above modific
 And now you're good to go, using MyST for your Sphinx-powered, ReadTheDocs-hosted documentation!
 
 ```{seealso}
-
+- [Read the Docs documentation](https://docs.readthedocs.io/en/stable/index.html)
+- {ref}`The MyST Syntax Guide <using/syntax>`
 ```
