@@ -335,8 +335,8 @@ class DocutilsRenderer:
         text = token.content
         if token.info:
             # Ensure that we'll have an empty string if info exists but is only spaces
-            info = info.strip()
-        language = info.split()[0] if info else ""
+            token.info = token.info.strip()
+        language = token.info.split()[0] if token.info else ""
 
         if language.startswith("{") and language.endswith("}"):
             return self.render_directive(token)
