@@ -71,13 +71,14 @@ markdown documents. This means that you can use the `.md` extension for your pag
 and write MyST markdown in these pages.
 
 ```{tip}
-MyST markdown is kind-of like two flavors of markdown wrapped in one.
+MyST markdown is a mixture of two flavors of markdown:
 
-It supports [CommonMark Markdown](https://commonmark.org/) - the base flavor of markdown
-that is a standard across many communities.
+It supports all the syntax of **[CommonMark Markdown](https://commonmark.org/)** at its
+base. This is a community standard flavor of markdown used across many projects.
 
-It also supports [MyST Markdown syntax](syntax), an extended set of markdown syntax
-that has Sphinx-specific functionality and extra features.
+In addition, it includes several extensions **in addition to CommonMark**
+(often described as [MyST Markdown syntax](syntax)). These add extra syntax features
+designed to work with the Sphinx ecosystem (and inspired by reStructuredText)
 ```
 
 The following sections cover a few core syntax patterns in MyST markdown, you can
