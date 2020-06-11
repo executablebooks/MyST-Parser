@@ -40,21 +40,157 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
+## How does MyST parser relate to Sphinx?
+
+The Sphinx documentation engine supports a number of different input types. By default,
+Sphinx reads **reStructuredText** (`.rst`) files. Sphinx uses a **parser** to parse input files
+into its own internal document model (which is provided by a core Python project,
+[docutils](https://docutils.sourceforge.io/)).
+
+Developers can *extend Sphinx* to support other kinds of input files. Any content file
+can be read into the Sphinx document structure, provided that somebody writes a
+**parser** for that file. Once a content file has been parsed into Sphinx, it behaves
+nearly the same way as any other content file, regardless of the language in which it
+was written.
+
+The MyST-parser is a Sphinx parser for the MyST markdown language. When you use it,
+Sphinx will know how to parse content files that contain MyST markdown (by default,
+Sphinx will assume any files ending in `.md` are written in MyST markdown).
+
+```{note}
+Sphinx will still be able to parse files written in `.rst`. Activating this parser
+simply adds another parser, and Sphinx will still be able to use its default parser
+for `.rst` files.
+```
+
+(intro/writing)=
 ## Writing MyST in Sphinx
 
-Once you've enabled the `myst-parser` in Sphinx, it will be able to parser your MyST
+Once you've enabled the `myst-parser` in Sphinx, it will be able to parse your MyST
 markdown documents. This means that you can use the `.md` extension for your pages,
-and write markdown in one of the following two flavors:
+and write MyST markdown in these pages.
 
-* [CommonMark Markdown](https://commonmark.org/) - the base flavor of markdown that is
-  a standard across many communities.
-* [MyST Markdown](syntax) - an extended flavor of CommonMark that includes syntax for
-  Sphinx-specific functionality.
+```{tip}
+MyST markdown is a mixture of two flavors of markdown:
 
-For example, you can include standard markdown like links: `[mylink](https://google.com)`
-or MyST-specific syntax like roles: `` {myrole}`role content` ``.
+It supports all the syntax of **[CommonMark Markdown](https://commonmark.org/)** at its
+base. This is a community standard flavor of markdown used across many projects.
 
-For more information about the syntax that you can use with MyST markdown, see {doc}`syntax`.
+In addition, it includes **several extensions to CommonMark**
+(often described as [MyST Markdown syntax](syntax)). These add extra syntax features
+designed to work with the Sphinx ecosystem (and inspired by reStructuredText)
+```
+
+The following sections cover a few core syntax patterns in MyST markdown, you can
+find a more exhaustive list in {doc}`syntax`.
+
+### Block-level directives with MyST markdown
+
+The most important functionality available with MyST markdown is writing **directives**.
+Directives are kind-of like functions that are designed for writing content. Sphinx
+and reStructuredText use directives extensively. Here's how a directive looks in
+MyST markdown:
+
+````{margin} Alternative options syntax
+If you've got a lot of options for your directive, or have a value that is really
+long (e.g., that spans multiple lines), then you can also wrap your options in
+`---` lines and write them as YAML. For example:
+
+```yaml
+---
+key1: val1
+key2: |
+  val line 1
+  val line 2
+---
+```
+````
+
+````
+```{directivename} <directive arguments>
+:optionname: <valuename>
+
+<directive content>
+```
+````
+
+````{admonition} MyST vs. rST
+:class: warning
+For those who are familiar with reStructuredText, here is the equivalent in rST:
+
+```rst
+.. directivename: <directive-arguments>
+  :optionname: <valuename>
+
+  <directive content>
+```
+
+Note that almost all documentation in the Sphinx ecosystem is written with
+reStructuredText (MyST is only a few months old). That means you'll likely see examples
+that have rST structure. You can modify any rST to work with MyST. Use this page,
+and [the syntax page](syntax) to help guide you.
+````
+
+As seen above, there are four main parts to consider when writing directives.
+
+* **the directive name** is kind of like the function name. Different names trigger
+  different functionality. They are wrapped in `{}` brackets.
+* **directive arguments** come just after the directive name. They can be used
+  to trigger behavior in the directive.
+* **directive options** come just after the first line of the directive. They also
+  control behavior of the directive.
+* **directive content** is markdown that you put inside the directive. The directive
+  often displays the content in a special way.
+
+For example, here's an **`admonition`** directive:
+
+````
+```{admonition} Here's my title
+:class: warning
+
+Here's my admonition content
+```
+````
+
+As you can see, we've used each of the four pieces described above to configure this
+directive. Here's how it looks when rendered:
+
+```{admonition} Here's my title
+:class: warning
+
+Here's my admonition content
+```
+
+For more information about using directives with MyST, see {ref}`syntax/directives`.
+
+### In-line roles with MyST Markdown
+
+Roles are another core Sphinx tool. They behave similarly to directives, but are given
+in-line with text instead of in a separate block. They have the following form:
+
+```
+{rolename}`role content`
+```
+
+For those who are familiar with reStructuredText, here is the equivalent in rST:
+
+```rst
+:rolename:`role content`
+```
+
+As you can see, roles are a bit more simple than directives, though some roles allow
+for more complex syntax inside their content area. For example, the `ref` role is used
+to make references to other sections of your documentation, and allows you to specify
+the displayed text as well as the reference itself within the role:
+
+```
+{ref}`My displayed text <my-ref>`
+```
+
+For example, the following reference role: `` {ref}`Check out this reference <syntax/roles>` ``
+will be rendered as {ref}`Check out this reference <syntax/roles>`.
+
+For more information about roles, see {ref}`syntax/roles`.
 
 ```{tip}
 Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight),
