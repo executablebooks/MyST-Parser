@@ -43,7 +43,7 @@ Naturally this site is generated with Sphinx and MyST!
 ## How does MyST parser relate to Sphinx?
 
 The Sphinx documentation engine supports a number of different input types. By default,
-it reads **reStructuredText** (`.rst`) files. Sphinx uses a **parser** to parse input files
+Sphinx reads **reStructuredText** (`.rst`) files. Sphinx uses a **parser** to parse input files
 into its own internal document model (which is provided by a core Python project,
 [docutils](https://docutils.sourceforge.io/)).
 
