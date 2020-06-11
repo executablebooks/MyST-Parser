@@ -76,7 +76,7 @@ MyST markdown is a mixture of two flavors of markdown:
 It supports all the syntax of **[CommonMark Markdown](https://commonmark.org/)** at its
 base. This is a community standard flavor of markdown used across many projects.
 
-In addition, it includes several extensions **in addition to CommonMark**
+In addition, it includes **several extensions to CommonMark**
 (often described as [MyST Markdown syntax](syntax)). These add extra syntax features
 designed to work with the Sphinx ecosystem (and inspired by reStructuredText)
 ```
@@ -91,11 +91,44 @@ Directives are kind-of like functions that are designed for writing content. Sph
 and reStructuredText use directives extensively. Here's how a directive looks in
 MyST markdown:
 
+````{margin} Alternative options syntax
+If you've got a lot of options for your directive, or have a value that is really
+long (e.g., that spans multiple lines), then you can also wrap your options in
+`---` lines and write them as YAML. For example:
+
+```yaml
+---
+key1: val1
+key2: |
+  val line 1
+  val line 2
+---
+```
+````
+
 ````
 ```{directivename} <directive arguments>
 :optionname: <valuename>
+
 <directive content>
 ```
+````
+
+````{admonition} MyST vs. rST
+:class: warning
+For those who are familiar with reStructuredText, here is the equivalent in rST:
+
+```rst
+.. directivename: <directive-arguments>
+  :optionname: <valuename>
+
+  <directive content>
+```
+
+Note that almost all documentation in the Sphinx ecosystem is written with
+reStructuredText (MyST is only a few months old). That means you'll likely see examples
+that have rST structure. You can modify any rST to work with MyST. Use this page,
+and [the syntax page](syntax) to help guide you.
 ````
 
 As seen above, there are four main parts to consider when writing directives.
@@ -113,9 +146,8 @@ For example, here's an **`admonition`** directive:
 
 ````
 ```{admonition} Here's my title
----
-class: warning
----
+:class: warning
+
 Here's my admonition content
 ```
 ````
@@ -124,9 +156,8 @@ As you can see, we've used each of the four pieces described above to configure 
 directive. Here's how it looks when rendered:
 
 ```{admonition} Here's my title
----
-class: warning
----
+:class: warning
+
 Here's my admonition content
 ```
 
@@ -139,6 +170,12 @@ in-line with text instead of in a separate block. They have the following form:
 
 ```
 {rolename}`role content`
+```
+
+For those who are familiar with reStructuredText, here is the equivalent in rST:
+
+```rst
+:rolename:`role content`
 ```
 
 As you can see, roles are a bit more simple than directives, though some roles allow
