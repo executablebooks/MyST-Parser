@@ -6,6 +6,17 @@
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
 
+## Install for development
+
+To install `myst-parser` for development, take the following steps:
+
+```bash
+git clone https://github.com/executablebooks/MyST-Parser
+cd MyST-Parser
+git checkout master
+pip install -e .[sphinx,code_style,testing,rtd]
+```
+
 ## Code Style
 
 Code style is tested using [flake8](http://flake8.pycqa.org),
@@ -70,12 +81,12 @@ Merging pull requests: There are three ways of 'merging' pull requests on GitHub
 - Merge with merge commit: put all commits as they are on the base branch, with a merge commit on top
     Choose for collaborative PRs with many commits. Here, the merge commit provides actual benefits.
 
-[github-ci]: https://github.com/ExecutableBookProject/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
-[github-link]: https://github.com/ExecutableBookProject/MyST-Parser
-[codecov-badge]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser/branch/master/graph/badge.svg
-[codecov-link]: https://codecov.io/gh/ExecutableBookProject/MyST-Parser
-[circleci-badge]: https://circleci.com/gh/ExecutableBookProject/MyST-Parser.svg?style=shield
-[circleci-link]: https://circleci.com/gh/ExecutableBookProject/MyST-Parser
+[github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
+[github-link]: https://github.com/executablebooks/MyST-Parser
+[codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/executablebooks/MyST-Parser
+[circleci-badge]: https://circleci.com/gh/executablebooks/MyST-Parser.svg?style=shield
+[circleci-link]: https://circleci.com/gh/executablebooks/MyST-Parser
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
 [rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg

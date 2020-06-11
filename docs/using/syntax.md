@@ -3,35 +3,46 @@
 # The MyST Syntax Guide
 
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
-For this, it uses the [markdown-it-py](https://github.com/ExecutableBookProject/markdown-it-py) parser,
+For this, it uses the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
 and also extensible.
 
-MyST adds several new syntax options that extend its functionality to be used
+MyST adds several new syntax options to CommonMark in order to be used
 with Sphinx, the documentation generation engine used extensively in the Python
-ecosystem. Sphinx uses reStructuredText by default, which is both more
-powerful than Markdown, and also (arguably) more complex to use.
-
-This project is an attempt to have the best of both worlds: the flexibility
-and extensibility of Sphinx with the simplicity and readability of Markdown.
+ecosystem.
 
 Below is a summary of the syntax 'tokens' parsed,
 and further details of a few major extensions from the CommonMark flavor of markdown.
 
+```{seealso}
+For an introduction to writing Directives and Roles with MyST markdown, see {ref}`intro/writing`.
+```
+
 % ```{seealso}
 % {ref}`MyST Extended AST Tokens API <api/tokens>`
 % ```
-
-## Parsed Token
 
 MyST builds on the tokens defined by markdown-it, to extend the syntax
 described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the parser is tested against.
 
 % TODO link to markdown-it documentation
 
-### Block Tokens
+## Block Tokens Summary
 
-#### Extended block tokens
+Block tokens span multiple lines of content. They are broken down into two sections:
+
+* {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
+* {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
+
+In addition to these summaries of block-level syntax, see {ref}`extra-markdown-syntax`.
+
+```{note}
+Because MyST markdown was inspired by functionality that exists in reStructuredText,
+we have shown equivalent rST syntax for many MyST markdown features below.
+```
+
+(extended-block-tokens)=
+### Extended block tokens
 
 `````{list-table}
 :header-rows: 1
@@ -89,7 +100,8 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
     ```
 `````
 
-#### CommonMark tokens
+(commonmark-block-tokens)=
+### CommonMark tokens
 
 `````{list-table}
 :header-rows: 1
@@ -153,12 +165,20 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
   - ```md
     any *text*
     ```
-
 `````
 
-### Span (Inline) Tokens
+## Span (Inline) Tokens Summary
 
-#### Extended inline tokens
+Span (or inline) tokens are defined on a single line of content. They are broken down into two
+sections below:
+
+* {ref}`extended-span-tokens` contains *extra* tokens that are not in CommonMark.
+* {ref}`commonmark-span-tokens` contains CommonMark tokens that also work, for reference.
+
+In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax`.
+
+(extended-span-tokens)=
+### Extended inline tokens
 
 `````{list-table}
 :header-rows: 1
@@ -171,7 +191,7 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
   - See {ref}`syntax/roles` for more
   information.
   - ```md
-    `{rolename}`interpreted text`
+    {rolename}`interpreted text`
     ```
 * - Target
   - Precedes element to target, e.g. header. See
@@ -191,7 +211,8 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
     ```
 `````
 
-#### CommonMark inline tokens
+(commonmark-span-tokens)=
+### CommonMark inline tokens
 
 `````{list-table}
 :header-rows: 1
@@ -301,34 +322,14 @@ Will generate this admonition:
 This is my note
 ```
 
-For directives that are meant to parse content for your site, you may use
-markdown as the markup language inside...
-
-````md
-```{admonition} My markdown link
-Here is [markdown link syntax](https://jupyter.org)
-```
-````
-
-```{admonition} My markdown link
-Here is [markdown link syntax](https://jupyter.org)
-```
-
-As a short-hand for directives that require no arguments, and when no paramter options are used (see below),
-you may start the content directly after the directive name.
-
-````md
-```{note} Notes require **no** arguments, so content can start here.
-```
-````
-
-```{note} Notes require **no** arguments, so content can start here.
-```
-
 ### Parameterizing directives
 
-For directives that take parameters as input, you may parameterize them by
-beginning your directive content with YAML frontmatter. This needs to be
+For directives that take parameters as input, there are two ways to parameterize them.
+In each case, the options themselves are given as `key: value` pairs. An example of
+each is shown below:
+
+**Using YAML frontmatter**. A block of YAML front-matter just after the
+first line of the directive will be parsed as options for the directive. This needs to be
 surrounded by `---` lines. Everything in between will be parsed by YAML and
 passed as keyword arguments to your directive. For example:
 
@@ -360,7 +361,11 @@ print('my 1st line')
 print(f'my {a}nd line')
 ```
 
-As a short-hand alternative, more closely resembling the reStructuredText syntax, options may also be denoted by an initial block, whereby all lines start with '`:`', for example:
+**Short-hand options with `:` characters**. If you only need one or two options for your
+directive and wish to save lines, you may also specify directive options as a collection
+of lines just after the first line of the directive, each preceding with `:`.
+
+For example:
 
 ````md
 ```{code-block} python
@@ -372,6 +377,33 @@ print('my 1st line')
 print(f'my {a}nd line')
 ```
 ````
+
+### How directives parse content
+
+Some directives parse the content that is in their content block. This
+means that MyST markdown can be written in the content areas of any directives written
+in MyST markdown. For example:
+
+````md
+```{admonition} My markdown link
+Here is [markdown link syntax](https://jupyter.org)
+```
+````
+
+```{admonition} My markdown link
+Here is [markdown link syntax](https://jupyter.org)
+```
+
+As a short-hand for directives that require no arguments, and when no paramter options are used (see below),
+you may start the content directly after the directive name.
+
+````md
+```{note} Notes require **no** arguments, so content can start here.
+```
+````
+
+```{note} Notes require **no** arguments, so content can start here.
+```
 
 ### Nesting directives
 
@@ -502,13 +534,28 @@ label: euler
 Euler's identity, equation {math:numref}`euler`, was elected one of the
 most beautiful mathematical formulas.
 
+### How roles parse content
+
+The content of roles is parsed differently depending on the role that you've used.
+Some roles expect inputs that will be used to change functionality. For example,
+the `ref` role will assume that input content is a reference to some other part of the
+site. However, other roles may use the MyST parser to parse the input as content.
+
+Some roles also **extend their functionality** depending on the content that you pass.
+For example, following the `ref` example above, if you pass a string like this:
+`Content to display <myref>`, then the `ref` will display `Content to display` and use
+`myref` as the reference to look up.
+
+How roles parse this content depends on the author that created the role.
+
+(extra-markdown-syntax)=
 ## Extra markdown syntax
 
-Here is some extra markdown syntax which provides functionality in rST that doesn't
+In addition to roles and directives, MyST supports extra markdown syntax that doesn't
 exist in CommonMark. In most cases, these are syntactic short-cuts to calling
 roles and directives. We'll cover some common ones below.
 
-This tale describes the rST and MyST equivalents:
+This table describes the rST and MyST equivalents:
 
 ````{list-table}
 ---
@@ -676,6 +723,12 @@ Is below, but it won't be parsed into the document.
 Targets are used to define custom anchors that you can refer to elsewhere in your
 documentation. They generally go before section titles so that you can easily refer
 to them.
+
+```{tip}
+If you'd like to *automatically* generate targets for each of your section headers,
+check out the [`autosectionlabel`](https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
+sphinx feature. See {ref}`autosectionlabel` for more details.
+```
 
 Target headers are defined with this syntax:
 

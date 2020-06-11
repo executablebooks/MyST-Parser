@@ -333,11 +333,10 @@ class DocutilsRenderer:
 
     def render_fence(self, token):
         text = token.content
-        # the `strip` check ensures that we don't try to parse whitespace-only info
-        if token.info and token.info.strip():
-            language = token.info.split()[0]
-        else:
-            language = ""
+        if token.info:
+            # Ensure that we'll have an empty string if info exists but is only spaces
+            token.info = token.info.strip()
+        language = token.info.split()[0] if token.info else ""
 
         if language.startswith("{") and language.endswith("}"):
             return self.render_directive(token)
