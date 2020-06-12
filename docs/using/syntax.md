@@ -768,6 +768,12 @@ but can also accept "nested" syntax (like bold text) and will recognise document
 Using the same example, see this ref: [](syntax/targets), here is a reference back to the top of
 this page: [my text with **nested** $\alpha$ syntax](example_syntax), and here is a reference to another page (`[](intro.md)`): [](intro.md).
 
+```{note}
+If you wish to have the target's title inserted into your text, you can
+leave the "text" section of the markdown link empty. For example, this
+markdown: `[](using/syntax.md)` will result in: [](using/syntax.md).
+```
+
 (syntax/footnotes)=
 
 ### Footnotes
