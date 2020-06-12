@@ -1,0 +1,4 @@
+doc: "<document source=\"root/index.md\">\n    <paragraph>\n        <reference internal=\"\
+  True\" refuri=\"\">\n            <inline classes=\"doc std std-doc\">\n        \
+  \        <no title>\n"
+logs: []

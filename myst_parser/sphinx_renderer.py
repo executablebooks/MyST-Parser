@@ -77,7 +77,7 @@ class SphinxRenderer(DocutilsRenderer):
         return target
 
 
-def minimal_sphinx_app(configuration=None, sourcedir=None):
+def minimal_sphinx_app(configuration=None, sourcedir=None, with_builder=False):
     """Create a minimal Sphinx environment; loading sphinx roles, directives, etc.
     """
 
@@ -107,7 +107,7 @@ def minimal_sphinx_app(configuration=None, sourcedir=None):
             self.env.temp_data["docname"] = "mock_docname"
             self.builder = None
 
-            if not confoverrides:
+            if not with_builder:
                 return
 
             # this code is only required for more complex parsing with extensions
@@ -129,7 +129,7 @@ def minimal_sphinx_app(configuration=None, sourcedir=None):
 
 
 @contextmanager
-def mock_sphinx_env(conf=None, srcdir=None, document=None):
+def mock_sphinx_env(conf=None, srcdir=None, document=None, with_builder=False):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.
 
@@ -145,7 +145,9 @@ def mock_sphinx_env(conf=None, srcdir=None, document=None):
     _roles = copy.copy(roles._roles)
     # Monkey-patch directive and role dispatch,
     # so that sphinx domain-specific markup takes precedence.
-    app = minimal_sphinx_app(configuration=conf, sourcedir=srcdir)
+    app = minimal_sphinx_app(
+        configuration=conf, sourcedir=srcdir, with_builder=with_builder
+    )
     _sphinx_domains = sphinx_domains(app.env)
     _sphinx_domains.enable()
     if document is not None:

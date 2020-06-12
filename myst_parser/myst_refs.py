@@ -21,7 +21,7 @@ from sphinx.util.nodes import clean_astext, make_refnode
 logger = logging.getLogger(__name__)
 
 
-class NestedReferenceReslover(ReferencesResolver):
+class MystReferenceReslover(ReferencesResolver):
     """Resolves cross-references on doctrees.
 
     Overrides default sphinx implementation, to allow for nested syntax
