@@ -757,14 +757,16 @@ Alternatively using the markdown syntax:
 [my text](header_target)
 ```
 
-is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
+is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
 
 ```md
 {any}`my text <header_target>`
 ```
 
+but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `using/syntax` or `using/syntax,md`)
+
 Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
-this page: [my text](example_syntax).
+this page: [my text with **nested** syntax](example_syntax).
 
 (syntax/footnotes)=
 
