@@ -10,7 +10,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_minimal_sphinx():
-    with mock_sphinx_env(conf={"author": "bob geldof"}) as app:
+    with mock_sphinx_env(conf={"author": "bob geldof"}, with_builder=True) as app:
         assert app.config["author"] == "bob geldof"
 
 

@@ -33,10 +33,8 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 """
 import os
 import pathlib
-import pickle
 import shutil
 
-from docutils.nodes import document
 import pytest
 from sphinx.testing.path import path
 
@@ -90,27 +88,20 @@ def get_sphinx_app_output(file_regression):
 
 @pytest.fixture
 def get_sphinx_app_doctree(file_regression):
-    def read(
-        app,
-        filename="index.doctree",
-        folder="doctrees",
-        encoding="utf-8",
-        regress=False,
-    ):
-
-        outpath = path(os.path.join(str(app.srcdir), "_build", folder, filename))
-        if not outpath.exists():
-            raise IOError("no output file exists: {}".format(outpath))
-
-        with open(outpath, "rb") as handle:
-            doctree = pickle.load(handle)  # type: document
+    def read(app, docname="index", resolve=False, regress=False):
+        if resolve:
+            doctree = app.env.get_and_resolve_doctree(docname, app.builder)
+            extension = ".resolved.xml"
+        else:
+            doctree = app.env.get_doctree(docname)
+            extension = ".xml"
 
         # convert absolute filenames
         for node in doctree.traverse(lambda n: "source" in n):
             node["source"] = pathlib.Path(node["source"]).name
 
         if regress:
-            file_regression.check(doctree.pformat(), extension=".xml")
+            file_regression.check(doctree.pformat(), extension=extension)
 
         return doctree
 

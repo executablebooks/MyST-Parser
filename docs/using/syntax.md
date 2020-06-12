@@ -757,14 +757,22 @@ Alternatively using the markdown syntax:
 [my text](header_target)
 ```
 
-is synonymous with using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
+is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
 
 ```md
 {any}`my text <header_target>`
 ```
 
-Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
-this page: [my text](example_syntax).
+but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `using/syntax` or `using/syntax.md`)
+
+Using the same example, see this ref: [](syntax/targets), here is a reference back to the top of
+this page: [my text with **nested** $\alpha$ syntax](example_syntax), and here is a reference to another page (`[](intro.md)`): [](intro.md).
+
+```{note}
+If you wish to have the target's title inserted into your text, you can
+leave the "text" section of the markdown link empty. For example, this
+markdown: `[](syntax.md)` will result in: [](syntax.md).
+```
 
 (syntax/footnotes)=
 

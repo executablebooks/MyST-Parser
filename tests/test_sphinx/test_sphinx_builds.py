@@ -28,8 +28,32 @@ def test_basic(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, filename="content.doctree", regress=True)
+    get_sphinx_app_doctree(app, docname="content", regress=True)
+    get_sphinx_app_doctree(app, docname="content", resolve=True, regress=True)
     get_sphinx_app_output(app, filename="content.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "references"), freshenv=True
+)
+def test_references(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """basic test."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(app, docname="index", regress=True)
+    get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+    get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
 @pytest.mark.sphinx(
@@ -45,7 +69,7 @@ def test_conf_values(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
+    get_sphinx_app_doctree(app, docname="index", regress=True)
 
 
 @pytest.mark.sphinx(
@@ -66,7 +90,7 @@ def test_includes(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, filename="index.doctree", regress=True)
+    get_sphinx_app_doctree(app, docname="index", regress=True)
     get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
@@ -87,5 +111,5 @@ def test_footnotes(
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
     assert warnings == ""
-    get_sphinx_app_doctree(app, filename="footnote_md.doctree", regress=True)
+    get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
     get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)
