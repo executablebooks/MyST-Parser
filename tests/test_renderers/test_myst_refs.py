@@ -1,7 +1,7 @@
 from sphinx.application import Sphinx
 
 from myst_parser.sphinx_renderer import mock_sphinx_env
-from myst_parser.myst_refs import MystReferenceReslover
+from myst_parser.myst_refs import MystReferenceResolver
 from myst_parser.sphinx_parser import parse
 
 import pytest
@@ -23,7 +23,7 @@ import pytest
 def test_parse(test_name, text, caplog, data_regression):
 
     with mock_sphinx_env(srcdir="root", with_builder=True) as app:  # type: Sphinx
-        app.add_post_transform(MystReferenceReslover)
+        app.add_post_transform(MystReferenceResolver)
         app.add_source_suffix(".md", "markdown")
         document = parse(app, text, docname="index")
         app.env.apply_post_transforms(document, "index")
