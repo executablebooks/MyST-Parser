@@ -763,7 +763,7 @@ is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/maste
 {any}`my text <header_target>`
 ```
 
-but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `using/syntax` or `using/syntax,md`)
+but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `using/syntax` or `using/syntax.md`)
 
 Using the same example, see this ref: [](syntax/targets), and here's a ref back to the top of
 this page: [my text with **nested** syntax](example_syntax).
