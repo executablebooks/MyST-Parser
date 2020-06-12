@@ -771,7 +771,7 @@ this page: [my text with **nested** $\alpha$ syntax](example_syntax), and here i
 ```{note}
 If you wish to have the target's title inserted into your text, you can
 leave the "text" section of the markdown link empty. For example, this
-markdown: `[](using/syntax.md)` will result in: [](using/syntax.md).
+markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
 (syntax/footnotes)=
