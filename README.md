@@ -21,7 +21,7 @@ conda install -c conda-forge myst-parser
 or
 
 ```bash
-pip install myst-parser[sphinx]
+pip install myst-parser
 ```
 
 Or for package development:
@@ -30,7 +30,7 @@ Or for package development:
 git clone https://github.com/executablebooks/MyST-Parser
 cd MyST-Parser
 git checkout master
-pip install -e .[sphinx,code_style,testing,rtd]
+pip install -e .[code_style,testing,rtd]
 ```
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.

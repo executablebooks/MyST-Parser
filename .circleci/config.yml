@@ -12,7 +12,7 @@ jobs:
           keys:
             - cache-pip
       - run: |
-          pip install --user -e .[sphinx,rtd]
+          pip install --user -e .[rtd]
       - save_cache:
           key: cache-pip
           paths:
