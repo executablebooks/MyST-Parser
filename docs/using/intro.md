@@ -23,7 +23,7 @@ conda install -c conda-forge myst-parser
 or
 
 ```bash
-pip install myst-parser[sphinx]
+pip install myst-parser
 ```
 
 [pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg

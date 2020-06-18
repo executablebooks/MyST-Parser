@@ -16,6 +16,6 @@
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
     "autoDocstring.customTemplatePath": "docstring.fmt.mustache",
-    "python.pythonPath": "/anaconda/envs/ebp/bin/python",
+    "python.pythonPath": "/Users/chrisjsewell/opt/miniconda3/envs/ebp/bin/python",
     "restructuredtext.confPath": "${workspaceFolder}/docs"
 }
