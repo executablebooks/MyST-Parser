@@ -44,5 +44,5 @@ And now you're good to go, using MyST for your Sphinx-powered, ReadTheDocs-hoste
 
 ```{seealso}
 - [Read the Docs documentation](https://docs.readthedocs.io/en/stable/index.html)
-- {ref}`The MyST Syntax Guide <using/syntax>`
+- [The MyST Syntax Guide](example_syntax)
 ```
