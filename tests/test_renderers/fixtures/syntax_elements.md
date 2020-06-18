@@ -140,6 +140,18 @@ foo
 .
 
 --------------------------
+Fenced Code no language with trailing whitespace:
+.
+```  
+foo
+```
+.
+<document source="notset">
+    <literal_block language="default" xml:space="preserve">
+        foo
+.
+
+--------------------------
 Image empty:
 .
 ![]()
@@ -273,7 +285,7 @@ bar$ b
 .
 <document source="notset">
     <paragraph>
-        a 
+        a
         <math>
             foo
             bar
@@ -378,12 +390,12 @@ Title
         <title>
             Title
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
                     alt1
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="target2" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <pending_xref refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
@@ -477,8 +489,8 @@ Link Definition in directive:
 <document source="notset">
     <note>
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
                     a
 .
 
@@ -502,8 +514,8 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
                     ref1
 
             [ref2]
@@ -687,6 +699,6 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="target" reftype="any" refwarn="True">
-                <literal classes="xref any">
+            <pending_xref refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
 .

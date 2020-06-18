@@ -31,7 +31,7 @@ class SphinxRenderer(DocutilsRenderer):
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
             reftarget=unquote(destination),
-            reftype="any",
+            reftype="myst",
             refdomain=None,  # Added to enable cross-linking
             refexplicit=len(token.children) > 0,
             refwarn=True,
@@ -41,9 +41,10 @@ class SphinxRenderer(DocutilsRenderer):
         if title:
             wrap_node["title"] = title
         self.current_node.append(wrap_node)
-        text_node = nodes.literal("", "", classes=["xref", "any"])
-        wrap_node.append(text_node)
-        with self.current_node_context(text_node):
+
+        inner_node = nodes.inline("", "", classes=["xref", "myst"])
+        wrap_node.append(inner_node)
+        with self.current_node_context(inner_node):
             self.render_children(token)
 
     def render_math_block_eqno(self, token):
@@ -76,7 +77,7 @@ class SphinxRenderer(DocutilsRenderer):
         return target
 
 
-def minimal_sphinx_app(configuration=None, sourcedir=None):
+def minimal_sphinx_app(configuration=None, sourcedir=None, with_builder=False):
     """Create a minimal Sphinx environment; loading sphinx roles, directives, etc.
     """
 
@@ -106,7 +107,7 @@ def minimal_sphinx_app(configuration=None, sourcedir=None):
             self.env.temp_data["docname"] = "mock_docname"
             self.builder = None
 
-            if not confoverrides:
+            if not with_builder:
                 return
 
             # this code is only required for more complex parsing with extensions
@@ -128,7 +129,7 @@ def minimal_sphinx_app(configuration=None, sourcedir=None):
 
 
 @contextmanager
-def mock_sphinx_env(conf=None, srcdir=None, document=None):
+def mock_sphinx_env(conf=None, srcdir=None, document=None, with_builder=False):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.
 
@@ -144,7 +145,9 @@ def mock_sphinx_env(conf=None, srcdir=None, document=None):
     _roles = copy.copy(roles._roles)
     # Monkey-patch directive and role dispatch,
     # so that sphinx domain-specific markup takes precedence.
-    app = minimal_sphinx_app(configuration=conf, sourcedir=srcdir)
+    app = minimal_sphinx_app(
+        configuration=conf, sourcedir=srcdir, with_builder=with_builder
+    )
     _sphinx_domains = sphinx_domains(app.env)
     _sphinx_domains.enable()
     if document is not None:

@@ -1,6 +1,13 @@
+from os import path
+import time
+
 from docutils import frontend, nodes
+from docutils.core import publish_doctree
+from sphinx.application import Sphinx
+from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import Parser
 from sphinx.util import logging
+from sphinx.util.docutils import sphinx_domains
 
 from myst_parser.main import to_docutils
 
@@ -199,4 +206,23 @@ class MystParser(Parser):
             document=document,
             disable_syntax=self.config["disable_syntax"] or [],
             math_delimiters=self.config["math_delimiters"],
+        )
+
+
+def parse(app: Sphinx, text: str, docname: str = "index") -> nodes.document:
+    """Parse a string as MystMarkdown with Sphinx application."""
+    app.env.temp_data["docname"] = docname
+    app.env.all_docs[docname] = time.time()
+    reader = SphinxStandaloneReader()
+    reader.setup(app)
+    parser = MystParser()
+    parser.set_application(app)
+    with sphinx_domains(app.env):
+        return publish_doctree(
+            text,
+            path.join(app.srcdir, docname + ".md"),
+            reader=reader,
+            parser=parser,
+            parser_name="markdown",
+            settings_overrides={"env": app.env, "gettext_compact": True},
         )

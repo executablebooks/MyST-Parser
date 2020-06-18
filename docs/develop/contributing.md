@@ -14,7 +14,7 @@ To install `myst-parser` for development, take the following steps:
 git clone https://github.com/executablebooks/MyST-Parser
 cd MyST-Parser
 git checkout master
-pip install -e .[sphinx,code_style,testing,rtd]
+pip install -e .[code_style,testing,rtd]
 ```
 
 ## Code Style
