@@ -2,7 +2,6 @@
 
 [![Github-CI][github-ci]][github-link]
 [![Coverage Status][codecov-badge]][codecov-link]
-[![CircleCI][circleci-badge]][circleci-link]
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
 
@@ -85,8 +84,6 @@ Merging pull requests: There are three ways of 'merging' pull requests on GitHub
 [github-link]: https://github.com/executablebooks/MyST-Parser
 [codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
 [codecov-link]: https://codecov.io/gh/executablebooks/MyST-Parser
-[circleci-badge]: https://circleci.com/gh/executablebooks/MyST-Parser.svg?style=shield
-[circleci-link]: https://circleci.com/gh/executablebooks/MyST-Parser
 [rtd-badge]: https://readthedocs.org/projects/myst-parser/badge/?version=latest
 [rtd-link]: https://myst-parser.readthedocs.io/en/latest/?badge=latest
 [black-badge]: https://img.shields.io/badge/code%20style-black-000000.svg
