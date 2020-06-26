@@ -70,9 +70,8 @@ jobs:
           pip install -e .[rtd]
 
       # Build the docs
-      - run:
-        name: Build docs to store
-        command: |
+      - name: Build docs to store
+        run: |
           cd docs
           make html-strict
 
