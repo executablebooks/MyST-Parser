@@ -56,6 +56,7 @@ jobs:
 
   docs:
 
+    name: Test documentation build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
