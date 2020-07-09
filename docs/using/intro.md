@@ -40,6 +40,15 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
+```{admonition} You can use both MyST and reStructuredText
+:class: tip
+
+Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST
+parser that ships with Sphinx by default will still work the same way. You can have
+combinations of both markdown and rST files in your documentation, and Sphinx will
+choose the right parser based on each file's extension.
+```
+
 ## How does MyST parser relate to Sphinx?
 
 The Sphinx documentation engine supports a number of different input types. By default,
