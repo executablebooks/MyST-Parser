@@ -25,6 +25,7 @@ MyST has the following main features:
 * **[A superset of CommonMark markdown][commonmark]**. Any CommonMark markdown
   (such as Jupyter Notebook markdown) is natively supported by the MyST parser.
 
+You may use MyST markdown **in addition to** using reStructuredText in Sphinx.
 See {doc}`using/intro` to get started.
 
 ```{note}
