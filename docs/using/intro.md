@@ -46,7 +46,8 @@ Naturally this site is generated with Sphinx and MyST!
 Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST
 parser that ships with Sphinx by default will still work the same way. You can have
 combinations of both markdown and rST files in your documentation, and Sphinx will
-choose the right parser based on each file's extension.
+choose the right parser based on each file's extension. Sphinx features
+like cross-references will work just fine between the pages.
 ```
 
 ## How does MyST parser relate to Sphinx?
