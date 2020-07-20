@@ -12,11 +12,16 @@ from docutils.nodes import document, Element
 
 from sphinx import addnodes
 from sphinx.addnodes import pending_xref
-from sphinx.errors import NoUri
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
+
+try:
+    from sphinx.errors import NoUri
+except ImportError:
+    # sphinx < 2.1
+    from sphinx.environment import NoUri
 
 logger = logging.getLogger(__name__)
 
