@@ -109,16 +109,6 @@ rfc-reference (`docutils.parsers.rst.roles.rfc_reference_role`):
 .
 
 --------------------------------
-raw (`docutils.parsers.rst.roles.raw_role`):
-.
-{raw}``
-.
-<document source="notset">
-    <paragraph>
-        {raw}``
-.
-
---------------------------------
 code (`docutils.parsers.rst.roles.code_role`):
 .
 {code}`a`

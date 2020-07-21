@@ -1,14 +1,17 @@
 from pathlib import Path
 import re
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple, Type
 
 from docutils import nodes
-from docutils.parsers.rst.states import Inliner, RSTStateMachine, Body
-from docutils.parsers.rst import DirectiveError
+from docutils.parsers.rst import Directive, DirectiveError
 from docutils.parsers.rst.directives.misc import Include
+from docutils.parsers.rst.languages import get_language
+from docutils.parsers.rst.states import Inliner, RSTStateMachine, Body
 from docutils.statemachine import StringList
 from docutils.utils import unescape
+
+from .parse_directives import parse_directive_text
 
 
 class MockingError(Exception):
@@ -68,6 +71,7 @@ class MockState:
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
+        self.reporter = renderer.document.reporter
         self.state_machine = state_machine
 
         class Struct:
@@ -80,6 +84,30 @@ class MockState:
             inliner = MockInliner(renderer, lineno)
 
         self.memo = Struct
+
+    def parse_directive_block(
+        self,
+        content: StringList,
+        line_offset: int,
+        directive: Type[Directive],
+        option_presets: dict,
+    ) -> Tuple[list, dict, StringList, int]:
+        """Parse the full directive text
+
+        :returns: (arguments, options, content, content_offset)
+        """
+        if option_presets:
+            raise MockingError("parse_directive_block: option_presets not implemented")
+        # TODO should argument_str always be ""?
+        arguments, options, body_lines = parse_directive_text(
+            directive, "", "\n".join(content)
+        )
+        return (
+            arguments,
+            options,
+            StringList(body_lines, source=content.source),
+            line_offset + len(content) - len(body_lines),
+        )
 
     def nested_parse(
         self,
@@ -222,6 +250,7 @@ class MockStateMachine:
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
+        self.language = get_language(renderer.language_module)
         self.reporter = self.document.reporter
         self.node = renderer.current_node
         self.match_titles = True
