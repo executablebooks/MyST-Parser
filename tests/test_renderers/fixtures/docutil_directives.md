@@ -329,13 +329,18 @@ a
 .
 
 --------------------------------
-role (`docutils.parsers.rst.directives.misc.Role`):
-SKIP: MockingError: MockState has not yet implemented attribute 'parse_directive_block'
+role (`docutils.parsers.rst.directives.misc.Role`) + raw (`docutils.parsers.rst.roles.raw_role`):
 .
-```{role} abc
+```{role} raw-latex(raw)
+:format: latex
 ```
+
+{raw-latex}`\tag{content}`
 .
 <document source="notset">
+    <paragraph>
+        <raw classes="raw-latex" format="latex" xml:space="preserve">
+            \tag{content}
 .
 
 --------------------------------
