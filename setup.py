@@ -40,7 +40,7 @@ setup(
         "markdown-it-py~=0.4.5",
         "pyyaml",
         "docutils>=0.15",
-        "sphinx>=2,<3",
+        "sphinx>=2,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
