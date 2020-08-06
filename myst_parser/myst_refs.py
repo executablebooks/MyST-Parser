@@ -157,6 +157,9 @@ class MystReferenceResolver(ReferencesResolver):
         for domain in self.env.domains.values():
             if domain.name == "std":
                 continue  # we did this one already
+            if domain.name == "cpp" and "." in target:
+                # this bypasses the issue https://github.com/sphinx-doc/sphinx/pull/8060
+                continue
             try:
                 results.extend(
                     domain.resolve_any_xref(
