@@ -71,7 +71,11 @@ def get_sphinx_app_output(file_regression):
         if not outpath.exists():
             raise IOError("no output file exists: {}".format(outpath))
 
-        content = outpath.text(encoding=encoding)
+        try:
+            # introduced in sphinx 3.0
+            content = outpath.read_text(encoding=encoding)
+        except AttributeError:
+            content = outpath.text(encoding=encoding)
 
         if regress_html:
             # only regress the inner body, since other sections are non-deterministic
