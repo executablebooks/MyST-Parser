@@ -17,21 +17,6 @@ default-domain (`sphinx.directives.DefaultDomain`):
 .
 
 --------------------------------
-describe (`sphinx.directives.ObjectDescription`):
-.
-```{describe} something
-```
-.
-<document source="notset">
-    <index entries="">
-    <desc desctype="describe" domain="" noindex="False" objtype="describe">
-        <desc_signature first="False">
-            <desc_name xml:space="preserve">
-                something
-        <desc_content>
-.
-
---------------------------------
 object (`sphinx.directives.ObjectDescription`):
 .
 ```{object} something
