@@ -21,7 +21,7 @@ setup(
         "console_scripts": ["myst-benchmark = myst_parser.cli.benchmark:main"]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
