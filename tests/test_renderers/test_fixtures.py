@@ -1,6 +1,8 @@
 from pathlib import Path
+import re
 
 import pytest
+import sphinx
 
 from markdown_it.utils import read_fixture_file
 from myst_parser.main import to_docutils
@@ -86,11 +88,15 @@ def test_sphinx_directives(line, title, input, expected):
     # TODO test domain directives
     if title.startswith("SKIP"):
         pytest.skip(title)
+    if title.startswith("SPHINX3") and sphinx.version_info[0] < 3:
+        pytest.skip(title)
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
-    assert "\n".join(
-        [ll.rstrip() for ll in document.pformat().splitlines()]
-    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
+    _actual, _expected = [
+        "\n".join([ll.rstrip() for ll in text.splitlines()])
+        for text in (document.pformat(), expected)
+    ]
+    assert _actual == _expected
 
 
 @pytest.mark.parametrize(
@@ -102,6 +108,10 @@ def test_sphinx_roles(line, title, input, expected):
         pytest.skip(title)
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
-    assert "\n".join(
-        [ll.rstrip() for ll in document.pformat().splitlines()]
-    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
+    _actual, _expected = [
+        "\n".join([ll.rstrip() for ll in text.splitlines()])
+        for text in (document.pformat(), expected)
+    ]
+    # sphinx 3 adds a parent key
+    _actual = re.sub('cpp:parent_key="[^"]*"', 'cpp:parent_key=""', _actual)
+    assert _actual == _expected

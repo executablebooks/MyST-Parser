@@ -102,8 +102,8 @@ def run_apidoc(app):
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.7", None),
-    "mistletoe": ("https://mistletoe-ebp.readthedocs.io/en/latest", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+    "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
 }
 
 # autodoc_default_options = {
@@ -117,11 +117,11 @@ intersphinx_mapping = {
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
-    ("py:class", "Any"),
-    ("py:class", "Tuple"),
-    ("py:class", "ForwardRef"),
-    ("py:class", "NoneType"),
-    ("py:class", "TableRow"),
+    ("py:class", "docutils.nodes.system_message"),
+    ("py:class", "docutils.statemachine.StringList"),
+    ("py:class", "docutils.nodes.Element"),
+    ("py:class", "docutils.parsers.rst.directives.misc.Include"),
+    ("py:class", "docutils.nodes.document"),
 ]
 
 

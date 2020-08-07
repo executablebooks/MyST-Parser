@@ -21,7 +21,7 @@ setup(
         "console_scripts": ["myst-benchmark = myst_parser.cli.benchmark:main"]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
@@ -40,7 +40,7 @@ setup(
         "markdown-it-py~=0.4.5",
         "pyyaml",
         "docutils>=0.15",
-        "sphinx>=2,<3",
+        "sphinx>=2,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
