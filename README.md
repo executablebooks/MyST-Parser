@@ -35,6 +35,11 @@ pip install -e .[code_style,testing,rtd]
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
 
+## Contributing
+
+We welcome all contributions!
+See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/develop/contributing.html) for more details.
+
 [github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/executablebooks/MyST-Parser
 [codecov-badge]: https://codecov.io/gh/executablebooks/MyST-Parser/branch/master/graph/badge.svg
