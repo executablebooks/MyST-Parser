@@ -5,6 +5,9 @@
 [![Documentation Status][rtd-badge]][rtd-link]
 [![Code style: black][black-badge]][black-link]
 
+We welcome all contributions!
+See the [EBP Contributing Guide](https://executablebooks.org/en/latest/contributing.html) for general details, and below for guidance specific to MyST-Parser.
+
 ## Install for development
 
 To install `myst-parser` for development, take the following steps:
@@ -64,21 +67,6 @@ For documentation build tests:
 ```{seealso}
 {ref}`develop/testing`
 ```
-
-## Pull Requests
-
-To contribute, make Pull Requests to the `master` branch (this is the default branch). A PR can consist of one or multiple commits. Before you open a PR, make sure to clean up your commit history and create the commits that you think best divide up the total work as outlined above (use `git rebase` and `git commit --amend`). Ensure all commit messages clearly summarise the changes in the header and the problem that this commit is solving in the body.
-
-Merging pull requests: There are three ways of 'merging' pull requests on GitHub:
-
-- Squash and merge: take all commits, squash them into a single one and put it on top of the base branch.
-    Choose this for pull requests that address a single issue and are well represented by a single commit.
-    Make sure to clean the commit message (title & body)
-- Rebase and merge: take all commits and 'recreate' them on top of the base branch. All commits will be recreated with new hashes.
-    Choose this for pull requests that require more than a single commit.
-    Examples: PRs that contain multiple commits with individually significant changes; PRs that have commits from different authors (squashing commits would remove attribution)
-- Merge with merge commit: put all commits as they are on the base branch, with a merge commit on top
-    Choose for collaborative PRs with many commits. Here, the merge commit provides actual benefits.
 
 [github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/executablebooks/MyST-Parser
