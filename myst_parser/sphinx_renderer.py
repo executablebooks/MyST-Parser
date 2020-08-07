@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 import copy
-from urllib.parse import unquote
+from io import StringIO
 import tempfile
 from typing import cast
+from urllib.parse import unquote
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -16,6 +17,7 @@ from sphinx.events import EventManager
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
+from sphinx.util.logging import setup as log_setup
 from sphinx.util.tags import Tags
 
 from myst_parser.docutils_renderer import DocutilsRenderer
@@ -77,18 +79,29 @@ class SphinxRenderer(DocutilsRenderer):
         return target
 
 
-def minimal_sphinx_app(configuration=None, sourcedir=None, with_builder=False):
+def minimal_sphinx_app(
+    configuration=None, sourcedir=None, with_builder=False, raise_on_warning=False
+):
     """Create a minimal Sphinx environment; loading sphinx roles, directives, etc.
     """
 
     class MockSphinx(Sphinx):
         """Minimal sphinx init to load roles and directives."""
 
-        def __init__(self, confoverrides=None, srcdir=None):
+        def __init__(self, confoverrides=None, srcdir=None, raise_on_warning=False):
             self.extensions = {}
             self.registry = SphinxComponentRegistry()
             self.html_themes = {}
             self.events = EventManager(self)
+
+            # logging
+            self.verbosity = 0
+            self._warncount = 0
+            self.warningiserror = raise_on_warning
+            self._status = StringIO()
+            self._warning = StringIO()
+            log_setup(self, self._status, self._warning)
+
             self.tags = Tags(None)
             self.config = Config({}, confoverrides or {})
             self.config.pre_init_values()
@@ -124,12 +137,16 @@ def minimal_sphinx_app(configuration=None, sourcedir=None, with_builder=False):
                 self.builder = self.create_builder(buildername)
             self.doctreedir = None
 
-    app = MockSphinx(confoverrides=configuration, srcdir=sourcedir)
+    app = MockSphinx(
+        confoverrides=configuration, srcdir=sourcedir, raise_on_warning=raise_on_warning
+    )
     return app
 
 
 @contextmanager
-def mock_sphinx_env(conf=None, srcdir=None, document=None, with_builder=False):
+def mock_sphinx_env(
+    conf=None, srcdir=None, document=None, with_builder=False, raise_on_warning=False
+):
     """Set up an environment, to parse sphinx roles/directives,
     outside of a `sphinx-build`.
 
@@ -146,7 +163,10 @@ def mock_sphinx_env(conf=None, srcdir=None, document=None, with_builder=False):
     # Monkey-patch directive and role dispatch,
     # so that sphinx domain-specific markup takes precedence.
     app = minimal_sphinx_app(
-        configuration=conf, sourcedir=srcdir, with_builder=with_builder
+        configuration=conf,
+        sourcedir=srcdir,
+        with_builder=with_builder,
+        raise_on_warning=raise_on_warning,
     )
     _sphinx_domains = sphinx_domains(app.env)
     _sphinx_domains.enable()

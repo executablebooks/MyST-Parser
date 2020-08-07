@@ -1,4 +1,5 @@
 from sphinx.application import Sphinx
+from sphinx.errors import SphinxWarning
 
 from myst_parser.sphinx_renderer import mock_sphinx_env
 from myst_parser.myst_refs import MystReferenceResolver
@@ -8,26 +9,30 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "test_name,text",
+    "test_name,text,should_warn",
     [
-        ("null", ""),
-        ("missing", "[](ref)"),
-        ("doc", "[](index)"),
-        ("doc_with_extension", "[](index.md)"),
-        ("doc_nested", "[*text*](index)"),
-        ("ref", "(ref)=\n# Title\n[](ref)"),
-        ("ref_nested", "(ref)=\n# Title\n[*text*](ref)"),
-        ("duplicate", "(index)=\n# Title\n[](index)"),
+        ("null", "", False),
+        ("missing", "[](ref)", True),
+        ("doc", "[](index)", False),
+        ("doc_with_extension", "[](index.md)", False),
+        ("doc_nested", "[*text*](index)", False),
+        ("ref", "(ref)=\n# Title\n[](ref)", False),
+        ("ref_nested", "(ref)=\n# Title\n[*text*](ref)", False),
+        ("duplicate", "(index)=\n# Title\n[](index)", True),
     ],
 )
-def test_parse(test_name, text, caplog, data_regression):
+def test_parse(test_name, text, should_warn, file_regression):
 
-    with mock_sphinx_env(srcdir="root", with_builder=True) as app:  # type: Sphinx
+    with mock_sphinx_env(
+        srcdir="root", with_builder=True, raise_on_warning=True
+    ) as app:  # type: Sphinx
         app.add_post_transform(MystReferenceResolver)
         app.add_source_suffix(".md", "markdown")
         document = parse(app, text, docname="index")
-        app.env.apply_post_transforms(document, "index")
+        if should_warn:
+            with pytest.raises(SphinxWarning):
+                app.env.apply_post_transforms(document, "index")
+        else:
+            app.env.apply_post_transforms(document, "index")
 
-    data_regression.check(
-        {"doc": document.pformat(), "logs": caplog.record_tuples}, basename=test_name
-    )
+    file_regression.check(document.pformat(), basename=test_name, extension=".xml")

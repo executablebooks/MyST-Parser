@@ -1,6 +1,0 @@
-doc: "<document source=\"root/index.md\">\n    <paragraph>\n        <inline classes=\"\
-  xref myst\">\n"
-logs:
-- - sphinx.sphinx.transforms.post_transforms
-  - 30
-  - 'None:myst reference target not found: ref'
