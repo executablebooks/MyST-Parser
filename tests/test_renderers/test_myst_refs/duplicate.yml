@@ -1,9 +1,0 @@
-doc: "<document ids=\"title index\" names=\"title index\" source=\"root/index.md\"\
-  \ title=\"Title\">\n    <title>\n        Title\n    <target refid=\"index\">\n \
-  \   <paragraph>\n        <reference internal=\"True\" refid=\"index\">\n       \
-  \     <inline classes=\"std std-ref\">\n                Title\n"
-logs:
-- - sphinx.myst_parser.myst_refs
-  - 30
-  - 'more than one target found for ''myst'' cross-reference index: could be :std:ref:`Title`
-    or :std:doc:`<no title>`'

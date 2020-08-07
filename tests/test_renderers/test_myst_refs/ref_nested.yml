@@ -1,5 +1,0 @@
-doc: "<document ids=\"title ref\" names=\"title ref\" source=\"root/index.md\" title=\"\
-  Title\">\n    <title>\n        Title\n    <target refid=\"ref\">\n    <paragraph>\n\
-  \        <reference internal=\"True\" refid=\"ref\">\n            <inline classes=\"\
-  std std-ref\">\n                <emphasis>\n                    text\n"
-logs: []

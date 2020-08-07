@@ -1,0 +1,7 @@
+<document ids="title index" names="title index" source="root/index.md" title="Title">
+    <title>
+        Title
+    <target refid="index">
+    <paragraph>
+        <pending_xref refdomain="True" refexplicit="False" reftarget="index" reftype="myst" refwarn="True">
+            <inline classes="xref myst">
