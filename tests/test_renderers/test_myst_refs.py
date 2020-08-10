@@ -2,7 +2,6 @@ from sphinx.application import Sphinx
 from sphinx.errors import SphinxWarning
 
 from myst_parser.sphinx_renderer import mock_sphinx_env
-from myst_parser.myst_refs import MystReferenceResolver
 from myst_parser.sphinx_parser import parse
 
 import pytest
@@ -24,10 +23,11 @@ import pytest
 def test_parse(test_name, text, should_warn, file_regression):
 
     with mock_sphinx_env(
-        srcdir="root", with_builder=True, raise_on_warning=True
+        conf={"extensions": ["myst_parser"]},
+        srcdir="root",
+        with_builder=True,
+        raise_on_warning=True,
     ) as app:  # type: Sphinx
-        app.add_post_transform(MystReferenceResolver)
-        app.add_source_suffix(".md", "markdown")
         document = parse(app, text, docname="index")
         if should_warn:
             with pytest.raises(SphinxWarning):
