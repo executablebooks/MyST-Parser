@@ -16,15 +16,13 @@ SPHINX_LOGGER = logging.getLogger(__name__)
 
 
 class MystParser(Parser):
-    """Docutils parser for CommonMark + Math + Tables + RST Extensions """
+    """Docutils parser for Markedly Structured Text (MyST)."""
 
     supported = ("md", "markdown", "myst")
     translate_section_name = None
 
     default_config = {
         "known_url_schemes": None,
-        "disable_syntax": (),
-        "math_delimiters": "dollars",
     }
 
     # these specs are copied verbatim from the docutils RST parser
@@ -181,31 +179,15 @@ class MystParser(Parser):
         :param document: The root docutils node to add AST elements to
         """
         self.config = self.default_config.copy()
-        try:
-            new_cfg = document.settings.env.config.myst_config
-            self.config.update(new_cfg)
-        except AttributeError:
-            pass
-
-        # TODO raise errors or log error with sphinx?
-        try:
-            for s in self.config["disable_syntax"]:
-                assert isinstance(s, str)
-        except (AssertionError, TypeError):
-            raise TypeError("disable_syntax not of type List[str]")
-
-        allowed_delimiters = ["brackets", "kramdown", "dollars", "julia"]
-        if not self.config["math_delimiters"] in allowed_delimiters:
-            raise ValueError(
-                f"math_delimiters config not an allowed name: {allowed_delimiters}"
-            )
+        # note myst sphinx config values are validated at config-inited
+        sphinx_config = document.settings.env.app.config
 
         to_docutils(
             inputstring,
             options=self.config,
             document=document,
-            disable_syntax=self.config["disable_syntax"] or [],
-            math_delimiters=self.config["math_delimiters"],
+            disable_syntax=sphinx_config.myst_disable_syntax,
+            math_delimiters=sphinx_config.myst_math_delimiters,
         )
 
 
