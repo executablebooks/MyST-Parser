@@ -18,7 +18,9 @@ class MystAmsMathTransform(SphinxPostTransform):
     default_priority = 400
 
     def run(self, **kwargs: Any) -> None:
-        if "html" not in self.app.builder.name:
+        if "html" not in self.app.builder.name and self.app.builder.name not in (
+            "readthedocs",
+        ):
             return
         if self.app.builder.math_renderer_name != "mathjax":
             return
