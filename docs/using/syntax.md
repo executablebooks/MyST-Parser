@@ -523,18 +523,18 @@ This text is **standard** _Markdown_
 :::
 ::::
 
-The supported directives are: attention, caution, danger, error, important, hint, note, tip and warning.
+The supported directives are: admonition, attention, caution, danger, error, important, hint, note, tip and warning.
 
-These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name.
+These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name. Also `admonition` can have a custom title.
 For example:
 
 ```md
-:::{note,bg-success}
+:::{admonition,bg-success} This *is* also **Markdown**
 This text is **standard** _Markdown_
 :::
 ```
 
-:::{note,bg-success}
+:::{admonition,bg-success} This *is* also **Markdown**
 This text is **standard** _Markdown_
 :::
 

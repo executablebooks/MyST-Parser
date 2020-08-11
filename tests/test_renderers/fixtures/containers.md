@@ -28,3 +28,21 @@ Nested notes:
                 <emphasis>
                     hallo
 .
+
+--------------------------------
+Admonition with title:
+.
+::: {admonition,other} A **title**
+*hallo*
+:::
+.
+<document source="notset">
+    <admonition classes="other">
+        <title>
+             A 
+            <strong>
+                title
+        <paragraph>
+            <emphasis>
+                hallo
+.

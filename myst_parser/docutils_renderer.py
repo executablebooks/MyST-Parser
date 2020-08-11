@@ -629,7 +629,22 @@ class DocutilsRenderer:
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
 
-    def get_admonition(self, line, name, classes, title):
+    def get_admonition(self, token, name, classes, title):
+
+        line = token.map[0]
+
+        if name == "admonition":
+            # parse title
+            node = nodes.admonition(title, classes=classes[1:].split(","))
+            state_machine = MockStateMachine(self, line)
+            state = MockState(self, state_machine, line)
+            textnodes, messages = state.inline_text(title, line)
+            title_node = nodes.title(title, "", *textnodes)
+            self.add_line_and_source_path(title_node, token)
+            node += title_node
+            node += messages
+            return node
+
         node_cls = {
             "attention": nodes.attention,
             "caution": nodes.caution,
@@ -664,7 +679,7 @@ class DocutilsRenderer:
             )
             admonition = nodes.note("")
         else:
-            admonition = self.get_admonition(token.map[0], **match.groupdict())
+            admonition = self.get_admonition(token, **match.groupdict())
         self.add_line_and_source_path(admonition, token)
         with self.current_node_context(admonition, append=True):
             self.render_children(token)
