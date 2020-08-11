@@ -60,7 +60,12 @@ def test_references(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "conf_values"), freshenv=True
 )
 def test_conf_values(
-    app, status, warning, get_sphinx_app_doctree, remove_sphinx_builds
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
 ):
     """basic test."""
     app.build()
@@ -70,6 +75,7 @@ def test_conf_values(
     assert warnings == ""
 
     get_sphinx_app_doctree(app, docname="index", regress=True)
+    get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
 @pytest.mark.sphinx(

@@ -4,5 +4,16 @@
             Test
         <paragraph>
             *disabled*
+        <paragraph>
+            <math>
+                a=1
         <math_block nowrap="False" number="True" xml:space="preserve">
             a=1
+        <math_block classes="amsmath" nowrap="True" number="True" xml:space="preserve">
+            \begin{equation}
+            b=2
+            \end{equation}
+        <math_block docname="index" label="True" nowrap="False" number="True" xml:space="preserve">
+            c=3
+            
+            d=4
