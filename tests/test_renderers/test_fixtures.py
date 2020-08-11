@@ -6,7 +6,7 @@ import sphinx
 
 from markdown_it.utils import read_fixture_file
 from myst_parser.main import to_docutils
-from myst_parser.sphinx_renderer import mock_sphinx_env
+from myst_parser.sphinx_renderer import mock_sphinx_env, SphinxRenderer
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -120,7 +120,8 @@ def test_sphinx_roles(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected", read_fixture_file(FIXTURE_PATH.joinpath("amsmath.md")),
 )
-def test_amsmath(line, title, input, expected):
+def test_amsmath(line, title, input, expected, monkeypatch):
+    monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
     _actual, _expected = [

@@ -15,7 +15,6 @@ def setup(app):
     app.add_config_value("myst_math_delimiters", "dollars", "env")
     app.add_config_value("myst_disable_syntax", (), "env")
     app.add_config_value("myst_amsmath_enable", False, "env")
-    app.add_config_value("myst_amsmath_html", [r"\[", r"\]"], "html")
 
     app.connect("config-inited", validate_config)
 

@@ -557,17 +557,6 @@ class DocutilsRenderer:
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_amsmath(self, token):
-        # TODO how to parse and reference labels?
-        # environment = token.meta["environment"]
-        # numbered = token.meta["numbered"]
-        content = token.content
-        node = nodes.math_block(
-            content, content, nowrap=True, number=None, classes=["amsmath"]
-        )
-        self.add_line_and_source_path(node, token)
-        self.current_node.append(node)
-
     def render_footnote_ref(self, token):
         """Footnote references are added as auto-numbered,
         .i.e. `[^a]` is read as rST `[#a]_`

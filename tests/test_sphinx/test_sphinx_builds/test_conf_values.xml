@@ -9,7 +9,8 @@
                 a=1
         <math_block nowrap="False" number="True" xml:space="preserve">
             a=1
-        <math_block classes="amsmath" nowrap="True" number="True" xml:space="preserve">
+        <target refid="equation-mock-uuid">
+        <math_block classes="amsmath" docname="index" ids="equation-mock-uuid" label="mock-uuid" nowrap="True" number="1" xml:space="preserve">
             \begin{equation}
             b=2
             \end{equation}
