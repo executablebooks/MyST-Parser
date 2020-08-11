@@ -69,7 +69,8 @@ we have shown equivalent rST syntax for many MyST markdown features below.
     ```
     ````
 * - Math
-  - Two `$` characters wrapping multi-line math
+  - `$$` (default) or `\[`...`\]` characters wrapping multi-line math, or even direct [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations (optional).
+  See {ref}`syntax/math` for more information.
   - ```latex
     $$
     a=1
@@ -200,7 +201,8 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
     (target)=
     ```
 * - Math
-  - dollar enclosed math
+  - `$` (default) or `\(`...`\)` enclosed math. See
+  {ref}`syntax/math` for more information.
   - ```latex
     $a=1$ or $$a=1$$
     ```
@@ -584,9 +586,22 @@ header-rows: 1
   - `.. _mytarget:`
 ````
 
+(syntax/math)=
+
 ### Math shortcuts
 
-Math can be called in-line with single `$` characters around your math.
+The style of math parsing is governed by the `myst_math_delimiters` option set in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html).
+The two common settings are:
+
+- `myst_math_delimiters = "dollars"` (default)
+  - inline: `$...$` or `$$...$$`
+  - display: `$$...$$`
+  - display + equation label: `$$...$$ (1)`
+- `myst_math_delimiters = "brackets"`
+  - inline: `\(...\)`
+  - display: `\[...\]`
+  - display + equation label: `\[...\] (1)`
+
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
 This is equivalent to writing:
 
@@ -594,8 +609,12 @@ This is equivalent to writing:
 {math}`x_{hey}=it+is^{math}`
 ```
 
-Block-level math can be provided with `$$` signs that wrap the math block you'd like
-to parse. For example:
+```{tip}
+Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a$.
+```
+
+Block-level math can then be provided with `$$` signs that wrap the math block you'd like to parse.
+For example:
 
 ```latex
 $$
@@ -641,6 +660,48 @@ e = mc^2
 $$ (eqn:best)
 
 This is the best equation {eq}`eqn:best`
+
+(syntax/amsmath)=
+
+### Direct LaTeX Math (optional)
+
+You can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations by setting `myst_amsmath_enable = True` in your sphinx `conf.py`.
+These top-level math environments will then be directly parsed:
+
+> equation, multline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
+
+As expected, environments ending in `*` will not be numbered, for example:
+
+```latex
+\begin{gather*}
+a_1=b_1+c_1\\
+a_2=b_2+c_2-d_2+e_2
+\end{gather*}
+
+\begin{align}
+a_{11}& =b_{11}&
+  a_{12}& =b_{12}\\
+a_{21}& =b_{21}&
+  a_{22}& =b_{22}+c_{22}
+\end{align}
+```
+
+\begin{gather*}
+a_1=b_1+c_1\\
+a_2=b_2+c_2-d_2+e_2
+\end{gather*}
+
+\begin{align}
+a_{11}& =b_{11}&
+  a_{12}& =b_{12}\\
+a_{21}& =b_{21}&
+  a_{22}& =b_{22}+c_{22}
+\end{align}
+
+```{note}
+`\labels` inside the environment are not currently identified, and so cannot be referenced.
+We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
+```
 
 (syntax/frontmatter)=
 

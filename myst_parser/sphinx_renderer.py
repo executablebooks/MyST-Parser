@@ -4,6 +4,7 @@ from io import StringIO
 import tempfile
 from typing import cast
 from urllib.parse import unquote
+from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -59,6 +60,36 @@ class SphinxRenderer(DocutilsRenderer):
         target = self.add_math_target(node)
         self.add_line_and_source_path(target, token)
         self.current_node.append(target)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def _random_label(self):
+        return str(uuid4())
+
+    def render_amsmath(self, token):
+        # environment = token.meta["environment"]
+        content = token.content
+
+        if token.meta["numbered"] != "*":
+            # TODO how to parse and reference labels within environment?
+            # for now we give create a unique hash, so the equation will be numbered
+            # but there will be no reference clashes
+            label = self._random_label()
+            node = nodes.math_block(
+                content,
+                content,
+                nowrap=True,
+                number=None,
+                classes=["amsmath"],
+                label=label,
+            )
+            target = self.add_math_target(node)
+            self.add_line_and_source_path(target, token)
+            self.current_node.append(target)
+        else:
+            node = nodes.math_block(
+                content, content, nowrap=True, number=None, classes=["amsmath"]
+            )
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
