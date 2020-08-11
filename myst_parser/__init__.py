@@ -41,4 +41,4 @@ def validate_config(app, config):
         )
 
     if not isinstance(config.myst_amsmath_enable, bool):
-        logger.error("myst_disable_syntax config option not of type boolean")
+        logger.error("myst_amsmath_enable config option not of type boolean")

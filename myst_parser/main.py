@@ -16,7 +16,7 @@ def default_parser(
     renderer="sphinx",
     disable_syntax=(),
     math_delimiters: str = "dollars",
-    enable_amsmath: bool = True,
+    enable_amsmath: bool = False,
 ) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
     if renderer == "sphinx":
@@ -87,6 +87,7 @@ def to_docutils(
         renderer=renderer,
         disable_syntax=disable_syntax,
         math_delimiters=math_delimiters,
+        enable_amsmath=enable_amsmath,
     )
     if options:
         md.options.update(options)

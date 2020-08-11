@@ -122,7 +122,7 @@ def test_sphinx_roles(line, title, input, expected):
 )
 def test_amsmath(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
-    document = to_docutils(input, in_sphinx_env=True)
+    document = to_docutils(input, in_sphinx_env=True, enable_amsmath=True)
     print(document.pformat())
     _actual, _expected = [
         "\n".join([ll.rstrip() for ll in text.splitlines()])
