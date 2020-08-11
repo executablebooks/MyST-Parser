@@ -189,6 +189,7 @@ class MystParser(Parser):
             disable_syntax=sphinx_config.myst_disable_syntax,
             math_delimiters=sphinx_config.myst_math_delimiters,
             enable_amsmath=sphinx_config.myst_amsmath_enable,
+            enable_admonitions=sphinx_config.myst_admonition_enable,
         )
 
 

@@ -66,6 +66,7 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 myst_amsmath_enable = True
+myst_admonition_enable = True
 
 
 def run_apidoc(app):

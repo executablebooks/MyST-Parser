@@ -15,6 +15,7 @@ def setup(app):
     app.add_config_value("myst_math_delimiters", "dollars", "env")
     app.add_config_value("myst_disable_syntax", (), "env")
     app.add_config_value("myst_amsmath_enable", False, "env")
+    app.add_config_value("myst_admonition_enable", False, "env")
 
     app.connect("config-inited", validate_config)
 
@@ -42,3 +43,6 @@ def validate_config(app, config):
 
     if not isinstance(config.myst_amsmath_enable, bool):
         logger.error("myst_amsmath_enable config option not of type boolean")
+
+    if not isinstance(config.myst_admonition_enable, bool):
+        logger.error("myst_admonition_enable config option not of type boolean")

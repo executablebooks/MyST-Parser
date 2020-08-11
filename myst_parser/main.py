@@ -8,6 +8,7 @@ from markdown_it.extensions.myst_role import myst_role_plugin
 from markdown_it.extensions.texmath import texmath_plugin
 from markdown_it.extensions.footnote import footnote_plugin
 from markdown_it.extensions.amsmath import amsmath_plugin
+from markdown_it.extensions.container import container_plugin
 
 from . import __version__  # noqa: F401
 
@@ -17,6 +18,7 @@ def default_parser(
     disable_syntax=(),
     math_delimiters: str = "dollars",
     enable_amsmath: bool = False,
+    enable_admonitions: bool = False,
 ) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
     if renderer == "sphinx":
@@ -49,6 +51,8 @@ def default_parser(
     )
     for name in disable_syntax:
         md.disable(name, True)
+    if enable_admonitions:
+        md.use(container_plugin, "admonition", validate=validate_admonition)
     if enable_amsmath:
         md.use(amsmath_plugin)
     return md
@@ -60,6 +64,7 @@ def to_docutils(
     env=None,
     disable_syntax: List[str] = (),
     enable_amsmath: bool = False,
+    enable_admonitions: bool = False,
     math_delimiters: str = "dollars",
     renderer="sphinx",
     document=None,
@@ -88,6 +93,7 @@ def to_docutils(
         disable_syntax=disable_syntax,
         math_delimiters=math_delimiters,
         enable_amsmath=enable_amsmath,
+        enable_admonitions=enable_admonitions,
     )
     if options:
         md.options.update(options)
@@ -109,3 +115,11 @@ def to_html(text: str, env=None):
 def to_tokens(text: str, env=None):
     md = default_parser("html")
     return md.parse(text, env)
+
+
+def validate_admonition(params: str, *args):
+    # NOTE with containers you can selectively only parse those that have a particular
+    # argument string
+    # However, this reduces the amount of feedback since, if you made an error
+    # in the argument string, it would just ignore it rather than logging a warning
+    return True
