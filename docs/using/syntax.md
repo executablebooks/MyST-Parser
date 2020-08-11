@@ -99,6 +99,14 @@ we have shown equivalent rST syntax for many MyST markdown features below.
   - ```md
     [^ref]: Some footnote text
     ```
+* - Admonitions (optional)
+  - An alternative approach for admonition style directives only, which has the benefit of allowing the content to be rendered in standard markdown editors.
+    See [admonition directives](syntax/admonitions) for more details.
+  - ````md
+    :::{note}
+    *content*
+    :::
+    ````
 `````
 
 (commonmark-block-tokens)=
@@ -478,6 +486,57 @@ print('yep!')
 ````
 `````
 ``````
+
+(syntax/admonitions)=
+
+### Admonition directives special syntax (optional)
+
+A special syntax for admonitions can optionally be enabled by setting `myst_admonition_enable = True` in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html).
+
+The key differences are that, instead of backticks, colons are used, and **the content starts as regular Markdown**.
+This has the benefit of allowing the content to be rendered correctly, when you are working in any standard markdown editor.
+For example:
+
+```md
+:::{note}
+This text is **standard** _Markdown_
+:::
+```
+
+:::{note}
+This text is **standard** _Markdown_
+:::
+
+Similar to normal directives, these admonitions can also be nested:
+
+```md
+::::{important}
+:::{note}
+This text is **standard** _Markdown_
+:::
+::::
+```
+
+::::{important}
+:::{note}
+This text is **standard** _Markdown_
+:::
+::::
+
+The supported directives are: admonition, attention, caution, danger, error, important, hint, note, tip and warning.
+
+These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name. Also `admonition` can have a custom title.
+For example:
+
+```md
+:::{admonition,warning} This *is* also **Markdown**
+This text is **standard** _Markdown_
+:::
+```
+
+:::{admonition,warning} This *is* also **Markdown**
+This text is **standard** _Markdown_
+:::
 
 (syntax/roles)=
 

@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import inspect
 import json
 from os.path import splitext
+import re
 from typing import List
 from urllib.parse import urlparse
 
@@ -38,6 +39,12 @@ def make_document(source_path="notset") -> nodes.document:
     """Create a new docutils document."""
     settings = OptionParser(components=(RSTParser,)).get_default_values()
     return new_document(source_path, settings=settings)
+
+
+# CSS class regex taken from https://www.w3.org/TR/CSS21/syndata.html#characters
+REGEX_ADMONTION = re.compile(
+    r"\{(?P<name>[a-zA-Z]+)(?P<classes>(?:\,-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)\}(?P<title>.*)"  # noqa: E501
+)
 
 
 class DocutilsRenderer:
@@ -621,6 +628,61 @@ class DocutilsRenderer:
             )
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
+
+    def get_admonition(self, token, name, classes, title):
+
+        line = token.map[0]
+
+        if name == "admonition":
+            # parse title
+            node = nodes.admonition(title, classes=classes[1:].split(","))
+            state_machine = MockStateMachine(self, line)
+            state = MockState(self, state_machine, line)
+            textnodes, messages = state.inline_text(title, line)
+            title_node = nodes.title(title, "", *textnodes)
+            self.add_line_and_source_path(title_node, token)
+            node += title_node
+            node += messages
+            return node
+
+        node_cls = {
+            "attention": nodes.attention,
+            "caution": nodes.caution,
+            "danger": nodes.danger,
+            "error": nodes.error,
+            "important": nodes.important,
+            "hint": nodes.hint,
+            "note": nodes.note,
+            "tip": nodes.tip,
+            "warning": nodes.warning,
+            # seealso in addnodes (i.e. sphinx only)
+        }.get(name, None)
+        if node_cls is None:
+            self.current_node.append(
+                self.reporter.warning(
+                    f"admonition name not recognised, defaulting to note: {name}",
+                    line=line,
+                )
+            )
+            node_cls = nodes.note
+        return node_cls(title, classes=classes[1:].split(","))
+
+    def render_container_admonition_open(self, token):
+        match = REGEX_ADMONTION.match(token.info.strip())
+        if not match:
+            self.current_node.append(
+                self.reporter.warning(
+                    "admonition argument did not match required regex, "
+                    f"defaulting to note: {token.info}",
+                    line=token.map[0],
+                )
+            )
+            admonition = nodes.note("")
+        else:
+            admonition = self.get_admonition(token, **match.groupdict())
+        self.add_line_and_source_path(admonition, token)
+        with self.current_node_context(admonition, append=True):
+            self.render_children(token)
 
     def render_directive(self, token: Token):
         """Render special fenced code blocks as directives."""
