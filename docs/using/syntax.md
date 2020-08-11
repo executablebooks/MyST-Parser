@@ -699,7 +699,9 @@ a_{21}& =b_{21}&
 \end{align}
 
 ```{note}
-`\labels` are not currently identified, so cannot be referenced.
+This is a new feature, so please report any bugs observed 🙏.
+
+Also `\labels` are not currently identified, and so cannot be referenced.
 We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
 ```
 
