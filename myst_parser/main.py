@@ -7,12 +7,16 @@ from markdown_it.extensions.myst_blocks import myst_block_plugin
 from markdown_it.extensions.myst_role import myst_role_plugin
 from markdown_it.extensions.texmath import texmath_plugin
 from markdown_it.extensions.footnote import footnote_plugin
+from markdown_it.extensions.amsmath import amsmath_plugin
 
 from . import __version__  # noqa: F401
 
 
 def default_parser(
-    renderer="sphinx", disable_syntax=(), math_delimiters="dollars"
+    renderer="sphinx",
+    disable_syntax=(),
+    math_delimiters: str = "dollars",
+    enable_amsmath: bool = True,
 ) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
     if renderer == "sphinx":
@@ -45,6 +49,8 @@ def default_parser(
     )
     for name in disable_syntax:
         md.disable(name, True)
+    if enable_amsmath:
+        md.use(amsmath_plugin)
     return md
 
 
@@ -53,6 +59,7 @@ def to_docutils(
     options=None,
     env=None,
     disable_syntax: List[str] = (),
+    enable_amsmath: bool = False,
     math_delimiters: str = "dollars",
     renderer="sphinx",
     document=None,
