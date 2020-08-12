@@ -37,7 +37,7 @@ setup(
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.6",
     install_requires=[
-        "markdown-it-py~=0.4.5",
+        "markdown-it-py~=0.4.9",
         "pyyaml",
         "docutils>=0.15",
         "sphinx>=2,<4",
