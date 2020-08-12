@@ -1,5 +1,11 @@
 # Change log
 
+## 0.11.1 - 2020-12-07
+
+### Fix
+
+- Correctly pin required minimum markdown-it-py version
+
 ## 0.11.0 - 2020-12-07
 
 ### Added ✨
