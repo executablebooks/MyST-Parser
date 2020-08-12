@@ -45,6 +45,23 @@ def make_document(source_path="notset") -> nodes.document:
 REGEX_ADMONTION = re.compile(
     r"\{(?P<name>[a-zA-Z]+)(?P<classes>(?:\,-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)\}(?P<title>.*)"  # noqa: E501
 )
+STD_ADMONITIONS = {
+    "attention": nodes.attention,
+    "caution": nodes.caution,
+    "danger": nodes.danger,
+    "error": nodes.error,
+    "important": nodes.important,
+    "hint": nodes.hint,
+    "note": nodes.note,
+    "tip": nodes.tip,
+    "warning": nodes.warning,
+}
+try:
+    from sphinx import addnodes
+
+    STD_ADMONITIONS["seealso"] = addnodes.seealso
+except ImportError:
+    pass
 
 
 class DocutilsRenderer:
@@ -645,18 +662,7 @@ class DocutilsRenderer:
             node += messages
             return node
 
-        node_cls = {
-            "attention": nodes.attention,
-            "caution": nodes.caution,
-            "danger": nodes.danger,
-            "error": nodes.error,
-            "important": nodes.important,
-            "hint": nodes.hint,
-            "note": nodes.note,
-            "tip": nodes.tip,
-            "warning": nodes.warning,
-            # seealso in addnodes (i.e. sphinx only)
-        }.get(name, None)
+        node_cls = STD_ADMONITIONS.get(name, None)
         if node_cls is None:
             self.current_node.append(
                 self.reporter.warning(
