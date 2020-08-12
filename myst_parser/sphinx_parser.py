@@ -9,7 +9,7 @@ from sphinx.parsers import Parser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
-from myst_parser.main import to_docutils
+from myst_parser.main import default_parser
 
 
 SPHINX_LOGGER = logging.getLogger(__name__)
@@ -176,31 +176,34 @@ class MystParser(Parser):
     config_section = "myst parser"
     config_section_dependencies = ("parsers",)
 
-    def parse(self, inputstring: str, document: nodes.document):
+    def parse(
+        self, inputstring: str, document: nodes.document, renderer: str = "sphinx"
+    ):
         """Parse source text.
 
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
-        # note myst sphinx config values are validated at config-inited
-
-        try:
-            # when using sphinx
+        if renderer == "sphinx":
             config = document.settings.env.app.config
-        except AttributeError:
+        else:
             config = self.default_config.copy()
+        parser = self.get_markdown_parser(config, renderer)
+        parser.options["document"] = document
+        parser.render(inputstring)
 
-        self.config = {"myst_url_schemes": config["myst_url_schemes"]}
+    @staticmethod
+    def get_markdown_parser(config: dict, renderer: str = "sphinx"):
 
-        to_docutils(
-            inputstring,
-            options=self.config,
-            document=document,
+        parser = default_parser(
+            renderer=renderer,
             disable_syntax=config["myst_disable_syntax"],
             math_delimiters=config["myst_math_delimiters"],
             enable_amsmath=config["myst_amsmath_enable"],
             enable_admonitions=config["myst_admonition_enable"],
         )
+        parser.options.update({"myst_url_schemes": config["myst_url_schemes"]})
+        return parser
 
 
 def parse(app: Sphinx, text: str, docname: str = "index") -> nodes.document:
