@@ -14,9 +14,9 @@ ecosystem.
 Below is a summary of the syntax 'tokens' parsed,
 and further details of a few major extensions from the CommonMark flavor of markdown.
 
-```{seealso}
+:::{seealso}
 For an introduction to writing Directives and Roles with MyST markdown, see {ref}`intro/writing`.
-```
+:::
 
 % ```{seealso}
 % {ref}`MyST Extended AST Tokens API <api/tokens>`
@@ -36,10 +36,10 @@ Block tokens span multiple lines of content. They are broken down into two secti
 
 In addition to these summaries of block-level syntax, see {ref}`extra-markdown-syntax`.
 
-```{note}
+:::{note}
 Because MyST markdown was inspired by functionality that exists in reStructuredText,
 we have shown equivalent rST syntax for many MyST markdown features below.
-```
+:::
 
 (extended-block-tokens)=
 ### Extended block tokens
@@ -523,7 +523,7 @@ This text is **standard** _Markdown_
 :::
 ::::
 
-The supported directives are: admonition, attention, caution, danger, error, important, hint, note, tip and warning.
+The supported directives are: admonition, attention, caution, danger, error, important, hint, note, seealso, tip and warning.
 
 These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name. Also `admonition` can have a custom title.
 For example:
@@ -757,10 +757,10 @@ a_{21}& =b_{21}&
   a_{22}& =b_{22}+c_{22}
 \end{align}
 
-```{note}
+:::{note}
 `\labels` inside the environment are not currently identified, and so cannot be referenced.
 We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
-```
+:::
 
 (syntax/frontmatter)=
 

@@ -40,15 +40,14 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
-```{admonition} You can use both MyST and reStructuredText
-:class: tip
+:::{admonition,tip} You can use both MyST and reStructuredText
 
 Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST
 parser that ships with Sphinx by default will still work the same way. You can have
 combinations of both markdown and rST files in your documentation, and Sphinx will
 choose the right parser based on each file's extension. Sphinx features
 like cross-references will work just fine between the pages.
-```
+:::
 
 ## How does MyST parser relate to Sphinx?
 
@@ -67,11 +66,11 @@ The MyST-parser is a Sphinx parser for the MyST markdown language. When you use 
 Sphinx will know how to parse content files that contain MyST markdown (by default,
 Sphinx will assume any files ending in `.md` are written in MyST markdown).
 
-```{note}
+:::{note}
 Sphinx will still be able to parse files written in `.rst`. Activating this parser
 simply adds another parser, and Sphinx will still be able to use its default parser
 for `.rst` files.
-```
+:::
 
 (intro/writing)=
 ## Writing MyST in Sphinx
@@ -80,7 +79,7 @@ Once you've enabled the `myst-parser` in Sphinx, it will be able to parse your M
 markdown documents. This means that you can use the `.md` extension for your pages,
 and write MyST markdown in these pages.
 
-```{tip}
+:::{tip}
 MyST markdown is a mixture of two flavors of markdown:
 
 It supports all the syntax of **[CommonMark Markdown](https://commonmark.org/)** at its
@@ -89,7 +88,7 @@ base. This is a community standard flavor of markdown used across many projects.
 In addition, it includes **several extensions to CommonMark**
 (often described as [MyST Markdown syntax](syntax)). These add extra syntax features
 designed to work with the Sphinx ecosystem (and inspired by reStructuredText)
-```
+:::
 
 The following sections cover a few core syntax patterns in MyST markdown, you can
 find a more exhaustive list in {doc}`syntax`.
@@ -178,7 +177,7 @@ For more information about using directives with MyST, see {ref}`syntax/directiv
 Roles are another core Sphinx tool. They behave similarly to directives, but are given
 in-line with text instead of in a separate block. They have the following form:
 
-```
+```md
 {rolename}`role content`
 ```
 
@@ -193,7 +192,7 @@ for more complex syntax inside their content area. For example, the `ref` role i
 to make references to other sections of your documentation, and allows you to specify
 the displayed text as well as the reference itself within the role:
 
-```
+```md
 {ref}`My displayed text <my-ref>`
 ```
 
@@ -202,34 +201,45 @@ will be rendered as {ref}`Check out this reference <syntax/roles>`.
 
 For more information about roles, see {ref}`syntax/roles`.
 
-```{tip}
+:::{tip}
 Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight),
 for MyST extended syntax highlighting.
-```
+:::
 
 ## MyST configuration options
 
-You can control the behavior of the MyST parser in Sphinx by modifying your `conf.py` file.
-To do so, use the `myst_config` keyword with a dictionary of `key:val` pairs.
+You can control the behaviour of the MyST parser in Sphinx by modifying your `conf.py` file.
+To do so, use the keywords beginning `myst_`.
+
+`````{list-table}
+:header-rows: 1
+
+* - Option
+  - Default
+  - Description
+* - `myst_disable_syntax`
+  - ()
+  - List of markdown syntax elements to disable, see the {doc}`markdown-it parser guide <markdown_it:using>`.
+* - `myst_math_delimiters`
+  - "dollars"
+  - Delimiters for parsing math, see the [Math syntax](syntax/math) for details
+* - `myst_amsmath_enable`
+  - `False`
+  - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath), [see here](syntax/amsmath)  for details.
+* - `myst_admonition_enable`
+  - `False`
+  - Enable admonition style directives, [see here](syntax/admonitions) for details.
+`````
 
 ### Disable markdown syntax for the parser
 
-If you'd like to either enable or disable custom markdown syntax, you may do so like so:
-
-```python
-myst_config = {
-    "disable_syntax": ["list", "of", "disabled", "elements"]
-}
-```
-
+If you'd like to either enable or disable custom markdown syntax, use `myst_disable_syntax`.
 Anything in this list will no longer be parsed by the MyST parser.
 
 For example, to disable the `emphasis` in-line syntax, use this configuration:
 
 ```python
-myst_config = {
-    "disable_syntax": ["emphasis"]
-}
+myst_disable_syntax = ["emphasis"]
 ```
 
 emphasis syntax will now be disabled. For example, the following will be rendered
@@ -239,31 +249,24 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 *emphasis is now disabled*
 ```
 
-For a list of all the syntax elements you can disable, see the
-[`markdown-it-py` documentation](https://markdown-it-py.readthedocs.io/en/latest/using.html).
-
+For a list of all the syntax elements you can disable, see the {doc}`markdown-it parser guide <markdown_it:using>`.
 
 ### Use bracket delimiters for math
 
-You can also change the delimiters that are used for mathematics. By default, these
-are **dollar signs (`$`)**. For example, to use brackets instead of dollar signs, use
-this configuration:
+You can also change the delimiters that are used for mathematics.
+By default, these are **dollar signs (`$`)**.
+For example, to use `\(...\)` brackets instead of dollar signs, use this configuration:
 
 ```python
-myst_config = {
-    "math_delimiters": "brackets"
-}
+myst_math_delimiters = "brackets"
 ```
 
 This will tell the MyST parser to treat the following as math:
 
 ```md
-\[a=1\]
+\(a=1\)
 ```
 
-```{seealso}
-The {py:class}`~myst_parser.sphinx_parser.MystParser` class API
-and
-[markdown-it-py](https://github.com/executablebooks/markdown-it-py)
-for the list of syntax elements (known as rules) that you can disable.
-```
+:::{seealso}
+The {py:class}`~myst_parser.sphinx_parser.MystParser` class API and {ref}`syntax/math` for more information.
+:::
