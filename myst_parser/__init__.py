@@ -24,6 +24,8 @@ def setup_sphinx(app):
     app.add_post_transform(MystAmsMathTransform)
 
     app.add_config_value("myst_disable_syntax", (), "env")
+    # see https://en.wikipedia.org/wiki/List_of_URI_schemes
+    app.add_config_value("myst_url_schemes", None, "env")
     app.add_config_value("myst_math_delimiters", "dollars", "env")
     app.add_config_value("myst_amsmath_enable", False, "env")
     app.add_config_value("myst_admonition_enable", False, "env")

@@ -50,14 +50,19 @@ class MystReferenceResolver(ReferencesResolver):
 
             try:
                 newnode = self.resolve_myst_ref(refdoc, node, contnode)
-                # no new node found? try the missing-reference event
                 if newnode is None:
+                    # no new node found? try the missing-reference event
+                    # but first we change the the reftype to 'any'
+                    # this means it is picked up by extensions like intersphinx
+                    node["reftype"] = "any"
                     newnode = self.app.emit_firstresult(
                         "missing-reference", self.env, node, contnode
                     )
+                    node["reftype"] = "myst"
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:
+                        node["refdomain"] = ""
                         self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode

@@ -437,7 +437,7 @@ class DocutilsRenderer:
         # If there's not a url scheme (e.g. 'https' for 'https:...' links),
         # or there is a scheme but it's not in the list of known_url_schemes,
         # then assume it's a cross-reference
-        known_url_schemes = self.config.get("known_url_schemes", None)
+        known_url_schemes = self.config.get("myst_url_schemes", None)
         if known_url_schemes:
             scheme_known = url_check.scheme in known_url_schemes
         else:

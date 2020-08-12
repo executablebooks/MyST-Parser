@@ -217,9 +217,13 @@ To do so, use the keywords beginning `myst_`.
 * - Option
   - Default
   - Description
+* - `myst_url_schemes`
+  - `None`
+  - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
+    Other links will be resolved as internal cross-references.
 * - `myst_disable_syntax`
   - ()
-  - List of markdown syntax elements to disable, see the {doc}`markdown-it parser guide <markdown_it:using>`.
+  - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
 * - `myst_math_delimiters`
   - "dollars"
   - Delimiters for parsing math, see the [Math syntax](syntax/math) for details
@@ -249,7 +253,7 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 *emphasis is now disabled*
 ```
 
-For a list of all the syntax elements you can disable, see the {doc}`markdown-it parser guide <markdown_it:using>`.
+For a list of all the syntax elements you can disable, see the [markdown-it parser guide](markdown_it:using).
 
 ### Use bracket delimiters for math
 
