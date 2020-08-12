@@ -22,7 +22,11 @@ class MystParser(Parser):
     translate_section_name = None
 
     default_config = {
-        "known_url_schemes": None,
+        "myst_disable_syntax": (),
+        "myst_url_schemes": None,
+        "myst_math_delimiters": "dollars",
+        "myst_amsmath_enable": False,
+        "myst_admonition_enable": False,
     }
 
     # these specs are copied verbatim from the docutils RST parser
@@ -178,18 +182,24 @@ class MystParser(Parser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
-        self.config = self.default_config.copy()
         # note myst sphinx config values are validated at config-inited
-        sphinx_config = document.settings.env.app.config
+
+        try:
+            # when using sphinx
+            config = document.settings.env.app.config
+        except AttributeError:
+            config = self.default_config.copy()
+
+        self.config = {"myst_url_schemes": config["myst_url_schemes"]}
 
         to_docutils(
             inputstring,
             options=self.config,
             document=document,
-            disable_syntax=sphinx_config.myst_disable_syntax,
-            math_delimiters=sphinx_config.myst_math_delimiters,
-            enable_amsmath=sphinx_config.myst_amsmath_enable,
-            enable_admonitions=sphinx_config.myst_admonition_enable,
+            disable_syntax=config["myst_disable_syntax"],
+            math_delimiters=config["myst_math_delimiters"],
+            enable_amsmath=config["myst_amsmath_enable"],
+            enable_admonitions=config["myst_admonition_enable"],
         )
 
 
