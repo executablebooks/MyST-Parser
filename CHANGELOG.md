@@ -1,10 +1,32 @@
 # Change log
 
+## 0.11.0 - 2020-12-07
+
+### Added ✨
+
+* Special admonition directive syntax (optional):
+
+  ```md
+  :::{note}
+  This text is **standard** _Markdown_
+  :::
+  ```
+
+  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#admonition-directives-special-syntax-optional) for details.
+
+* Direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations (optional).
+  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#direct-latex-math-optional) for details.
+
+### Breaking ‼️
+
+* Sphinx configuration options are now set as separate variables, rather than a single dict.
+  See [MyST configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options) for details.
+
 ## 0.10.0 - 2020-08-07
 
 ([full changelog](https://github.com/executablebooks/MyST-Parser/compare/v0.9.1...aaed58808af485c29bbbf73c5aac10697bfa08b9))
 
-### Improved
+### Improved 👌
 
 * Support Sphinx version 3 [#197](https://github.com/executablebooks/MyST-Parser/pull/197) ([@chrisjsewell](https://github.com/chrisjsewell))
 * Update Trove Classifiers [#192](https://github.com/executablebooks/MyST-Parser/pull/192) ([@chrisjsewell](https://github.com/chrisjsewell))
