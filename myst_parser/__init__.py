@@ -29,6 +29,7 @@ def setup_sphinx(app):
     app.add_config_value("myst_math_delimiters", "dollars", "env")
     app.add_config_value("myst_amsmath_enable", False, "env")
     app.add_config_value("myst_admonition_enable", False, "env")
+    app.add_config_value("myst_html_img", False, "env")
 
     app.connect("config-inited", validate_config)
 

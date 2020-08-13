@@ -33,6 +33,7 @@ from myst_parser.mocking import (
     MockIncludeDirective,
 )
 from .parse_directives import parse_directive_text, DirectiveParsingError
+from .parse_html import HTMLImgParser
 
 
 def make_document(source_path="notset") -> nodes.document:
@@ -468,7 +469,12 @@ class DocutilsRenderer:
         self.current_node.append(nodes.raw("", token.content, format="html"))
 
     def render_html_block(self, token):
-        self.current_node.append(nodes.raw("", token.content, format="html"))
+        node = None
+        if self.config.get("myst_html_img", False):
+            node = HTMLImgParser().parse(token.content, self.document, token.map[0])
+        if node is None:
+            node = nodes.raw("", token.content, format="html")
+        self.current_node.append(node)
 
     def render_image(self, token):
         img_node = nodes.image()

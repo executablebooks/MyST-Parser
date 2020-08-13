@@ -27,6 +27,7 @@ class MystParser(Parser):
         "myst_math_delimiters": "dollars",
         "myst_amsmath_enable": False,
         "myst_admonition_enable": False,
+        "myst_html_img": False,
     }
 
     # these specs are copied verbatim from the docutils RST parser
@@ -202,7 +203,12 @@ class MystParser(Parser):
             enable_amsmath=config["myst_amsmath_enable"],
             enable_admonitions=config["myst_admonition_enable"],
         )
-        parser.options.update({"myst_url_schemes": config["myst_url_schemes"]})
+        parser.options.update(
+            {
+                "myst_url_schemes": config["myst_url_schemes"],
+                "myst_html_img": config["myst_html_img"],
+            }
+        )
         return parser
 
 
