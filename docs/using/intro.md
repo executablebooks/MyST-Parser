@@ -226,7 +226,7 @@ To do so, use the keywords beginning `myst_`.
     Other links will be resolved as internal cross-references.
 * - `myst_html_img`
   - `False`
-  - Convert HTML <img> elements to sphinx image nodes, see the [image syntax](syntax/images) for details
+  - Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
 * - `myst_math_delimiters`
   - "dollars"
   - Delimiters for parsing math, see the [Math syntax](syntax/math) for details
