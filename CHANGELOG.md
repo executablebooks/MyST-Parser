@@ -1,5 +1,16 @@
 # Change log
 
+## 0.11.2 - 2020-13-07
+
+### Added ✨
+
+- `<img src="file.png" width="200px">` tag parsing to sphinx representation, see [the image syntax guide](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#images)
+
+### Improved 👌
+
+- `[title](link)` syntax now works with intersphinx references.
+  Recognised URI schemas can also be configured, see the [configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options)
+
 ## 0.11.1 - 2020-12-07
 
 ### Fix
