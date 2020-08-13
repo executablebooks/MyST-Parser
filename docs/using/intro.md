@@ -217,13 +217,16 @@ To do so, use the keywords beginning `myst_`.
 * - Option
   - Default
   - Description
+* - `myst_disable_syntax`
+  - ()
+  - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
 * - `myst_url_schemes`
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
-* - `myst_disable_syntax`
-  - ()
-  - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
+* - `myst_html_img`
+  - `False`
+  - Convert HTML <img> elements to sphinx image nodes, see the [image syntax](syntax/images) for details
 * - `myst_math_delimiters`
   - "dollars"
   - Delimiters for parsing math, see the [Math syntax](syntax/math) for details

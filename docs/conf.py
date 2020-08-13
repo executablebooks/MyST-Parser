@@ -67,6 +67,7 @@ html_static_path = ["_static"]
 
 myst_amsmath_enable = True
 myst_admonition_enable = True
+myst_html_img = True
 
 
 def run_apidoc(app):

@@ -232,22 +232,22 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
   - Description
   - Example
 * - HTMLSpan
-  - any valid HTML (rendered in HTML output only)
+  - Any valid HTML (rendered in HTML output only)
   - ```html
     <p>some text</p>
     ```
 * - EscapeSequence
-  - escaped symbols (to avoid them being interpreted as other syntax elements)
+  - Escaped symbols (to avoid them being interpreted as other syntax elements)
   - ```md
     \*
     ```
 * - AutoLink
-  - link that is shown in final output
+  - Link that is shown in final output
   - ```md
     <http://www.google.com>
     ```
 * - InlineCode
-  - literal text
+  - Literal text
   - ```md
     `a=1`
     ```
@@ -257,7 +257,8 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
     A hard break\
     ```
 * - Image
-  - link to an image
+  - Link to an image.
+    You can also use HTML syntax, to include image size etc, [see here](syntax/images) for details
   - ```md
     ![alt](src "title")
     ```
@@ -267,17 +268,17 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
     [text](target "title") or [text][key]
     ```
 * - Strong
-  - bold text
+  - Bold text
   - ```md
     **strong**
     ```
 * - Emphasis
-  - italic text
+  - Italic text
   - ```md
     *emphasis*
     ```
 * - RawText
-  - any text
+  - Any text
   - ```md
     any text
     ```
@@ -894,8 +895,58 @@ leave the "text" section of the markdown link empty. For example, this
 markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
-(syntax/footnotes)=
+(syntax/images)=
 
+### Images
+
+MyST provides a few different syntaxes for including images in your documentation, as explained below.
+
+The first is the standard Markdown syntax:
+
+```md
+![fishy](img/fun-fish.png)
+```
+
+![fishy](img/fun-fish.png)
+
+This will correctly copy the image to the build folder and will render it in all output formats (HTML, TeX, etc).
+However, it is limited in the configuration that can be applied, for example setting a width.
+
+As discussed [above](syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see {ref}`the sphinx documentation <sphinx:rst-primer>`):
+
+````md
+```{image} img/fun-fish.png
+:alt: fishy
+:class: bg-primary
+:width: 200px
+:align: center
+```
+````
+
+```{image} img/fun-fish.png
+:alt: fishy
+:class: bg-primary mb-1
+:width: 200px
+```
+
+Additional options can now be set, however, in contrast to the Markdown syntax, this syntax will not show the image in common Markdown viewers (for example when the files are viewed on GitHub).
+
+The final option is directly using HTML, which is also parsed by MyST.
+This is usually a bad option, because the HTML is treated as raw text during the build process and so sphinx will not recognise that the image file is to be copied, and will not output the HTML into non-HTML output formats.
+
+HTML parsing to the rescue!
+By setting `myst_html_img = True` in the sphinx `conf.py` configuration file, MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
+
+```md
+<img src="img/fun-fish.png" alt="fishy" class="bg-primary" width="200px">
+```
+
+<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+
+Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
+Any other attributes will be dropped.
+
+(syntax/footnotes)=
 ### Footnotes
 
 Footnote labels **start with `^`** and can then be any alpha-numeric string (no spaces),
