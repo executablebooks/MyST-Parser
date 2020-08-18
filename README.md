@@ -38,7 +38,7 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 ## Contributing
 
 We welcome all contributions!
-See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/develop/contributing.html) for more details.
+See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/master/contributing.html) for more details.
 
 [github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/executablebooks/MyST-Parser
