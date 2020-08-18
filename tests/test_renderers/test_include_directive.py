@@ -30,6 +30,9 @@ def test_render(line, title, input, expected, tmp_path):
     read_fixture_file(FIXTURE_PATH.joinpath("mock_include_errors.md")),
 )
 def test_errors(line, title, input, expected, tmp_path):
+    if title.startswith("Non-existent path") and os.name == "nt":
+        pytest.skip("tmp_path not converted correctly on Windows")
+
     tmp_path.joinpath("bad.md").write_text("{a}`b`")
     document = make_document(str(tmp_path / "test.md"))
     messages = []
