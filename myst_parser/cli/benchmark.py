@@ -77,17 +77,16 @@ def run_myst_parser_html(package, text):
 @benchmark("myst_parser.main")
 def run_myst_parser_docutils(package, text):
     package.to_docutils(
-        text, renderer="docutils", options={"ignore_missing_refs": True}
+        text,
+        package.MdParserConfig(renderer="docutils"),
+        options={"ignore_missing_refs": True},
     )
 
 
 @benchmark("myst_parser.main")
 def run_myst_parser_sphinx(package, text):
     package.to_docutils(
-        text,
-        renderer="sphinx",
-        options={"ignore_missing_refs": True},
-        in_sphinx_env=True,
+        text, options={"ignore_missing_refs": True}, in_sphinx_env=True,
     )
 
 

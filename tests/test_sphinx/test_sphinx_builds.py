@@ -77,8 +77,10 @@ def test_conf_values(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, docname="index", regress=True)
-    get_sphinx_app_output(app, filename="index.html", regress_html=True)
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
 @pytest.mark.sphinx(
@@ -99,8 +101,10 @@ def test_includes(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, docname="index", regress=True)
-    get_sphinx_app_output(app, filename="index.html", regress_html=True)
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
 @pytest.mark.sphinx(
@@ -120,5 +124,8 @@ def test_footnotes(
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
     assert warnings == ""
-    get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
-    get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)
+
+    try:
+        get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
+    finally:
+        get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)

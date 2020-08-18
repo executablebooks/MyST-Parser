@@ -935,7 +935,7 @@ The final option is directly using HTML, which is also parsed by MyST.
 This is usually a bad option, because the HTML is treated as raw text during the build process and so sphinx will not recognise that the image file is to be copied, and will not output the HTML into non-HTML output formats.
 
 HTML parsing to the rescue!
-By setting `myst_html_img = True` in the sphinx `conf.py` configuration file, MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
+By setting `myst_html_img_enable = True` in the sphinx `conf.py` configuration file, MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
 
 ```md
 <img src="img/fun-fish.png" alt="fishy" class="bg-primary" width="200px">

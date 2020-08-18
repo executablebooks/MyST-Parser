@@ -19,42 +19,34 @@ def setup_sphinx(app):
     # so that it can be called by external packages like myst_nb
     from myst_parser.myst_refs import MystReferenceResolver
     from myst_parser.myst_amsmath import MystAmsMathTransform
+    from myst_parser.main import MdParserConfig
 
     app.add_post_transform(MystReferenceResolver)
     app.add_post_transform(MystAmsMathTransform)
 
-    app.add_config_value("myst_disable_syntax", (), "env")
-    # see https://en.wikipedia.org/wiki/List_of_URI_schemes
-    app.add_config_value("myst_url_schemes", None, "env")
-    app.add_config_value("myst_math_delimiters", "dollars", "env")
-    app.add_config_value("myst_amsmath_enable", False, "env")
-    app.add_config_value("myst_admonition_enable", False, "env")
-    app.add_config_value("myst_html_img", False, "env")
+    for name, default in MdParserConfig().as_dict().items():
+        if not name == "renderer":
+            app.add_config_value(f"myst_{name}", default, "env")
 
-    app.connect("config-inited", validate_config)
+    app.connect("builder-inited", create_myst_config)
 
 
-def validate_config(app, config):
+def create_myst_config(app):
     from sphinx.util import logging
+    from sphinx.util.console import bold
+    from myst_parser.main import MdParserConfig
 
     logger = logging.getLogger(__name__)
 
-    # TODO raise errors or log error with sphinx?
+    values = {
+        name: app.config[f"myst_{name}"]
+        for name in MdParserConfig().as_dict().keys()
+        if name != "renderer"
+    }
+
     try:
-        for s in config.myst_disable_syntax:
-            assert isinstance(s, str)
-    except (AssertionError, TypeError):
-        logger.error("myst_disable_syntax config option not of type List[str]")
-
-    allowed_delimiters = ["brackets", "kramdown", "dollars", "julia"]
-    if config.myst_math_delimiters not in allowed_delimiters:
-        logger.error(
-            "myst_math_delimiters config option not an allowed name: "
-            + f"{allowed_delimiters}"
-        )
-
-    if not isinstance(config.myst_amsmath_enable, bool):
-        logger.error("myst_amsmath_enable config option not of type boolean")
-
-    if not isinstance(config.myst_admonition_enable, bool):
-        logger.error("myst_admonition_enable config option not of type boolean")
+        app.env.myst_config = MdParserConfig(**values)
+        logger.info(bold("myst v%s:") + " %s", __version__, app.env.myst_config)
+    except (TypeError, ValueError) as error:
+        logger.error("myst configuration invalid: %s", error.args[0])
+        app.env.myst_config = MdParserConfig()

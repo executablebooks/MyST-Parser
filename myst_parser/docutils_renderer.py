@@ -470,7 +470,7 @@ class DocutilsRenderer:
 
     def render_html_block(self, token):
         node = None
-        if self.config.get("myst_html_img", False):
+        if self.config.get("enable_html_img", False):
             node = HTMLImgParser().parse(token.content, self.document, token.map[0])
         if node is None:
             node = nodes.raw("", token.content, format="html")
