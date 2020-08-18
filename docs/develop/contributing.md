@@ -60,7 +60,7 @@ You can also use [tox](https://tox.readthedocs.io), to run the tests in multiple
 
 ```shell
 >> cd markdown-it-py
->> tox -p
+>> tox
 ```
 
 For documentation build tests:
