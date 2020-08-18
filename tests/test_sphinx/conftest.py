@@ -83,7 +83,9 @@ def get_sphinx_app_output(file_regression):
 
             soup = BeautifulSoup(content, "html.parser")
             doc_div = soup.findAll("div", {"class": "documentwrapper"})[0]
-            file_regression.check(doc_div.prettify(), extension=".html")
+            file_regression.check(
+                doc_div.prettify(), extension=".html", encoding="utf8"
+            )
 
         return content
 
