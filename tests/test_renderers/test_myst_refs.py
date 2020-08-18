@@ -1,3 +1,5 @@
+import os
+
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxWarning
 
@@ -35,4 +37,8 @@ def test_parse(test_name, text, should_warn, file_regression):
         else:
             app.env.apply_post_transforms(document, "index")
 
-    file_regression.check(document.pformat(), basename=test_name, extension=".xml")
+    content = document.pformat()
+    # windows fix
+    content = content.replace("root" + os.sep + "index.md", "root/index.md")
+
+    file_regression.check(content, basename=test_name, extension=".xml")
