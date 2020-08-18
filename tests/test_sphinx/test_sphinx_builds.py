@@ -68,7 +68,7 @@ def test_conf_values(
     remove_sphinx_builds,
     monkeypatch,
 ):
-    """basic test."""
+    """test setting addition configuration values."""
     from myst_parser.sphinx_renderer import SphinxRenderer
 
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")

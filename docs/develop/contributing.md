@@ -49,11 +49,18 @@ All functions and class methods should be annotated with types and include a doc
 
 ## Testing
 
-For code tests:
+For code tests, myst-parser uses [pytest](https://docs.pytest.org)):
 
 ```shell
 >> cd MyST-Parser
 >> pytest
+```
+
+You can also use [tox](https://tox.readthedocs.io), to run the tests in multiple isolated environments (see the `tox.ini` file for available test environments):
+
+```shell
+>> cd markdown-it-py
+>> tox
 ```
 
 For documentation build tests:

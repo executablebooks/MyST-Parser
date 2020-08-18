@@ -25,10 +25,15 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
+        sphinx: [">=3,<4"]
         os: [ubuntu-latest]
         include:
+          - os: ubuntu-latest
+            python-version: 3.8
+            sphinx: ">=2,<3"
           - os: windows-latest
             python-version: 3.8
+            sphinx: ">=3,<4"
 
     runs-on: ${{ matrix.os }}
 
@@ -41,18 +46,37 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[sphinx,testing]
-    # cd tests/test_commonmark && ./spec.sh
+        pip install "sphinx${{ matrix.sphinx }}"
+        pip install -e .[testing]
+    - name: Run pytest
+      run: pytest
+
+  coverage:
+
+    name: Run test coverage and upload to Codecov
+    if: github.repository == 'executablebooks/MyST-Parser'
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[testing]
+
     - name: Run pytest
       run: |
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
 
     - name: Upload to Codecov
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.7 && github.repository == 'executablebooks/MyST-Parser'
       uses: codecov/codecov-action@v1
       with:
-        name: myst-nb-pytests-py3.7
+        name: myst-parser-pytests-py3.7
         flags: pytests
         file: ./coverage.xml
         fail_ci_if_error: true

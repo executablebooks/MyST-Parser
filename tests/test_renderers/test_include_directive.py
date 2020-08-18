@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,7 @@ def test_render(line, title, input, expected, tmp_path):
     tmp_path.joinpath("fmatter.md").write_text("---\na: 1\n---\nb")
     document = make_document(str(tmp_path / "test.md"))
     to_docutils(input, document=document, in_sphinx_env=True, srcdir=str(tmp_path))
-    output = document.pformat().replace(str(tmp_path), "tmpdir").rstrip()
+    output = document.pformat().replace(str(tmp_path) + os.sep, "tmpdir" + "/").rstrip()
     print(output)
     assert output == expected.rstrip()
 
@@ -29,13 +30,18 @@ def test_render(line, title, input, expected, tmp_path):
     read_fixture_file(FIXTURE_PATH.joinpath("mock_include_errors.md")),
 )
 def test_errors(line, title, input, expected, tmp_path):
+    if title.startswith("Non-existent path") and os.name == "nt":
+        pytest.skip("tmp_path not converted correctly on Windows")
+
     tmp_path.joinpath("bad.md").write_text("{a}`b`")
     document = make_document(str(tmp_path / "test.md"))
     messages = []
 
     def observer(msg_node):
         if msg_node["level"] > 1:
-            messages.append(msg_node.astext().replace(str(tmp_path), "tmpdir"))
+            messages.append(
+                msg_node.astext().replace(str(tmp_path) + os.sep, "tmpdir" + "/")
+            )
 
     document.reporter.attach_observer(observer)
     document.reporter.halt_level = 6

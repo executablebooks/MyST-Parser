@@ -8,7 +8,9 @@ import pytest
 
 from myst_parser.main import to_html
 
-with open(os.path.join(os.path.dirname(__file__), "commonmark.json"), "r") as fin:
+with open(
+    os.path.join(os.path.dirname(__file__), "commonmark.json"), encoding="utf8"
+) as fin:
     tests = json.load(fin)
 
 
