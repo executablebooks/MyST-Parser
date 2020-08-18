@@ -29,9 +29,11 @@ class MdParserConfig:
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
-
     amsmath_enable: bool = attr.ib(default=False, validator=instance_of(bool))
-    admonitions_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+
+    override_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
+
+    admonition_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
     disable_syntax: List[str] = attr.ib(
         factory=list,
@@ -83,7 +85,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
         )
-    if config.admonitions_enable:
+    if config.admonition_enable:
         # we don't want to yet remove un-referenced, because they may be referenced
         # in admonition type directives
         # so we do our own post processing

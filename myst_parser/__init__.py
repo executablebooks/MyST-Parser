@@ -50,3 +50,14 @@ def create_myst_config(app):
     except (TypeError, ValueError) as error:
         logger.error("myst configuration invalid: %s", error.args[0])
         app.env.myst_config = MdParserConfig()
+
+    # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax
+    if app.env.myst_config.override_mathjax:
+        app.config.mathjax_config = {
+            "tex2jax": {
+                "inlineMath": [["\\(", "\\)"]],
+                "displayMath": [["\\[", "\\]"]],
+                "processRefs": False,
+                "processEnvironments": False,
+            }
+        }
