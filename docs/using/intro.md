@@ -1,3 +1,4 @@
+(intro/get-started)=
 # Getting Started
 
 This page describes how to get started with the MyST parser, with a focus on enabling
@@ -206,6 +207,7 @@ Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio
 for MyST extended syntax highlighting.
 :::
 
+(intro/config-options)=
 ## MyST configuration options
 
 You can control the behaviour of the MyST parser in Sphinx by modifying your `conf.py` file.
@@ -283,23 +285,3 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 ```
 
 For a list of all the syntax elements you can disable, see the [markdown-it parser guide](markdown_it:using).
-
-### Use bracket delimiters for math
-
-You can also change the delimiters that are used for mathematics.
-By default, these are **dollar signs (`$`)**.
-For example, to use `\(...\)` brackets instead of dollar signs, use this configuration:
-
-```python
-myst_math_delimiters = "brackets"
-```
-
-This will tell the MyST parser to treat the following as math:
-
-```md
-\(a=1\)
-```
-
-:::{seealso}
-The {py:class}`~myst_parser.sphinx_parser.MystParser` class API and {ref}`syntax/math` for more information.
-:::
