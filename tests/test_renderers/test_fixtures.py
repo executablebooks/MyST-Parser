@@ -5,7 +5,7 @@ import pytest
 import sphinx
 
 from markdown_it.utils import read_fixture_file
-from myst_parser.main import to_docutils
+from myst_parser.main import to_docutils, MdParserConfig
 from myst_parser.sphinx_renderer import mock_sphinx_env, SphinxRenderer
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
@@ -122,7 +122,9 @@ def test_sphinx_roles(line, title, input, expected):
 )
 def test_amsmath(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
-    document = to_docutils(input, in_sphinx_env=True, enable_amsmath=True)
+    document = to_docutils(
+        input, MdParserConfig(amsmath_enable=True), in_sphinx_env=True
+    )
     print(document.pformat())
     _actual, _expected = [
         "\n".join([ll.rstrip() for ll in text.splitlines()])
@@ -137,7 +139,9 @@ def test_amsmath(line, title, input, expected, monkeypatch):
 )
 def test_containers(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
-    document = to_docutils(input, in_sphinx_env=True, enable_admonitions=True)
+    document = to_docutils(
+        input, MdParserConfig(admonition_enable=True), in_sphinx_env=True
+    )
     print(document.pformat())
     _actual, _expected = [
         "\n".join([ll.rstrip() for ll in text.splitlines()])

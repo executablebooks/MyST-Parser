@@ -9,7 +9,7 @@ from sphinx.parsers import Parser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
-from myst_parser.main import default_parser
+from myst_parser.main import default_parser, MdParserConfig
 
 
 SPHINX_LOGGER = logging.getLogger(__name__)
@@ -21,14 +21,7 @@ class MystParser(Parser):
     supported = ("md", "markdown", "myst")
     translate_section_name = None
 
-    default_config = {
-        "myst_disable_syntax": (),
-        "myst_url_schemes": None,
-        "myst_math_delimiters": "dollars",
-        "myst_amsmath_enable": False,
-        "myst_admonition_enable": False,
-        "myst_html_img": False,
-    }
+    default_config = {}
 
     # these specs are copied verbatim from the docutils RST parser
     settings_spec = (
@@ -186,30 +179,12 @@ class MystParser(Parser):
         :param document: The root docutils node to add AST elements to
         """
         if renderer == "sphinx":
-            config = document.settings.env.app.config
+            config = document.settings.env.myst_config
         else:
-            config = self.default_config.copy()
-        parser = self.get_markdown_parser(config, renderer)
+            config = MdParserConfig()
+        parser = default_parser(config)
         parser.options["document"] = document
         parser.render(inputstring)
-
-    @staticmethod
-    def get_markdown_parser(config: dict, renderer: str = "sphinx"):
-
-        parser = default_parser(
-            renderer=renderer,
-            disable_syntax=config["myst_disable_syntax"],
-            math_delimiters=config["myst_math_delimiters"],
-            enable_amsmath=config["myst_amsmath_enable"],
-            enable_admonitions=config["myst_admonition_enable"],
-        )
-        parser.options.update(
-            {
-                "myst_url_schemes": config["myst_url_schemes"],
-                "myst_html_img": config["myst_html_img"],
-            }
-        )
-        return parser
 
 
 def parse(app: Sphinx, text: str, docname: str = "index") -> nodes.document:

@@ -224,18 +224,44 @@ To do so, use the keywords beginning `myst_`.
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
-* - `myst_html_img`
+* - `myst_html_img_enable`
   - `False`
   - Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
-* - `myst_math_delimiters`
-  - "dollars"
-  - Delimiters for parsing math, see the [Math syntax](syntax/math) for details
-* - `myst_amsmath_enable`
-  - `False`
-  - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath), [see here](syntax/amsmath)  for details.
 * - `myst_admonition_enable`
   - `False`
   - Enable admonition style directives, [see here](syntax/admonitions) for details.
+`````
+
+Math specific, see the [Math syntax](syntax/math) for more details:
+
+`````{list-table}
+:header-rows: 1
+
+* - Option
+  - Default
+  - Description
+* - `myst_dmath_enable`
+  - `True`
+  - Enable parsing of dollar `$` and `$$` encapsulated math
+* - `myst_dmath_allow_labels`
+  - `True`
+  - Parse `$$...$$ (label)` syntax (if dmath enabled)
+* - `myst_dmath_allow_space`
+  - `True`
+  - If False then inline math will only be parsed if there are no initial/final spaces,
+    e.g. `$a$` but not `$ a$` or `$a $`
+* - `myst_dmath_allow_digits`
+  - `True`
+  - If False then inline math will only be parsed if there are no initial/final digits,
+    e.g. `$a$` but not `1$a$` or `$a$2` (this is useful for using `$` as currency)
+* - `myst_amsmath_enable`
+  - `False`
+  - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath)
+* - `myst_override_mathjax`
+  - `True`
+  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be overridden,
+  to ignore `$` delimiters and LaTeX environments, which should instead be handled by
+  `myst_dmath_enable` and `myst_amsmath_enable` respectively.
 `````
 
 ### Disable markdown syntax for the parser
