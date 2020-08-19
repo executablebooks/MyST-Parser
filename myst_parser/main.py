@@ -20,7 +20,10 @@ from . import __version__  # noqa: F401
 
 @attr.s()
 class MdParserConfig:
-    """Configuration options for the Markdown Parser."""
+    """Configuration options for the Markdown Parser.
+
+    Note in the sphinx configuration these option names are prepended with ``myst_``
+    """
 
     renderer: str = attr.ib(
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])

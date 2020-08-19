@@ -31,8 +31,8 @@ described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the
 
 Block tokens span multiple lines of content. They are broken down into two sections:
 
-* {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
-* {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
+- {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
+- {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
 
 In addition to these summaries of block-level syntax, see {ref}`extra-markdown-syntax`.
 
@@ -181,8 +181,8 @@ we have shown equivalent rST syntax for many MyST markdown features below.
 Span (or inline) tokens are defined on a single line of content. They are broken down into two
 sections below:
 
-* {ref}`extended-span-tokens` contains *extra* tokens that are not in CommonMark.
-* {ref}`commonmark-span-tokens` contains CommonMark tokens that also work, for reference.
+- {ref}`extended-span-tokens` contains *extra* tokens that are not in CommonMark.
+- {ref}`commonmark-span-tokens` contains CommonMark tokens that also work, for reference.
 
 In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax`.
 
@@ -650,17 +650,23 @@ header-rows: 1
 
 ### Math shortcuts
 
-The style of math parsing is governed by the `myst_math_delimiters` option set in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html).
-The two common settings are:
+Math is parsed by setting, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
 
-- `myst_math_delimiters = "dollars"` (default)
-  - inline: `$...$` or `$$...$$`
-  - display: `$$...$$`
-  - display + equation label: `$$...$$ (1)`
-- `myst_math_delimiters = "brackets"`
-  - inline: `\(...\)`
-  - display: `\[...\]`
-  - display + equation label: `\[...\] (1)`
+- `myst_dmath_enable=True` (the default) for parsing of dollar `$` and `$$` encapsulated math.
+- `myst_amsmath_enable=True` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
+
+These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+
+#### Dollar delimited math
+
+Enabling dollar math will parse the following syntax:
+
+- Inline math: `$...$`
+- Display (block) math: `$$...$$`
+
+Additionally if `myst_dmath_allow_labels=True` is set (the default):
+
+- Display (block) math with equation label: `$$...$$ (1)`
 
 For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
 This is equivalent to writing:
@@ -669,11 +675,14 @@ This is equivalent to writing:
 {math}`x_{hey}=it+is^{math}`
 ```
 
-```{tip}
-Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a$.
-```
+:::{admonition,tip} Escaping Dollars
+Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
+Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.
 
-Block-level math can then be provided with `$$` signs that wrap the math block you'd like to parse.
+Conversely `\\` will negate the escaping, so `\\$a$` renders as \\$a$.
+:::
+
+Block-level math can be specified with `$$` signs that wrap the math block you'd like to parse.
 For example:
 
 ```latex
@@ -721,9 +730,17 @@ $$ (eqn:best)
 
 This is the best equation {eq}`eqn:best`
 
+There are a few other options available to control dollar math parsing:
+
+`myst_dmath_allow_space=False`, will cause inline math to only be parsed if there are no initial / final spaces, e.g. `$a$` but not `$ a$` or `$a $`.
+
+`myst_dmath_allow_digits=False`, will cause inline math to only be parsed if there are no initial / final digits, e.g. `$a$` but not `1$a$` or `$a$2`.
+
+These options can both be useful if you also wish to use `$` as a unit of currency.
+
 (syntax/amsmath)=
 
-### Direct LaTeX Math (optional)
+#### Direct LaTeX Math
 
 You can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations by setting `myst_amsmath_enable = True` in your sphinx `conf.py`.
 These top-level math environments will then be directly parsed:
@@ -762,6 +779,53 @@ a_{21}& =b_{21}&
 `\labels` inside the environment are not currently identified, and so cannot be referenced.
 We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
 :::
+
+#### Math in other block elements
+
+Math will also work when nested in other block elements, like lists or quotes:
+
+```md
+- $$ a = 1 $$
+- \begin{gather*}
+  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
+  \end{gather*}
+
+> $$ a = 1 $$
+> \begin{gather*}
+  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
+  \end{gather*}
+```
+
+- $$ a = 1 $$
+- \begin{gather*}
+  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
+  \end{gather*}
+
+> $$ a = 1 $$
+> \begin{gather*}
+  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
+  \end{gather*}
+
+#### Mathjax and math parsing
+
+When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
+
+Since such parsing is already covered by the plugins above, MyST-Parser disables this behaviour by overriding the `mathjax_config` option with:
+
+```python
+mathjax_config = {
+  "tex2jax": {
+  "inlineMath": [["\\(", "\\)"]],
+  "displayMath": [["\\[", "\\]"]],
+  "processRefs": False,
+  "processEnvironments": False,
+  }
+}
+```
+
+Since these delimiters are how `sphinx.ext.mathjax` wraps the math content in the built HTML documents.
+
+To inhibit this override, set `override_mathjax=False`.
 
 (syntax/frontmatter)=
 
