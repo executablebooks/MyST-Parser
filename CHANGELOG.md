@@ -1,5 +1,22 @@
 # Change log
 
+## 0.12.0 - 2020-19-08
+
+### ‼️ BREAKING
+
+If you are using math in your documents, be sure to read the updated [Math syntax guide](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#math-shortcuts)!
+In particular, the Mathjax configuration is now overridden, such that LaTeX environments will only be rendered if `myst_amsmath_enable=True` is set.
+
+The `myst_math_delimiters` option has also been removed (please open an issue if you would like brackets math parsing to be re-implemented).
+
+In addition the `myst_html_img` option name has been changed to `myst_html_img_enable`.
+
+Some underlying code has also been refactored, to centralise handling of configuration options (see [commit 98573b9](https://github.com/executablebooks/MyST-Parser/commit/98573b9c6e3602ab31d627b5266ae5c1ba2c9e5f)).
+
+### Improved 👌
+
+More configuration options for math parsing (see [MyST configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options)).
+
 ## 0.11.2 - 2020-13-07
 
 ### Added ✨
