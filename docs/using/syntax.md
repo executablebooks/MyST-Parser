@@ -825,7 +825,7 @@ mathjax_config = {
 
 Since these delimiters are how `sphinx.ext.mathjax` wraps the math content in the built HTML documents.
 
-To inhibit this override, set `override_mathjax=False`.
+To inhibit this override, set `myst_override_mathjax=False`.
 
 (syntax/frontmatter)=
 
