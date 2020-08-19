@@ -648,7 +648,7 @@ header-rows: 1
 
 (syntax/math)=
 
-### Math shortcuts
+## Math shortcuts
 
 Math is parsed by setting, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
 
@@ -657,7 +657,7 @@ Math is parsed by setting, in the sphinx `conf.py` [configuration file](https://
 
 These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
 
-#### Dollar delimited math
+### Dollar delimited math
 
 Enabling dollar math will parse the following syntax:
 
@@ -740,7 +740,7 @@ These options can both be useful if you also wish to use `$` as a unit of curren
 
 (syntax/amsmath)=
 
-#### Direct LaTeX Math
+### Direct LaTeX Math
 
 You can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations by setting `myst_amsmath_enable = True` in your sphinx `conf.py`.
 These top-level math environments will then be directly parsed:
@@ -780,7 +780,7 @@ a_{21}& =b_{21}&
 We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
 :::
 
-#### Math in other block elements
+### Math in other block elements
 
 Math will also work when nested in other block elements, like lists or quotes:
 
@@ -806,7 +806,7 @@ Math will also work when nested in other block elements, like lists or quotes:
   a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
   \end{gather*}
 
-#### Mathjax and math parsing
+### Mathjax and math parsing
 
 When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
 
@@ -829,7 +829,7 @@ To inhibit this override, set `override_mathjax=False`.
 
 (syntax/frontmatter)=
 
-### Front Matter
+## Front Matter
 
 This is a YAML block at the start of the document, as used for example in
 [jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts these data and
@@ -850,7 +850,7 @@ This is an orphan document, not specified in any toctrees.
 
 (syntax/comments)=
 
-### Comments
+## Comments
 
 You may add comments by putting the `%` character at the beginning of a line. This will
 prevent the line from being parsed into the output document.
@@ -883,7 +883,7 @@ another line
 
 (syntax/blockbreaks)=
 
-### Block Breaks
+## Block Breaks
 
 You may add a block break by putting `+++` at the beginning of a line.
 This constuct's intended use case is for mapping to cell based document formats,
@@ -903,7 +903,7 @@ Is below, but it won't be parsed into the document.
 
 (syntax/targets)=
 
-### Targets and Cross-Referencing
+## Targets and Cross-Referencing
 
 Targets are used to define custom anchors that you can refer to elsewhere in your
 documentation. They generally go before section titles so that you can easily refer
@@ -961,7 +961,7 @@ markdown: `[](syntax.md)` will result in: [](syntax.md).
 
 (syntax/images)=
 
-### Images
+## Images
 
 MyST provides a few different syntaxes for including images in your documentation, as explained below.
 
@@ -1011,7 +1011,7 @@ Allowed attributes are equivalent to the `image` directive: src, alt, class, wid
 Any other attributes will be dropped.
 
 (syntax/footnotes)=
-### Footnotes
+## Footnotes
 
 Footnote labels **start with `^`** and can then be any alpha-numeric string (no spaces),
 which is case-insensitive.
