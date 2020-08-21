@@ -28,6 +28,7 @@ class MdParserConfig:
     renderer: str = attr.ib(
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
+    commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
     dmath_enable: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
@@ -69,6 +70,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         renderer_cls = DocutilsRenderer
     else:
         raise ValueError("unknown renderer type: {0}".format(config.renderer))
+
+    if config.commonmark_only:
+        return MarkdownIt("commonmark", renderer_cls=renderer_cls)
 
     md = (
         MarkdownIt("commonmark", renderer_cls=renderer_cls)

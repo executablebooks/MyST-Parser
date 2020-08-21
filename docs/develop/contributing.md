@@ -59,7 +59,7 @@ For code tests, myst-parser uses [pytest](https://docs.pytest.org)):
 You can also use [tox](https://tox.readthedocs.io), to run the tests in multiple isolated environments (see the `tox.ini` file for available test environments):
 
 ```shell
->> cd markdown-it-py
+>> cd MyST-Parser
 >> tox
 ```
 
