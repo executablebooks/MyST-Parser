@@ -80,7 +80,7 @@ Once you've enabled the `myst-parser` in Sphinx, it will be able to parse your M
 markdown documents. This means that you can use the `.md` extension for your pages,
 and write MyST markdown in these pages.
 
-:::{tip}
+:::{note}
 MyST markdown is a mixture of two flavors of markdown:
 
 It supports all the syntax of **[CommonMark Markdown](https://commonmark.org/)** at its
@@ -89,6 +89,10 @@ base. This is a community standard flavor of markdown used across many projects.
 In addition, it includes **several extensions to CommonMark**
 (often described as [MyST Markdown syntax](syntax)). These add extra syntax features
 designed to work with the Sphinx ecosystem (and inspired by reStructuredText)
+:::
+
+:::{tip}
+If you want to parse your files as only **strict** CommonMark (no extensions), then you can set the `conf.py` option `myst_commonmark_only=True`.
 :::
 
 The following sections cover a few core syntax patterns in MyST markdown, you can
@@ -219,6 +223,9 @@ To do so, use the keywords beginning `myst_`.
 * - Option
   - Default
   - Description
+* - `myst_commonmark_only`
+  - `False`
+  - If `True` convert text as strict CommonMark (all options below are then ignored)
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
