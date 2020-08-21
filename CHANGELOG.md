@@ -1,5 +1,9 @@
 # Change log
 
+## 0.12.1 - 2020-19-08
+
+✨ NEW: Add `myst_commonmark_only` config option, for restricting the parser to strict CommonMark (no extensions).
+
 ## 0.12.0 - 2020-19-08
 
 ### ‼️ BREAKING
