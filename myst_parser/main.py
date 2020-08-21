@@ -72,7 +72,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         raise ValueError("unknown renderer type: {0}".format(config.renderer))
 
     if config.commonmark_only:
-        return MarkdownIt("commonmark", renderer_cls=renderer_cls)
+        md = MarkdownIt("commonmark", renderer_cls=renderer_cls)
+        md.options.update({"commonmark_only": True})
+        return md
 
     md = (
         MarkdownIt("commonmark", renderer_cls=renderer_cls)
@@ -104,6 +106,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
 
     md.options.update(
         {
+            "commonmark_only": False,
             "enable_html_img": config.html_img_enable,
             "myst_url_schemes": config.url_schemes,
         }

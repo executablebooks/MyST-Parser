@@ -1,0 +1,10 @@
+<document source="index.md">
+    <section ids="test" names="test">
+        <title>
+            Test
+        <literal_block language="{note}" xml:space="preserve">
+            hallo
+        <paragraph>
+            {a}
+            <literal>
+                b

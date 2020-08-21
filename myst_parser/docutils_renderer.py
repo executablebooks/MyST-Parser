@@ -363,7 +363,11 @@ class DocutilsRenderer:
             token.info = token.info.strip()
         language = token.info.split()[0] if token.info else ""
 
-        if language.startswith("{") and language.endswith("}"):
+        if (
+            not self.config.get("commonmark_only", False)
+            and language.startswith("{")
+            and language.endswith("}")
+        ):
             return self.render_directive(token)
 
         if not language:

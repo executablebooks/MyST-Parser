@@ -129,3 +129,28 @@ def test_footnotes(
         get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
     finally:
         get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "commonmark_only"),
+    freshenv=True,
+)
+def test_commonmark_only(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """test setting addition configuration values."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert "lexer name '{note}'" in warnings
+
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_output(app, filename="index.html", regress_html=True)
