@@ -28,12 +28,6 @@ MyST has the following main features:
 You may use MyST markdown **in addition to** using reStructuredText in Sphinx.
 See {doc}`using/intro` to get started.
 
-```{note}
-The MyST parser is in a beta stage, and may change rapidly in its implementation
-and machinery. Use at your own risk. If you find any issues, please report them
-[in the MyST issues](https://github.com/executablebooks/meta/issues/24)
-```
-
 ## Site contents
 
 ```{toctree}
