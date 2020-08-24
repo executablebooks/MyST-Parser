@@ -50,6 +50,12 @@ choose the right parser based on each file's extension. Sphinx features
 like cross-references will work just fine between the pages.
 :::
 
+:::{admonition,seealso} Want to add Jupyter Notebooks to your documentation?
+
+See also [MyST-NB](https://myst-nb.readthedocs.io), our complimentary parser and execution engine,
+for ipynb and text-based notebooks.
+:::
+
 ## How does MyST parser relate to Sphinx?
 
 The Sphinx documentation engine supports a number of different input types. By default,
