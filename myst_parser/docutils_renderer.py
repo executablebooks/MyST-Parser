@@ -363,19 +363,26 @@ class DocutilsRenderer:
             token.info = token.info.strip()
         language = token.info.split()[0] if token.info else ""
 
-        if (
+        if not self.config.get("commonmark_only", False) and language == "{eval_rst}":
+            # copy necessary elements (source, line no, env, reporter)
+            newdoc = make_document()
+            newdoc.reporter = self.reporter
+            newdoc.settings.env = self.document.settings.env
+            # actually parse the rst into our document
+            RSTParser().parse(token.content, newdoc)
+            self.add_line_and_source_path(newdoc, token)
+            for node in newdoc.traverse():
+                if node.line:
+                    # keep line numbers aligned
+                    node.line += token.map[0]
+            self.current_node.extend(newdoc[:])
+            return
+        elif (
             not self.config.get("commonmark_only", False)
             and language.startswith("{")
             and language.endswith("}")
         ):
             return self.render_directive(token)
-        elif language == "eval_rst":
-            newdoc = make_document()
-            newdoc.settings.env = self.document.settings.env
-            RSTParser().parse(token.content, newdoc)
-            self.add_line_and_source_path(newdoc, token)
-            self.current_node.extend(newdoc[:])
-            return
 
         if not language:
             try:

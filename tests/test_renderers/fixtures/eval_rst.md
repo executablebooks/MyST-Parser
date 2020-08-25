@@ -1,6 +1,6 @@
 eval_rst link
 .
-```eval_rst
+```{eval_rst}
 `MyST Parser <https://myst-parser.readthedocs.io/>`_
 ```
 .
@@ -13,7 +13,7 @@ eval_rst link
 
 eval_rst bold
 .
-```eval_rst
+```{eval_rst}
 **bold**
 .
 <document source="notset">
