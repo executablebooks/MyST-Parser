@@ -160,3 +160,17 @@ def test_evalrst_elements(line, title, input, expected):
     assert "\n".join(
         [ll.rstrip() for ll in document.pformat().splitlines()]
     ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
+
+
+@pytest.mark.parametrize(
+    "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("definition_lists.md")),
+)
+def test_definition_lists(line, title, input, expected):
+    document = to_docutils(
+        input, MdParserConfig(deflist_enable=True), in_sphinx_env=True
+    )
+    print(document.pformat())
+    assert "\n".join(
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])

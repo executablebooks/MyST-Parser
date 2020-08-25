@@ -716,6 +716,48 @@ class DocutilsRenderer:
         with self.current_node_context(admonition, append=True):
             self.render_children(token)
 
+    def render_dl_open(self, token):
+        """Render a definition list."""
+        node = nodes.definition_list()
+        self.add_line_and_source_path(node, token)
+        with self.current_node_context(node, append=True):
+            item = None
+            for child in token.children:
+                if child.opening.type == "dt_open":
+                    item = nodes.definition_list_item()
+                    self.add_line_and_source_path(item, child)
+                    with self.current_node_context(item, append=True):
+                        term = nodes.term()
+                        self.add_line_and_source_path(term, child)
+                        with self.current_node_context(term, append=True):
+                            self.render_children(child)
+                elif child.opening.type == "dd_open":
+                    if item is None:
+                        error = self.reporter.error(
+                            (
+                                "Found a definition in a definition list, "
+                                "with no preceding term"
+                            ),
+                            # nodes.literal_block(content, content),
+                            line=child.map[0],
+                        )
+                        self.current_node += [error]
+                    with self.current_node_context(item):
+                        definition = nodes.definition()
+                        self.add_line_and_source_path(definition, child)
+                        with self.current_node_context(definition, append=True):
+                            self.render_children(child)
+                else:
+                    error = self.reporter.error(
+                        (
+                            "Expected a term/definition as a child of a definition list"
+                            f", but found a: {child.opening.type}"
+                        ),
+                        # nodes.literal_block(content, content),
+                        line=child.map[0],
+                    )
+                    self.current_node += [error]
+
     def render_directive(self, token: Token):
         """Render special fenced code blocks as directives."""
         first_line = token.info.split(maxsplit=1)
