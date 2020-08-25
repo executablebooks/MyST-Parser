@@ -370,8 +370,10 @@ class DocutilsRenderer:
             newdoc["source"] = self.document["source"]
             newdoc.settings = self.document.settings
             newdoc.reporter = self.reporter
+            # pad the line numbers artificially so they offset with the fence block
+            pseudosource = ("\n" * token.map[0]) + token.content
             # actually parse the rst into our document
-            MockRSTParser().parse(token.content, newdoc)
+            MockRSTParser().parse(pseudosource, newdoc)
             for node in newdoc.traverse():
                 if node.line:
                     # keep line numbers aligned
