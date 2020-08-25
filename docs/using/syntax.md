@@ -425,7 +425,7 @@ This will parse the content **as ReStructuredText**:
 
   Party time!
 
-A reference from inside: ref:`rst-fun-fish`
+A reference from inside: :ref:`rst-fun-fish`
 
 A reference from outside: :ref:`syntax/directives/parsing`
 ```
@@ -438,7 +438,7 @@ A reference from outside: :ref:`syntax/directives/parsing`
 
   Party time!
 
-A reference from inside: ref:`rst-fun-fish`
+A reference from inside: :ref:`rst-fun-fish`
 
 A reference from outside: :ref:`syntax/directives/parsing`
 ```
