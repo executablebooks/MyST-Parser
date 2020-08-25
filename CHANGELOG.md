@@ -1,5 +1,18 @@
 # Change log
 
+## 0.12.2 - 2020-25-08
+
+✨ NEW: Add the `eval-rst` directive
+
+This directive parses its contents as ReStructuredText, which integrates back into the rest of the document, e.g. for cross-referencing. See [this documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content) for further explanation.
+
+In particular, this addition solves some outstanding user requests:
+
+- How-to [include rST files into a Markdown file](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-rst-files-into-a-markdown-file)
+- How-to [Use sphinx.ext.autodoc in Markdown files](https://myst-parser.readthedocs.io/en/latest/using/howto.html#use-sphinx-ext-autodoc-in-markdown-files)
+
+Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
+
 ## 0.12.1 - 2020-19-08
 
 ✨ NEW: Add `myst_commonmark_only` config option, for restricting the parser to strict CommonMark (no extensions).
