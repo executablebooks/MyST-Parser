@@ -34,6 +34,14 @@ To include rST, we must first "wrap" the directive in the [eval-rst directive](s
 The [sphinx.ext.autodoc](sphinx:sphinx.ext.autodoc) is currently hard-coded to write rST, and so can not be used as a conventional MyST directive.
 Instead the special [eval-rst directive](syntax/directives/parsing) can be used to "wrap" the autodoc directives:
 
+````md
+```{eval-rst}
+.. autoclass:: myst_parser.mocking.MockRSTParser
+    :show-inheritance:
+    :members: parse
+```
+````
+
 ```{eval-rst}
 .. autoclass:: myst_parser.mocking.MockRSTParser
     :show-inheritance:
