@@ -451,9 +451,9 @@ class MockRSTParser(RSTParser):
         should_restore = False
         if '' in roles._roles:
             should_restore = True
-            blankrole = roles._roles['']
+            blankrole = roles._roles[""]
 
         super().parse(*args, **kwargs)
 
         if should_restore:
-            roles._roles[''] = blankrole
+            roles._roles[""] = blankrole
