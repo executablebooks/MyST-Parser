@@ -449,7 +449,7 @@ class MockRSTParser(RSTParser):
         from docutils.parsers.rst import roles
 
         should_restore = False
-        if '' in roles._roles:
+        if "" in roles._roles:
             should_restore = True
             blankrole = roles._roles[""]
 
