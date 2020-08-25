@@ -84,16 +84,12 @@ lines
 
 .. unknown:: some text
 
-.. automodule:: idontexist
-   :members:
+:unknown:`a`
 ```
 .
 source/path:10: (ERROR/3) Unknown directive type "unknown".
 
 .. unknown:: some text
 
-source/path:12: (ERROR/3) Unknown directive type "automodule".
-
-.. automodule:: idontexist
-   :members:
+source/path:12: (ERROR/3) Unknown interpreted text role "unknown".
 .
