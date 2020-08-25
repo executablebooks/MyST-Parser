@@ -4,7 +4,7 @@ import sys
 from typing import List, Optional, Tuple, Type
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, DirectiveError
+from docutils.parsers.rst import Directive, DirectiveError, Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language
 from docutils.parsers.rst.states import Inliner, RSTStateMachine, Body
@@ -438,3 +438,21 @@ class MockIncludeDirective:
                 del node["name"]
             node["names"].append(name)
             self.renderer.document.note_explicit_target(node, node)
+
+
+class MockRSTParser(RSTParser):
+    """RSTParser which avoids a negative side effect."""
+
+    def parse(self, inputstring: str, document: nodes.document):
+        """Parse the input to populate the document AST."""
+        from docutils.parsers.rst import roles
+
+        should_restore = False
+        if "" in roles._roles:
+            should_restore = True
+            blankrole = roles._roles[""]
+
+        super().parse(inputstring, document)
+
+        if should_restore:
+            roles._roles[""] = blankrole

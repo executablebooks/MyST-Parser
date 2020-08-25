@@ -53,7 +53,12 @@ setup(
             "beautifulsoup4",
         ],
         # Note: This is only required for internal use
-        "rtd": ["sphinxcontrib-bibtex", "ipython", "sphinx-book-theme", "sphinx_tabs"],
+        "rtd": [
+            "sphinxcontrib-bibtex",
+            "ipython",
+            "sphinx-book-theme>=0.0.36",
+            "sphinx_tabs",
+        ],
     },
     zip_safe=True,
 )

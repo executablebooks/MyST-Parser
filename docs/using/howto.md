@@ -2,6 +2,49 @@
 
 This page describes several common uses of MyST parser and how to accomplish them.
 
+(howto/include-rst)=
+## Include rST files into a Markdown file
+
+As explained in [this section](syntax/directives/parsing), all MyST directives will parse their content as Markdown.
+Therefore, using the conventional `include` directive, will parse the file contents as Markdown:
+
+````md
+```{include} snippets/include-md.md
+```
+````
+
+```{include} snippets/include-md.md
+```
+
+To include rST, we must first "wrap" the directive in the [eval-rst directive](syntax/directives/parsing):
+
+````md
+```{eval-rst}
+.. include:: snippets/include-rst.rst
+```
+````
+
+```{eval-rst}
+.. include:: snippets/include-rst.rst
+```
+
+(howto/autodoc)=
+## Use `sphinx.ext.autodoc` in Markdown files
+
+The [sphinx.ext.autodoc](sphinx:sphinx.ext.autodoc) is currently hard-coded to write rST, and so can not be used as a conventional MyST directive.
+Instead the special [eval-rst directive](syntax/directives/parsing) can be used to "wrap" the autodoc directives:
+
+```{eval-rst}
+.. autoclass:: myst_parser.mocking.MockRSTParser
+    :show-inheritance:
+    :members: parse
+```
+
+As with other objects in MyST, this can then be referenced:
+
+- Using the role `` {py:class}`myst_parser.mocking.MockRSTParser` ``: {py:class}`myst_parser.mocking.MockRSTParser`
+- Using the Markdown syntax `[MockRSTParser](myst_parser.mocking.MockRSTParser)`: [MockRSTParser](myst_parser.mocking.MockRSTParser)
+
 ## Show backticks inside raw markdown blocks
 
 If you'd like to show backticks inside of your markdown, you can do so by nesting them
@@ -28,7 +71,7 @@ hi
 ```
 ````
 
-(autosectionlabel)=
+(howto/autosectionlabel)=
 ## Automatically create targets for section headers
 
 If you'd like to *automatically* generate targets for each of your section headers,

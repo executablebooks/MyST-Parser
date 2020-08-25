@@ -12,7 +12,7 @@ it in the Sphinx documentation engine.
 Installing the MyST parser provides access to two tools:
 
 * A MyST-to-docutils parser and renderer.
-* A Sphinx parser that utilizes the above tool in building your documenation.
+* A Sphinx parser that utilizes the above tool in building your documentation.
 
 To install the MyST parser, run the following in a
 [Conda environment](https://docs.conda.io) (recommended):
@@ -43,11 +43,11 @@ Naturally this site is generated with Sphinx and MyST!
 
 :::{admonition,tip} You can use both MyST and reStructuredText
 
-Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST
-parser that ships with Sphinx by default will still work the same way. You can have
-combinations of both markdown and rST files in your documentation, and Sphinx will
-choose the right parser based on each file's extension. Sphinx features
-like cross-references will work just fine between the pages.
+Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST parser that ships with Sphinx by default will still work the same way.
+You can have combinations of both markdown and rST files in your documentation, and Sphinx will choose the right parser based on each file's extension.
+Sphinx features like cross-references will work just fine between the pages.
+
+You can even inject raw rST into Markdown files! (see [this explanation](syntax/directives/parsing))
 :::
 
 :::{admonition,seealso} Want to add Jupyter Notebooks to your documentation?
@@ -146,9 +146,8 @@ For those who are familiar with reStructuredText, here is the equivalent in rST:
 ```
 
 Note that almost all documentation in the Sphinx ecosystem is written with
-reStructuredText (MyST is only a few months old). That means you'll likely see examples
-that have rST structure. You can modify any rST to work with MyST. Use this page,
-and [the syntax page](syntax) to help guide you.
+reStructuredText (MyST is only a few months old).
+That means you'll likely see examples that have rST structure. You can modify any rST to work with MyST. Use this page, and [the syntax page](syntax) to help guide you.
 ````
 
 As seen above, there are four main parts to consider when writing directives.

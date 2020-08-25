@@ -44,3 +44,20 @@
                     nested 
                     <emphasis>
                         syntax
+        <target refid="insidecodeblock">
+        <paragraph ids="insidecodeblock" names="insidecodeblock">
+            I am inside the eval-rst fence
+        <paragraph>
+            Referencing the 
+            <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="title" reftype="ref" refwarn="True">
+                <inline classes="xref std std-ref">
+                    title
+        <paragraph>
+            Still inside the codeblock 
+            <reference name="insidecodeblock" refid="insidecodeblock">
+                insidecodeblock
+        <paragraph>
+            I am outside the 
+            <pending_xref refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    fence

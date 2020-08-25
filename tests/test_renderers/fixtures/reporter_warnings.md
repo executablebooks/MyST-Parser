@@ -71,3 +71,25 @@ Non-consecutive headings:
 .
 source/path:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
 .
+Warnings in eval-rst
+.
+some external
+
+lines
+
+```{eval-rst}
+some internal
+
+lines
+
+.. unknown:: some text
+
+:unknown:`a`
+```
+.
+source/path:10: (ERROR/3) Unknown directive type "unknown".
+
+.. unknown:: some text
+
+source/path:12: (ERROR/3) Unknown interpreted text role "unknown".
+.

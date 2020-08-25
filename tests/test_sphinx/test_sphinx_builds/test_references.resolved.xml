@@ -46,3 +46,20 @@
                     nested 
                     <emphasis>
                         syntax
+        <target refid="insidecodeblock">
+        <paragraph ids="insidecodeblock" names="insidecodeblock">
+            I am inside the eval-rst fence
+        <paragraph>
+            Referencing the 
+            <reference internal="True" refid="title">
+                <inline classes="std std-ref">
+                    Title with nested a=1
+        <paragraph>
+            Still inside the codeblock 
+            <reference name="insidecodeblock" refid="insidecodeblock">
+                insidecodeblock
+        <paragraph>
+            I am outside the 
+            <reference internal="True" refid="insidecodeblock">
+                <inline classes="std std-ref">
+                    fence

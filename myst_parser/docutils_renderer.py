@@ -31,6 +31,7 @@ from myst_parser.mocking import (
     MockStateMachine,
     MockingError,
     MockIncludeDirective,
+    MockRSTParser,
 )
 from .parse_directives import parse_directive_text, DirectiveParsingError
 from .parse_html import HTMLImgParser
@@ -363,7 +364,22 @@ class DocutilsRenderer:
             token.info = token.info.strip()
         language = token.info.split()[0] if token.info else ""
 
-        if (
+        if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
+            # copy necessary elements (source, line no, env, reporter)
+            newdoc = make_document()
+            newdoc["source"] = self.document["source"]
+            newdoc.settings = self.document.settings
+            newdoc.reporter = self.reporter
+            # pad the line numbers artificially so they offset with the fence block
+            pseudosource = ("\n" * token.map[0]) + token.content
+            # actually parse the rst into our document
+            MockRSTParser().parse(pseudosource, newdoc)
+            for node in newdoc:
+                if node["names"]:
+                    self.document.note_explicit_target(node, node)
+            self.current_node.extend(newdoc[:])
+            return
+        elif (
             not self.config.get("commonmark_only", False)
             and language.startswith("{")
             and language.endswith("}")
