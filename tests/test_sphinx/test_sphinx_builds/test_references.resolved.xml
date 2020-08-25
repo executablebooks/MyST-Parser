@@ -48,7 +48,7 @@
                         syntax
         <target refid="insidecodeblock">
         <paragraph ids="insidecodeblock" names="insidecodeblock">
-            I’m inside the eval_rst fence
+            I am inside the eval-rst fence
         <paragraph>
             Referencing the 
             <reference internal="True" refid="title">
@@ -59,7 +59,7 @@
             <reference name="insidecodeblock" refid="insidecodeblock">
                 insidecodeblock
         <paragraph>
-            I’m outside the 
+            I am outside the 
             <reference internal="True" refid="insidecodeblock">
                 <inline classes="std std-ref">
                     fence

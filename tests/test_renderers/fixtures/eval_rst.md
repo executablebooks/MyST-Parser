@@ -1,6 +1,6 @@
-eval_rst link
+eval-rst link
 .
-```{eval_rst}
+```{eval-rst}
 `MyST Parser <https://myst-parser.readthedocs.io/>`_
 ```
 .
@@ -11,9 +11,9 @@ eval_rst link
         <target ids="myst-parser" names="myst\ parser" refuri="https://myst-parser.readthedocs.io/">
 .
 
-eval_rst bold
+eval-rst bold
 .
-```{eval_rst}
+```{eval-rst}
 **bold**
 .
 <document source="notset">

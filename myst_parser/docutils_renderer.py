@@ -363,7 +363,7 @@ class DocutilsRenderer:
             token.info = token.info.strip()
         language = token.info.split()[0] if token.info else ""
 
-        if not self.config.get("commonmark_only", False) and language == "{eval_rst}":
+        if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
             # copy necessary elements (source, line no, env, reporter)
             newdoc = make_document()
             newdoc["source"] = self.document["source"]
