@@ -369,6 +369,13 @@ class DocutilsRenderer:
             and language.endswith("}")
         ):
             return self.render_directive(token)
+        elif language == "eval_rst":
+            newdoc = make_document()
+            newdoc.settings.env = self.document.settings.env
+            RSTParser().parse(token.content, newdoc)
+            self.add_line_and_source_path(newdoc, token)
+            self.current_node.extend(newdoc[:])
+            return
 
         if not language:
             try:

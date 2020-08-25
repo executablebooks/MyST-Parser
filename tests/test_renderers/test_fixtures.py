@@ -148,3 +148,15 @@ def test_containers(line, title, input, expected, monkeypatch):
         for text in (document.pformat(), expected)
     ]
     assert _actual == _expected
+
+
+@pytest.mark.parametrize(
+    "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("eval_rst.md")),
+)
+def test_evalrst_elements(line, title, input, expected):
+    document = to_docutils(input, in_sphinx_env=True)
+    print(document.pformat())
+    assert "\n".join(
+        [ll.rstrip() for ll in document.pformat().splitlines()]
+    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
