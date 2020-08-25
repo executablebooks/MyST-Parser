@@ -19,3 +19,15 @@
 [plain text](index.md)
 
 [nested *syntax*](index.md)
+
+```{eval_rst}
+.. _insidecodeblock:
+
+I'm inside the eval_rst fence
+
+Referencing the :ref:`title`
+
+Still inside the codeblock insidecodeblock_
+```
+
+I'm outside the [fence](insidecodeblock)
