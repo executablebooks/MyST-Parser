@@ -57,9 +57,11 @@ def test_references(
 
 
 @pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "conf_values"), freshenv=True
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    freshenv=True,
 )
-def test_conf_values(
+def test_extended_syntaxes(
     app,
     status,
     warning,

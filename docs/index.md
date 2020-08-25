@@ -1,5 +1,4 @@
-MyST - Markedly Structured Text
-===============================
+# MyST - Markedly Structured Text
 
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
@@ -14,16 +13,20 @@ and extensibility of Sphinx with the simplicity and readability of Markdown.
 
 MyST has the following main features:
 
-* **[A markdown parser for Sphinx](parse-with-sphinx)**. You can write your entire
-  {doc}`Sphinx documentation <sphinx:usage/quickstart>` in Markdown.
-* **[Call Sphinx directives and roles from within Markdown](syntax/directives)**,
-  allowing you to extend your document via Sphinx extensions.
-* **[Extended Markdown syntax for useful rST features](extended-block-tokens)**, such
-  as line commenting and footnotes.
-* **[A Sphinx-independent parser of MyST markdown](using/use_api)** that can be extended
-  to add new functionality and outputs for MyST.
-* **[A superset of CommonMark markdown][commonmark]**. Any CommonMark markdown
-  (such as Jupyter Notebook markdown) is natively supported by the MyST parser.
+{fa}`check,text-success mr-1` [A markdown parser for Sphinx](parse-with-sphinx)
+: You can write your entire {doc}`Sphinx documentation <sphinx:usage/quickstart>` in Markdown.
+
+{fa}`check,text-success mr-1` [Call Sphinx directives and roles from within Markdown](syntax/directives)
+: Allowing you to extend your document via Sphinx extensions.
+
+{fa}`check,text-success mr-1` [Extended Markdown syntax for useful rST features](extended-block-tokens)
+: Such as line commenting and footnotes.
+
+{fa}`check,text-success mr-1` [A Sphinx-independent parser of MyST markdown](using/use_api)
+: This can be extended to add new functionality and outputs for MyST.
+
+{fa}`check,text-success mr-1` [A superset of CommonMark markdown][commonmark]
+: Any CommonMark markdown (such as Jupyter Notebook markdown) is natively supported by the MyST parser.
 
 You may use MyST markdown **in addition to** using reStructuredText in Sphinx.
 See {doc}`using/intro` to get started.
@@ -37,6 +40,7 @@ caption: Using MyST Markdown
 ---
 using/intro.md
 using/syntax.md
+using/syntax-optional.md
 using/howto.md
 using/faq.md
 using/use_api.md

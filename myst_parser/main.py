@@ -14,6 +14,7 @@ from markdown_it.extensions.dollarmath import dollarmath_plugin
 from markdown_it.extensions.footnote import footnote_plugin
 from markdown_it.extensions.amsmath import amsmath_plugin
 from markdown_it.extensions.container import container_plugin
+from markdown_it.extensions.deflist import deflist_plugin
 
 from . import __version__  # noqa: F401
 
@@ -34,6 +35,7 @@ class MdParserConfig:
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
     amsmath_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+    deflist_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
     override_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
@@ -101,6 +103,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(container_plugin, "admonition", validate=validate_admonition)
     if config.amsmath_enable:
         md.use(amsmath_plugin)
+    if config.deflist_enable:
+        md.use(deflist_plugin)
     for name in config.disable_syntax:
         md.disable(name, True)
 

@@ -1,0 +1,56 @@
+<document source="index.md">
+    <section ids="test" names="test">
+        <title>
+            Test
+        <paragraph>
+            *disabled*
+        <paragraph>
+            <math>
+                a=1
+        <math_block nowrap="False" number="True" xml:space="preserve">
+            x=5
+        <target refid="equation-2">
+        <math_block docname="index" ids="equation-2" label="2" nowrap="False" number="1" xml:space="preserve">
+            x=5
+        <paragraph>
+            $ a=1 $
+        <target refid="equation-mock-uuid">
+        <math_block classes="amsmath" docname="index" ids="equation-mock-uuid" label="mock-uuid" nowrap="True" number="2" xml:space="preserve">
+            \begin{equation}
+            b=2
+            \end{equation}
+        <math_block docname="index" label="True" nowrap="False" number="True" xml:space="preserve">
+            c=3
+            
+            d=4
+        <definition_list classes="simple myst">
+            <definition_list_item>
+                <term>
+                    Term **1**
+                <definition>
+                    <paragraph>
+                        Definition *1*
+                    <paragraph>
+                        second paragraph
+            <definition_list_item>
+                <term>
+                    Term 2
+                <definition>
+                    <paragraph>
+                        Definition 2a
+                <definition>
+                    <paragraph>
+                        Definition 2b
+            <definition_list_item>
+                <term>
+                    Term 3
+                <definition>
+                    <literal_block language="none" xml:space="preserve">
+                        code block
+                <definition>
+                    <block_quote>
+                        <paragraph>
+                            quote
+                <definition>
+                    <paragraph>
+                        other
