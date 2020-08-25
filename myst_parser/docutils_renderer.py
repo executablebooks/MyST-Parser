@@ -31,6 +31,7 @@ from myst_parser.mocking import (
     MockStateMachine,
     MockingError,
     MockIncludeDirective,
+    MockRSTParser,
 )
 from .parse_directives import parse_directive_text, DirectiveParsingError
 from .parse_html import HTMLImgParser
@@ -370,7 +371,7 @@ class DocutilsRenderer:
             newdoc.settings = self.document.settings
             newdoc.reporter = self.reporter
             # actually parse the rst into our document
-            RSTParser().parse(token.content, newdoc)
+            MockRSTParser().parse(token.content, newdoc)
             for node in newdoc.traverse():
                 if node.line:
                     # keep line numbers aligned
