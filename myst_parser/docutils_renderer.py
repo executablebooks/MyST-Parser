@@ -374,11 +374,6 @@ class DocutilsRenderer:
             pseudosource = ("\n" * token.map[0]) + token.content
             # actually parse the rst into our document
             MockRSTParser().parse(pseudosource, newdoc)
-            for node in newdoc.traverse():
-                if node.line:
-                    # keep line numbers aligned
-                    node.line += token.map[0]
-                node.source = self.document["source"]
             for node in newdoc:
                 if node["names"]:
                     self.document.note_explicit_target(node, node)

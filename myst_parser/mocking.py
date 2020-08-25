@@ -441,11 +441,10 @@ class MockIncludeDirective:
 
 
 class MockRSTParser(RSTParser):
-    """
-    RSTParser which avoids a negative side effect.
-    """
+    """RSTParser which avoids a negative side effect."""
 
-    def parse(self, *args, **kwargs):
+    def parse(self, inputstring: str, document: nodes.document):
+        """Parse the input to populate the document AST."""
         from docutils.parsers.rst import roles
 
         should_restore = False
@@ -453,7 +452,7 @@ class MockRSTParser(RSTParser):
             should_restore = True
             blankrole = roles._roles[""]
 
-        super().parse(*args, **kwargs)
+        super().parse(inputstring, document)
 
         if should_restore:
             roles._roles[""] = blankrole

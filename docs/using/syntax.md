@@ -18,10 +18,6 @@ and further details of a few major extensions from the CommonMark flavor of mark
 For an introduction to writing Directives and Roles with MyST markdown, see {ref}`intro/writing`.
 :::
 
-% ```{seealso}
-% {ref}`MyST Extended AST Tokens API <api/tokens>`
-% ```
-
 MyST builds on the tokens defined by markdown-it, to extend the syntax
 described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the parser is tested against.
 
@@ -389,11 +385,13 @@ print(f'my {a}nd line')
 ```
 ````
 
+(syntax/directives/parsing)=
 ### How directives parse content
 
-Some directives parse the content that is in their content block. This
-means that MyST markdown can be written in the content areas of any directives written
-in MyST markdown. For example:
+Some directives parse the content that is in their content block.
+MyST parses this content **as Markdown**.
+
+This means that MyST markdown can be written in the content areas of any directives written in MyST markdown. For example:
 
 ````md
 ```{admonition} My markdown link
@@ -405,7 +403,7 @@ Here is [markdown link syntax](https://jupyter.org)
 Here is [markdown link syntax](https://jupyter.org)
 ```
 
-As a short-hand for directives that require no arguments, and when no paramter options are used (see below),
+As a short-hand for directives that require no arguments, and when no parameter options are used (see below),
 you may start the content directly after the directive name.
 
 ````md
@@ -416,10 +414,41 @@ you may start the content directly after the directive name.
 ```{note} Notes require **no** arguments, so content can start here.
 ```
 
+For special cases, MySt also offers the `eval-rst` directive.
+This will parse the content **as ReStructuredText**:
+
+````md
+```{eval-rst}
+.. figure:: img/fun-fish.png
+  :width: 100px
+  :name: rst-fun-fish
+
+  Party time!
+
+A reference from inside: ref:`rst-fun-fish`
+
+A reference from outside: :ref:`syntax/directives/parsing`
+```
+````
+
+```{eval-rst}
+.. figure:: img/fun-fish.png
+  :width: 100px
+  :name: rst-fun-fish
+
+  Party time!
+
+A reference from inside: ref:`rst-fun-fish`
+
+A reference from outside: :ref:`syntax/directives/parsing`
+```
+
+Note how the text is integrated into the rest of the document, so we can also reference [party fish](rst-fun-fish) anywhere else in the documentation.
+
 ### Nesting directives
 
-You can nest directives by ensuring that the ticklines corresponding to the
-outermost directive are longer than the ticklines for the inner directives.
+You can nest directives by ensuring that the tick-lines corresponding to the
+outermost directive are longer than the tick-lines for the inner directives.
 For example, nest a warning inside a note block like so:
 
 `````md
@@ -912,7 +941,7 @@ to them.
 ```{tip}
 If you'd like to *automatically* generate targets for each of your section headers,
 check out the [`autosectionlabel`](https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
-sphinx feature. See {ref}`autosectionlabel` for more details.
+sphinx feature. See {ref}`howto/autosectionlabel` for more details.
 ```
 
 Target headers are defined with this syntax:
