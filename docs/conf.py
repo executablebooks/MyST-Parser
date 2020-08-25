@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
     "sphinx_tabs.tabs",
+    "sphinx_panels",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -69,6 +70,7 @@ myst_amsmath_enable = True
 myst_admonition_enable = True
 myst_html_img_enable = True
 myst_dmath_enable = True
+myst_deflist_enable = True
 myst_url_schemes = ("http", "https", "mailto")
 
 

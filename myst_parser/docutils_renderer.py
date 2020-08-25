@@ -718,7 +718,7 @@ class DocutilsRenderer:
 
     def render_dl_open(self, token):
         """Render a definition list."""
-        node = nodes.definition_list()
+        node = nodes.definition_list(classes=["simple", "myst"])
         self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             item = None

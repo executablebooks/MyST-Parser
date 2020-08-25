@@ -58,6 +58,7 @@ setup(
             "ipython",
             "sphinx-book-theme>=0.0.36",
             "sphinx_tabs",
+            "sphinx-panels~=0.4.1",
         ],
     },
     zip_safe=True,

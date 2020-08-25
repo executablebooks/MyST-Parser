@@ -19,7 +19,7 @@ Term 3
   : other
 .
 <document source="notset">
-    <definition_list>
+    <definition_list classes="simple myst">
         <definition_list_item>
             <term>
                 Term

@@ -517,15 +517,10 @@ print('yep!')
 `````
 ``````
 
-(syntax/admonitions)=
-
 ### Admonition directives special syntax (optional)
 
-A special syntax for admonitions can optionally be enabled by setting `myst_admonition_enable = True` in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html).
-
-The key differences are that, instead of backticks, colons are used, and **the content starts as regular Markdown**.
-This has the benefit of allowing the content to be rendered correctly, when you are working in any standard markdown editor.
-For example:
+Want to use an admonition syntax that renders correctly in standard Markdown editors?
+See [the extended syntax option](syntax/admonitions).
 
 ```md
 :::{note}
@@ -534,37 +529,6 @@ This text is **standard** _Markdown_
 ```
 
 :::{note}
-This text is **standard** _Markdown_
-:::
-
-Similar to normal directives, these admonitions can also be nested:
-
-```md
-::::{important}
-:::{note}
-This text is **standard** _Markdown_
-:::
-::::
-```
-
-::::{important}
-:::{note}
-This text is **standard** _Markdown_
-:::
-::::
-
-The supported directives are: admonition, attention, caution, danger, error, important, hint, note, seealso, tip and warning.
-
-These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name. Also `admonition` can have a custom title.
-For example:
-
-```md
-:::{admonition,warning} This *is* also **Markdown**
-This text is **standard** _Markdown_
-:::
-```
-
-:::{admonition,warning} This *is* also **Markdown**
 This text is **standard** _Markdown_
 :::
 
@@ -767,74 +731,30 @@ There are a few other options available to control dollar math parsing:
 
 These options can both be useful if you also wish to use `$` as a unit of currency.
 
-(syntax/amsmath)=
-
-### Direct LaTeX Math
-
-You can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations by setting `myst_amsmath_enable = True` in your sphinx `conf.py`.
-These top-level math environments will then be directly parsed:
-
-> equation, multline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
-
-As expected, environments ending in `*` will not be numbered, for example:
-
-```latex
-\begin{gather*}
-a_1=b_1+c_1\\
-a_2=b_2+c_2-d_2+e_2
-\end{gather*}
-
-\begin{align}
-a_{11}& =b_{11}&
-  a_{12}& =b_{12}\\
-a_{21}& =b_{21}&
-  a_{22}& =b_{22}+c_{22}
-\end{align}
-```
-
-\begin{gather*}
-a_1=b_1+c_1\\
-a_2=b_2+c_2-d_2+e_2
-\end{gather*}
-
-\begin{align}
-a_{11}& =b_{11}&
-  a_{12}& =b_{12}\\
-a_{21}& =b_{21}&
-  a_{22}& =b_{22}+c_{22}
-\end{align}
-
-:::{note}
-`\labels` inside the environment are not currently identified, and so cannot be referenced.
-We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
-:::
-
 ### Math in other block elements
 
 Math will also work when nested in other block elements, like lists or quotes:
 
 ```md
+- A list
 - $$ a = 1 $$
-- \begin{gather*}
-  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
-  \end{gather*}
 
+> A block quote
 > $$ a = 1 $$
-> \begin{gather*}
-  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
-  \end{gather*}
 ```
 
+- A list
 - $$ a = 1 $$
-- \begin{gather*}
-  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
-  \end{gather*}
 
+> A block quote
 > $$ a = 1 $$
-> \begin{gather*}
-  a_1=b_1+c_1\\a_2=b_2+c_2-d_2+e_2
-  \end{gather*}
 
+### Direct LaTeX Math
+
+Want to use [amsmath](https://ctan.org/pkg/amsmath) LaTeX directly, with no dollars?
+See [the extended syntax option](syntax/amsmath).
+
+(syntax/mathjax)=
 ### Mathjax and math parsing
 
 When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
@@ -988,13 +908,11 @@ leave the "text" section of the markdown link empty. For example, this
 markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
-(syntax/images)=
-
 ## Images
 
-MyST provides a few different syntaxes for including images in your documentation, as explained below.
+MyST provides a few different syntaxes for including images in your documentation.
 
-The first is the standard Markdown syntax:
+The standard Markdown syntax is:
 
 ```md
 ![fishy](img/fun-fish.png)
@@ -1002,42 +920,8 @@ The first is the standard Markdown syntax:
 
 ![fishy](img/fun-fish.png)
 
-This will correctly copy the image to the build folder and will render it in all output formats (HTML, TeX, etc).
-However, it is limited in the configuration that can be applied, for example setting a width.
-
-As discussed [above](syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see {ref}`the sphinx documentation <sphinx:rst-primer>`):
-
-````md
-```{image} img/fun-fish.png
-:alt: fishy
-:class: bg-primary
-:width: 200px
-:align: center
-```
-````
-
-```{image} img/fun-fish.png
-:alt: fishy
-:class: bg-primary mb-1
-:width: 200px
-```
-
-Additional options can now be set, however, in contrast to the Markdown syntax, this syntax will not show the image in common Markdown viewers (for example when the files are viewed on GitHub).
-
-The final option is directly using HTML, which is also parsed by MyST.
-This is usually a bad option, because the HTML is treated as raw text during the build process and so sphinx will not recognise that the image file is to be copied, and will not output the HTML into non-HTML output formats.
-
-HTML parsing to the rescue!
-By setting `myst_html_img_enable = True` in the sphinx `conf.py` configuration file, MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
-
-```md
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary" width="200px">
-```
-
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
-
-Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
-Any other attributes will be dropped.
+But you can also enable extended image syntaxes, to control attributes like width and captions.
+See the [extended image syntax guide](syntax/images).
 
 (syntax/footnotes)=
 ## Footnotes

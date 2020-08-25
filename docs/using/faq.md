@@ -83,3 +83,7 @@ complex parsing cases, such as precedence of different types of tokens, escaping
 The MyST parser is slightly slower than the base `markdown-it-py` parser,
 due to the additional syntax which it parses and the conversion to docutils AST,
 but even then it is still comparably performant to the other parsers parser.
+
+:::{seealso}
+The [markdown-it-py performance documentation](markdown_it:md/performance).
+:::
