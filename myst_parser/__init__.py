@@ -52,7 +52,7 @@ def create_myst_config(app):
         app.env.myst_config = MdParserConfig()
 
     # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax
-    if app.env.myst_config.override_mathjax:
+    if app.config.mathjax_config is None and app.env.myst_config.update_mathjax:
         app.config.mathjax_config = {
             "tex2jax": {
                 "inlineMath": [["\\(", "\\)"]],
@@ -60,4 +60,17 @@ def create_myst_config(app):
                 "processRefs": False,
                 "processEnvironments": False,
             }
+        }
+    elif app.env.myst_config.update_mathjax:
+        if "tex2jax" in app.config.mathjax_config:
+            logger.warning(
+                "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax` is True,"
+                " and so this will be overridden. "
+                "Set `myst_update_mathjax = False` if you wish to use your own config"
+            )
+        app.config.mathjax_config["tex2jax"] = {
+            "inlineMath": [["\\(", "\\)"]],
+            "displayMath": [["\\[", "\\]"]],
+            "processRefs": False,
+            "processEnvironments": False,
         }
