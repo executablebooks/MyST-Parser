@@ -37,7 +37,7 @@ class MdParserConfig:
     amsmath_enable: bool = attr.ib(default=False, validator=instance_of(bool))
     deflist_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
-    override_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
+    update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
     admonition_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 

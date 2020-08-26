@@ -759,22 +759,20 @@ See [the extended syntax option](syntax/amsmath).
 
 When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
 
-Since such parsing is already covered by the plugins above, MyST-Parser disables this behaviour by overriding the `mathjax_config` option with:
+Since such parsing is already covered by the plugins above, MyST-Parser disables this behaviour by overriding the `mathjax_config['tex2jax']` option with:
 
 ```python
-mathjax_config = {
-  "tex2jax": {
+mathjax_config["tex2jax"] = {
   "inlineMath": [["\\(", "\\)"]],
   "displayMath": [["\\[", "\\]"]],
   "processRefs": False,
   "processEnvironments": False,
-  }
 }
 ```
 
 Since these delimiters are how `sphinx.ext.mathjax` wraps the math content in the built HTML documents.
 
-To inhibit this override, set `myst_override_mathjax=False`.
+To inhibit this override, set `myst_update_mathjax=False`.
 
 (syntax/frontmatter)=
 

@@ -271,9 +271,9 @@ Math specific, see the [Math syntax](syntax/math) for more details:
 * - `myst_amsmath_enable`
   - `False`
   - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath)
-* - `myst_override_mathjax`
+* - `myst_update_mathjax`
   - `True`
-  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be overridden,
+  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be updated,
   to ignore `$` delimiters and LaTeX environments, which should instead be handled by
   `myst_dmath_enable` and `myst_amsmath_enable` respectively.
 `````
