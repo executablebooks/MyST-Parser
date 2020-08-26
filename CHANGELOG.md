@@ -1,5 +1,9 @@
 # Change log
 
+## 0.12.4 - 2020-27-08
+
+👌 IMPROVE: the mathjax extension is now only overridden if strictly necessary (to support dollar and ams math), and the override is more precise, to mitigate any unwanted side-effects
+
 ## 0.12.3 - 2020-26-08
 
 ✨ NEW: Add definition lists.
