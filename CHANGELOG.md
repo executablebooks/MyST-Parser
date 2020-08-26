@@ -1,6 +1,6 @@
 # Change log
 
-## 0.12.3 - 2020-25-08
+## 0.12.3 - 2020-26-08
 
 ✨ NEW: Add definition lists.
 This addition, enabled by `myst_deflist_enable = True`, allows for "Pandoc style" definition lists to be parsed and rendered, e.g.
