@@ -18,17 +18,17 @@ def setup_sphinx(app):
     # we do this separately to setup,
     # so that it can be called by external packages like myst_nb
     from myst_parser.myst_refs import MystReferenceResolver
-    from myst_parser.myst_amsmath import MystAmsMathTransform
+    from myst_parser.mathjax import override_mathjax
     from myst_parser.main import MdParserConfig
 
     app.add_post_transform(MystReferenceResolver)
-    app.add_post_transform(MystAmsMathTransform)
 
     for name, default in MdParserConfig().as_dict().items():
         if not name == "renderer":
             app.add_config_value(f"myst_{name}", default, "env")
 
     app.connect("builder-inited", create_myst_config)
+    app.connect("builder-inited", override_mathjax)
 
 
 def create_myst_config(app):
@@ -50,27 +50,3 @@ def create_myst_config(app):
     except (TypeError, ValueError) as error:
         logger.error("myst configuration invalid: %s", error.args[0])
         app.env.myst_config = MdParserConfig()
-
-    # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax
-    if app.config.mathjax_config is None and app.env.myst_config.update_mathjax:
-        app.config.mathjax_config = {
-            "tex2jax": {
-                "inlineMath": [["\\(", "\\)"]],
-                "displayMath": [["\\[", "\\]"]],
-                "processRefs": False,
-                "processEnvironments": False,
-            }
-        }
-    elif app.env.myst_config.update_mathjax:
-        if "tex2jax" in app.config.mathjax_config:
-            logger.warning(
-                "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax = True`, "
-                "and so this will be overridden. "
-                "Set `myst_update_mathjax = False` if you wish to use your own config"
-            )
-        app.config.mathjax_config["tex2jax"] = {
-            "inlineMath": [["\\(", "\\)"]],
-            "displayMath": [["\\[", "\\]"]],
-            "processRefs": False,
-            "processEnvironments": False,
-        }
