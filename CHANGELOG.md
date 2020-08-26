@@ -1,5 +1,22 @@
 # Change log
 
+## 0.12.3 - 2020-26-08
+
+✨ NEW: Add definition lists.
+This addition, enabled by `myst_deflist_enable = True`, allows for "Pandoc style" definition lists to be parsed and rendered, e.g.
+
+```md
+Term 1
+: Definition
+```
+
+See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html#definition-lists) for further details.
+
+👌 IMPROVE: mathjax_config override.
+Only `mathjax_config["tex2jax"]` will now be overridden, in order to not interfere with other user configurations, such as adding TeX macros.
+The configuration name has also changed from `myst_override_mathjax` to `myst_update_mathjax`.
+See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#mathjax-and-math-parsing) for further details.
+
 ## 0.12.2 - 2020-25-08
 
 ✨ NEW: Add the `eval-rst` directive
