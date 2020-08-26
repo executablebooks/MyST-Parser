@@ -64,8 +64,8 @@ def create_myst_config(app):
     elif app.env.myst_config.update_mathjax:
         if "tex2jax" in app.config.mathjax_config:
             logger.warning(
-                "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax` is True,"
-                " and so this will be overridden. "
+                "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax = True`, "
+                "and so this will be overridden. "
                 "Set `myst_update_mathjax = False` if you wish to use your own config"
             )
         app.config.mathjax_config["tex2jax"] = {
