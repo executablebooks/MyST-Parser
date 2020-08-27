@@ -40,6 +40,7 @@ class MdParserConfig:
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
     admonition_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+    figure_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
     disable_syntax: List[str] = attr.ib(
         factory=list,
@@ -96,11 +97,11 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
         )
-    if config.admonition_enable:
+    if config.admonition_enable or config.figure_enable:
         # we don't want to yet remove un-referenced, because they may be referenced
         # in admonition type directives
         # so we do our own post processing
-        md.use(container_plugin, "admonition", validate=validate_admonition)
+        md.use(container_plugin, "myst", validate=validate_container(config))
     if config.amsmath_enable:
         md.use(amsmath_plugin)
     if config.deflist_enable:
@@ -113,10 +114,30 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             "commonmark_only": False,
             "enable_html_img": config.html_img_enable,
             "myst_url_schemes": config.url_schemes,
+            "enable_figures": config.figure_enable,
         }
     )
 
     return md
+
+
+def validate_container(config: MdParserConfig):
+    if config.admonition_enable:
+        # NOTE with containers you can selectively only parse.
+        # those that have a particular argument string.
+        # However, this reduces the amount of feedback since, if you made an error
+        # in the argument string, it would just ignore it rather than logging a warning
+        def _validate_container(params: str, *args):
+            return True
+
+    elif config.figure_enable:
+
+        def _validate_container(params: str, *args):
+            return params.strip().startswith("{figure}") or params.strip().startswith(
+                "{figure,"
+            )
+
+    return _validate_container
 
 
 def to_docutils(
@@ -169,11 +190,3 @@ def to_tokens(text: str, env=None, config: Optional[MdParserConfig] = None):
     config.renderer = "html"
     md = default_parser(config)
     return md.parse(text, env)
-
-
-def validate_admonition(params: str, *args):
-    # NOTE with containers you can selectively only parse those that have a particular
-    # argument string
-    # However, this reduces the amount of feedback since, if you made an error
-    # in the argument string, it would just ignore it rather than logging a warning
-    return True

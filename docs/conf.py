@@ -71,6 +71,7 @@ myst_admonition_enable = True
 myst_html_img_enable = True
 myst_dmath_enable = True
 myst_deflist_enable = True
+myst_figure_enable = True
 myst_url_schemes = ("http", "https", "mailto")
 
 
