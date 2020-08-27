@@ -36,3 +36,15 @@ Term 3
   : > quote
 
   : other
+
+:::{figure,other} target
+![fun-fish](fun-fish.png)
+
+This is a caption in **Markdown**
+:::
+
+:::{figure,other} other-target
+<img src="fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+
+This is a caption in **Markdown**
+:::

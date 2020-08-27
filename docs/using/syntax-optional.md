@@ -186,6 +186,38 @@ By setting `myst_html_img_enable = True` in the sphinx `conf.py` configuration f
 Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
 Any other attributes will be dropped.
 
+(syntax/figures)=
+
+## Markdown Figures
+
+Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
+to create a fully Markdown compliant version of the `figure` directive.
+
+The figure block must contain **only** two components; an image, in either Markdown or HTML syntax, and a single paragraph for the caption.
+
+As with admonitions, the figure can have additional classes set on it, but the title is now taken as the reference target of the figure:
+
+```md
+:::{figure,myclass} fig-target
+<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+
+This is a caption in **Markdown**
+:::
+```
+
+:::{figure,myclass} fig-target
+<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+
+This is a caption in **Markdown**
+:::
+
+As we see here, the target we set can be referenced:
+
+```md
+[Go to the fish!](fig-target)
+```
+
+[Go to the fish!](fig-target)
 
 (syntax/amsmath)=
 

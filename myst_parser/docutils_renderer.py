@@ -48,6 +48,7 @@ REGEX_ADMONTION = re.compile(
     r"\{(?P<name>[a-zA-Z]+)(?P<classes>(?:\,-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)\}(?P<title>.*)"  # noqa: E501
 )
 STD_ADMONITIONS = {
+    "admonition": nodes.admonition,
     "attention": nodes.attention,
     "caution": nodes.caution,
     "danger": nodes.danger,
@@ -672,8 +673,92 @@ class DocutilsRenderer:
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
 
-    def get_admonition(self, token, name, classes, title):
+    def render_container_myst_open(self, token):
+        """Render a container (`:::{name}` blocks), based on its name."""
+        # match first line regex
+        match = REGEX_ADMONTION.match(token.info.strip())
 
+        # default behaviour
+        if not match:
+            return self.default_container(
+                token, "admonition argument did not match required regex"
+            )
+
+        name = match.groupdict()["name"]
+
+        if name in STD_ADMONITIONS:
+            admonition = self.get_admonition(token, **match.groupdict())
+            self.add_line_and_source_path(admonition, token)
+            with self.current_node_context(admonition, append=True):
+                self.render_children(token)
+            return
+
+        if name == "figure" and self.config.get("enable_figures", False):
+            # must be of length 2
+            if not len(token.children) == 2:
+                return self.figure_error(token)
+            # 1st must be paragraph_open with 1 child type inline and 1 child type image
+            html_image = None
+            if token.children[0].type == "html_block":
+                html_image = HTMLImgParser().parse(
+                    token.children[0].content, self.document, token.children[0].map[0]
+                )
+                if html_image is None:
+                    return self.figure_error(token)
+            elif not (
+                token.children[0].children
+                and len(token.children[0].children) == 1
+                and len(token.children[0].children[0].children) == 1
+                and token.children[0].children[0].children[0].type == "image"
+            ):
+                return self.figure_error(token)
+            # 2nd must be a paragraph
+            if not token.children[1].type == "paragraph_open":
+                return self.figure_error(token)
+
+            figure_node = nodes.figure(
+                "", classes=match.groupdict()["classes"][1:].split(",")
+            )
+            if match.groupdict()["title"].strip():
+                name = nodes.fully_normalize_name(match.groupdict()["title"].strip())
+                figure_node["names"].append(name)
+                self.document.note_explicit_target(figure_node, figure_node)
+            with self.current_node_context(figure_node, append=True):
+                if html_image is None:
+                    self.render_image(token.children[0].children[0].children[0])
+                else:
+                    self.current_node.append(html_image)
+                caption = nodes.caption("", "")
+                with self.current_node_context(caption, append=True):
+                    self.render_paragraph_open(token.children[1])
+            return
+
+        return self.default_container(token, f"admonition name not recognised: {name}")
+
+    def default_container(self, token, message):
+        """Report a warning and use the default note admonition."""
+        self.current_node.append(
+            self.reporter.warning(
+                f"{message}, defaulting to note: {token.info}", line=token.map[0],
+            )
+        )
+        admonition = nodes.note("")
+        self.add_line_and_source_path(admonition, token)
+        with self.current_node_context(admonition, append=True):
+            self.render_children(token)
+
+    def figure_error(self, token):
+        """A warning for reporting an invalid figure."""
+        self.current_node.append(
+            self.reporter.warning(
+                "Figure container should have exactly an image,"
+                " followed by single paragraph",
+                line=token.map[0],
+            )
+        )
+
+    def get_admonition(self, token, name, classes, title):
+        """Create an admonition node. """
         line = token.map[0]
 
         if name == "admonition":
@@ -688,33 +773,8 @@ class DocutilsRenderer:
             node += messages
             return node
 
-        node_cls = STD_ADMONITIONS.get(name, None)
-        if node_cls is None:
-            self.current_node.append(
-                self.reporter.warning(
-                    f"admonition name not recognised, defaulting to note: {name}",
-                    line=line,
-                )
-            )
-            node_cls = nodes.note
+        node_cls = STD_ADMONITIONS.get(name)
         return node_cls(title, classes=classes[1:].split(","))
-
-    def render_container_admonition_open(self, token):
-        match = REGEX_ADMONTION.match(token.info.strip())
-        if not match:
-            self.current_node.append(
-                self.reporter.warning(
-                    "admonition argument did not match required regex, "
-                    f"defaulting to note: {token.info}",
-                    line=token.map[0],
-                )
-            )
-            admonition = nodes.note("")
-        else:
-            admonition = self.get_admonition(token, **match.groupdict())
-        self.add_line_and_source_path(admonition, token)
-        with self.current_node_context(admonition, append=True):
-            self.render_children(token)
 
     def render_dl_open(self, token):
         """Render a definition list."""
