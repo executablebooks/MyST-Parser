@@ -1,5 +1,12 @@
 # Change log
 
+## 0.12.5 - 2020-28-08
+
+✨ NEW: Add Markdown figure syntax
+Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
+to create a fully Markdown compliant version of the `figure` directive.
+See [Markdown Figures](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html#markdown-figures) for details.
+
 ## 0.12.4 - 2020-27-08
 
 👌 IMPROVE: the mathjax extension is now only overridden if strictly necessary (to support dollar and ams math), and the override is more precise, to mitigate any unwanted side-effects
