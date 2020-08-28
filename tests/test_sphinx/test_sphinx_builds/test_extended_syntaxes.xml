@@ -57,10 +57,8 @@
         <figure align="default" classes="other" ids="target" names="target">
             <image alt="fun-fish" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
             <caption>
-                <paragraph>
-                    This is a caption in **Markdown**
+                This is a caption in **Markdown**
         <figure align="default" classes="other" ids="other-target" names="other-target">
             <image alt="fishy" candidates="{'*': 'fun-fish.png'}" classes="bg-primary mb-1" uri="fun-fish.png" width="200px">
             <caption>
-                <paragraph>
-                    This is a caption in **Markdown**
+                This is a caption in **Markdown**

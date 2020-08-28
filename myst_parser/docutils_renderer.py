@@ -730,7 +730,7 @@ class DocutilsRenderer:
                     self.current_node.append(html_image)
                 caption = nodes.caption("", "")
                 with self.current_node_context(caption, append=True):
-                    self.render_paragraph_open(token.children[1])
+                    self.render_children(token.children[1])
             return
 
         return self.default_container(token, f"admonition name not recognised: {name}")
