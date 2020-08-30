@@ -118,7 +118,8 @@ def test_sphinx_roles(line, title, input, expected):
 
 
 @pytest.mark.parametrize(
-    "line,title,input,expected", read_fixture_file(FIXTURE_PATH.joinpath("amsmath.md")),
+    "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("amsmath.md")),
 )
 def test_amsmath(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")

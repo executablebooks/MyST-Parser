@@ -86,7 +86,9 @@ def run_myst_parser_docutils(package, text):
 @benchmark("myst_parser.main")
 def run_myst_parser_sphinx(package, text):
     package.to_docutils(
-        text, options={"ignore_missing_refs": True}, in_sphinx_env=True,
+        text,
+        options={"ignore_missing_refs": True},
+        in_sphinx_env=True,
     )
 
 

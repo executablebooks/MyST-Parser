@@ -739,7 +739,8 @@ class DocutilsRenderer:
         """Report a warning and use the default note admonition."""
         self.current_node.append(
             self.reporter.warning(
-                f"{message}, defaulting to note: {token.info}", line=token.map[0],
+                f"{message}, defaulting to note: {token.info}",
+                line=token.map[0],
             )
         )
         admonition = nodes.note("")

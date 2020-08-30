@@ -46,8 +46,7 @@ SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs
 # @pytest.fixture(scope="session", autouse=True)
 @pytest.fixture()
 def remove_sphinx_builds():
-    """ remove all build directories from the test folder
-    """
+    """remove all build directories from the test folder"""
     yield
     srcdirs = pathlib.Path(SOURCE_DIR)
     for entry in srcdirs.iterdir():  # type: pathlib.Path

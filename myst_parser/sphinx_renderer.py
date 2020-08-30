@@ -113,8 +113,7 @@ class SphinxRenderer(DocutilsRenderer):
 def minimal_sphinx_app(
     configuration=None, sourcedir=None, with_builder=False, raise_on_warning=False
 ):
-    """Create a minimal Sphinx environment; loading sphinx roles, directives, etc.
-    """
+    """Create a minimal Sphinx environment; loading sphinx roles, directives, etc."""
 
     class MockSphinx(Sphinx):
         """Minimal sphinx init to load roles and directives."""
