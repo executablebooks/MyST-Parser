@@ -6,6 +6,7 @@
 [![Code style: black][black-badge]][black-link]
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
+[![PyPI - Downloads][install-badge]][install-link]
 
 An extended commonmark compliant parser, with bridges to docutils & sphinx.
 
@@ -52,3 +53,5 @@ See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/master
 [conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
 [conda-link]: https://anaconda.org/conda-forge/myst-parser
 [black-link]: https://github.com/ambv/black
+[install-badge]: https://img.shields.io/pypi/dw/myst-parser?label=pypi%20installs
+[install-link]: https://pypistats.org/packages/myst-parser
