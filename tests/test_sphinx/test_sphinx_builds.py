@@ -112,6 +112,7 @@ def test_includes(
             replace={
                 r"'subfolder\\example2.jpg'": "'subfolder/example2.jpg'",
                 r"'subfolder\\\\example2.jpg'": "'subfolder/example2.jpg'",
+                r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
             },
         )
     finally:
