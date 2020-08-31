@@ -121,6 +121,7 @@ def test_includes(
             regress_html=True,
             replace={
                 r"'subfolder\\example2'": "'subfolder/example2'",
+                r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
                 "_images/example21.jpg": "_images/example2.jpg",
             },
         )
