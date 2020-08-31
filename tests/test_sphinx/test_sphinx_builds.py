@@ -109,7 +109,10 @@ def test_includes(
             docname="index",
             regress=True,
             # fix for Windows CI
-            replace={r"'subfolder\\example2'": "'subfolder/example2'"},
+            replace={
+                r"subfolder\\example2": "subfolder/example2",
+                r"subfolder\\\\example2": "subfolder/example2.jpg",
+            },
         )
     finally:
         get_sphinx_app_output(
