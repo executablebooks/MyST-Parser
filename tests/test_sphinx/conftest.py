@@ -64,6 +64,7 @@ def get_sphinx_app_output(file_regression):
         extract_body=False,
         remove_scripts=False,
         regress_html=False,
+        replace=None,
     ):
 
         outpath = path(os.path.join(str(app.srcdir), "_build", buildername, filename))
@@ -82,9 +83,10 @@ def get_sphinx_app_output(file_regression):
 
             soup = BeautifulSoup(content, "html.parser")
             doc_div = soup.findAll("div", {"class": "documentwrapper"})[0]
-            file_regression.check(
-                doc_div.prettify(), extension=".html", encoding="utf8"
-            )
+            text = doc_div.prettify()
+            for find, replace in (replace or {}).items():
+                text = text.replace(find, replace)
+            file_regression.check(text, extension=".html", encoding="utf8")
 
         return content
 
@@ -93,7 +95,7 @@ def get_sphinx_app_output(file_regression):
 
 @pytest.fixture
 def get_sphinx_app_doctree(file_regression):
-    def read(app, docname="index", resolve=False, regress=False):
+    def read(app, docname="index", resolve=False, regress=False, replace=None):
         if resolve:
             doctree = app.env.get_and_resolve_doctree(docname, app.builder)
             extension = ".resolved.xml"
@@ -106,7 +108,10 @@ def get_sphinx_app_doctree(file_regression):
             node["source"] = pathlib.Path(node["source"]).name
 
         if regress:
-            file_regression.check(doctree.pformat(), extension=extension)
+            text = doctree.pformat()  # type: str
+            for find, replace in (replace or {}).items():
+                text = text.replace(find, replace)
+            file_regression.check(text, extension=extension)
 
         return doctree
 

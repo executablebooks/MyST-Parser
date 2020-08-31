@@ -104,9 +104,20 @@ def test_includes(
     assert warnings == ""
 
     try:
-        get_sphinx_app_doctree(app, docname="index", regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            regress=True,
+            # fix for Windows CI
+            replace={r"subfolder\\example2": "subfolder/example2"},
+        )
     finally:
-        get_sphinx_app_output(app, filename="index.html", regress_html=True)
+        get_sphinx_app_output(
+            app,
+            filename="index.html",
+            regress_html=True,
+            replace={"_images/example21.jpg": "_images/example2.jpg"},
+        )
 
 
 @pytest.mark.sphinx(
