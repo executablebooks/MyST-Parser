@@ -7,4 +7,5 @@ orphan: true
 Some text with *syntax*
 
 ```{include} subfolder/include2.inc.md
+:relative-images:
 ```
