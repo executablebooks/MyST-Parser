@@ -120,7 +120,7 @@ def test_includes(
             filename="index.html",
             regress_html=True,
             replace={
-                r"subfolder\\example2": "subfolder/example2",
+                r"'subfolder\\example2'": "'subfolder/example2'",
                 "_images/example21.jpg": "_images/example2.jpg",
             },
         )
