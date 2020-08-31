@@ -84,8 +84,8 @@ def get_sphinx_app_output(file_regression):
             soup = BeautifulSoup(content, "html.parser")
             doc_div = soup.findAll("div", {"class": "documentwrapper"})[0]
             text = doc_div.prettify()
-            for find, replace in (replace or {}).items():
-                text = text.replace(find, replace)
+            for find, rep in (replace or {}).items():
+                text = text.replace(find, rep)
             file_regression.check(text, extension=".html", encoding="utf8")
 
         return content
@@ -109,8 +109,8 @@ def get_sphinx_app_doctree(file_regression):
 
         if regress:
             text = doctree.pformat()  # type: str
-            for find, replace in (replace or {}).items():
-                text = text.replace(find, replace)
+            for find, rep in (replace or {}).items():
+                text = text.replace(find, rep)
             file_regression.check(text, extension=extension)
 
         return doctree
