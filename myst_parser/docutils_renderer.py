@@ -3,10 +3,9 @@ from collections import OrderedDict
 from contextlib import contextmanager
 import inspect
 import json
-from os.path import splitext
+import os
 import re
 from typing import List
-from urllib.parse import urlparse
 
 import yaml
 
@@ -35,6 +34,7 @@ from myst_parser.mocking import (
 )
 from .parse_directives import parse_directive_text, DirectiveParsingError
 from .parse_html import HTMLImgParser
+from .utils import is_external_url
 
 
 def make_document(source_path="notset") -> nodes.document:
@@ -437,40 +437,22 @@ class DocutilsRenderer:
 
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        # Check destination is supported for cross-linking and remove extension
-        # TODO escape urls?
-        destination = token.attrGet("href")
-        title = token.attrGet("title")
-        _, ext = splitext(destination)
-        # TODO check for other supported extensions, such as those specified in
-        # the Sphinx conf.py file but how to access this information?
-        # TODO this should probably only remove the extension for local paths,
-        # i.e. not uri's starting with http or other external prefix.
-
-        # if ext.replace('.', '') in self.supported:
-        #     destination = destination.replace(ext, '')
+        destination = token.attrGet("href")  # escape urls?
         ref_node["refuri"] = destination
 
+        title = token.attrGet("title")
         if title:
             ref_node["title"] = title
         next_node = ref_node
 
-        url_check = urlparse(destination)
-        # If there's not a url scheme (e.g. 'https' for 'https:...' links),
-        # or there is a scheme but it's not in the list of known_url_schemes,
-        # then assume it's a cross-reference
-        known_url_schemes = self.config.get("myst_url_schemes", None)
-        if known_url_schemes:
-            scheme_known = url_check.scheme in known_url_schemes
-        else:
-            scheme_known = bool(url_check.scheme)
-
-        if not url_check.fragment and not scheme_known:
-            self.handle_cross_reference(token, destination)
-        else:
+        if is_external_url(
+            destination, self.config.get("myst_url_schemes", None), True
+        ):
             self.current_node.append(next_node)
             with self.current_node_context(ref_node):
                 self.render_children(token)
+        else:
+            self.handle_cross_reference(token, destination)
 
     def handle_cross_reference(self, token, destination):
         if not self.config.get("ignore_missing_refs", False):
@@ -500,9 +482,17 @@ class DocutilsRenderer:
     def render_image(self, token):
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
-        img_node["uri"] = token.attrGet("src")
-        # TODO ideally we would render proper markup here,
-        # this probably requires an upstream change in sphinx
+        destination = token.attrGet("src")
+
+        if self.config.get("relative_source", None) is not None and not is_external_url(
+            destination, None, True
+        ):
+            img_node["uri"] = os.path.join(
+                self.config.get("relative_source"), destination
+            )
+        else:
+            img_node["uri"] = destination
+
         img_node["alt"] = self.renderInlineAsText(token.children)
         title = token.attrGet("title")
         if title:
@@ -841,6 +831,11 @@ class DocutilsRenderer:
             )
             self.current_node += [error] + messages
             return
+
+        if issubclass(directive_class, Include):
+            # this is a Markdown only option,
+            # to allow for altering relative image reference links
+            directive_class.option_spec["relative-images"] = directives.flag
 
         try:
             arguments, options, body_lines = parse_directive_text(

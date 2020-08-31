@@ -13,3 +13,7 @@ This absolute path will refer to the project root (where the `conf.py` is):
 ```{figure} /subfolder/example2.jpg
 Caption
 ```
+
+![alt](example2.jpg)
+
+![alt](https://example.com)

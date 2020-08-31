@@ -28,6 +28,34 @@ To include rST, we must first "wrap" the directive in the [eval-rst directive](s
 .. include:: snippets/include-rst.rst
 ```
 
+(howto/include-readme)=
+## Include a file from outside the docs folder (like README.md)
+
+You can include a file, including one from outside the project using e.g.:
+
+````md
+```{include} ../README.md
+```
+````
+
+**However**, including a file will not usually resolve local links correctly, like `![](my-image.png)`, since it treats the text as if it originated from the "including file".
+
+As of myst-parser version 0.12.7, a new, experimental feature has been added to resolve such links. You can now use:
+
+````md
+```{include} ../README.md
+:relative-images:
+```
+````
+
+and the include will attempt to re-write local image links, to reference them from the correct location!
+
+:::{important}
+The current functionality only works for Markdown style images (i.e. not image directives or HTML images).
+
+If you encounter any issues with this feature, please don't hesitate to report it.
+:::
+
 (howto/autodoc)=
 ## Use `sphinx.ext.autodoc` in Markdown files
 

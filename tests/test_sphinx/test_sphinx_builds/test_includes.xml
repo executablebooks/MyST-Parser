@@ -33,6 +33,10 @@
                 <caption>
                     Caption
             <paragraph>
+                <image alt="alt" candidates="{'*': 'subfolder/example2.jpg'}" uri="subfolder/example2.jpg">
+            <paragraph>
+                <image alt="alt" candidates="{'?': 'https://example.com'}" uri="https://example.com">
+            <paragraph>
                 <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">
                     <inline classes="xref std std-ref">
                         inc_header
