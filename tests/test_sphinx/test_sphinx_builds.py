@@ -110,8 +110,8 @@ def test_includes(
             regress=True,
             # fix for Windows CI
             replace={
-                r"'subfolder\\example2'": "'subfolder/example2'",
-                r"'subfolder\\\\example2'": "'subfolder/example2.jpg'",
+                r"'subfolder\\example2.jpg'": "'subfolder/example2.jpg'",
+                r"'subfolder\\\\example2.jpg'": "'subfolder/example2.jpg'",
             },
         )
     finally:
