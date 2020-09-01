@@ -428,7 +428,8 @@ class MockIncludeDirective:
             if "relative-docs" in self.options:
                 self.renderer.config["relative-docs"] = (
                     self.options["relative-docs"],
-                    os.path.relpath(path.parent, source_dir),
+                    source_dir,
+                    path.parent,
                 )
             self.renderer.nested_render_text(file_content, startline + 1)
         finally:

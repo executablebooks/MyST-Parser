@@ -443,10 +443,9 @@ class DocutilsRenderer:
             "relative-docs", None
         ) is not None and destination.startswith(self.config["relative-docs"][0]):
             # make the path relative to an "including" document
-            destination = os.path.normpath(
-                os.path.join(
-                    self.config["relative-docs"][1], os.path.normpath(destination)
-                )
+            source_dir, include_dir = self.config["relative-docs"][1:]
+            destination = os.path.relpath(
+                os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
 
         ref_node["refuri"] = destination
