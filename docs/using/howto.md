@@ -45,13 +45,20 @@ As of myst-parser version 0.12.7, a new, experimental feature has been added to 
 ````md
 ```{include} ../README.md
 :relative-images:
+:relative-docs: docs/
 ```
 ````
 
-and the include will attempt to re-write local image links, to reference them from the correct location!
+The include will then attempt to re-write local links, to reference them from the correct location!
+The `relative-docs` must be given the prefix of any links to re-write, to distinguish them from sphinx cross-references.
 
 :::{important}
-The current functionality only works for Markdown style images (i.e. not image directives or HTML images).
+The current functionality only works for Markdown style images and links, e.g.
+
+```md
+![alt](images/example2.jpg)
+[text](docs/index.md)
+```
 
 If you encounter any issues with this feature, please don't hesitate to report it.
 :::

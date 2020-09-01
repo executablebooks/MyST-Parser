@@ -440,12 +440,12 @@ class DocutilsRenderer:
         destination = token.attrGet("href")  # escape urls?
 
         if self.config.get(
-            "relative-refs", None
-        ) is not None and destination.startswith(self.config["relative-refs"][0]):
+            "relative-docs", None
+        ) is not None and destination.startswith(self.config["relative-docs"][0]):
             # make the path relative to an "including" document
             destination = os.path.normpath(
                 os.path.join(
-                    self.config["relative-refs"][1], os.path.normpath(destination)
+                    self.config["relative-docs"][1], os.path.normpath(destination)
                 )
             )
 
@@ -850,7 +850,7 @@ class DocutilsRenderer:
             # this is a Markdown only option,
             # to allow for altering relative image reference links
             directive_class.option_spec["relative-images"] = directives.flag
-            directive_class.option_spec["relative-refs"] = directives.path
+            directive_class.option_spec["relative-docs"] = directives.path
 
         try:
             arguments, options, body_lines = parse_directive_text(
