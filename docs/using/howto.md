@@ -40,18 +40,39 @@ You can include a file, including one from outside the project using e.g.:
 
 **However**, including a file will not usually resolve local links correctly, like `![](my-image.png)`, since it treats the text as if it originated from the "including file".
 
-As of myst-parser version 0.12.7, a new, experimental feature has been added to resolve such links. You can now use:
+As of myst-parser version 0.12.7, a new, experimental feature has been added to resolve such links.
+You can now use for example:
 
 ````md
-```{include} ../README.md
+Source:
+```{include-literal} ../../example.md
+:language: md
+```
+Included:
+```{include} ../../example.md
+:relative-docs: docs/
 :relative-images:
 ```
 ````
 
-and the include will attempt to re-write local image links, to reference them from the correct location!
+Source:
+
+```{literalinclude} ../../example-include.md
+:language: md
+```
+
+Included:
+
+```{include} ../../example-include.md
+:relative-docs: docs/
+:relative-images:
+```
+
+The include here attempts to re-write local links, to reference them from the correct location!
+The `relative-docs` must be given the prefix of any links to re-write, to distinguish them from sphinx cross-references.
 
 :::{important}
-The current functionality only works for Markdown style images (i.e. not image directives or HTML images).
+The current functionality only works for Markdown style images and links.
 
 If you encounter any issues with this feature, please don't hesitate to report it.
 :::

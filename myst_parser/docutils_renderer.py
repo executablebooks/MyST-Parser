@@ -438,6 +438,16 @@ class DocutilsRenderer:
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         destination = token.attrGet("href")  # escape urls?
+
+        if self.config.get(
+            "relative-docs", None
+        ) is not None and destination.startswith(self.config["relative-docs"][0]):
+            # make the path relative to an "including" document
+            source_dir, include_dir = self.config["relative-docs"][1:]
+            destination = os.path.relpath(
+                os.path.join(include_dir, os.path.normpath(destination)), source_dir
+            )
+
         ref_node["refuri"] = destination
 
         title = token.attrGet("title")
@@ -484,14 +494,17 @@ class DocutilsRenderer:
         self.add_line_and_source_path(img_node, token)
         destination = token.attrGet("src")
 
-        if self.config.get("relative_source", None) is not None and not is_external_url(
+        if self.config.get("relative-images", None) is not None and not is_external_url(
             destination, None, True
         ):
-            img_node["uri"] = os.path.join(
-                self.config.get("relative_source"), destination
+            # make the path relative to an "including" document
+            destination = os.path.normpath(
+                os.path.join(
+                    self.config.get("relative-images"), os.path.normpath(destination)
+                )
             )
-        else:
-            img_node["uri"] = destination
+
+        img_node["uri"] = destination
 
         img_node["alt"] = self.renderInlineAsText(token.children)
         title = token.attrGet("title")
@@ -836,6 +849,7 @@ class DocutilsRenderer:
             # this is a Markdown only option,
             # to allow for altering relative image reference links
             directive_class.option_spec["relative-images"] = directives.flag
+            directive_class.option_spec["relative-docs"] = directives.path
 
         try:
             arguments, options, body_lines = parse_directive_text(
