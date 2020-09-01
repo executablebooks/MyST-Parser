@@ -443,7 +443,9 @@ class DocutilsRenderer:
             "relative-refs", None
         ) is not None and destination.startswith(self.config["relative-refs"][0]):
             # make the path relative to an "including" document
-            destination = os.path.join(self.config["relative-refs"][1], destination)
+            destination = os.path.join(
+                self.config["relative-refs"][1], os.path.normpath(destination)
+            )
 
         ref_node["refuri"] = destination
 
@@ -495,7 +497,9 @@ class DocutilsRenderer:
             destination, None, True
         ):
             # make the path relative to an "including" document
-            destination = os.path.join(self.config.get("relative-images"), destination)
+            destination = os.path.join(
+                self.config.get("relative-images"), os.path.normpath(destination)
+            )
 
         img_node["uri"] = destination
 
