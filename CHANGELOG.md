@@ -1,9 +1,11 @@
-# Change log
+# Changelog
 
 ## 0.12.7 - 2020-31-08
 
 ✨ NEW: Want to include your README.md in the documentation?
-See [including a file from outside the docs folder](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-a-file-from-outside-the-docs-folder-like-readme-md).
+See [including a file from outside the docs folder](docs/using/howto.md).
+
+(👌 added `relative-docs` option in 0.12.8)
 
 ## 0.12.5 - 2020-28-08
 
