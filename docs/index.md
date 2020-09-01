@@ -54,6 +54,7 @@ caption: Reference and contributing
 examples/index.md
 develop/index.md
 api/index.md
+develop/_changelog.md
 GitHub repo <https://github.com/executablebooks/myst-parser>
 ```
 
