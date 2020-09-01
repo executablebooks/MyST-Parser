@@ -422,14 +422,20 @@ class MockIncludeDirective:
             self.renderer.reporter.source = str(path)
             self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
             if "relative-images" in self.options:
-                self.renderer.config["relative_source"] = os.path.relpath(
+                self.renderer.config["relative-images"] = os.path.relpath(
                     path.parent, source_dir
+                )
+            if "relative-refs" in self.options:
+                self.renderer.config["relative-refs"] = (
+                    self.options["relative-refs"],
+                    os.path.relpath(path.parent, source_dir),
                 )
             self.renderer.nested_render_text(file_content, startline + 1)
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource
-            self.renderer.config.pop("relative_source", None)
+            self.renderer.config.pop("relative-images", None)
+            self.renderer.config.pop("relative-refs", None)
             if line_func is not None:
                 self.renderer.reporter.get_source_and_line = line_func
             else:

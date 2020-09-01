@@ -37,6 +37,10 @@
             <paragraph>
                 <image alt="alt" candidates="{'?': 'https://example.com'}" uri="https://example.com">
             <paragraph>
+                <pending_xref refdomain="True" refexplicit="True" reftarget="subfolder/../index.md" reftype="myst" refwarn="True">
+                    <inline classes="xref myst">
+                        text
+            <paragraph>
                 <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">
                     <inline classes="xref std std-ref">
                         inc_header

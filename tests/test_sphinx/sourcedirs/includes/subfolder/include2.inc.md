@@ -17,3 +17,5 @@ Caption
 ![alt](example2.jpg)
 
 ![alt](https://example.com)
+
+[text](../index.md)
