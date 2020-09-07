@@ -56,7 +56,11 @@ class MystReferenceResolver(ReferencesResolver):
                     # this means it is picked up by extensions like intersphinx
                     node["reftype"] = "any"
                     newnode = self.app.emit_firstresult(
-                        "missing-reference", self.env, node, contnode
+                        "missing-reference",
+                        self.env,
+                        node,
+                        contnode,
+                        allowed_exceptions=(NoUri,),
                     )
                     node["reftype"] = "myst"
                     # still not found? warn if node wishes to be warned about or

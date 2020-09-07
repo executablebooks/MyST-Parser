@@ -33,6 +33,7 @@ class SphinxRenderer(DocutilsRenderer):
     def handle_cross_reference(self, token, destination):
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
+            refdoc=self.document.settings.env.docname,
             reftarget=unquote(destination),
             reftype="myst",
             refdomain=None,  # Added to enable cross-linking

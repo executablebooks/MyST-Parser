@@ -57,6 +57,42 @@ def test_references(
 
 
 @pytest.mark.sphinx(
+    buildername="singlehtml",
+    srcdir=os.path.join(SOURCE_DIR, "references_singlehtml"),
+    freshenv=True,
+    confoverrides={"nitpicky": True},
+)
+def test_references_singlehtml(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """basic test."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    # try:
+    #     get_sphinx_app_doctree(app, docname="index", regress=True)
+    # finally:
+    #     get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+
+    try:
+        get_sphinx_app_doctree(app, docname="other/other", regress=True)
+    finally:
+        get_sphinx_app_doctree(app, docname="other/other", resolve=True, regress=True)
+
+    get_sphinx_app_output(
+        app, filename="index.html", buildername="singlehtml", regress_html=True
+    )
+
+
+@pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
     freshenv=True,
