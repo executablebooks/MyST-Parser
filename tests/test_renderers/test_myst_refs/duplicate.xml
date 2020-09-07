@@ -3,5 +3,5 @@
         Title
     <target refid="index">
     <paragraph>
-        <pending_xref refdomain="True" refexplicit="False" reftarget="index" reftype="myst" refwarn="True">
+        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="index" reftype="myst" refwarn="True">
             <inline classes="xref myst">

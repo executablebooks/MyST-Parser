@@ -44,7 +44,7 @@ def test_references(
     get_sphinx_app_output,
     remove_sphinx_builds,
 ):
-    """basic test."""
+    """Test reference resolution."""
     app.build()
 
     assert "build succeeded" in status.getvalue()  # Build succeeded
@@ -70,7 +70,7 @@ def test_references_singlehtml(
     get_sphinx_app_output,
     remove_sphinx_builds,
 ):
-    """basic test."""
+    """Test reference resolution for singlehtml builds."""
     app.build()
 
     assert "build succeeded" in status.getvalue()  # Build succeeded

@@ -19,27 +19,27 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="title" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     plain text
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     nested 
                     <emphasis>
                         syntax
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="index.md" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     plain text
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     nested 
                     <emphasis>
@@ -58,6 +58,6 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <pending_xref refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     fence
