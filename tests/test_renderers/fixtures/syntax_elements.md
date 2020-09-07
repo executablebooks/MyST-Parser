@@ -390,11 +390,11 @@ Title
         <title>
             Title
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     alt1
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
         <paragraph>
             <reference refuri="https://www.google.com">
@@ -489,7 +489,7 @@ Link Definition in directive:
 <document source="notset">
     <note>
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     a
 .
@@ -514,7 +514,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     ref1
 
@@ -699,6 +699,6 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
 .

@@ -147,7 +147,7 @@ For those who are familiar with reStructuredText, here is the equivalent in rST:
 
 Note that almost all documentation in the Sphinx ecosystem is written with
 reStructuredText (MyST is only a few months old).
-That means you'll likely see examples that have rST structure. You can modify any rST to work with MyST. Use this page, and [the syntax page](syntax) to help guide you.
+That means you'll likely see examples that have rST structure. You can modify any rST to work with MyST. Use this page, and [the syntax page](./syntax.md) to help guide you.
 ````
 
 As seen above, there are four main parts to consider when writing directives.
