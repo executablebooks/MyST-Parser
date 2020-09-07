@@ -10,7 +10,7 @@ from typing import cast
 from docutils import nodes
 from docutils.nodes import document, Element
 
-from sphinx import addnodes
+from sphinx import addnodes, version_info
 from sphinx.addnodes import pending_xref
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import ReferencesResolver
@@ -60,7 +60,11 @@ class MystReferenceResolver(ReferencesResolver):
                         self.env,
                         node,
                         contnode,
-                        allowed_exceptions=(NoUri,),
+                        **(
+                            dict(allowed_exceptions=(NoUri,))
+                            if version_info[0] > 2
+                            else {}
+                        ),
                     )
                     node["reftype"] = "myst"
                     # still not found? warn if node wishes to be warned about or
