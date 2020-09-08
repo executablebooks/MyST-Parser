@@ -17,9 +17,7 @@ setup(
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",
     packages=find_packages(),
-    entry_points={
-        "console_scripts": ["myst-benchmark = myst_parser.cli.benchmark:main"]
-    },
+    entry_points={"console_scripts": ["myst-anchors = myst_parser.cli:print_anchors"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",

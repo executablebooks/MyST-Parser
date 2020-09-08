@@ -12,7 +12,7 @@ See [including a file from outside the docs folder](docs/using/howto.md).
 ✨ NEW: Add Markdown figure syntax
 Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
 to create a fully Markdown compliant version of the `figure` directive.
-See [Markdown Figures](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html#markdown-figures) for details.
+See [Markdown Figures](docs/using/syntax-optional.md#markdown-figures) for details.
 
 (👌 formatting of caption improved in 0.12.6)
 

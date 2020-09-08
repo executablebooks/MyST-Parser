@@ -1,11 +1,15 @@
-import pathlib
-import tempfile
+from unittest import mock
 
-from myst_parser.cli import benchmark
+from myst_parser.cli import print_anchors
 
 
-def test_benchmark():
-    with tempfile.TemporaryDirectory() as tempdir:
-        path = pathlib.Path(tempdir).joinpath("test.md")
-        path.write_text("a b c")
-        assert benchmark.main(["-n", "1", "-p", "myst-parser:html", "-f", str(path)])
+def test_print_anchors():
+    from io import StringIO
+
+    in_stream = StringIO("# a\n\n## b\n\ntext")
+    out_stream = StringIO()
+    with mock.patch("sys.stdin", in_stream):
+        with mock.patch("sys.stdout", out_stream):
+            print_anchors(["-l", "1"])
+    out_stream.seek(0)
+    assert out_stream.read().strip() == '<h1 id="a"></h1>'

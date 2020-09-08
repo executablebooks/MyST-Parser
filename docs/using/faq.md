@@ -59,31 +59,6 @@ be explicitly expecting the `My title <myref>` structure, and so MyST will behav
 
 ## How fast is the `myst-parser`?
 
-MyST-Parser uses the fastest, __*CommonMark compliant*__, parser written in python!
+MyST-Parser uses the fastest, __*CommonMark compliant*__, parser written in Python!
 
-    $ myst-benchmark -n 50
-    Test document: spec.md
-    Test iterations: 50
-    Running 6 test(s) ...
-    =====================
-    [mistune                (0.8.4):  5.52 s]*
-    markdown-it-py          (0.2.3):  15.38 s
-    myst-parser:sphinx      (0.8.0):  23.13 s
-    mistletoe               (0.10.0): 16.92 s
-    commonmark.py           (0.9.1):  35.61 s
-    python-markdown:extra   (3.2.1):  66.89 s
-
-As already noted by [mistletoe](https://github.com/miyuchina/mistletoe#performance),
-although Mistune is the fastest of the parsers,
-this is because it does not strictly follow the CommonMark spec,
-which outlines a highly context-sensitive grammar for Markdown.
-The simpler approach taken by Mistune  means that it cannot handle more
-complex parsing cases, such as precedence of different types of tokens, escaping rules, etc.
-
-The MyST parser is slightly slower than the base `markdown-it-py` parser,
-due to the additional syntax which it parses and the conversion to docutils AST,
-but even then it is still comparably performant to the other parsers parser.
-
-:::{seealso}
-The [markdown-it-py performance documentation](markdown_it:md/performance).
-:::
+See the [markdown-it-py performance documentation](markdown_it:md/performance).

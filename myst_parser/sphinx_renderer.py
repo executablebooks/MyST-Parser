@@ -60,10 +60,11 @@ class SphinxRenderer(DocutilsRenderer):
             self.render_children(token)
 
     def render_heading_open(self, token):
-        """This render extends the docutils one,
-        to allow for the addition of heading ids.
+        """This extends the docutils method, to allow for the addition of heading ids.
         These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
         as "slugs" which are unique document.
+
+        The approach is similar to ``sphinx.ext.autosectionlabel``
         """
         super().render_heading_open(token)
         slug = token.attrGet("id")

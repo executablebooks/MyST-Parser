@@ -4,7 +4,7 @@ This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
 import os
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 from typing import cast
 
 from docutils import nodes
@@ -77,64 +77,6 @@ class MystReferenceResolver(ReferencesResolver):
 
             node.replace_self(newnode or contnode)
 
-    def _resolve_ref_nested(
-        self, node: pending_xref, fromdocname: str, target=None
-    ) -> Element:
-        """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
-        but allows for nested syntax,
-        rather than converting the inner nodes to raw text.
-        """
-        stddomain = self.env.get_domain("std")
-        target = target or node["reftarget"].lower()
-
-        if node["refexplicit"]:
-            # reference to anonymous label; the reference uses
-            # the supplied link caption
-            docname, labelid = stddomain.anonlabels.get(target, ("", ""))
-            sectname = node.astext()
-            innernode = nodes.inline(sectname, "")
-            innernode.extend(node[0].children)
-        else:
-            # reference to named label; the final node will
-            # contain the section name after the label
-            docname, labelid, sectname = stddomain.labels.get(target, ("", "", ""))
-            innernode = nodes.inline(sectname, sectname)
-
-        if not docname:
-            return None
-
-        return make_refnode(self.app.builder, fromdocname, docname, labelid, innernode)
-
-    def _resolve_doc_nested(self, node: pending_xref, fromdocname: str) -> Element:
-        """This is the same as ``sphinx.domains.std._resolve_doc_xref``,
-        but allows for nested syntax,
-        rather than converting the inner nodes to raw text.
-
-        It also allows for extensions on document names.
-        """
-        # directly reference to document by source name; can be absolute or relative
-        refdoc = node.get("refdoc", fromdocname)
-        docname = docname_join(refdoc, node["reftarget"])
-
-        if docname not in self.env.all_docs:
-            # try stripping known extensions from doc name
-            if os.path.splitext(docname)[1] in self.env.config.source_suffix:
-                docname = os.path.splitext(docname)[0]
-            if docname not in self.env.all_docs:
-                return None
-
-        if node["refexplicit"]:
-            # reference with explicit title
-            caption = node.astext()
-            innernode = nodes.inline(caption, "", classes=["doc"])
-            innernode.extend(node[0].children)
-        else:
-            # TODO do we want nested syntax for titles?
-            caption = clean_astext(self.env.titles[docname])
-            innernode = nodes.inline(caption, caption, classes=["doc"])
-
-        return make_refnode(self.app.builder, fromdocname, docname, None, innernode)
-
     def resolve_myst_ref(
         self, refdoc: str, node: pending_xref, contnode: Element
     ) -> Element:
@@ -148,29 +90,16 @@ class MystReferenceResolver(ReferencesResolver):
           ``[**nested**](reference)``
 
         """
-
-        stddomain = self.env.get_domain("std")
         target = node["reftarget"]  # type: str
         results = []  # type: List[Tuple[str, Element]]
 
-        if "#" in target and hasattr(self.env, "myst_anchors"):
-            # the link may be a heading anchor; we need to first get the relative path
-            rel_path, anchor = target.rsplit("#", 1)
-            rel_path = os.path.normpath(rel_path)
-            if rel_path == ".":
-                # anchor in the same doc as the node
-                doc_path = self.env.doc2path(node.get("refdoc", refdoc), base=None)
-            else:
-                # anchor in a different doc from the node
-                doc_path = os.path.normpath(
-                    os.path.join(node.get("refdoc", refdoc), "..", rel_path)
-                )
-            res_anchor = self._resolve_ref_nested(node, refdoc, doc_path + "#" + anchor)
-            if res_anchor:
-                results.append(("std:doc", res_anchor))
+        res_anchor = self._resolve_anchor(node, refdoc)
+        if res_anchor:
+            results.append(("std:doc", res_anchor))
+        else:
+            # if we've already found an anchored doc,
+            # don't search in the std:ref/std:doc (leads to duplication)
 
-        # if we've already found an anchored doc, don't search in the std:ref/std:doc
-        if not results:
             # resolve standard references
             res = self._resolve_ref_nested(node, refdoc)
             if res:
@@ -181,7 +110,8 @@ class MystReferenceResolver(ReferencesResolver):
             if res:
                 results.append(("std:doc", res))
 
-        # next resolve for any other standard reference object
+        # next resolve for any other standard reference objects
+        stddomain = self.env.get_domain("std")
         for objtype in stddomain.object_types:
             key = (objtype, target)
             if objtype == "term":
@@ -195,7 +125,7 @@ class MystReferenceResolver(ReferencesResolver):
                 results.append((domain_role, ref_node))
 
         # finally resolve for any other type of reference
-        # TODO do we want to restrict this?
+        # TODO do we want to restrict this at all?
         for domain in self.env.domains.values():
             if domain.name == "std":
                 continue  # we did this one already
@@ -244,3 +174,81 @@ class MystReferenceResolver(ReferencesResolver):
             ]
 
         return newnode
+
+    def _resolve_anchor(
+        self, node: pending_xref, fromdocname: str
+    ) -> Optional[Element]:
+        """Resolve doc with anchor."""
+        target = node["reftarget"]  # type: str
+        if not ("#" in target and hasattr(self.env, "myst_anchors")):
+            return None
+        # the link may be a heading anchor; we need to first get the relative path
+        rel_path, anchor = target.rsplit("#", 1)
+        rel_path = os.path.normpath(rel_path)
+        if rel_path == ".":
+            # anchor in the same doc as the node
+            doc_path = self.env.doc2path(node.get("refdoc", fromdocname), base=None)
+        else:
+            # anchor in a different doc from the node
+            doc_path = os.path.normpath(
+                os.path.join(node.get("refdoc", fromdocname), "..", rel_path)
+            )
+        return self._resolve_ref_nested(node, fromdocname, doc_path + "#" + anchor)
+
+    def _resolve_ref_nested(
+        self, node: pending_xref, fromdocname: str, target=None
+    ) -> Optional[Element]:
+        """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
+        but allows for nested syntax, rather than converting the inner node to raw text.
+        """
+        stddomain = self.env.get_domain("std")
+        target = target or node["reftarget"].lower()
+
+        if node["refexplicit"]:
+            # reference to anonymous label; the reference uses
+            # the supplied link caption
+            docname, labelid = stddomain.anonlabels.get(target, ("", ""))
+            sectname = node.astext()
+            innernode = nodes.inline(sectname, "")
+            innernode.extend(node[0].children)
+        else:
+            # reference to named label; the final node will
+            # contain the section name after the label
+            docname, labelid, sectname = stddomain.labels.get(target, ("", "", ""))
+            innernode = nodes.inline(sectname, sectname)
+
+        if not docname:
+            return None
+
+        return make_refnode(self.app.builder, fromdocname, docname, labelid, innernode)
+
+    def _resolve_doc_nested(
+        self, node: pending_xref, fromdocname: str
+    ) -> Optional[Element]:
+        """This is the same as ``sphinx.domains.std._resolve_doc_xref``,
+        but allows for nested syntax, rather than converting the inner node to raw text.
+
+        It also allows for extensions on document names.
+        """
+        # directly reference to document by source name; can be absolute or relative
+        refdoc = node.get("refdoc", fromdocname)
+        docname = docname_join(refdoc, node["reftarget"])
+
+        if docname not in self.env.all_docs:
+            # try stripping known extensions from doc name
+            if os.path.splitext(docname)[1] in self.env.config.source_suffix:
+                docname = os.path.splitext(docname)[0]
+            if docname not in self.env.all_docs:
+                return None
+
+        if node["refexplicit"]:
+            # reference with explicit title
+            caption = node.astext()
+            innernode = nodes.inline(caption, "", classes=["doc"])
+            innernode.extend(node[0].children)
+        else:
+            # TODO do we want nested syntax for titles?
+            caption = clean_astext(self.env.titles[docname])
+            innernode = nodes.inline(caption, caption, classes=["doc"])
+
+        return make_refnode(self.app.builder, fromdocname, docname, None, innernode)

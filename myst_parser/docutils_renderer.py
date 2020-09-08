@@ -455,6 +455,9 @@ class DocutilsRenderer:
             ref_node["title"] = title
         next_node = ref_node
 
+        # TODO currently any reference with a fragment # is deemed external
+        # (if anchors are not enabled)
+        # This comes from recommonmark, but I am not sure of the rationale for it
         if is_external_url(
             destination,
             self.config.get("myst_url_schemes", None),

@@ -73,6 +73,7 @@ myst_dmath_enable = True
 myst_deflist_enable = True
 myst_figure_enable = True
 myst_url_schemes = ("http", "https", "mailto")
+myst_heading_anchors = 2
 
 
 def run_apidoc(app):
