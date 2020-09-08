@@ -87,9 +87,20 @@ def test_references_singlehtml(
     #     get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
 
     try:
-        get_sphinx_app_doctree(app, docname="other/other", regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="other/other",
+            regress=True,
+            replace={"other\\other.md": "other/other.md"},
+        )
     finally:
-        get_sphinx_app_doctree(app, docname="other/other", resolve=True, regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="other/other",
+            resolve=True,
+            regress=True,
+            replace={"other\\other.md": "other/other.md"},
+        )
 
     get_sphinx_app_output(
         app, filename="index.html", buildername="singlehtml", regress_html=True
