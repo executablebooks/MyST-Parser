@@ -16,5 +16,5 @@
                     Other 2 Title
         <paragraph>
             <reference internal="True" refuri="index.html#document-index#title">
-                <inline classes="std std-ref">
+                <inline classes="std std-doc">
                     Title

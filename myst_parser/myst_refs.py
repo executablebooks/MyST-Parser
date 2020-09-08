@@ -167,7 +167,7 @@ class MystReferenceResolver(ReferencesResolver):
                 )
             res_anchor = self._resolve_ref_nested(node, refdoc, doc_path + "#" + anchor)
             if res_anchor:
-                results.append(("myst:anchor", res_anchor))
+                results.append(("std:doc", res_anchor))
 
         # if we've already found an anchored doc, don't search in the std:ref/std:doc
         if not results:

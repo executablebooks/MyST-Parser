@@ -85,21 +85,21 @@
                                         anchors
             <paragraph>
                 <reference internal="True" refid="title-anchors">
-                    <inline classes="std std-ref">
+                    <inline classes="std std-doc">
                         Title anchors
             <paragraph>
                 <reference internal="True" refid="title-anchors">
-                    <inline classes="std std-ref">
+                    <inline classes="std std-doc">
                         Title anchors
             <paragraph>
                 <reference internal="True" refuri="other.html#title-anchors">
-                    <inline classes="std std-ref">
+                    <inline classes="std std-doc">
                         Title anchors
             <paragraph>
                 <reference internal="True" refuri="other.html#title-anchors">
-                    <inline classes="std std-ref">
+                    <inline classes="std std-doc">
                         Title anchors
             <paragraph>
                 <reference internal="True" refuri="subfolder/other2.html#title-anchors">
-                    <inline classes="std std-ref">
+                    <inline classes="std std-doc">
                         Title anchors
