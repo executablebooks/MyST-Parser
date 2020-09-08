@@ -456,7 +456,9 @@ class DocutilsRenderer:
         next_node = ref_node
 
         if is_external_url(
-            destination, self.config.get("myst_url_schemes", None), True
+            destination,
+            self.config.get("myst_url_schemes", None),
+            not self.config.get("enable_anchors"),
         ):
             self.current_node.append(next_node)
             with self.current_node_context(ref_node):

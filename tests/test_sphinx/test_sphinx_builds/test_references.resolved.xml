@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title">
+    <section ids="title-with-nested-a-1 title" myst-anchor="index.md#title-with-nested" names="title\ with\ nested\ a=1 title">
         <title>
             Title with 
             <strong>
@@ -63,3 +63,43 @@
             <reference internal="True" refid="insidecodeblock">
                 <inline classes="std std-ref">
                     fence
+        <section ids="title-anchors" myst-anchor="index.md#title-anchors" names="title\ anchors">
+            <title>
+                Title 
+                <emphasis>
+                    anchors
+            <compound classes="toctree-wrapper">
+                <compact_paragraph toctree="True">
+                    <bullet_list>
+                        <list_item classes="toctree-l1">
+                            <compact_paragraph classes="toctree-l1">
+                                <reference anchorname="" internal="True" refuri="other.html">
+                                    Title 
+                                    <emphasis>
+                                        anchors
+                        <list_item classes="toctree-l1">
+                            <compact_paragraph classes="toctree-l1">
+                                <reference anchorname="" internal="True" refuri="subfolder/other2.html">
+                                    Title 
+                                    <emphasis>
+                                        anchors
+            <paragraph>
+                <reference internal="True" refid="title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
+            <paragraph>
+                <reference internal="True" refid="title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
+            <paragraph>
+                <reference internal="True" refuri="other.html#title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
+            <paragraph>
+                <reference internal="True" refuri="other.html#title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
+            <paragraph>
+                <reference internal="True" refuri="subfolder/other2.html#title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
