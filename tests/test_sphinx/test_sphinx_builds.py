@@ -34,7 +34,9 @@ def test_basic(
 
 
 @pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "references"), freshenv=True
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "references"),
+    freshenv=True,
 )
 def test_references(
     app,
@@ -51,8 +53,10 @@ def test_references(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, docname="index", regress=True)
-    get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
     get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
@@ -83,9 +87,20 @@ def test_references_singlehtml(
     #     get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
 
     try:
-        get_sphinx_app_doctree(app, docname="other/other", regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="other/other",
+            regress=True,
+            replace={"other\\other.md": "other/other.md"},
+        )
     finally:
-        get_sphinx_app_doctree(app, docname="other/other", resolve=True, regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="other/other",
+            resolve=True,
+            regress=True,
+            replace={"other\\other.md": "other/other.md"},
+        )
 
     get_sphinx_app_output(
         app, filename="index.html", buildername="singlehtml", regress_html=True

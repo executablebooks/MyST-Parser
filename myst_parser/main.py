@@ -15,6 +15,7 @@ from markdown_it.extensions.footnote import footnote_plugin
 from markdown_it.extensions.amsmath import amsmath_plugin
 from markdown_it.extensions.container import container_plugin
 from markdown_it.extensions.deflist import deflist_plugin
+from markdown_it.extensions.anchors import anchors_plugin
 
 from . import __version__  # noqa: F401
 
@@ -53,6 +54,10 @@ class MdParserConfig:
     url_schemes: Optional[List[str]] = attr.ib(
         default=None,
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
+    )
+
+    heading_anchors: Optional[int] = attr.ib(
+        default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
     )
 
     def as_dict(self, dict_factory=dict) -> dict:
@@ -106,6 +111,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(amsmath_plugin)
     if config.deflist_enable:
         md.use(deflist_plugin)
+    if config.heading_anchors is not None:
+        md.use(anchors_plugin, max_level=config.heading_anchors)
     for name in config.disable_syntax:
         md.disable(name, True)
 
@@ -115,6 +122,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             "enable_html_img": config.html_img_enable,
             "myst_url_schemes": config.url_schemes,
             "enable_figures": config.figure_enable,
+            "enable_anchors": config.heading_anchors is not None,
         }
     )
 

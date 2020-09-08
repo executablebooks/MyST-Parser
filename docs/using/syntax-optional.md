@@ -57,6 +57,33 @@ This text is **standard** _Markdown_
 This text is **standard** _Markdown_
 :::
 
+(syntax/header-anchors)=
+
+## Auto-generated header anchors
+
+A common, extended Markdown syntax is to use header bookmark links, locally; `[](#header-anchor)`, or cross-file `[](path/to/file.md#header-anchor)`.
+To achieve this, section headings must be assigned anchors, which can be achieved in `myst-paser`,
+by setting `myst_heading_anchors = 2` in your `conf.py`.
+This configures heading anchors to be assigned to both `h1` and `h2` level headings.
+The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger); lower-case text, removing punctuation, replacing spaces with `-`, uniqueness *via* suffix enumeration `-1`.
+You can inspect the links that will be created using the command-line tool:
+
+```console
+$ myst-anchors -l 2 docs/using/syntax-optional.md
+<h1 id="optional-myst-syntaxes"></h1>
+<h2 id="admonition-directives"></h2>
+<h2 id="auto-generated-header-anchors"></h2>
+<h2 id="definition-lists"></h2>
+<h2 id="images"></h2>
+<h2 id="markdown-figures"></h2>
+<h2 id="direct-latex-math"></h2>
+```
+
+For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
+
+The paths to other files should be relative to the current file, for example
+`[**link text**](./syntax.md#the-myst-syntax-guide)`: [**link text**](./syntax.md#the-myst-syntax-guide).
+
 (syntax/definition-lists)=
 
 ## Definition Lists

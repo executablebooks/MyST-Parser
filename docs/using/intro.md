@@ -244,6 +244,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_admonition_enable`
   - `False`
   - Enable admonition style directives, [see here](syntax/admonitions) for details.
+* - `myst_heading_anchors`
+  - `None`
+  - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
 `````
 
 Math specific, see the [Math syntax](syntax/math) for more details:

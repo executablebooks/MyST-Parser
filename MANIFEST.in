@@ -1,2 +1,3 @@
 include LICENSE
-include myst_parser/cli/spec.md
+include README.md
+include CHANGELOG.md

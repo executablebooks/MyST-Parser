@@ -31,3 +31,20 @@ Still inside the codeblock insidecodeblock_
 ```
 
 I am outside the [fence](insidecodeblock)
+
+## Title *anchors*
+
+```{toctree}
+other.md
+subfolder/other2.md
+```
+
+[](#title-anchors)
+
+[](./#title-anchors)
+
+[](./other.md#title-anchors)
+
+[](other.md#title-anchors)
+
+[](subfolder/other2.md#title-anchors)

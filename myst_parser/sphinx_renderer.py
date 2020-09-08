@@ -15,13 +15,17 @@ from sphinx.config import Config
 from sphinx.domains.math import MathDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
+from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
-from sphinx.util.logging import setup as log_setup
+from sphinx.util import logging
+from sphinx.util.nodes import clean_astext
 from sphinx.util.tags import Tags
 
 from myst_parser.docutils_renderer import DocutilsRenderer
+
+LOGGER = logging.getLogger(__name__)
 
 
 class SphinxRenderer(DocutilsRenderer):
@@ -30,10 +34,14 @@ class SphinxRenderer(DocutilsRenderer):
     This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
     """
 
+    @property
+    def doc_env(self) -> BuildEnvironment:
+        return self.document.settings.env
+
     def handle_cross_reference(self, token, destination):
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
-            refdoc=self.document.settings.env.docname,
+            refdoc=self.doc_env.docname,
             reftarget=unquote(destination),
             reftype="myst",
             refdomain=None,  # Added to enable cross-linking
@@ -50,6 +58,45 @@ class SphinxRenderer(DocutilsRenderer):
         wrap_node.append(inner_node)
         with self.current_node_context(inner_node):
             self.render_children(token)
+
+    def render_heading_open(self, token):
+        """This extends the docutils method, to allow for the addition of heading ids.
+        These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
+        as "slugs" which are unique document.
+
+        The approach is similar to ``sphinx.ext.autosectionlabel``
+        """
+        super().render_heading_open(token)
+        slug = token.attrGet("id")
+        if slug is None:
+            return
+
+        section = self.current_node
+        doc_slug = self.doc_env.doc2path(self.doc_env.docname, base=None) + "#" + slug
+
+        # save the reference in the standard domain, so that it can be handled properly
+        domain = self.doc_env.get_domain("std")
+        if doc_slug in domain.labels:
+            LOGGER.warning(
+                __("duplicate label %s, other instance in %s"),
+                doc_slug,
+                self.doc_env.doc2path(domain.labels[doc_slug][0]),
+                location=section,
+                type="myst-anchor",
+                subtype=self.doc_env.docname,
+            )
+        labelid = section["ids"][0]
+        domain.anonlabels[doc_slug] = self.doc_env.docname, labelid
+        domain.labels[doc_slug] = (
+            self.doc_env.docname,
+            labelid,
+            clean_astext(section[0]),
+        )
+
+        # for debugging
+        if not hasattr(self.doc_env, "myst_anchors"):
+            self.doc_env.myst_anchors = True
+        section["myst-anchor"] = doc_slug
 
     def render_math_block_eqno(self, token):
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
@@ -96,13 +143,12 @@ class SphinxRenderer(DocutilsRenderer):
 
     def add_math_target(self, node):
         # Code mainly copied from sphinx.directives.patches.MathDirective
-        env = self.document.settings.env
 
         # register label to domain
-        domain = cast(MathDomain, env.get_domain("math"))
-        domain.note_equation(env.docname, node["label"], location=node)
+        domain = cast(MathDomain, self.doc_env.get_domain("math"))
+        domain.note_equation(self.doc_env.docname, node["label"], location=node)
         node["number"] = domain.get_equation_number_for(node["label"])
-        node["docname"] = env.docname
+        node["docname"] = self.doc_env.docname
 
         # create target node
         node_id = nodes.make_id("equation-%s" % node["label"])
@@ -131,7 +177,7 @@ def minimal_sphinx_app(
             self.warningiserror = raise_on_warning
             self._status = StringIO()
             self._warning = StringIO()
-            log_setup(self, self._status, self._warning)
+            logging.setup(self, self._status, self._warning)
 
             self.tags = Tags(None)
             self.config = Config({}, confoverrides or {})

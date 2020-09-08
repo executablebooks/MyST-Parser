@@ -9,3 +9,7 @@ other/index
 {any}`other/other`
 
 [](./other/other.md)
+
+[](#title)
+
+[](./other/other.md#other-title)

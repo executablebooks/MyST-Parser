@@ -17,9 +17,7 @@ setup(
     author_email="chrisj_sewell@hotmail.com",
     license="MIT",
     packages=find_packages(),
-    entry_points={
-        "console_scripts": ["myst-benchmark = myst_parser.cli.benchmark:main"]
-    },
+    entry_points={"console_scripts": ["myst-anchors = myst_parser.cli:print_anchors"]},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -37,7 +35,7 @@ setup(
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.6",
     install_requires=[
-        "markdown-it-py~=0.5.2",
+        "markdown-it-py~=0.5.4",
         "pyyaml",
         "docutils>=0.15",
         "sphinx>=2,<4",
