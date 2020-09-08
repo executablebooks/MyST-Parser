@@ -131,6 +131,14 @@ hi
 (howto/autosectionlabel)=
 ## Automatically create targets for section headers
 
+:::{important}
+
+New in `v0.13.0` ✨, myst-parser now provides a separate implementation of `autosectionlabel`, which implements GitHub Markdown style bookmark anchors, like `[](file.md#header-anchor)`.
+
+See the [](syntax/header-anchors) section of extended syntaxes.
+
+:::
+
 If you'd like to *automatically* generate targets for each of your section headers,
 check out the [`autosectionlabel`](https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
 sphinx feature. You can activate it in your Sphinx site by adding the following to your
