@@ -1,18 +1,33 @@
 # Changelog
 
+## 0.12.9 - 2020-08-09
+
+✨ NEW: Auto-generate heading anchors.
+: This utilises `markdown-it-py`'s `anchors-plugin`, to generate unique anchor "slugs" for each header (up to a certain level),
+  and allows them to be referenced *via* a relative path, e.g. `[](./file.md#header-anchor)`, or in the same document, e.g. `[](#header-anchor)`.
+
+  Slugs are generated in the GitHub style ([see here](https://github.com/Flet/github-slugger)); lower-case text, removing punctuation, replacing spaces with `-`, enforce uniqueness *via* suffix enumeration `-1`.
+
+  It is enabled in your `conf.py` *via* `myst_heading_anchors = 2` (sets maximum heading level).
+
+  See [the documentation here](docs/using/syntax-optional.md#auto-generated-header-anchors).
+
+🐛 FIX: doc reference resolution for singlehtml/latex.
+: These reference resolutions are passed to the "missing-reference" event, and require the `node["refdoc"]` attribute to be available, which was missing for `[text](./path/to/file.md)` type references.
+
 ## 0.12.7 - 2020-31-08
 
 ✨ NEW: Want to include your README.md in the documentation?
-See [including a file from outside the docs folder](docs/using/howto.md).
+: See [including a file from outside the docs folder](docs/using/howto.md).
 
 (👌 added `relative-docs` option in 0.12.8)
 
 ## 0.12.5 - 2020-28-08
 
 ✨ NEW: Add Markdown figure syntax
-Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
-to create a fully Markdown compliant version of the `figure` directive.
-See [Markdown Figures](docs/using/syntax-optional.md#markdown-figures) for details.
+: Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
+  to create a fully Markdown compliant version of the `figure` directive.
+  See [Markdown Figures](docs/using/syntax-optional.md#markdown-figures) for details.
 
 (👌 formatting of caption improved in 0.12.6)
 
@@ -23,7 +38,7 @@ See [Markdown Figures](docs/using/syntax-optional.md#markdown-figures) for detai
 ## 0.12.3 - 2020-26-08
 
 ✨ NEW: Add definition lists.
-This addition, enabled by `myst_deflist_enable = True`, allows for "Pandoc style" definition lists to be parsed and rendered, e.g.
+: This addition, enabled by `myst_deflist_enable = True`, allows for "Pandoc style" definition lists to be parsed and rendered, e.g.
 
 ```md
 Term 1
@@ -33,22 +48,22 @@ Term 1
 See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html#definition-lists) for further details.
 
 👌 IMPROVE: mathjax_config override.
-Only `mathjax_config["tex2jax"]` will now be overridden, in order to not interfere with other user configurations, such as adding TeX macros.
-The configuration name has also changed from `myst_override_mathjax` to `myst_update_mathjax`.
-See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#mathjax-and-math-parsing) for further details.
+: Only `mathjax_config["tex2jax"]` will now be overridden, in order to not interfere with other user configurations, such as adding TeX macros.
+  The configuration name has also changed from `myst_override_mathjax` to `myst_update_mathjax`.
+  See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#mathjax-and-math-parsing) for further details.
 
 ## 0.12.2 - 2020-25-08
 
 ✨ NEW: Add the `eval-rst` directive
 
-This directive parses its contents as ReStructuredText, which integrates back into the rest of the document, e.g. for cross-referencing. See [this documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content) for further explanation.
+: This directive parses its contents as ReStructuredText, which integrates back into the rest of the document, e.g. for cross-referencing. See [this documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content) for further explanation.
 
-In particular, this addition solves some outstanding user requests:
+  In particular, this addition solves some outstanding user requests:
 
-- How-to [include rST files into a Markdown file](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-rst-files-into-a-markdown-file)
-- How-to [Use sphinx.ext.autodoc in Markdown files](https://myst-parser.readthedocs.io/en/latest/using/howto.html#use-sphinx-ext-autodoc-in-markdown-files)
+  - How-to [include rST files into a Markdown file](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-rst-files-into-a-markdown-file)
+  - How-to [Use sphinx.ext.autodoc in Markdown files](https://myst-parser.readthedocs.io/en/latest/using/howto.html#use-sphinx-ext-autodoc-in-markdown-files)
 
-Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
+  Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
 
 ## 0.12.1 - 2020-19-08
 
