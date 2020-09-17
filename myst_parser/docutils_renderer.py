@@ -6,6 +6,7 @@ import json
 import os
 import re
 from typing import List
+from datetime import date
 
 import yaml
 
@@ -937,7 +938,7 @@ def dict_to_docinfo(data):
     docinfo = nodes.docinfo()
 
     for key, value in data.items():
-        if not isinstance(value, (str, int, float)):
+        if not isinstance(value, (str, int, float, date)):
             value = json.dumps(value)
         value = str(value)
         field_node = nodes.field()
