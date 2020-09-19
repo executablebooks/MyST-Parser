@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.12.9 - 2020-08-09
+## 0.12.9 - 2020-09-08
 
 ✨ NEW: Auto-generate heading anchors.
 : This utilises `markdown-it-py`'s `anchors-plugin`, to generate unique anchor "slugs" for each header (up to a certain level),
@@ -15,14 +15,14 @@
 🐛 FIX: doc reference resolution for singlehtml/latex.
 : These reference resolutions are passed to the "missing-reference" event, and require the `node["refdoc"]` attribute to be available, which was missing for `[text](./path/to/file.md)` type references.
 
-## 0.12.7 - 2020-31-08
+## 0.12.7 - 2020-08-31
 
 ✨ NEW: Want to include your README.md in the documentation?
 : See [including a file from outside the docs folder](docs/using/howto.md).
 
 (👌 added `relative-docs` option in 0.12.8)
 
-## 0.12.5 - 2020-28-08
+## 0.12.5 - 2020-08-28
 
 ✨ NEW: Add Markdown figure syntax
 : Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
@@ -31,11 +31,11 @@
 
 (👌 formatting of caption improved in 0.12.6)
 
-## 0.12.4 - 2020-27-08
+## 0.12.4 - 2020-08-27
 
 👌 IMPROVE: the mathjax extension is now only overridden if strictly necessary (to support dollar and ams math), and the override is more precise, to mitigate any unwanted side-effects
 
-## 0.12.3 - 2020-26-08
+## 0.12.3 - 2020-08-26
 
 ✨ NEW: Add definition lists.
 : This addition, enabled by `myst_deflist_enable = True`, allows for "Pandoc style" definition lists to be parsed and rendered, e.g.
@@ -52,7 +52,7 @@ See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/l
   The configuration name has also changed from `myst_override_mathjax` to `myst_update_mathjax`.
   See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#mathjax-and-math-parsing) for further details.
 
-## 0.12.2 - 2020-25-08
+## 0.12.2 - 2020-08-25
 
 ✨ NEW: Add the `eval-rst` directive
 
@@ -65,11 +65,11 @@ See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/l
 
   Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
 
-## 0.12.1 - 2020-19-08
+## 0.12.1 - 2020-08-19
 
 ✨ NEW: Add `myst_commonmark_only` config option, for restricting the parser to strict CommonMark (no extensions).
 
-## 0.12.0 - 2020-19-08
+## 0.12.0 - 2020-08-19
 
 ### ‼️ BREAKING
 
@@ -86,7 +86,7 @@ Some underlying code has also been refactored, to centralise handling of configu
 
 More configuration options for math parsing (see [MyST configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options)).
 
-## 0.11.2 - 2020-13-07
+## 0.11.2 - 2020-07-13
 
 ### Added ✨
 
@@ -97,13 +97,13 @@ More configuration options for math parsing (see [MyST configuration options](ht
 - `[title](link)` syntax now works with intersphinx references.
   Recognised URI schemas can also be configured, see the [configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options)
 
-## 0.11.1 - 2020-12-07
+## 0.11.1 - 2020-07-12
 
 ### Fix
 
 - Correctly pin required minimum markdown-it-py version
 
-## 0.11.0 - 2020-12-07
+## 0.11.0 - 2020-07-12
 
 ### Added ✨
 
@@ -125,7 +125,7 @@ More configuration options for math parsing (see [MyST configuration options](ht
 * Sphinx configuration options are now set as separate variables, rather than a single dict.
   See [MyST configuration options](https://myst-parser.readthedocs.io/en/latest/using/intro.html#myst-configuration-options) for details.
 
-## 0.10.0 - 2020-08-07
+## 0.10.0 - 2020-07-08
 
 ([full changelog](https://github.com/executablebooks/MyST-Parser/compare/v0.9.1...aaed58808af485c29bbbf73c5aac10697bfa08b9))
 
