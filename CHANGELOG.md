@@ -1,10 +1,5 @@
 # Changelog
 
-## 0.12.10 - 2020-09-21
-
-🐛 FIX: allow dates to be parsed in frontmatter.
-: This fixes a bug that would raise errors at parse time if non-string date objects were in front-matter YAML. See [#253](https://github.com/executablebooks/MyST-Parser/pull/253)
-
 ## 0.12.9 - 2020-09-08
 
 ✨ NEW: Auto-generate heading anchors.
