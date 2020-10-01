@@ -127,6 +127,19 @@ index (`sphinx.directives.other.Index`):
 .
 
 --------------------------------
+index (`sphinx.directives.other.Index`):
+.
+```{index}
+single: Python; Runtime
+single: Julia
+```
+.
+<document source="notset">
+    <index entries="('single',\ 'Python;\ Runtime',\ 'index-0',\ '',\ None) ('single',\ 'Julia',\ 'index-0',\ '',\ None)" inline="False">
+    <target refid="index-0">
+.
+
+--------------------------------
 seealso (`sphinx.directives.other.SeeAlso`):
 .
 ```{seealso}
