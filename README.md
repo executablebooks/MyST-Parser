@@ -8,7 +8,7 @@
 [![Conda][conda-badge]][conda-link]
 [![PyPI - Downloads][install-badge]][install-link]
 
-An extended commonmark compliant parser, with bridges to docutils & sphinx.
+An extended [CommonMark](https://commonmark.org)-compliant parser, with bridges to [Docutils](https://docutils.sourceforge.io) and [Sphinx](https://www.sphinx-doc.org).
 
 ## Usage
 
@@ -39,7 +39,7 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 ## Contributing
 
 We welcome all contributions!
-See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/master/contributing.html) for more details.
+See the [Contributing Guide](https://myst-parser.readthedocs.io/en/latest/develop/index.html) for more details.
 
 [github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
 [github-link]: https://github.com/executablebooks/MyST-Parser
