@@ -5,17 +5,16 @@ from attr.validators import deep_iterable, in_, instance_of, optional
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
-from markdown_it.extensions.front_matter import front_matter_plugin
-from markdown_it.extensions.myst_blocks import myst_block_plugin
-from markdown_it.extensions.myst_role import myst_role_plugin
 
-# from markdown_it.extensions.texmath import texmath_plugin
-from markdown_it.extensions.dollarmath import dollarmath_plugin
-from markdown_it.extensions.footnote import footnote_plugin
-from markdown_it.extensions.amsmath import amsmath_plugin
-from markdown_it.extensions.container import container_plugin
-from markdown_it.extensions.deflist import deflist_plugin
-from markdown_it.extensions.anchors import anchors_plugin
+from mdit_py_plugins.front_matter import front_matter_plugin
+from mdit_py_plugins.myst_blocks import myst_block_plugin
+from mdit_py_plugins.myst_role import myst_role_plugin
+from mdit_py_plugins.dollarmath import dollarmath_plugin
+from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.amsmath import amsmath_plugin
+from mdit_py_plugins.container import container_plugin
+from mdit_py_plugins.deflist import deflist_plugin
+from mdit_py_plugins.anchors import anchors_plugin
 
 from . import __version__  # noqa: F401
 
