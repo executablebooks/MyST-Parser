@@ -141,7 +141,7 @@ def test_amsmath(line, title, input, expected, monkeypatch):
 def test_containers(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(
-        input, MdParserConfig(admonition_enable=True), in_sphinx_env=True
+        input, MdParserConfig(colon_fence_enable=True), in_sphinx_env=True
     )
     print(document.pformat())
     _actual, _expected = [

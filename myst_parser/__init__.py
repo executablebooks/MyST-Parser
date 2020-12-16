@@ -1,4 +1,10 @@
+from typing import TYPE_CHECKING
+
 __version__ = "0.12.10"
+
+
+if TYPE_CHECKING:
+    from sphinx.application import Sphinx
 
 
 def setup(app):
@@ -13,13 +19,16 @@ def setup(app):
     return {"version": __version__, "parallel_read_safe": True}
 
 
-def setup_sphinx(app):
+def setup_sphinx(app: "Sphinx"):
     """Initialize all settings and transforms in Sphinx."""
     # we do this separately to setup,
     # so that it can be called by external packages like myst_nb
     from myst_parser.myst_refs import MystReferenceResolver
     from myst_parser.mathjax import override_mathjax
     from myst_parser.main import MdParserConfig
+    from myst_parser.directives import FigureMarkdown
+
+    app.add_directive("figure-md", FigureMarkdown)
 
     app.add_post_transform(MystReferenceResolver)
 
@@ -37,6 +46,20 @@ def create_myst_config(app):
     from myst_parser.main import MdParserConfig
 
     logger = logging.getLogger(__name__)
+
+    # TODO remove deprecations after v0.13.0
+    if app.config["myst_admonition_enable"]:
+        logger.warning(
+            "`myst_admonition_enable` is deprecated, "
+            "please use `myst_colon_fence_enable` instead"
+        )
+    if app.config["myst_figure_enable"]:
+        logger.warning(
+            "`myst_figure_enable` is deprecated, "
+            "please use `myst_colon_fence_enable` instead"
+        )
+    if app.config["myst_admonition_enable"] or app.config["myst_figure_enable"]:
+        app.config["myst_colon_fence_enable"] = True
 
     values = {
         name: app.config[f"myst_{name}"]

@@ -53,11 +53,10 @@ setup(
         ],
         # Note: This is only required for internal use
         "rtd": [
-            "sphinxcontrib-bibtex~=1.0.0",
+            "sphinxcontrib-bibtex<2.0.0",
             "ipython",
             "sphinx-book-theme>=0.0.36",
-            "sphinx_tabs",
-            "sphinx-panels~=0.4.1",
+            "sphinx-panels~=0.5.2",
         ],
     },
     zip_safe=True,

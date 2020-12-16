@@ -6,55 +6,84 @@ MyST-Parser is highly configurable, utilising the inherent "plugability" of the 
 The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see [](intro/config-options)).
 Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](markdown_it:md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
+(syntax/colon_fence)=
+
+## Code fences using colons
+
+By setting `myst_colon_fence_enable = True` in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html), you can also use `:::` delimiters to denote code fences, instead of ```` ``` ````.
+
+Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
+It is ideal for admonition type directives (as documented in [Directives](syntax/directives)) or tables with titles, for example:
+
+```md
+:::{note}
+This text is **standard** _Markdown_
+:::
+```
+
+:::{note}
+This text is **standard** _Markdown_
+:::
+
+```md
+:::{table} This is a **standard** _Markdown_ title
+:align: center
+:widths: grid
+
+abc | mnp | xyz
+--- | --- | ---
+123 | 456 | 789
+:::
+```
+
+:::{table} This is a **standard** _Markdown_ title
+:align: center
+:widths: grid
+
+abc | mnp | xyz
+--- | --- | ---
+123 | 456 | 789
+:::
+
+Similar to normal directives, these directives can also be nested:
+
+```md
+::::{important}
+:::{note}
+This text is **standard** _Markdown_
+:::
+::::
+```
+
+::::{important}
+:::{note}
+This text is **standard** _Markdown_
+:::
+::::
+
+and also parameter options can be used:
+
+```md
+:::{admonition} This *is* also **Markdown**
+:class: warning
+
+This text is **standard** _Markdown_
+:::
+```
+
+:::{admonition} This *is* also **Markdown**
+:class: warning
+
+This text is **standard** _Markdown_
+:::
+
 (syntax/admonitions)=
 
 ## Admonition directives
 
-A special syntax for admonitions can optionally be enabled by setting `myst_admonition_enable = True` in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html).
-
-The key differences are that, instead of back-ticks, colons are used, and **the content starts as regular Markdown**.
-This has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
-For example:
-
-```md
-:::{note}
-This text is **standard** _Markdown_
-:::
-```
-
-:::{note}
-This text is **standard** _Markdown_
-:::
-
-Similar to normal directives, these admonitions can also be nested:
-
-```md
-::::{important}
-:::{note}
-This text is **standard** _Markdown_
-:::
-::::
-```
-
-::::{important}
-:::{note}
-This text is **standard** _Markdown_
-:::
-::::
-
-The supported directives are: admonition, attention, caution, danger, error, important, hint, note, seealso, tip and warning.
-
-These directives do **not** currently allow for parameters to be set, but you can add additional CSS classes to the admonition as comma-delimited arguments after the directive name. Also `admonition` can have a custom title.
-For example:
-
-```md
-:::{admonition,warning} This *is* also **Markdown**
-This text is **standard** _Markdown_
-:::
-```
-
-:::{admonition,warning} This *is* also **Markdown**
-This text is **standard** _Markdown_
+:::{important}
+`myst_admonition_enable` is deprecated and replaced by `myst_colon_fence_enable` (see above).
+Also, classes should now be set with the `:class: myclass` option.
 :::
 
 (syntax/header-anchors)=
@@ -217,22 +246,30 @@ Any other attributes will be dropped.
 
 ## Markdown Figures
 
-Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
-to create a fully Markdown compliant version of the `figure` directive.
+Setting `myst_colon_fence_enable = True` in your sphinx `conf.py`, we can combine the above two extended syntaxes,
+to create a fully Markdown compliant version of the `figure` directive named `figure-md`.
+
+:::{important}
+`myst_figure_enable` with the `figure` directive is deprecated and replaced by `myst_colon_fence_enable` and `figure-md`.
+:::
 
 The figure block must contain **only** two components; an image, in either Markdown or HTML syntax, and a single paragraph for the caption.
 
-As with admonitions, the figure can have additional classes set on it, but the title is now taken as the reference target of the figure:
+The title is optional and taken as the reference target of the figure:
 
 ```md
-:::{figure,myclass} fig-target
+:::{figure-md} fig-target
+:class: myclass
+
 <img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
 
 This is a caption in **Markdown**
 :::
 ```
 
-:::{figure,myclass} fig-target
+:::{figure-md} fig-target
+:class: myclass
+
 <img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
 
 This is a caption in **Markdown**

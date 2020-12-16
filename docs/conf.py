@@ -34,7 +34,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
-    "sphinx_tabs.tabs",
     "sphinx_panels",
 ]
 
@@ -66,14 +65,13 @@ html_theme_options = {
 html_static_path = ["_static"]
 
 myst_amsmath_enable = True
-myst_admonition_enable = True
+myst_colon_fence_enable = True
 myst_html_img_enable = True
 myst_dmath_enable = True
 myst_deflist_enable = True
-myst_figure_enable = True
 myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
-panels_add_boostrap_css = False
+panels_add_bootstrap_css = False
 
 
 def run_apidoc(app):

@@ -44,6 +44,7 @@ def make_document(source_path="notset") -> nodes.document:
     return new_document(source_path, settings=settings)
 
 
+# TODO remove deprecated after v0.13.0
 # CSS class regex taken from https://www.w3.org/TR/CSS21/syndata.html#characters
 REGEX_ADMONTION = re.compile(
     r"\{(?P<name>[a-zA-Z]+)(?P<classes>(?:\,-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)\}(?P<title>.*)"  # noqa: E501
@@ -682,109 +683,41 @@ class DocutilsRenderer:
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
 
-    def render_container_myst_open(self, token):
-        """Render a container (`:::{name}` blocks), based on its name."""
-        # match first line regex
+    def render_colon_fence(self, token):
+        """Render a code fence with ``:`` colon delimiters."""
+
+        # TODO remove deprecation after v0.13.0
         match = REGEX_ADMONTION.match(token.info.strip())
-
-        # default behaviour
-        if not match:
-            return self.default_container(
-                token, "admonition argument did not match required regex"
-            )
-
-        name = match.groupdict()["name"]
-
-        if name in STD_ADMONITIONS:
-            admonition = self.get_admonition(token, **match.groupdict())
-            self.add_line_and_source_path(admonition, token)
-            with self.current_node_context(admonition, append=True):
-                self.render_children(token)
-            return
-
-        if name == "figure" and self.config.get("enable_figures", False):
-            # must be of length 2
-            if not len(token.children) == 2:
-                return self.figure_error(token)
-            # 1st must be paragraph_open with 1 child type inline and 1 child type image
-            html_image = None
-            if token.children[0].type == "html_block":
-                html_image = HTMLImgParser().parse(
-                    token.children[0].content, self.document, token.children[0].map[0]
+        if match and match.groupdict()["name"] in list(STD_ADMONITIONS) + ["figure"]:
+            classes = match.groupdict()["classes"][1:].split(",")
+            name = match.groupdict()["name"]
+            if classes and classes[0]:
+                self.current_node.append(
+                    self.reporter.warning(
+                        "comma-separated classes are deprecated, "
+                        "use `:class:` option instead",
+                        line=token.map[0],
+                    )
                 )
-                if html_image is None:
-                    return self.figure_error(token)
-            elif not (
-                token.children[0].children
-                and len(token.children[0].children) == 1
-                and len(token.children[0].children[0].children) == 1
-                and token.children[0].children[0].children[0].type == "image"
-            ):
-                return self.figure_error(token)
-            # 2nd must be a paragraph
-            if not token.children[1].type == "paragraph_open":
-                return self.figure_error(token)
+                # we assume that no other options have been used
+                token.content = f":class: {' '.join(classes)}\n\n" + token.content
+            if name == "figure":
+                self.current_node.append(
+                    self.reporter.warning(
+                        ":::{figure} is deprecated, " "use :::{figure-md} instead",
+                        line=token.map[0],
+                    )
+                )
+                name = "figure-md"
 
-            figure_node = nodes.figure(
-                "", classes=match.groupdict()["classes"][1:].split(",")
-            )
-            if match.groupdict()["title"].strip():
-                name = nodes.fully_normalize_name(match.groupdict()["title"].strip())
-                figure_node["names"].append(name)
-                self.document.note_explicit_target(figure_node, figure_node)
-            with self.current_node_context(figure_node, append=True):
-                if html_image is None:
-                    self.render_image(token.children[0].children[0].children[0])
-                else:
-                    self.current_node.append(html_image)
-                caption = nodes.caption("", "")
-                with self.current_node_context(caption, append=True):
-                    self.render_children(token.children[1])
-            return
+            token.info = f"{{{name}}} {match.groupdict()['title']}"
 
-        return self.default_container(token, f"admonition name not recognised: {name}")
+        if token.content.startswith(":::"):
+            # the content starts with a nested fence block,
+            # but must distinguish between ``:options:``, so we add a new line
+            token.content = "\n" + token.content
 
-    def default_container(self, token, message):
-        """Report a warning and use the default note admonition."""
-        self.current_node.append(
-            self.reporter.warning(
-                f"{message}, defaulting to note: {token.info}",
-                line=token.map[0],
-            )
-        )
-        admonition = nodes.note("")
-        self.add_line_and_source_path(admonition, token)
-        with self.current_node_context(admonition, append=True):
-            self.render_children(token)
-
-    def figure_error(self, token):
-        """A warning for reporting an invalid figure."""
-        self.current_node.append(
-            self.reporter.warning(
-                "Figure container should have exactly an image,"
-                " followed by single paragraph",
-                line=token.map[0],
-            )
-        )
-
-    def get_admonition(self, token, name, classes, title):
-        """Create an admonition node. """
-        line = token.map[0]
-
-        if name == "admonition":
-            # parse title
-            node = nodes.admonition(title, classes=classes[1:].split(","))
-            state_machine = MockStateMachine(self, line)
-            state = MockState(self, state_machine, line)
-            textnodes, messages = state.inline_text(title, line)
-            title_node = nodes.title(title, "", *textnodes)
-            self.add_line_and_source_path(title_node, token)
-            node += title_node
-            node += messages
-            return node
-
-        node_cls = STD_ADMONITIONS.get(name)
-        return node_cls(title, classes=classes[1:].split(","))
+        return self.render_fence(token)
 
     def render_dl_open(self, token):
         """Render a definition list."""

@@ -19,17 +19,14 @@ wealth_dynamics_md.md
 The following tabs show the raw content of each of the above documents, for quick
 comparison.
 
-`````{tabs}
-````{tab} MyST Markdown
-
+````{tabbed} MyST Markdown
 Raw source for {doc}`wealth_dynamics_md`
 ```{literalinclude} wealth_dynamics_md.md
 ```
 ````
-````{tab} reStructuredText
 
+````{tabbed} reStructuredText
 Raw source for {doc}`wealth_dynamics_rst`
 ```{literalinclude} wealth_dynamics_rst.rst
 ```
 ````
-`````

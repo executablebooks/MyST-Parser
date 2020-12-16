@@ -41,7 +41,8 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
-:::{admonition,tip} You can use both MyST and reStructuredText
+:::{admonition} You can use both MyST and reStructuredText
+:class: tip
 
 Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST parser that ships with Sphinx by default will still work the same way.
 You can have combinations of both markdown and rST files in your documentation, and Sphinx will choose the right parser based on each file's extension.
@@ -50,7 +51,8 @@ Sphinx features like cross-references will work just fine between the pages.
 You can even inject raw rST into Markdown files! (see [this explanation](syntax/directives/parsing))
 :::
 
-:::{admonition,seealso} Want to add Jupyter Notebooks to your documentation?
+:::{admonition} Want to add Jupyter Notebooks to your documentation?
+:class: seealso
 
 See also [MyST-NB](https://myst-nb.readthedocs.io), our complimentary parser and execution engine,
 for ipynb and text-based notebooks.
@@ -241,9 +243,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_html_img_enable`
   - `False`
   - Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
-* - `myst_admonition_enable`
+* - `myst_colon_fence_enable`
   - `False`
-  - Enable admonition style directives, [see here](syntax/admonitions) for details.
+  - Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.

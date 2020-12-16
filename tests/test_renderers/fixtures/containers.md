@@ -6,7 +6,7 @@ Basic note:
 :::
 .
 <document source="notset">
-    <note classes="">
+    <note>
         <paragraph>
             <emphasis>
                 hallo
@@ -22,7 +22,10 @@ Nested notes:
 ::::
 .
 <document source="notset">
-    <important classes="">
+    <important>
+        <system_message level="2" line="1" source="notset" type="WARNING">
+            <paragraph>
+                comma-separated classes are deprecated, use `:class:` option instead
         <note classes="other">
             <paragraph>
                 <emphasis>
@@ -37,9 +40,32 @@ Admonition with title:
 :::
 .
 <document source="notset">
+    <system_message level="2" line="1" source="notset" type="WARNING">
+        <paragraph>
+            comma-separated classes are deprecated, use `:class:` option instead
     <admonition classes="other">
         <title>
-             A 
+            A 
+            <strong>
+                title
+        <paragraph>
+            <emphasis>
+                hallo
+.
+
+--------------------------------
+Admonition with options:
+.
+::: {admonition} A **title**
+:class: other
+
+*hallo*
+:::
+.
+<document source="notset">
+    <admonition classes="other">
+        <title>
+            A 
             <strong>
                 title
         <paragraph>

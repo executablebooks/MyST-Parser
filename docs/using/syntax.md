@@ -517,10 +517,10 @@ print('yep!')
 `````
 ``````
 
-### Admonition directives special syntax (optional)
+### Markdown-friendly directives
 
-Want to use an admonition syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](syntax/admonitions).
+Want to use syntax that renders correctly in standard Markdown editors?
+See [the extended syntax option](syntax/colon_fence).
 
 ```md
 :::{note}
@@ -668,7 +668,9 @@ This is equivalent to writing:
 {math}`x_{hey}=it+is^{math}`
 ```
 
-:::{admonition,tip} Escaping Dollars
+:::{admonition} Escaping Dollars
+:class: tip
+
 Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
 Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.
 

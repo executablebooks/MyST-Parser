@@ -6,15 +6,15 @@ from attr.validators import deep_iterable, in_, instance_of, optional
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 
+from mdit_py_plugins.amsmath import amsmath_plugin
+from mdit_py_plugins.anchors import anchors_plugin
+from mdit_py_plugins.deflist import deflist_plugin
+from mdit_py_plugins.colon_fence import colon_fence_plugin
+from mdit_py_plugins.dollarmath import dollarmath_plugin
+from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
-from mdit_py_plugins.dollarmath import dollarmath_plugin
-from mdit_py_plugins.footnote import footnote_plugin
-from mdit_py_plugins.amsmath import amsmath_plugin
-from mdit_py_plugins.container import container_plugin
-from mdit_py_plugins.deflist import deflist_plugin
-from mdit_py_plugins.anchors import anchors_plugin
 
 from . import __version__  # noqa: F401
 
@@ -39,6 +39,9 @@ class MdParserConfig:
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
+    colon_fence_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+
+    # TODO remove deprecated after v0.13.0
     admonition_enable: bool = attr.ib(default=False, validator=instance_of(bool))
     figure_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
@@ -101,11 +104,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
         )
-    if config.admonition_enable or config.figure_enable:
-        # we don't want to yet remove un-referenced, because they may be referenced
-        # in admonition type directives
-        # so we do our own post processing
-        md.use(container_plugin, "myst", validate=validate_container(config))
+    if config.colon_fence_enable:
+        md.use(colon_fence_plugin)
     if config.amsmath_enable:
         md.use(amsmath_plugin)
     if config.deflist_enable:
@@ -126,25 +126,6 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
     )
 
     return md
-
-
-def validate_container(config: MdParserConfig):
-    if config.admonition_enable:
-        # NOTE with containers you can selectively only parse.
-        # those that have a particular argument string.
-        # However, this reduces the amount of feedback since, if you made an error
-        # in the argument string, it would just ignore it rather than logging a warning
-        def _validate_container(params: str, *args):
-            return True
-
-    elif config.figure_enable:
-
-        def _validate_container(params: str, *args):
-            return params.strip().startswith("{figure}") or params.strip().startswith(
-                "{figure,"
-            )
-
-    return _validate_container
 
 
 def to_docutils(
