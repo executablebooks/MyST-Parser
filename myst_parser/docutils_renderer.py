@@ -1,6 +1,7 @@
 """NOTE: this will eventually be moved out of core"""
 from collections import OrderedDict
 from contextlib import contextmanager
+from copy import deepcopy
 import inspect
 import json
 import os
@@ -548,6 +549,16 @@ class DocutilsRenderer:
         else:
             data = token.content
 
+        substitutions = data.get("substitutions", {})
+        if isinstance(substitutions, dict):
+            self.document.fm_substitutions = deepcopy(substitutions)
+        else:
+            msg_node = self.reporter.error(
+                "Front-matter substitutions is not a dict", line=token.map[0]
+            )
+            msg_node += nodes.literal_block(token.content, token.content)
+            self.current_node += [msg_node]
+
         docinfo = dict_to_docinfo(data)
         self.current_node.append(docinfo)
 
@@ -864,6 +875,77 @@ class DocutilsRenderer:
                 name, i, result[i]
             )
         self.current_node += result
+
+    def render_substitution_inline(self, token):
+        """Render inline substitution {{key}}."""
+        self.render_substitution(token, inline=True)
+
+    def render_substitution_block(self, token):
+        """Render block substitution {{key}}."""
+        self.render_substitution(token, inline=False)
+
+    def render_substitution(self, token, inline: bool):
+
+        key = token.content
+        # TODO token.map was None when substituting an image in a table
+        position = token.map[0] if token.map else 9999
+
+        # front-matter substitutions take priority over config ones
+        # TODO add sphinx env (see jinja below)?
+        try:
+            docname = self.document.settings.env.docname
+        except AttributeError:
+            docname = ""
+        substitutions = {
+            "docname": docname,
+            "extension": os.path.splitext(self.document["source"])[1],
+            **self.config.get("substitutions", {}),
+            **getattr(self.document, "fm_substitutions", {}),
+        }
+
+        # check for substitution
+        # TODO jinja filters, but how to handle circular references?
+        if key not in substitutions:
+            error = self.reporter.error(
+                f"Substitution key not found: {key}",
+                line=position,
+            )
+            self.current_node += [error]
+            return
+
+        # handle circular references
+        self.document.sub_references = getattr(self.document, "sub_references", [])
+        if key in self.document.sub_references:
+            error = self.reporter.error(
+                "circular substitution reference: "
+                f"{self.document.sub_references + [key]}",
+                line=position,
+            )
+            self.current_node += [error]
+            return
+
+        content = str(substitutions[key])
+        state_machine = MockStateMachine(self, position)
+        state = MockState(self, state_machine, position)
+        # TODO improve error reporting;
+        # at present, for a multi-line substitution,
+        # an error may point to a line lower than the substitution
+        # should it point to the source of the substitution?
+        # or the error message should at least indicate that its a substitution
+        self.document.sub_references.append(key)
+        try:
+            if inline:
+                textnodes, messages = state.inline_text(content, position)
+                self.current_node += textnodes
+                self.current_node += messages
+            else:
+                state.nested_parse(
+                    StringList(content.splitlines(), self.document["source"]),
+                    0,
+                    self.current_node,
+                )
+        finally:
+            self.document.sub_references.pop()
 
 
 def dict_to_docinfo(data):

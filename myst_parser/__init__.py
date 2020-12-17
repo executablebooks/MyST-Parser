@@ -48,18 +48,21 @@ def create_myst_config(app):
     logger = logging.getLogger(__name__)
 
     # TODO remove deprecations after v0.13.0
-    if app.config["myst_admonition_enable"]:
-        logger.warning(
-            "`myst_admonition_enable` is deprecated, "
-            "please use `myst_colon_fence_enable` instead"
-        )
-    if app.config["myst_figure_enable"]:
-        logger.warning(
-            "`myst_figure_enable` is deprecated, "
-            "please use `myst_colon_fence_enable` instead"
-        )
-    if app.config["myst_admonition_enable"] or app.config["myst_figure_enable"]:
-        app.config["myst_colon_fence_enable"] = True
+    deprecations = {
+        "myst_admonition_enable": "colon_fence",
+        "myst_figure_enable": "colon_fence",
+        "myst_dmath_enable": "dollarmath",
+        "myst_amsmath_enable": "amsmath",
+        "myst_deflist_enable": "deflist",
+        "myst_html_img_enable": "html_image",
+    }
+    for old, new in deprecations.items():
+        if app.config[old]:
+            logger.warning(
+                f'config `{old}` is deprecated, please add "{new}" to '
+                "`myst_enable_extensions = []`"
+            )
+            app.config["myst_enable_extensions"].append(new)
 
     values = {
         name: app.config[f"myst_{name}"]

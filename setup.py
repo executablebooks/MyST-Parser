@@ -36,13 +36,14 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "markdown-it-py~=0.6.0",
-        "mdit-py-plugins~=0.2.1",
+        "mdit-py-plugins~=0.2.3",
         "pyyaml",
         "docutils>=0.15",
         "sphinx>=2,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
+        "linkify": ["linkify-it-py~=1.0"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",

@@ -643,12 +643,16 @@ header-rows: 1
 
 ## Math shortcuts
 
-Math is parsed by setting, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
+Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
 
-- `myst_dmath_enable=True` (the default) for parsing of dollar `$` and `$$` encapsulated math.
-- `myst_amsmath_enable=True` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
+- `"dollarmath"` (added by default) for parsing of dollar `$` and `$$` encapsulated math.
+- `"amsmath"` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
 These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+
+:::{important}
+`myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
+:::
 
 ### Dollar delimited math
 

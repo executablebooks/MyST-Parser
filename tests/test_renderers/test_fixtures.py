@@ -124,7 +124,7 @@ def test_sphinx_roles(line, title, input, expected):
 def test_amsmath(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(
-        input, MdParserConfig(amsmath_enable=True), in_sphinx_env=True
+        input, MdParserConfig(enable_extensions=["amsmath"]), in_sphinx_env=True
     )
     print(document.pformat())
     _actual, _expected = [
@@ -141,7 +141,7 @@ def test_amsmath(line, title, input, expected, monkeypatch):
 def test_containers(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(
-        input, MdParserConfig(colon_fence_enable=True), in_sphinx_env=True
+        input, MdParserConfig(enable_extensions=["colon_fence"]), in_sphinx_env=True
     )
     print(document.pformat())
     _actual, _expected = [
@@ -169,7 +169,7 @@ def test_evalrst_elements(line, title, input, expected):
 )
 def test_definition_lists(line, title, input, expected):
     document = to_docutils(
-        input, MdParserConfig(deflist_enable=True), in_sphinx_env=True
+        input, MdParserConfig(enable_extensions=["deflist"]), in_sphinx_env=True
     )
     print(document.pformat())
     assert "\n".join(

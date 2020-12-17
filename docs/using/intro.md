@@ -236,22 +236,31 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
+* - `enable_extensions`
+  - `["dollarmath"]`
+  - Enable Markdown extensions, [see here](syntax-optional) for details.
 * - `myst_url_schemes`
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
-* - `myst_html_img_enable`
-  - `False`
-  - Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
-* - `myst_colon_fence_enable`
-  - `False`
-  - Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
 `````
 
-Math specific, see the [Math syntax](syntax/math) for more details:
+List of extensions:
+
+- "amsmath": enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
+- "colon_fence": Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
+- "deflist"
+- "dollarmath": Enable parsing of dollar `$` and `$$` encapsulated math
+- "html_image": Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
+- "linkify": automatically identify "bare" web URLs and add hyperlinks
+- "replacements": automatically convert some common typographic texts
+- "smartquotes": automatically convert standard quotations to their opening/closing variants
+- "substitution": substitute keys
+
+Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math) for more details:
 
 `````{list-table}
 :header-rows: 1
@@ -259,9 +268,6 @@ Math specific, see the [Math syntax](syntax/math) for more details:
 * - Option
   - Default
   - Description
-* - `myst_dmath_enable`
-  - `True`
-  - Enable parsing of dollar `$` and `$$` encapsulated math
 * - `myst_dmath_allow_labels`
   - `True`
   - Parse `$$...$$ (label)` syntax (if dmath enabled)

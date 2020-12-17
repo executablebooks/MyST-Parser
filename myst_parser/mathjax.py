@@ -24,7 +24,7 @@ def override_mathjax(app: Sphinx):
     """Override aspects of the mathjax extension, but only if necessary."""
 
     if (
-        app.config["myst_amsmath_enable"]
+        "amsmath" in app.config["myst_enable_extensions"]
         and "mathjax" in app.registry.html_block_math_renderers
     ):
         app.registry.html_block_math_renderers["mathjax"] = (

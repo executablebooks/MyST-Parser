@@ -47,7 +47,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install "sphinx${{ matrix.sphinx }}"
-        pip install -e .[testing]
+        pip install -e .[linkify,testing]
     - name: Run pytest
       run: pytest
 
@@ -66,7 +66,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[testing]
+        pip install -e .[linkify,testing]
 
     - name: Run pytest
       run: |
@@ -94,7 +94,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .[rtd]
+          pip install -e .[linkify,rtd]
 
       # Build the docs
       - name: Build docs to store

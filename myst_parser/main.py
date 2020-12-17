@@ -1,7 +1,7 @@
-from typing import List, Optional
+from typing import Dict, Iterable, List, Optional
 
 import attr
-from attr.validators import deep_iterable, in_, instance_of, optional
+from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
@@ -15,6 +15,7 @@ from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
+from mdit_py_plugins.substitution import substitution_plugin
 
 from . import __version__  # noqa: F401
 
@@ -30,27 +31,59 @@ class MdParserConfig:
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
     commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
-    dmath_enable: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
-    amsmath_enable: bool = attr.ib(default=False, validator=instance_of(bool))
-    deflist_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    colon_fence_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+    # TODO remove deprecated _enable attributes after v0.13.0
+    admonition_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
+    figure_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
+    dmath_enable: bool = attr.ib(default=False, validator=instance_of(bool), repr=False)
+    amsmath_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
+    deflist_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
+    html_img_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
+    colon_fence_enable: bool = attr.ib(
+        default=False, validator=instance_of(bool), repr=False
+    )
 
-    # TODO remove deprecated after v0.13.0
-    admonition_enable: bool = attr.ib(default=False, validator=instance_of(bool))
-    figure_enable: bool = attr.ib(default=False, validator=instance_of(bool))
+    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+
+    @enable_extensions.validator
+    def check_extensions(self, attribute, value):
+        if not isinstance(value, Iterable):
+            raise TypeError(f"myst_enable_extensions not iterable: {value}")
+        diff = set(value).difference(
+            [
+                "dollarmath",
+                "amsmath",
+                "deflist",
+                "html_image",
+                "colon_fence",
+                "smartquotes",
+                "replacements",
+                "linkify",
+                "substitution",
+            ]
+        )
+        if diff:
+            raise ValueError(f"myst_enable_extensions not recognised: {diff}")
 
     disable_syntax: List[str] = attr.ib(
         factory=list,
         validator=deep_iterable(instance_of(str), instance_of((list, tuple))),
     )
-
-    html_img_enable: bool = attr.ib(default=False, validator=instance_of(bool))
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[List[str]] = attr.ib(
@@ -60,6 +93,11 @@ class MdParserConfig:
 
     heading_anchors: Optional[int] = attr.ib(
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
+    )
+
+    substitutions: Dict[str, str] = attr.ib(
+        factory=dict,
+        validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
     )
 
     def as_dict(self, dict_factory=dict) -> dict:
@@ -97,19 +135,33 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         # disable this for now, because it need a new implementation in the renderer
         .disable("footnote_tail")
     )
-    if config.dmath_enable:
+
+    typographer = False
+    if "smartquotes" in config.enable_extensions:
+        md.enable("smartquotes")
+        typographer = True
+    if "replacements" in config.enable_extensions:
+        md.enable("replacements")
+        typographer = True
+    if "linkify" in config.enable_extensions:
+        # TODO warn, don't enable, if linkify-it-py not installed
+        md.enable("linkify")
+
+    if "dollarmath" in config.enable_extensions:
         md.use(
             dollarmath_plugin,
             allow_labels=config.dmath_allow_labels,
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
         )
-    if config.colon_fence_enable:
+    if "colon_fence" in config.enable_extensions:
         md.use(colon_fence_plugin)
-    if config.amsmath_enable:
+    if "amsmath" in config.enable_extensions:
         md.use(amsmath_plugin)
-    if config.deflist_enable:
+    if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
+    if "substitution" in config.enable_extensions:
+        md.use(substitution_plugin)
     if config.heading_anchors is not None:
         md.use(anchors_plugin, max_level=config.heading_anchors)
     for name in config.disable_syntax:
@@ -118,10 +170,12 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
     md.options.update(
         {
             "commonmark_only": False,
-            "enable_html_img": config.html_img_enable,
+            "typographer": typographer,
+            "linkify": "linkify" in config.enable_extensions,
+            "enable_html_img": "html_image" in config.enable_extensions,
             "myst_url_schemes": config.url_schemes,
-            "enable_figures": config.figure_enable,
             "enable_anchors": config.heading_anchors is not None,
+            "substitutions": config.substitutions,
         }
     )
 

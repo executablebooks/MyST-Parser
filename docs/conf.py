@@ -64,11 +64,17 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-myst_amsmath_enable = True
-myst_colon_fence_enable = True
-myst_html_img_enable = True
-myst_dmath_enable = True
-myst_deflist_enable = True
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+    "linkify",
+    "substitution",
+]
 myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
 panels_add_bootstrap_css = False
