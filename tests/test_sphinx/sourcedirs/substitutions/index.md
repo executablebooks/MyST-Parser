@@ -37,9 +37,9 @@ This will not process the substitution
 {{ text }}
 ```
 
-Special keys:
+Using env and filters:
 
-{{ docname }}{{ extension }}
+{{ env.docname | upper }}
 
 ```{toctree}
 other.md

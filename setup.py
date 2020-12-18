@@ -38,6 +38,7 @@ setup(
         "markdown-it-py~=0.6.0",
         "mdit-py-plugins~=0.2.3",
         "pyyaml",
+        "jinja2",  # required for substitutions, but let sphinx choose version
         "docutils>=0.15",
         "sphinx>=2,<4",
     ],

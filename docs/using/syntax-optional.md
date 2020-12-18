@@ -79,7 +79,7 @@ Either directly; `pip install linkify-it-py` or *via* `pip install myst-parser[l
 
 (syntax/substitutions)=
 
-## Substitutions
+## Substitutions (with Jinja2)
 
 Adding `"substitution"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will allow you to add substitutions, added in either the `conf.py` using `myst_substitutions`:
 
@@ -107,7 +107,7 @@ substitutions:
 Keys in the front-matter will override ones in the `conf.py`.
 :::
 
-You can use these substitutions inline or as blocks, and you can even nest substitutions in other substitutions:
+You can use these substitutions inline or as blocks, and you can even nest substitutions in other substitutions (but circular references are prohibited):
 
 :::{tabbed} Markdown Input
 
@@ -149,7 +149,26 @@ Substitutions will only be assessed where you would normally use Markdown, e.g. 
 {{ key1 }}
 ```
 
+Also, it should be noted that, inline substitutions will not parse block-level syntaxes like directives:
+
+```
+inline {{ key2 }}
+```
+
+inline {{ key2 }}
+
 :::
+
+Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) in the context (as `env`).
+Therefore you can do things like:
+
+```md
+{{ env.docname | upper }}
+{{ "a" + "b" }}
+```
+
+{{ env.docname | upper }}
+{{ "a" + "b" }}
 
 (syntax/colon_fence)=
 

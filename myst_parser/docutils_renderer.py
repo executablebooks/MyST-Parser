@@ -886,45 +886,51 @@ class DocutilsRenderer:
 
     def render_substitution(self, token, inline: bool):
 
-        key = token.content
+        import jinja2
+
         # TODO token.map was None when substituting an image in a table
         position = token.map[0] if token.map else 9999
 
         # front-matter substitutions take priority over config ones
-        # TODO add sphinx env (see jinja below)?
-        try:
-            docname = self.document.settings.env.docname
-        except AttributeError:
-            docname = ""
-        substitutions = {
-            "docname": docname,
-            "extension": os.path.splitext(self.document["source"])[1],
+        context = {
             **self.config.get("substitutions", {}),
             **getattr(self.document, "fm_substitutions", {}),
         }
+        try:
+            context["env"] = self.document.settings.env
+        except AttributeError:
+            pass  # if not sphinx renderer
 
-        # check for substitution
-        # TODO jinja filters, but how to handle circular references?
-        if key not in substitutions:
+        # fail on undefined variables
+        env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+
+        # try rendering
+        try:
+            rendered = env.from_string(f"{{{{{token.content}}}}}").render(context)
+        except Exception as error:
             error = self.reporter.error(
-                f"Substitution key not found: {key}",
+                f"Substitution error:{error.__class__.__name__}: {error}",
                 line=position,
             )
             self.current_node += [error]
             return
 
         # handle circular references
-        self.document.sub_references = getattr(self.document, "sub_references", [])
-        if key in self.document.sub_references:
+        ast = env.parse(f"{{{{{token.content}}}}}")
+        references = {
+            n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
+        }
+        self.document.sub_references = getattr(self.document, "sub_references", set())
+        cyclic = references.intersection(self.document.sub_references)
+        if cyclic:
             error = self.reporter.error(
-                "circular substitution reference: "
-                f"{self.document.sub_references + [key]}",
+                f"circular substitution reference: {cyclic}",
                 line=position,
             )
             self.current_node += [error]
             return
 
-        content = str(substitutions[key])
+        # parse rendered text
         state_machine = MockStateMachine(self, position)
         state = MockState(self, state_machine, position)
         # TODO improve error reporting;
@@ -932,20 +938,20 @@ class DocutilsRenderer:
         # an error may point to a line lower than the substitution
         # should it point to the source of the substitution?
         # or the error message should at least indicate that its a substitution
-        self.document.sub_references.append(key)
+        self.document.sub_references.update(references)
         try:
             if inline:
-                textnodes, messages = state.inline_text(content, position)
+                textnodes, messages = state.inline_text(rendered, position)
                 self.current_node += textnodes
                 self.current_node += messages
             else:
                 state.nested_parse(
-                    StringList(content.splitlines(), self.document["source"]),
+                    StringList(rendered.splitlines(), self.document["source"]),
                     0,
                     self.current_node,
                 )
         finally:
-            self.document.sub_references.pop()
+            self.document.sub_references.difference_update(references)
 
 
 def dict_to_docinfo(data):
