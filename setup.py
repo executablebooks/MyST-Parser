@@ -52,7 +52,7 @@ setup(
         ],
         # Note: This is only required for internal use
         "rtd": [
-            "sphinxcontrib-bibtex",
+            "sphinxcontrib-bibtex~=1.0.0",
             "ipython",
             "sphinx-book-theme>=0.0.36",
             "sphinx_tabs",

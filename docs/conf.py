@@ -58,7 +58,6 @@ html_title = ""
 html_theme_options = {
     "github_url": "https://github.com/executablebooks/MyST-Parser",
     "repository_url": "https://github.com/executablebooks/MyST-Parser",
-    "expand_sections": ["examples/index"],
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
