@@ -128,7 +128,10 @@ def test_extended_syntaxes(
     app.build()
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
-    assert warnings == ""
+    # TODO turn back on when deprecations removed after v0.13.0
+    # assert warnings == ""
+    assert "comma-separated classes are deprecated" in warnings
+    assert ":::{figure} is deprecated" in warnings
 
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
@@ -224,5 +227,35 @@ def test_commonmark_only(
 
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_output(app, filename="index.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "substitutions"),
+    freshenv=True,
+)
+def test_substitutions(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+    file_regression,
+):
+    """test setting addition configuration values."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+        file_regression.check(
+            get_sphinx_app_doctree(app, docname="other").pformat(),
+            extension=".other.xml",
+        )
     finally:
         get_sphinx_app_output(app, filename="index.html", regress_html=True)

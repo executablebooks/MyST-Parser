@@ -41,7 +41,8 @@ To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to 
 
 Naturally this site is generated with Sphinx and MyST!
 
-:::{admonition,tip} You can use both MyST and reStructuredText
+:::{admonition} You can use both MyST and reStructuredText
+:class: tip
 
 Activating the MyST parser will simply *enable* parsing markdown files with MyST, and the rST parser that ships with Sphinx by default will still work the same way.
 You can have combinations of both markdown and rST files in your documentation, and Sphinx will choose the right parser based on each file's extension.
@@ -50,7 +51,8 @@ Sphinx features like cross-references will work just fine between the pages.
 You can even inject raw rST into Markdown files! (see [this explanation](syntax/directives/parsing))
 :::
 
-:::{admonition,seealso} Want to add Jupyter Notebooks to your documentation?
+:::{admonition} Want to add Jupyter Notebooks to your documentation?
+:class: seealso
 
 See also [MyST-NB](https://myst-nb.readthedocs.io), our complimentary parser and execution engine,
 for ipynb and text-based notebooks.
@@ -234,22 +236,31 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
+* - `enable_extensions`
+  - `["dollarmath"]`
+  - Enable Markdown extensions, [see here](syntax-optional) for details.
 * - `myst_url_schemes`
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
-* - `myst_html_img_enable`
-  - `False`
-  - Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
-* - `myst_admonition_enable`
-  - `False`
-  - Enable admonition style directives, [see here](syntax/admonitions) for details.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
 `````
 
-Math specific, see the [Math syntax](syntax/math) for more details:
+List of extensions:
+
+- "amsmath": enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
+- "colon_fence": Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
+- "deflist"
+- "dollarmath": Enable parsing of dollar `$` and `$$` encapsulated math
+- "html_image": Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
+- "linkify": automatically identify "bare" web URLs and add hyperlinks
+- "replacements": automatically convert some common typographic texts
+- "smartquotes": automatically convert standard quotations to their opening/closing variants
+- "substitution": substitute keys
+
+Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math) for more details:
 
 `````{list-table}
 :header-rows: 1
@@ -257,9 +268,6 @@ Math specific, see the [Math syntax](syntax/math) for more details:
 * - Option
   - Default
   - Description
-* - `myst_dmath_enable`
-  - `True`
-  - Enable parsing of dollar `$` and `$$` encapsulated math
 * - `myst_dmath_allow_labels`
   - `True`
   - Parse `$$...$$ (label)` syntax (if dmath enabled)

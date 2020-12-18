@@ -62,3 +62,7 @@
             <image alt="fishy" candidates="{'*': 'fun-fish.png'}" classes="bg-primary mb-1" uri="fun-fish.png" width="200px">
             <caption>
                 This is a caption in **Markdown**
+        <paragraph>
+            linkify URL: 
+            <reference refuri="http://www.example.com">
+                www.example.com

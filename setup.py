@@ -35,13 +35,16 @@ setup(
     keywords="markdown lexer parser development docutils sphinx",
     python_requires=">=3.6",
     install_requires=[
-        "markdown-it-py~=0.5.4",
+        "markdown-it-py~=0.6.0",
+        "mdit-py-plugins~=0.2.4",
         "pyyaml",
+        "jinja2",  # required for substitutions, but let sphinx choose version
         "docutils>=0.15",
         "sphinx>=2,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
+        "linkify": ["linkify-it-py~=1.0"],
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",
@@ -52,11 +55,10 @@ setup(
         ],
         # Note: This is only required for internal use
         "rtd": [
-            "sphinxcontrib-bibtex~=1.0.0",
+            "sphinxcontrib-bibtex<2.0.0",
             "ipython",
             "sphinx-book-theme>=0.0.36",
-            "sphinx_tabs",
-            "sphinx-panels~=0.4.1",
+            "sphinx-panels~=0.5.2",
         ],
     },
     zip_safe=True,

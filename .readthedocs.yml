@@ -6,7 +6,7 @@ python:
       - method: pip
         path: .
         extra_requirements:
-          - sphinx
+          - linkify
           - rtd
 
 sphinx:

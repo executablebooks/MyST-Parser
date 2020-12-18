@@ -34,7 +34,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
-    "sphinx_tabs.tabs",
     "sphinx_panels",
 ]
 
@@ -65,15 +64,20 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-myst_amsmath_enable = True
-myst_admonition_enable = True
-myst_html_img_enable = True
-myst_dmath_enable = True
-myst_deflist_enable = True
-myst_figure_enable = True
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+    "linkify",
+    "substitution",
+]
 myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
-panels_add_boostrap_css = False
+panels_add_bootstrap_css = False
 
 
 def run_apidoc(app):

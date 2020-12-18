@@ -517,10 +517,10 @@ print('yep!')
 `````
 ``````
 
-### Admonition directives special syntax (optional)
+### Markdown-friendly directives
 
-Want to use an admonition syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](syntax/admonitions).
+Want to use syntax that renders correctly in standard Markdown editors?
+See [the extended syntax option](syntax/colon_fence).
 
 ```md
 :::{note}
@@ -643,12 +643,16 @@ header-rows: 1
 
 ## Math shortcuts
 
-Math is parsed by setting, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
+Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
 
-- `myst_dmath_enable=True` (the default) for parsing of dollar `$` and `$$` encapsulated math.
-- `myst_amsmath_enable=True` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
+- `"dollarmath"` (added by default) for parsing of dollar `$` and `$$` encapsulated math.
+- `"amsmath"` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
 These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+
+:::{important}
+`myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
+:::
 
 ### Dollar delimited math
 
@@ -668,7 +672,9 @@ This is equivalent to writing:
 {math}`x_{hey}=it+is^{math}`
 ```
 
-:::{admonition,tip} Escaping Dollars
+:::{admonition} Escaping Dollars
+:class: tip
+
 Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
 Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.
 

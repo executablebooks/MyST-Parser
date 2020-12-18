@@ -124,6 +124,8 @@ def parse_directive_options(
             options = yaml.safe_load(yaml_block) or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
             raise DirectiveParsingError("Invalid options YAML: " + str(error))
+        if not isinstance(options, dict):
+            raise DirectiveParsingError(f"Invalid options (not dict): {options}")
 
     if (not validate) or issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
