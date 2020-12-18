@@ -1,5 +1,78 @@
 # Changelog
 
+## 0.13.0 - 2020-12-18
+
+This release makes some major updates to the optional syntaxes.
+For full details see [Optional MyST Syntaxes](docs/using/syntax-optional.md).
+
+### 🗑 Deprecations
+
+`myst_enable_extensions = ["dollarmath", ...]` now replaces and deprecates individual enable configuration variables: `admonition_enable` -> `"colon_fence"`, `figure_enable` -> `"colon_fence"`, `dmath_enable` -> `"dollarmath"`, `amsmath` -> `"colon_fence"`, `deflist_enable` -> `"deflist"`, `html_img_enable` -> `"html_image"`.
+
+The `colon_fence` extension (replacing `admonition_enable`) now works exactly the same as normal ```` ``` ```` code fences, but using `:::` delimiters. This is helpful for directives that contain Markdown text, for example:
+
+```md
+:::{admonition} The title
+:class: note
+
+This note contains *Markdown*
+:::
+```
+
+### ✨ New
+
+The `smartquotes` extension will automatically convert standard quotations to their opening/closing variants:
+
+- `'single quotes'`: ‘single quotes’
+- `"double quotes"`:  “double quotes”
+
+The `linkify` extension will automatically identify “bare” web URLs, like `www.example.com`,  and add hyperlinks; www.example.com.
+This extension requires that [linkify-it-py](https://github.com/tsutsu3/linkify-it-py) is installed.
+
+The `replacements` extension will automatically convert some common typographic texts, such as `+-` -> `±`.
+
+The `substitutions` extension allows you to specify "substitution definitions" in either the `conf.py` (as `myst_substitutions`) and/or individual file's front-matter (front-matter takes precedence), which will then replace substitution references. For example:
+
+```md
+---
+substitutions:
+  key1: definition
+---
+{{ key1 }}
+```
+
+The substitutions are assessed as [jinja2 expressions](http://jinja.palletsprojects.com/) and includes the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) as `env`, so you can do powerful thinks like:
+
+```
+{{ [key1, env.docname] | join('/') }}
+```
+
+The `figure-md` directive has been added (replacing `enable_figure`), which parses a "Markdown friendly" figure (used with the `colon_fence` extension):
+
+```md
+:::{figure-md} fig-target
+:class: myclass
+
+<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+
+This is a caption in **Markdown**
+:::
+```
+
+### 👌 Improvements
+
+Using the `html_image` extension, HTML images are now processed for both blocks and (now) inline.
+
+So you can correctly do, for example:
+
+```md
+I’m an inline image: <img src="img/fun-fish.png" height="20px">
+
+| table column                              |
+| ----------------------------------------- |
+| <img src="img/fun-fish.png" width="20px"> |
+```
+
 ## 0.12.10 - 2020-09-21
 
 🐛 FIX: allow dates to be parsed in frontmatter.
