@@ -5,7 +5,7 @@ substitutions:
     ```{note}
     {{ key1 }}
     ```
-  key3: "![fun fish](img/fun-fish.png)"
+  key3: <img src="img/fun-fish.png" alt="fishy" width="200px">
 ---
 
 (syntax/optional)=
@@ -99,7 +99,7 @@ substitutions:
     ```{note}
     {{ key1 }}
     ```
-  key3: "![fun fish](img/fun-fish.png)"
+  key3: <img src="img/fun-fish.png" alt="fishy" width="200px">
 ---
 ````
 
@@ -395,6 +395,10 @@ MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in
 
 Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
 Any other attributes will be dropped.
+
+HTML image can also be used inline!
+
+I'm an inline image: <img src="img/fun-fish.png" height="20px">
 
 (syntax/figures)=
 

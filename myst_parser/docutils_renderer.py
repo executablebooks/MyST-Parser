@@ -487,7 +487,7 @@ class DocutilsRenderer:
         self.current_node.append(ref_node)
 
     def render_html_inline(self, token):
-        self.current_node.append(nodes.raw("", token.content, format="html"))
+        self.render_html_block(token)
 
     def render_html_block(self, token):
         node = None
