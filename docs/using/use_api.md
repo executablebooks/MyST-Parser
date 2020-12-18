@@ -63,8 +63,9 @@ Token(type='paragraph_close', tag='p', nesting=-1, attrs=None, map=None, level=0
 The `default_parser` function loads a standard markdown-it parser with the default syntax rules for MyST.
 
 ```python
-from myst_parser.main import default_parser
-parser = default_parser("html")
+from myst_parser.main import default_parser, MdParserConfig
+config = MdParserConfig(renderer="html")
+parser = default_parser(config)
 parser
 ```
 
