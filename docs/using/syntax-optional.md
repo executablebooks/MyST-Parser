@@ -170,6 +170,15 @@ Therefore you can do things like:
 {{ env.docname | upper }}
 {{ "a" + "b" }}
 
+You can also change the delimiter if necessary, for example setting iun the `conf.py`:
+
+```python
+myst_sub_delimiters = ["|", "|"]
+```
+
+Will parse: `|| "a" + "b" ||`.
+This should be changed with care though, so as not to affect other syntaxes.
+
 (syntax/colon_fence)=
 
 ## Code fences using colons

@@ -36,7 +36,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "markdown-it-py~=0.6.0",
-        "mdit-py-plugins~=0.2.3",
+        "mdit-py-plugins~=0.2.4",
         "pyyaml",
         "jinja2",  # required for substitutions, but let sphinx choose version
         "docutils>=0.15",

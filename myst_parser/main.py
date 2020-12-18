@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import attr
 from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
@@ -100,6 +100,18 @@ class MdParserConfig:
         validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
     )
 
+    sub_delimiters: Tuple[str, str] = attr.ib(default=("{", "}"))
+
+    @sub_delimiters.validator
+    def check_sub_delimiters(self, attribute, value):
+        if (not isinstance(value, (tuple, list))) or len(value) != 2:
+            raise TypeError(f"myst_sub_delimiters is not a tuple of length 2: {value}")
+        for delim in value:
+            if (not isinstance(delim, str)) or len(delim) != 1:
+                raise TypeError(
+                    f"myst_sub_delimiters does not contain strings of length 1: {value}"
+                )
+
     def as_dict(self, dict_factory=dict) -> dict:
         return attr.asdict(self, dict_factory=dict_factory)
 
@@ -161,7 +173,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
     if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
     if "substitution" in config.enable_extensions:
-        md.use(substitution_plugin)
+        md.use(substitution_plugin, *config.sub_delimiters)
     if config.heading_anchors is not None:
         md.use(anchors_plugin, max_level=config.heading_anchors)
     for name in config.disable_syntax:
