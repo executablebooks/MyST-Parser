@@ -31,7 +31,7 @@ This extension requires that [linkify-it-py](https://github.com/tsutsu3/linkify-
 
 The `replacements` extension will automatically convert some common typographic texts, such as `+-` -> `±`.
 
-The `substitutions` extension allows you to specify "substitution definitions" in either the `conf.py` (as `myst_substitutions`) and/or individual file's front-matter (front-matter takes precedence), which will then replace substitution references. For example:
+The `substitution` extension allows you to specify "substitution definitions" in either the `conf.py` (as `myst_substitutions`) and/or individual file's front-matter (front-matter takes precedence), which will then replace substitution references. For example:
 
 ```md
 ---

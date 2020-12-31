@@ -5,7 +5,12 @@ substitutions:
     ```{note}
     {{ key1 }}
     ```
-  key3: <img src="img/fun-fish.png" alt="fishy" width="200px">
+  key3a: <img src="img/fun-fish.png" alt="fishy" width="200px">
+  key3: |
+    ```{image} img/fun-fish.png
+    :alt: fishy
+    :width: 200px
+    ```
 ---
 
 (syntax/optional)=
@@ -99,7 +104,11 @@ substitutions:
     ```{note}
     {{ key1 }}
     ```
-  key3: <img src="img/fun-fish.png" alt="fishy" width="200px">
+  key3: |
+    ```{image} img/fun-fish.png
+    :alt: fishy
+    :width: 200px
+    ```
 ---
 ````
 
@@ -114,11 +123,13 @@ You can use these substitutions inline or as blocks, and you can even nest subst
 ```md
 Inline: {{ key1 }}
 
+Block level:
+
 {{ key2 }}
 
 | col1     | col2     |
 | -------- | -------- |
-| {{key3}} | {{key3}} |
+| {{key2}} | {{key3}} |
 
 ```
 
@@ -127,11 +138,13 @@ Inline: {{ key1 }}
 :::{tabbed} Rendered Output
 Inline: {{ key1 }}
 
+Block level:
+
 {{ key2 }}
 
 | col1     | col2     |
 | -------- | -------- |
-| {{key3}} | {{key3}} |
+| {{key2}} | {{key3}} |
 
 :::
 
@@ -149,14 +162,11 @@ Substitutions will only be assessed where you would normally use Markdown, e.g. 
 {{ key1 }}
 ```
 
-Also, it should be noted that, inline substitutions will not parse block-level syntaxes like directives:
+:::
 
-```
-inline {{ key2 }}
-```
-
-inline {{ key2 }}
-
+:::{warning}
+One should be wary using block-level syntaxes (such as lists) for inline substitutions.
+This may lead to unexpected outcomes.
 :::
 
 Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) in the context (as `env`).
@@ -170,7 +180,7 @@ Therefore you can do things like:
 {{ env.docname | upper }}
 {{ "a" + "b" }}
 
-You can also change the delimiter if necessary, for example setting iun the `conf.py`:
+You can also change the delimiter if necessary, for example setting in the `conf.py`:
 
 ```python
 myst_sub_delimiters = ["|", "|"]
