@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.13.0 - 2020-12-31
+
+👌 Directives can now be used for inline substitutions, e.g.
+
+```md
+---
+substitutions:
+  key: |
+    ```{image} img/fun-fish.png
+    :alt: fishy
+    :height: 20px
+    ```
+---
+
+An inline image: {{ key }}
+```
+
 ## 0.13.0 - 2020-12-18
 
 This release makes some major updates to the optional syntaxes.
