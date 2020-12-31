@@ -939,19 +939,28 @@ class DocutilsRenderer:
         # should it point to the source of the substitution?
         # or the error message should at least indicate that its a substitution
         self.document.sub_references.update(references)
+        base_node = nodes.Element()
         try:
-            if inline:
-                textnodes, messages = state.inline_text(rendered, position)
-                self.current_node += textnodes
-                self.current_node += messages
-            else:
-                state.nested_parse(
-                    StringList(rendered.splitlines(), self.document["source"]),
-                    0,
-                    self.current_node,
-                )
+            state.nested_parse(
+                StringList(rendered.splitlines(), self.document["source"]),
+                0,
+                base_node,
+            )
         finally:
             self.document.sub_references.difference_update(references)
+
+        sub_nodes = base_node.children
+        if (
+            inline
+            and len(base_node.children) == 1
+            and isinstance(base_node.children[0], nodes.paragraph)
+        ):
+            # just add the contents of the paragraph
+            sub_nodes = base_node.children[0].children
+
+        # TODO add more checking for inline compatibility?
+
+        self.current_node.extend(sub_nodes)
 
 
 def dict_to_docinfo(data):
