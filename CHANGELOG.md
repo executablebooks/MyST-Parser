@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.13.0 - 2020-12-31
+## 0.13.1 - 2020-12-31
 
 👌 Directives can now be used for inline substitutions, e.g.
 
