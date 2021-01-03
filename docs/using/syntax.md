@@ -370,7 +370,8 @@ print(f'my {a}nd line')
 
 **Short-hand options with `:` characters**. If you only need one or two options for your
 directive and wish to save lines, you may also specify directive options as a collection
-of lines just after the first line of the directive, each preceding with `:`.
+of lines just after the first line of the directive, each preceding with `:`. Then the
+leading `:` is removed from each line, and the rest is parsed as YAML.
 
 For example:
 
