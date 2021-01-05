@@ -236,7 +236,7 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
-* - `enable_extensions`
+* - `myst_enable_extensions`
   - `["dollarmath"]`
   - Enable Markdown extensions, [see here](syntax-optional) for details.
 * - `myst_url_schemes`
