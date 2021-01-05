@@ -97,7 +97,9 @@ class MdParserConfig:
 
     substitutions: Dict[str, str] = attr.ib(
         factory=dict,
-        validator=deep_mapping(instance_of(str), instance_of((str, int, float)), instance_of(dict)),
+        validator=deep_mapping(
+            instance_of(str), instance_of((str, int, float)), instance_of(dict)
+        ),
         repr=lambda v: str(list(v)),
     )
 
