@@ -243,6 +243,8 @@ class MockState:
                 "https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content"  # noqa: E501
             )
         else:
+            # The requested `name` is not a docutils Body element
+            # (such as "footnote", "block_quote", "paragraph", …)
             msg = f"{cls} has no attribute '{name}'"
         raise MockingError(msg).with_traceback(sys.exc_info()[2])
 
