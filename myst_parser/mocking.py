@@ -235,12 +235,17 @@ class MockState:
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
+        cls = type(self).__name__
         if hasattr(Body, name):
-            msg = "{cls} has not yet implemented attribute '{name}'".format(
-                cls=type(self).__name__, name=name
+            msg = (
+                f"{cls} has not yet implemented attribute '{name}'. "
+                "You can parse RST directly via the `{eval-rst}` directive: "
+                "https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content"  # noqa: E501
             )
-            raise MockingError(msg).with_traceback(sys.exc_info()[2])
-        msg = "{cls} has no attribute {name}".format(cls=type(self).__name__, name=name)
+        else:
+            # The requested `name` is not a docutils Body element
+            # (such as "footnote", "block_quote", "paragraph", …)
+            msg = f"{cls} has no attribute '{name}'"
         raise MockingError(msg).with_traceback(sys.exc_info()[2])
 
 
