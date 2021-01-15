@@ -425,11 +425,13 @@ HTML parsing to the rescue!
 By adding `"html_image"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
 
-```md
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary" width="200px">
+```html
+<img src="img/fun-fish.png" alt="fishy" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px" class="bg-primary">
 ```
 
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px" class="bg-primary">
 
 Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
 Any other attributes will be dropped.

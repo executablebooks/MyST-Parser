@@ -44,7 +44,7 @@ setup(
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
-        "linkify": ["linkify-it-py~=1.0"],
+        "linkify": ["linkify-it-py~=1.0"],  # for use with "linkify" extension
         "code_style": ["flake8<3.8.0,>=3.7.0", "black", "pre-commit==1.17.0"],
         "testing": [
             "coverage",

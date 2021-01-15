@@ -35,7 +35,7 @@ from myst_parser.mocking import (
     MockRSTParser,
 )
 from .parse_directives import parse_directive_text, DirectiveParsingError
-from .parse_html import HTMLImgParser
+from .html_to_nodes import html_to_nodes
 from .utils import is_external_url
 
 
@@ -490,12 +490,12 @@ class DocutilsRenderer:
         self.render_html_block(token)
 
     def render_html_block(self, token):
-        node = None
+        node_list = None
         if self.config.get("enable_html_img", False):
-            node = HTMLImgParser().parse(token.content, self.document, token.map[0])
-        if node is None:
-            node = nodes.raw("", token.content, format="html")
-        self.current_node.append(node)
+            node_list = html_to_nodes(token.content, self.document, token.map[0])
+        if node_list is None:
+            node_list = [nodes.raw("", token.content, format="html")]
+        self.current_node.extend(node_list)
 
     def render_image(self, token):
         img_node = nodes.image()
