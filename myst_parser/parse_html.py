@@ -21,7 +21,7 @@ from collections import abc, deque
 from html.parser import HTMLParser
 import inspect
 import itertools
-from typing import Any, Iterator, List, Optional, Type, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Type, Union
 
 
 class Attribute(dict):
@@ -64,14 +64,18 @@ class Element(abc.MutableSequence):
         """Return copy of children."""
         return self._children[:]
 
-    def reset_children(self, children: List["Element"]):
+    def reset_children(self, children: List["Element"], deepcopy: bool = False):
+        new_children = []
         for i, item in enumerate(children):
             assert isinstance(item, Element)
+            if deepcopy:
+                item = item.deepcopy()
             if item._parent is None:
                 item._parent = self
             elif item._parent != self:
                 raise AssertionError(f"different parent already set for item {i}")
-        self._children = children[:]
+            new_children.append(item)
+        self._children = new_children
 
     def __getitem__(self, index: int) -> "Element":
         return self._children[index]
@@ -115,9 +119,21 @@ class Element(abc.MutableSequence):
         text += ")"
         return text
 
-    def __str__(self) -> str:
-        """Returns a string HTML representation of the structure."""
+    def render(
+        self,
+        tag_overrides: Optional[Dict[str, Callable[["Element", dict], str]]] = None,
+        **kwargs,
+    ) -> str:
+        """Returns a HTML string representation of the element.
+
+        :param tag_overrides: Provide a dictionary of render function
+            for specific tag names, to override the normal render format
+
+        """
         raise NotImplementedError
+
+    def __str__(self) -> str:
+        return self.render()
 
     def __eq__(self, item: Any) -> bool:
         return item is self
@@ -181,18 +197,26 @@ class Element(abc.MutableSequence):
 class Root(Element):
     """The root of the AST tree."""
 
-    def __str__(self) -> str:
+    def render(self, **kwargs) -> str:
         """Returns a string HTML representation of the structure."""
-        return "".join(str(child) for child in self)
+        return "".join(child.render(**kwargs) for child in self)
 
 
 class Tag(Element):
     """Represent xml/html tags under the form: <name key="value" ...> ... </name>."""
 
-    def __str__(self) -> str:
+    def render(
+        self,
+        tag_overrides: Optional[Dict[str, Callable[[Element, dict], str]]] = None,
+        **kwargs,
+    ) -> str:
+        if tag_overrides and self.name in tag_overrides:
+            return tag_overrides[self.name](self, tag_overrides)
         return (
             f"<{self.name}{' ' if self.attrs else ''}{self.attrs}>"
-            + "".join(str(child) for child in self)
+            + "".join(
+                child.render(tag_overrides=tag_overrides, **kwargs) for child in self
+            )
             + f"</{self.name}>"
         )
 
@@ -200,14 +224,20 @@ class Tag(Element):
 class XTag(Element):
     """Represent XHTML style tags with no children, like `<img src="t.gif" />`"""
 
-    def __str__(self):
+    def render(
+        self,
+        tag_overrides: Optional[Dict[str, Callable[[Element, dict], str]]] = None,
+        **kwargs,
+    ) -> str:
+        if tag_overrides is not None and self.name in tag_overrides:
+            return tag_overrides[self.name](self, tag_overrides)
         return f"<{self.name}{' ' if self.attrs else ''}{self.attrs}/>"
 
 
 class VoidTag(Element):
     """Represent tags with no children, only start tag, like `<img src="t.gif" >`"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"<{self.name}{' ' if self.attrs else ''}{self.attrs}>"
 
 
@@ -231,42 +261,42 @@ class TerminalElement(Element):
 class Data(TerminalElement):
     """Represent data inside xml/html documents, like raw text."""
 
-    def __str__(self) -> str:
+    def render(self, **kwargs) -> str:
         return self.data
 
 
 class Declaration(TerminalElement):
     """Represent declarations, like `<!DOCTYPE html>`"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"<!{self.data}>"
 
 
 class Comment(TerminalElement):
     """Represent HTML comments"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"<!--{self.data}-->"
 
 
 class Pi(TerminalElement):
     """Represent processing instructions like `<?xml-stylesheet ?>`"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"<?{self.data}>"
 
 
 class Char(TerminalElement):
     """Represent character codes like: `&#0`"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"&#{self.data};"
 
 
 class Entity(TerminalElement):
     """Represent entities like `&amp`"""
 
-    def __str__(self):
+    def render(self, **kwargs) -> str:
         return f"&{self.data};"
 
 

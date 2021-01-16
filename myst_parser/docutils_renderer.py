@@ -490,11 +490,7 @@ class DocutilsRenderer:
         self.render_html_block(token)
 
     def render_html_block(self, token):
-        node_list = None
-        if self.config.get("enable_html_img", False):
-            node_list = html_to_nodes(token.content, self.document, token.map[0])
-        if node_list is None:
-            node_list = [nodes.raw("", token.content, format="html")]
+        node_list = html_to_nodes(token.content, token.map[0], self)
         self.current_node.extend(node_list)
 
     def render_image(self, token):
@@ -777,9 +773,25 @@ class DocutilsRenderer:
         first_line = token.info.split(maxsplit=1)
         name = first_line[0][1:-1]
         arguments = "" if len(first_line) == 1 else first_line[1]
-        # TODO directive name white/black lists
         content = token.content
         position = token.map[0]
+        nodes_list = self.run_directive(name, arguments, content, position)
+        self.current_node += nodes_list
+
+    def run_directive(
+        self, name: str, first_line: str, content: str, position: int
+    ) -> List[nodes.Element]:
+        """Run a directive and return the generated nodes.
+
+        :param name: the name of the directive
+        :param first_line: The text on the same line as the directive name.
+            May be an argument or body text, dependent on the directive
+        :param content: All text after the first line. Can include options.
+        :param position: The line number of the first line
+
+        """
+        # TODO directive name white/black lists
+
         self.document.current_line = position
 
         # get directive class
@@ -792,8 +804,7 @@ class DocutilsRenderer:
                 # nodes.literal_block(content, content),
                 line=position,
             )
-            self.current_node += [error] + messages
-            return
+            return [error] + messages
 
         if issubclass(directive_class, Include):
             # this is a Markdown only option,
@@ -803,7 +814,7 @@ class DocutilsRenderer:
 
         try:
             arguments, options, body_lines = parse_directive_text(
-                directive_class, arguments, content
+                directive_class, first_line, content
             )
         except DirectiveParsingError as error:
             error = self.reporter.error(
@@ -811,8 +822,7 @@ class DocutilsRenderer:
                 nodes.literal_block(content, content),
                 line=position,
             )
-            self.current_node += [error]
-            return
+            return [error]
 
         # initialise directive
         if issubclass(directive_class, Include):
@@ -823,7 +833,7 @@ class DocutilsRenderer:
                 arguments=arguments,
                 options=options,
                 body=body_lines,
-                token=token,
+                lineno=position,
             )
         else:
             state_machine = MockStateMachine(self, position)
@@ -863,8 +873,8 @@ class DocutilsRenderer:
                 nodes.literal_block(content, content),
                 line=position,
             )
-            self.current_node += [error]
-            return
+            return [error]
+
         assert isinstance(
             result, list
         ), 'Directive "{}" must return a list of nodes.'.format(name)
@@ -874,7 +884,7 @@ class DocutilsRenderer:
             ), 'Directive "{}" returned non-Node object (index {}): {}'.format(
                 name, i, result[i]
             )
-        self.current_node += result
+        return result
 
     def render_substitution_inline(self, token):
         """Render inline substitution {{key}}."""

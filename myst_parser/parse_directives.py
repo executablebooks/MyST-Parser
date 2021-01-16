@@ -51,11 +51,18 @@ class DirectiveParsingError(Exception):
 
 def parse_directive_text(
     directive_class: Type[Directive],
-    argument_str: str,
+    first_line: str,
     content: str,
     validate_options: bool = True,
 ):
-    """Parse (and validate) the full directive text."""
+    """Parse (and validate) the full directive text.
+
+    :param first_line: The text on the same line as the directive name.
+        May be an argument or body text, dependent on the directive
+    :param content: All text after the first line. Can include options.
+    :param validate_options: Whether to validate the values of options
+
+    """
     if directive_class.option_spec:
         body, options = parse_directive_options(
             content, directive_class, validate=validate_options
@@ -74,11 +81,11 @@ def parse_directive_text(
     ):
         # If there are no possible arguments and no option block,
         # then the body starts on the argument line
-        if argument_str:
-            body_lines.insert(0, argument_str)
+        if first_line:
+            body_lines.insert(0, first_line)
         arguments = []
     else:
-        arguments = parse_directive_arguments(directive_class, argument_str)
+        arguments = parse_directive_arguments(directive_class, first_line)
 
     # remove first line of body if blank
     # this is to allow space between the options and the content

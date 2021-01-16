@@ -1,51 +1,46 @@
+from pathlib import Path
 from unittest.mock import Mock
+
+from docutils import nodes
 import pytest
 
+from markdown_it.utils import read_fixture_file
 from myst_parser.html_to_nodes import html_to_nodes
 
 
-@pytest.mark.parametrize("text", ["", "abc", "<div></div>" "<div><img></div>"])
-def test_html_img_parse_none(text):
-    document = Mock(reporter=Mock(error=Mock(return_value="error")))
-    output = html_to_nodes(text, document, 0)
-    assert output is None
+FIXTURE_PATH = Path(__file__).parent
+
+
+@pytest.fixture()
+def mock_renderer():
+    def _run_directive(name: str, first_line: str, content: str, position: int):
+        node = nodes.Element(name=name, first=first_line, position=position)
+        node += nodes.Text(content)
+        return [node]
+
+    return Mock(
+        config={"enable_html_img": True, "enable_html_admonition": True},
+        document={"source": "source"},
+        reporter=Mock(
+            warning=Mock(return_value=nodes.system_message("warning")),
+            error=Mock(return_value=nodes.system_message("error")),
+        ),
+        run_directive=_run_directive,
+    )
 
 
 @pytest.mark.parametrize(
-    "text", ["<img>", '<img src="a" width="x">', '<img src="a" height="x">']
-)
-def test_html_img_parse_error(text):
-    document = Mock(reporter=Mock(error=Mock(return_value="error")))
-    output = html_to_nodes(text, document, 0)
-    assert len(output) == 1
-    assert output[0] == "error"
-
-
-@pytest.mark.parametrize(
-    "text,outcome",
-    [
-        ('<img src="a">', '<image uri="a">'),
-        ('<img src="a" other="b">', '<image uri="a">'),
-        (
-            '<img src="a" height="200px" class="a b">',
-            '<image classes="a b" height="200px" uri="a">',
-        ),
-        (
-            '<img src="a" name="b" align="left">',
-            '<image align="left" names="b" uri="a">',
-        ),
+    "line,title,text,expected",
+    read_fixture_file(FIXTURE_PATH / "html_to_nodes.md"),
+    ids=[
+        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "html_to_nodes.md")
     ],
 )
-def test_html_img_parse_ok(text, outcome):
-    document = Mock(reporter=Mock(error=Mock(return_value="error")))
-    output = html_to_nodes(text, document, 0)
-    assert len(output) == 1
-    assert output[0].pformat().strip() == outcome
-
-
-def test_html_multi_img_parse_ok():
-    text = '<img src="a">\n<img src="b">'
-    outcome = ['<image uri="a">', '<image uri="b">']
-    document = Mock(reporter=Mock(error=Mock(return_value="error")))
-    output = html_to_nodes(text, document, 0)
-    assert [o.pformat().strip() for o in output] == outcome
+def test_html_to_nodes(line, title, text, expected, mock_renderer):
+    output = nodes.container()
+    output += html_to_nodes(text, line_number=0, renderer=mock_renderer)
+    try:
+        assert output.pformat().rstrip() == expected.rstrip()
+    except AssertionError:
+        print(output.pformat())
+        raise

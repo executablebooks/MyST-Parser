@@ -301,7 +301,7 @@ class MockIncludeDirective:
         arguments: list,
         options: dict,
         body: List[str],
-        token,
+        lineno: int,
     ):
         self.renderer = renderer
         self.document = renderer.document
@@ -310,8 +310,7 @@ class MockIncludeDirective:
         self.arguments = arguments
         self.options = options
         self.body = body
-        self.lineno = token.map[0]
-        self.token = token
+        self.lineno = lineno
 
     def run(self):
 

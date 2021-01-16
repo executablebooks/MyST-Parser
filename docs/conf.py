@@ -68,6 +68,7 @@ myst_enable_extensions = [
     "dollarmath",
     "amsmath",
     "deflist",
+    "html_admonition",
     "html_image",
     "colon_fence",
     "smartquotes",
