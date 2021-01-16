@@ -932,12 +932,10 @@ See the [extended image syntax guide](syntax/images).
 (syntax/footnotes)=
 ## Footnotes
 
-Footnote labels **start with `^`** and can then be any alpha-numeric string (no spaces),
-which is case-insensitive.
-The actual label is not displayed in the rendered text; instead they are numbered,
-in the order which they are referenced.
-All footnote definitions are collected, and displayed at the bottom of the page
-(ordered by number).
+Footnotes use the [pandoc specification](https://pandoc.org/MANUAL.html#footnotes).
+Their labels **start with `^`** and can then be any alpha-numeric string (no spaces), which is case-insensitive.
+The actual label is not displayed in the rendered text; instead they are numbered, in the order which they are referenced.
+All footnote definitions are collected, and displayed at the bottom of the page (ordered by number).
 Note that un-referenced footnote definitions will not be displayed.
 
 ```md
@@ -996,6 +994,5 @@ unless they will only be referenced within that same directive:
 
 [^other]: A definition within a directive
 
-This is because, in the current implementation, they may not be available to
-reference in text above that particular directive.
+This is because, in the current implementation, they may not be available to reference in text above that particular directive.
 ````
