@@ -68,7 +68,7 @@
                     )
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="ln">
-                    1 
+                    0 
                 <inline classes="keyword">
                     def
                  
@@ -82,7 +82,7 @@
                     ):
                 
                 <inline classes="ln">
-                    2 
+                    1 
                     
                 <inline classes="name builtin">
                     print
@@ -101,10 +101,10 @@
                 so we can select some
             <literal_block ids="literal-ref" names="literal_ref" source="include_literal.txt" xml:space="preserve">
                 <inline classes="ln">
-                    1 
+                    0 
                 Lots
                 <inline classes="ln">
-                    2 
+                    1 
                 of
             <section ids="a-sub-sub-heading" names="a\ sub-sub-heading">
                 <title>

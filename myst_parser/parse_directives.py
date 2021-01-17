@@ -143,12 +143,14 @@ def parse_directive_options(
     options_spec = directive_class.option_spec  # type: Dict[str, Callable]
     for name, value in list(options.items()):
         convertor = options_spec.get(name, None)
-        if value is True:
+        if value is True or value is None:
             value = ""  # flag converter requires no argument
         if convertor is None:
             raise DirectiveParsingError("Unknown option: {}".format(name))
         try:
-            converted_value = convertor(value)
+            converted_value = convertor(
+                str(value)
+            )  # convertor always requires string input
         except (ValueError, TypeError) as error:
             raise DirectiveParsingError(
                 "Invalid option value: (option: '{}'; value: {})\n{}".format(
