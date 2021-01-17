@@ -33,6 +33,7 @@ from the content.
 This is to allow for separation between the option block and content.
 
 """
+import datetime
 import re
 from textwrap import dedent
 from typing import Callable, Dict, Type
@@ -143,14 +144,19 @@ def parse_directive_options(
     options_spec = directive_class.option_spec  # type: Dict[str, Callable]
     for name, value in list(options.items()):
         convertor = options_spec.get(name, None)
+        if convertor is None:
+            raise DirectiveParsingError(f"Unknown option: {name}")
         if value is True or value is None:
             value = ""  # flag converter requires no argument
-        if convertor is None:
-            raise DirectiveParsingError("Unknown option: {}".format(name))
+        if isinstance(value, (int, float, datetime.date, datetime.datetime)):
+            # convertor always requires string input
+            value = str(value)
+        if not isinstance(value, str):
+            raise DirectiveParsingError(
+                f'option "{name}"s value not string (enclose with ""): {value}'
+            )
         try:
-            converted_value = convertor(
-                str(value)
-            )  # convertor always requires string input
+            converted_value = convertor(value)
         except (ValueError, TypeError) as error:
             raise DirectiveParsingError(
                 "Invalid option value: (option: '{}'; value: {})\n{}".format(
