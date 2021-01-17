@@ -29,6 +29,7 @@ myst_enable_extensions = [
     "colon_fence",
     "deflist",
     "dollarmath",
+    "html_admonition",
     "html_image",
     "linkify",
     "replacements",
@@ -273,6 +274,8 @@ This text is **standard** _Markdown_
 :::{important}
 `myst_admonition_enable` is deprecated and replaced by `myst_enable_extensions = ["colon_fence"]` (see above).
 Also, classes should now be set with the `:class: myclass` option.
+
+Also see [](syntax/html-admonition).
 :::
 
 (syntax/header-anchors)=
@@ -425,11 +428,13 @@ HTML parsing to the rescue!
 By adding `"html_image"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
 
-```md
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary" width="200px">
+```html
+<img src="img/fun-fish.png" alt="fishy" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px" class="bg-primary">
 ```
 
-<img src="img/fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px">
+<img src="img/fun-fish.png" alt="fishy" width="200px" class="bg-primary">
 
 Allowed attributes are equivalent to the `image` directive: src, alt, class, width, height and name.
 Any other attributes will be dropped.
@@ -479,6 +484,69 @@ As we see here, the target we set can be referenced:
 ```
 
 [Go to the fish!](fig-target)
+
+(syntax/html-admonition)=
+
+## HTML Admonitions
+
+By adding `"html_admonition"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+you can enable parsing of `<div class="admonition">` HTML blocks.
+These blocks will be converted internally to Sphinx admonition directives, and so will work correctly for all output formats.
+
+If the first element within the `div` is `<div class="title">` or `<p class="title">`, then this will be set as the admonition title.
+All internal text (and the title) will be parsed as MyST-Markdown and all classes and an optional name will be passed to the admonition:
+
+```html
+<div class="admonition note" name="html-admonition">
+<p class="title">This is the **title**</p>
+This is the *content*
+</div>
+```
+
+<div class="admonition note" name="html-admonition">
+<div class="title">This is the **title**</div>
+This is the *content*
+</div>
+
+:::{warning}
+There can be no empty lines in the block, otherwise they will be read as two separate blocks.
+If you want to use multiple paragraphs then they can be enclosed in `<p>`:
+
+```html
+<div class="admonition note">
+<p>Paragraph 1</p>
+<p>Paragraph 2</p>
+</div>
+```
+
+<div class="admonition note">
+<p>Paragraph 1</p>
+<p>Paragraph 2</p>
+</div>
+
+:::
+
+You can also nest HTML admonitions:
+
+```html
+<div class="admonition">
+<p>Some **content**</p>
+  <div class="admonition tip">
+  <div class="title">A *title*</div>
+  <p>Paragraph 1</p>
+  <p>Paragraph 2</p>
+  </div>
+</div>
+```
+
+<div class="admonition">
+<p>Some **content**</p>
+  <div class="admonition tip">
+  <div class="title">A *title*</div>
+  <p>Paragraph 1</p>
+  <p>Paragraph 2</p>
+  </div>
+</div>
 
 (syntax/amsmath)=
 

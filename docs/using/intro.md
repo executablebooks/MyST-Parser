@@ -219,7 +219,7 @@ for MyST extended syntax highlighting.
 :::
 
 (intro/config-options)=
-## MyST configuration options
+# Sphinx configuration options
 
 You can control the behaviour of the MyST parser in Sphinx by modifying your `conf.py` file.
 To do so, use the keywords beginning `myst_`.
@@ -254,6 +254,7 @@ List of extensions:
 - "colon_fence": Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
 - "deflist"
 - "dollarmath": Enable parsing of dollar `$` and `$$` encapsulated math
+- "html_admonition": Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](syntax/html-admonition) for details
 - "html_image": Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
 - "linkify": automatically identify "bare" web URLs and add hyperlinks
 - "replacements": automatically convert some common typographic texts
@@ -289,7 +290,7 @@ Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math)
   `myst_dmath_enable` and `myst_amsmath_enable` respectively.
 `````
 
-### Disable markdown syntax for the parser
+## Disable markdown syntax for the parser
 
 If you'd like to either enable or disable custom markdown syntax, use `myst_disable_syntax`.
 Anything in this list will no longer be parsed by the MyST parser.
