@@ -146,15 +146,16 @@ def parse_directive_options(
         convertor = options_spec.get(name, None)
         if convertor is None:
             raise DirectiveParsingError(f"Unknown option: {name}")
-        if value is True or value is None:
-            value = ""  # flag converter requires no argument
-        if isinstance(value, (int, float, datetime.date, datetime.datetime)):
-            # convertor always requires string input
-            value = str(value)
         if not isinstance(value, str):
-            raise DirectiveParsingError(
-                f'option "{name}"s value not string (enclose with ""): {value}'
-            )
+            if value is True or value is None:
+                value = ""  # flag converter requires no argument
+            elif isinstance(value, (int, float, datetime.date, datetime.datetime)):
+                # convertor always requires string input
+                value = str(value)
+            else:
+                raise DirectiveParsingError(
+                    f'option "{name}"s value not string (enclose with ""): {value}'
+                )
         try:
             converted_value = convertor(value)
         except (ValueError, TypeError) as error:
