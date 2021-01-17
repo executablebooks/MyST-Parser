@@ -154,7 +154,7 @@ def parse_directive_options(
                 value = str(value)
             else:
                 raise DirectiveParsingError(
-                    f'option "{name}"s value not string (enclose with ""): {value}'
+                    f'option "{name}" value not string (enclose with ""): {value}'
                 )
         try:
             converted_value = convertor(value)
