@@ -93,3 +93,15 @@ source/path:10: (ERROR/3) Unknown directive type "unknown".
 
 source/path:12: (ERROR/3) Unknown interpreted text role "unknown".
 .
+
+bad-option-value
+.
+```{note}
+:class: [1]
+```
+.
+source/path:1: (ERROR/3) Directive 'note': option "class" value not string (enclose with ""): [1]
+
+:class: [1]
+
+.
