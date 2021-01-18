@@ -492,21 +492,24 @@ As we see here, the target we set can be referenced:
 By adding `"html_admonition"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 you can enable parsing of `<div class="admonition">` HTML blocks.
 These blocks will be converted internally to Sphinx admonition directives, and so will work correctly for all output formats.
+This is helpful when you care about viewing the "source" Markdown, such as in Jupyter Notebooks.
 
 If the first element within the `div` is `<div class="title">` or `<p class="title">`, then this will be set as the admonition title.
 All internal text (and the title) will be parsed as MyST-Markdown and all classes and an optional name will be passed to the admonition:
 
 ```html
-<div class="admonition note" name="html-admonition">
+<div class="admonition note" name="html-admonition" style="background: lightgreen; padding: 10px">
 <p class="title">This is the **title**</p>
 This is the *content*
 </div>
 ```
 
-<div class="admonition note" name="html-admonition">
+<div class="admonition note" name="html-admonition" style="background: lightgreen; padding: 10px">
 <div class="title">This is the **title**</div>
 This is the *content*
 </div>
+
+During the Sphinx render, both the `class` and `name` attributes will be used by Sphinx, but any other attributes like `style` will be discarded.
 
 :::{warning}
 There can be no empty lines in the block, otherwise they will be read as two separate blocks.
