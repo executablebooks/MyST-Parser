@@ -526,19 +526,7 @@ class DocutilsRenderer:
     # ### render methods for plugin tokens
 
     def render_front_matter(self, token):
-        """Pass document front matter data
-
-        For RST, all field lists are captured by
-        ``docutils.docutils.parsers.rst.states.Body.field_marker``,
-        then, if one occurs at the document, it is transformed by
-        `docutils.docutils.transforms.frontmatter.DocInfo`, and finally
-        this is intercepted by sphinx and added to the env in
-        `sphinx.environment.collectors.metadata.MetadataCollector.process_doc`
-
-        So technically the values should be parsed to AST, but this is redundant,
-        since `process_doc` just converts them back to text.
-
-        """
+        """Pass document front matter data."""
         if not isinstance(token.content, dict):
             try:
                 data = yaml.safe_load(token.content)
@@ -562,8 +550,8 @@ class DocutilsRenderer:
             msg_node += nodes.literal_block(token.content, token.content)
             self.current_node += [msg_node]
 
-        docinfo = dict_to_docinfo(data)
-        self.current_node.append(docinfo)
+        field_list = dict_to_field_list(data)
+        self.current_node.append(field_list)
 
     def render_table_open(self, token):
 
@@ -992,9 +980,39 @@ class DocutilsRenderer:
         self.current_node.extend(sub_nodes)
 
 
-def dict_to_docinfo(data):
-    """Render a key/val pair as a docutils field node."""
-    docinfo = nodes.docinfo()
+def dict_to_field_list(data: dict) -> nodes.field_list:
+    """Render each key/val pair as a docutils field node.
+
+    If the field list is at the start of the document,
+    then it will be converted to a `docinfo` node during the
+    `docutils.docutils.transforms.frontmatter.DocInfo` transform (priority 340),
+    and bibliographic keys will be converted to specific nodes::
+
+        {'author': docutils.nodes.author,
+        'authors': docutils.nodes.authors,
+        'organization': docutils.nodes.organization,
+        'address': docutils.nodes.address,
+        'contact': docutils.nodes.contact,
+        'version': docutils.nodes.version,
+        'revision': docutils.nodes.revision,
+        'status': docutils.nodes.status,
+        'date': docutils.nodes.date,
+        'copyright': docutils.nodes.copyright,
+        'dedication': docutils.nodes.topic,
+        'abstract': docutils.nodes.topic}
+
+    If using sphinx, this `docinfo` node will later be extracted from the AST,
+    by the `DoctreeReadEvent` transform (priority 880),
+    calling `MetadataCollector.process_doc`.
+    In this case keys and values will be converted to strings and stored in
+    `app.env.metadata[app.env.docname]`
+
+    See
+    https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html
+    for docinfo fields used by sphinx.
+
+    """
+    field_list = nodes.field_list()
 
     for key, value in data.items():
         if not isinstance(value, (str, int, float, date, datetime)):
@@ -1004,5 +1022,5 @@ def dict_to_docinfo(data):
         field_node.source = value
         field_node += nodes.field_name(key, "", nodes.Text(key, key))
         field_node += nodes.field_body(value, nodes.Text(value, value))
-        docinfo += field_node
-    return docinfo
+        field_list += field_node
+    return field_list
