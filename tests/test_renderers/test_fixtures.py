@@ -19,6 +19,9 @@ def test_minimal_sphinx():
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("syntax_elements.md")),
+    ids=[
+        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "syntax_elements.md")
+    ],
 )
 def test_syntax_elements(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
@@ -29,7 +32,9 @@ def test_syntax_elements(line, title, input, expected):
 
 
 @pytest.mark.parametrize(
-    "line,title,input,expected", read_fixture_file(FIXTURE_PATH.joinpath("tables.md"))
+    "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("tables.md")),
+    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "tables.md")],
 )
 def test_tables(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
@@ -42,6 +47,10 @@ def test_tables(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("directive_options.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "directive_options.md")
+    ],
 )
 def test_directive_options(line, title, input, expected):
     document = to_docutils(input)
@@ -54,6 +63,9 @@ def test_directive_options(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("docutil_roles.md")),
+    ids=[
+        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "docutil_roles.md")
+    ],
 )
 def test_docutils_roles(line, title, input, expected):
     document = to_docutils(input)
@@ -66,6 +78,10 @@ def test_docutils_roles(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("docutil_directives.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "docutil_directives.md")
+    ],
 )
 def test_docutils_directives(line, title, input, expected):
     # TODO fix skipped directives
@@ -82,6 +98,10 @@ def test_docutils_directives(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("sphinx_directives.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "sphinx_directives.md")
+    ],
 )
 def test_sphinx_directives(line, title, input, expected):
     # TODO fix skipped directives
@@ -102,6 +122,7 @@ def test_sphinx_directives(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("sphinx_roles.md")),
+    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "sphinx_roles.md")],
 )
 def test_sphinx_roles(line, title, input, expected):
     if title.startswith("SKIP"):
@@ -120,6 +141,7 @@ def test_sphinx_roles(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("amsmath.md")),
+    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "amsmath.md")],
 )
 def test_amsmath(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
@@ -137,6 +159,7 @@ def test_amsmath(line, title, input, expected, monkeypatch):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("containers.md")),
+    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "containers.md")],
 )
 def test_containers(line, title, input, expected, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
@@ -154,6 +177,7 @@ def test_containers(line, title, input, expected, monkeypatch):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("eval_rst.md")),
+    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "eval_rst.md")],
 )
 def test_evalrst_elements(line, title, input, expected):
     document = to_docutils(input, in_sphinx_env=True)
@@ -166,6 +190,10 @@ def test_evalrst_elements(line, title, input, expected):
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("definition_lists.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "definition_lists.md")
+    ],
 )
 def test_definition_lists(line, title, input, expected):
     document = to_docutils(

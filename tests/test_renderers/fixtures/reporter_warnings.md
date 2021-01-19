@@ -45,6 +45,19 @@ expected the node content, but found '<stream end>'
         ^
 .
 
+Bad HTML Meta
+.
+---
+html_meta:
+  empty:
+  name noequals: value
+
+---
+.
+source/path:: (ERROR/3) Error parsing meta tag attribute "empty": No content.
+source/path:: (ERROR/3) Error parsing meta tag attribute "name noequals": no '=' in noequals.
+.
+
 Directive parsing error:
 .
 

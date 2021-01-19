@@ -246,6 +246,12 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
+* - `myst_substitutions`
+  - `{}`
+  - A mapping of keys to substitutions, used globally for all MyST documents when the "substitution" extension is enabled.
+* - `myst_html_meta`
+  - `{}`
+  - A mapping of keys to HTML metadata, used globally for all MyST documents. See [](syntax/html_meta).
 `````
 
 List of extensions:
@@ -259,7 +265,7 @@ List of extensions:
 - "linkify": automatically identify "bare" web URLs and add hyperlinks
 - "replacements": automatically convert some common typographic texts
 - "smartquotes": automatically convert standard quotations to their opening/closing variants
-- "substitution": substitute keys
+- "substitution": substitute keys, see the [substitutions syntax](syntax/substitutions) for details
 
 Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math) for more details:
 

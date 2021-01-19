@@ -22,6 +22,7 @@ copyright = "2020, Executable Book Project"
 author = "Executable Book Project"
 
 master_doc = "index"
+language = "en"
 
 # -- General configuration ---------------------------------------------------
 

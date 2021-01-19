@@ -35,6 +35,7 @@ import os
 import pathlib
 import shutil
 
+from bs4 import BeautifulSoup
 import pytest
 from sphinx.testing.path import path
 
@@ -79,8 +80,6 @@ def get_sphinx_app_output(file_regression):
 
         if regress_html:
             # only regress the inner body, since other sections are non-deterministic
-            from bs4 import BeautifulSoup
-
             soup = BeautifulSoup(content, "html.parser")
             doc_div = soup.findAll("div", {"class": "documentwrapper"})[0]
             text = doc_div.prettify()

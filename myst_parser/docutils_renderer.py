@@ -5,7 +5,7 @@ import inspect
 import json
 import os
 import re
-from typing import List
+from typing import Any, Dict, List, Union
 from datetime import date, datetime
 
 import jinja2
@@ -19,6 +19,7 @@ from docutils.parsers.rst import directives, Directive, DirectiveError, roles
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.statemachine import StringList
+from docutils.transforms.components import Filter
 from docutils.utils import new_document, Reporter
 
 from markdown_it import MarkdownIt
@@ -535,23 +536,45 @@ class DocutilsRenderer:
                     "Front matter block:\n" + str(error), line=token.map[0]
                 )
                 msg_node += nodes.literal_block(token.content, token.content)
-                self.current_node += [msg_node]
+                self.current_node.append(msg_node)
                 return
         else:
             data = deepcopy(token.content)
 
         substitutions = data.pop("substitutions", {})
+        html_meta = data.pop("html_meta", {})
+
+        if data:
+            field_list = dict_to_field_list(data)
+            self.current_node.append(field_list)
+
         if isinstance(substitutions, dict):
             self.document.fm_substitutions = substitutions
         else:
             msg_node = self.reporter.error(
-                "Front-matter substitutions is not a dict", line=token.map[0]
+                "Front-matter 'substitutions' is not a dict", line=token.map[0]
             )
             msg_node += nodes.literal_block(token.content, token.content)
-            self.current_node += [msg_node]
+            self.current_node.append(msg_node)
 
-        field_list = dict_to_field_list(data)
-        self.current_node.append(field_list)
+        if not isinstance(html_meta, dict):
+            msg_node = self.reporter.error(
+                "Front-matter 'html_meta' is not a dict", line=token.map[0]
+            )
+            msg_node += nodes.literal_block(token.content, token.content)
+            self.current_node.append(msg_node)
+
+        self.current_node.extend(
+            html_meta_to_nodes(
+                {
+                    **self.config.get("myst_html_meta", {}),
+                    **html_meta,
+                },
+                document=self.document,
+                line=token.map[0],
+                reporter=self.reporter,
+            )
+        )
 
     def render_table_open(self, token):
 
@@ -1024,3 +1047,58 @@ def dict_to_field_list(data: dict) -> nodes.field_list:
         field_node += nodes.field_body(value, nodes.Text(value, value))
         field_list += field_node
     return field_list
+
+
+def html_meta_to_nodes(
+    data: Dict[str, Any], document: nodes.document, line: int, reporter: Reporter
+) -> List[Union[nodes.pending, nodes.system_message]]:
+    """Replicate the `meta` directive,
+    by converting a dictionary to a list of pending meta nodes
+
+    See:
+    https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#html-metadata
+    """
+    if not data:
+        return []
+
+    try:
+        from sphinx.addnodes import meta as meta_cls
+    except ImportError:
+        from docutils.parsers.rst.directives.html import MetaBody
+
+        meta_cls = MetaBody.meta
+
+    output = []
+
+    for key, value in data.items():
+        content = str(value or "")
+        meta_node = meta_cls(content)
+        meta_node.source = document["source"]
+        meta_node.line = line
+        meta_node["content"] = content
+        try:
+            if not content:
+                raise ValueError("No content")
+            for i, key_part in enumerate(key.split()):
+                if "=" not in key_part and i == 0:
+                    meta_node["name"] = key_part
+                    continue
+                if "=" not in key_part:
+                    raise ValueError(f"no '=' in {key_part}")
+                attr_name, attr_val = key_part.split("=", 1)
+                if not (attr_name and attr_val):
+                    raise ValueError(f"malformed {key_part}")
+                meta_node[attr_name.lower()] = attr_val
+        except ValueError as error:
+            msg = reporter.error(f'Error parsing meta tag attribute "{key}": {error}.')
+            output.append(msg)
+            continue
+
+        pending = nodes.pending(
+            Filter,
+            {"component": "writer", "format": "html", "nodes": [meta_node]},
+        )
+        document.note_pending(pending)
+        output.append(pending)
+
+    return output
