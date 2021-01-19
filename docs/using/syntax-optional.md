@@ -11,6 +11,7 @@ substitutions:
     :alt: fishy
     :width: 200px
     ```
+  key4: example
 ---
 
 (syntax/optional)=
@@ -110,6 +111,7 @@ substitutions:
     :alt: fishy
     :width: 200px
     ```
+  key4: example
 ---
 ````
 
@@ -163,11 +165,9 @@ Substitutions will only be assessed where you would normally use Markdown, e.g. 
 {{ key1 }}
 ```
 
-:::
-
-:::{warning}
-One should be wary using block-level syntaxes (such as lists) for inline substitutions.
+One should also be wary of using unsuitable directives for inline substitutions.
 This may lead to unexpected outcomes.
+
 :::
 
 Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) in the context (as `env`).
@@ -189,6 +189,28 @@ myst_sub_delimiters = ["|", "|"]
 
 Will parse: `|| "a" + "b" ||`.
 This should be changed with care though, so as not to affect other syntaxes.
+
+The exact logic for handling substitutions is:
+
+1. Combine global substitutions (specified in `conf.py`) with front-matter substitutions, to create a variable context (front-matter takes priority)
+2. Add the sphinx `env` to the variable context
+3. Create the string content to render using Jinja2 (passing it the variable context)
+4. If the substitution is inline and not a directive, render ignoring block syntaxes (like lists or block-quotes), otherwise render with all syntax rules.
+
+### Substitutions and URLs
+
+Substitutions cannot be directly used in URLs, such as `[a link](https://{{key4}}.com)` or `<https://{{key4}}.com>`.
+However, since Jinja2 substitutions allow for Python methods to be used, you can use string formatting or replacements:
+
+```md
+{{ '[a link](https://{}.com)'.format(key4) }}
+
+{{ '<https://myst-parser.readthedocs.io/en/latest/REPLACE.html>'.replace('REPLACE', env.docname) }}
+```
+
+{{ '[a link](https://{}.com)'.format(key4) }}
+
+{{ '<https://myst-parser.readthedocs.io/en/latest/REPLACE.html>'.replace('REPLACE', env.docname) }}
 
 (syntax/colon_fence)=
 

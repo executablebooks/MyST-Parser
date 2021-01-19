@@ -1,6 +1,7 @@
 ---
 substitutions:
-  text: >
+  text: "- text"
+  text_with_nest: >
     output
     with *Markdown*
     {{ nested }}
@@ -11,15 +12,23 @@ substitutions:
     ```{note}
     A note {{ nested }}
     ```
+  inline_admonition: |
+    ```{note}
+    Inline note
+    ```
   override: Overriden by front matter
 
 ---
 
-{{ text }}
+{{ text_with_nest }}
 
 {{ admonition }}
 
-b {{ text }} d
+a {{ text }} b
+
+c {{ text_with_nest }} d
+
+e {{ inline_admonition }} f
 
 {{ conf }}
 
@@ -28,13 +37,13 @@ b {{ text }} d
 This will process the substitution
 
 ```{parsed-literal}
-{{ text }}
+{{ text_with_nest }}
 ```
 
 This will not process the substitution
 
 ```python
-{{ text }}
+{{ text_with_nest }}
 ```
 
 Using env and filters:

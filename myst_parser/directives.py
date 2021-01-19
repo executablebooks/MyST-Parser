@@ -52,12 +52,13 @@ class FigureMarkdown(SphinxDirective):
         node = nodes.Element()
         # TODO test that we are using myst parser
         # ensure html image enabled
-        enable_html_img = self.state._renderer.config.get("enable_html_img", False)
+        myst_extensions = self.state._renderer.config.get("myst_extensions", set())
         try:
-            self.state._renderer.config["enable_html_img"] = True
+            self.state._renderer.config.setdefault("myst_extensions", set())
+            self.state._renderer.config["myst_extensions"].add("html_image")
             self.state.nested_parse(self.content, self.content_offset, node)
         finally:
-            self.state._renderer.config["enable_html_img"] = enable_html_img
+            self.state._renderer.config["myst_extensions"] = myst_extensions
 
         if not len(node.children) == 2:
             return [

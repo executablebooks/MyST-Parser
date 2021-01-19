@@ -1,4 +1,3 @@
-"""NOTE: this will eventually be moved out of core"""
 from collections import OrderedDict
 from contextlib import contextmanager
 from copy import deepcopy
@@ -9,6 +8,7 @@ import re
 from typing import List
 from datetime import date, datetime
 
+import jinja2
 import yaml
 
 from docutils import nodes
@@ -45,6 +45,8 @@ def make_document(source_path="notset") -> nodes.document:
     return new_document(source_path, settings=settings)
 
 
+REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
+
 # TODO remove deprecated after v0.13.0
 # CSS class regex taken from https://www.w3.org/TR/CSS21/syndata.html#characters
 REGEX_ADMONTION = re.compile(
@@ -71,6 +73,11 @@ except ImportError:
 
 
 class DocutilsRenderer:
+    """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
+
+    Note, this render is not dependent on Sphinx.
+    """
+
     __output__ = "docutils"
 
     def __init__(self, parser: MarkdownIt):
@@ -440,7 +447,7 @@ class DocutilsRenderer:
 
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        destination = token.attrGet("href")  # escape urls?
+        destination = token.attrGet("href")
 
         if self.config.get(
             "relative-docs", None
@@ -464,7 +471,7 @@ class DocutilsRenderer:
         if is_external_url(
             destination,
             self.config.get("myst_url_schemes", None),
-            not self.config.get("enable_anchors"),
+            "heading_anchors" not in self.config.get("myst_extensions", []),
         ):
             self.current_node.append(next_node)
             with self.current_node_context(ref_node):
@@ -543,11 +550,11 @@ class DocutilsRenderer:
                 self.current_node += [msg_node]
                 return
         else:
-            data = token.content
+            data = deepcopy(token.content)
 
-        substitutions = data.get("substitutions", {})
+        substitutions = data.pop("substitutions", {})
         if isinstance(substitutions, dict):
-            self.document.fm_substitutions = deepcopy(substitutions)
+            self.document.fm_substitutions = substitutions
         else:
             msg_node = self.reporter.error(
                 "Front-matter substitutions is not a dict", line=token.map[0]
@@ -895,19 +902,29 @@ class DocutilsRenderer:
         self.render_substitution(token, inline=False)
 
     def render_substitution(self, token, inline: bool):
+        """Substitutions are rendered by:
 
-        import jinja2
+        1. Combining global substitutions with front-matter substitutions
+           to create a variable context (front-matter takes priority)
+        2. Add the sphinx `env` to the variable context (if available)
+        3. Create the string content with Jinja2 (passing it the variable context)
+        4. If the substitution is inline and not a directive,
+           parse to nodes ignoring block syntaxes (like lists or block-quotes),
+           otherwise parse to nodes with all syntax rules.
+
+        """
 
         # TODO token.map was None when substituting an image in a table
+        # (should be fixed: https://github.com/executablebooks/markdown-it-py/pull/109)
         position = token.map[0] if token.map else 9999
 
         # front-matter substitutions take priority over config ones
-        context = {
-            **self.config.get("substitutions", {}),
+        variable_context = {
+            **self.config.get("myst_substitutions", {}),
             **getattr(self.document, "fm_substitutions", {}),
         }
         try:
-            context["env"] = self.document.settings.env
+            variable_context["env"] = self.document.settings.env
         except AttributeError:
             pass  # if not sphinx renderer
 
@@ -916,7 +933,9 @@ class DocutilsRenderer:
 
         # try rendering
         try:
-            rendered = env.from_string(f"{{{{{token.content}}}}}").render(context)
+            rendered = env.from_string(f"{{{{{token.content}}}}}").render(
+                variable_context
+            )
         except Exception as error:
             error = self.reporter.error(
                 f"Substitution error:{error.__class__.__name__}: {error}",
@@ -943,32 +962,32 @@ class DocutilsRenderer:
         # parse rendered text
         state_machine = MockStateMachine(self, position)
         state = MockState(self, state_machine, position)
+
         # TODO improve error reporting;
         # at present, for a multi-line substitution,
         # an error may point to a line lower than the substitution
         # should it point to the source of the substitution?
         # or the error message should at least indicate that its a substitution
+
+        # we record used references before nested parsing, then remove them after
         self.document.sub_references.update(references)
-        base_node = nodes.Element()
+
+        if inline:
+            state_machine = MockStateMachine(self, position)
+
         try:
-            state.nested_parse(
-                StringList(rendered.splitlines(), self.document["source"]),
-                0,
-                base_node,
-            )
+            if inline and not REGEX_DIRECTIVE_START.match(rendered):
+                sub_nodes, _ = state.inline_text(rendered, position)
+            else:
+                base_node = nodes.Element()
+                state.nested_parse(
+                    StringList(rendered.splitlines(), self.document["source"]),
+                    0,
+                    base_node,
+                )
+                sub_nodes = base_node.children
         finally:
             self.document.sub_references.difference_update(references)
-
-        sub_nodes = base_node.children
-        if (
-            inline
-            and len(base_node.children) == 1
-            and isinstance(base_node.children[0], nodes.paragraph)
-        ):
-            # just add the contents of the paragraph
-            sub_nodes = base_node.children[0].children
-
-        # TODO add more checking for inline compatibility?
 
         self.current_node.extend(sub_nodes)
 
