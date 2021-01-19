@@ -786,13 +786,12 @@ To inhibit this override, set `myst_update_mathjax=False`.
 ## Front Matter
 
 This is a YAML block at the start of the document, as used for example in
-[jekyll](https://jekyllrb.com/docs/front-matter/). Sphinx intercepts these data and
-stores them within the global environment (as discussed
-[here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
+[jekyll](https://jekyllrb.com/docs/front-matter/).
+Sphinx intercepts these data and stores them within the global environment
+(as discussed [here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
 
-A classic use-case is to specify 'orphan' documents, that are not specified in any
-toctrees. For example, inserting the following syntax at the top of a page will cause
-Sphinx to treat it as an orphan page:
+A classic use-case is to specify 'orphan' documents, that are not specified in any toctrees.
+For example, inserting the following syntax at the top of a page will cause Sphinx to treat it as an orphan page:
 
 ```md
 ---
@@ -801,6 +800,11 @@ orphan: true
 
 This is an orphan document, not specified in any toctrees.
 ```
+
+:::{seealso}
+Top-matter is also used for the [substitution syntax extension](syntax/substitutions),
+and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/manual/markdown/)).
+:::
 
 (syntax/comments)=
 

@@ -135,6 +135,7 @@ nitpick_ignore = [
     ("py:class", "docutils.nodes.system_message"),
     ("py:class", "docutils.statemachine.StringList"),
     ("py:class", "docutils.nodes.Element"),
+    ("py:class", "docutils.nodes.field_list"),
     ("py:class", "docutils.parsers.rst.directives.misc.Include"),
     ("py:class", "docutils.nodes.document"),
     ("py:class", "docutils.parsers.rst.Parser"),

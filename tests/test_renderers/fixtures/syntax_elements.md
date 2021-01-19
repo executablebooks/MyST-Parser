@@ -595,7 +595,7 @@ c:
 ---
 .
 <document source="notset">
-    <docinfo>
+    <field_list>
         <field>
             <field_name>
                 a
@@ -661,7 +661,7 @@ a = 1
 [](target)
 .
 <document source="notset">
-    <docinfo>
+    <field_list>
         <field>
             <field_name>
                 a
