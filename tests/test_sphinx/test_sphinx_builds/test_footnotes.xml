@@ -21,7 +21,7 @@
              
             <footnote_reference auto="1" docname="footnote_md" ids="id6" refid="id7">
                 5
-        <transition>
+        <transition classes="footnotes">
         <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
             <label>
                 1

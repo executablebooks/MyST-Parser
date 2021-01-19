@@ -532,7 +532,7 @@ Footnotes:
 <document source="notset">
     <paragraph>
         <footnote_reference auto="1" ids="id1" refname="a">
-    <transition>
+    <transition classes="footnotes">
     <footnote auto="1" ids="a" names="a">
         <paragraph>
             footnote
@@ -563,7 +563,7 @@ finish
         <footnote_reference auto="1" ids="id1" refname="a">
     <paragraph>
         finish
-    <transition>
+    <transition classes="footnotes">
     <footnote auto="1" ids="a" names="a">
         <paragraph>
             footnote
