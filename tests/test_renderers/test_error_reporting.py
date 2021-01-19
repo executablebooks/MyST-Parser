@@ -13,6 +13,10 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("reporter_warnings.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "reporter_warnings.md")
+    ],
 )
 def test_basic(line, title, input, expected):
     document = make_document("source/path")

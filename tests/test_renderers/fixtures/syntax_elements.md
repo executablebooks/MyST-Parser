@@ -633,6 +633,51 @@ a: {
             a: {
 .
 
+Front Matter HTML Meta
+.
+---
+html_meta:
+    keywords: Sphinx, documentation, builder
+    description lang=en: An amusing story
+    description lang=fr: Un histoire amusant
+    http-equiv=Content-Type: text/html; charset=ISO-8859-1
+---
+.
+<document source="notset">
+    <pending>
+        .. internal attributes:
+             .transform: docutils.transforms.components.Filter
+             .details:
+               component: 'writer'
+               format: 'html'
+               nodes:
+                 <meta content="Sphinx, documentation, builder" name="keywords">
+    <pending>
+        .. internal attributes:
+             .transform: docutils.transforms.components.Filter
+             .details:
+               component: 'writer'
+               format: 'html'
+               nodes:
+                 <meta content="An amusing story" lang="en" name="description">
+    <pending>
+        .. internal attributes:
+             .transform: docutils.transforms.components.Filter
+             .details:
+               component: 'writer'
+               format: 'html'
+               nodes:
+                 <meta content="Un histoire amusant" lang="fr" name="description">
+    <pending>
+        .. internal attributes:
+             .transform: docutils.transforms.components.Filter
+             .details:
+               component: 'writer'
+               format: 'html'
+               nodes:
+                 <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+.
+
 --------------------------
 Full Test:
 .

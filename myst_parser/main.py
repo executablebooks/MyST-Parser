@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import attr
 from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
@@ -96,11 +96,17 @@ class MdParserConfig:
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
     )
 
-    substitutions: Dict[str, str] = attr.ib(
+    substitutions: Dict[str, Union[str, int, float]] = attr.ib(
         factory=dict,
         validator=deep_mapping(
             instance_of(str), instance_of((str, int, float)), instance_of(dict)
         ),
+        repr=lambda v: str(list(v)),
+    )
+
+    html_meta: Dict[str, str] = attr.ib(
+        factory=dict,
+        validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
         repr=lambda v: str(list(v)),
     )
 
@@ -197,6 +203,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             ),
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,
+            "myst_html_meta": config.html_meta,
         }
     )
 

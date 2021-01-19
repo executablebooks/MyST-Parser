@@ -806,6 +806,70 @@ Top-matter is also used for the [substitution syntax extension](syntax/substitut
 and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/manual/markdown/)).
 :::
 
+(syntax/html_meta)=
+
+### Setting HTML Metadata
+
+The front-matter can contain the special key `html_meta`; a dict with data to add to the generated HTML as [`<meta>` elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta).
+This is equivalent to using the [RST `meta` directive](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#html-metadata).
+
+HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
+for each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
+
+:::{tabbed} Sphinx Configuration
+
+```python
+language = "en"
+myst_html_meta = {
+    "description lang=en": "metadata description",
+    "description lang=fr": "description des métadonnées",
+    "keywords": "Sphinx, MyST",
+    "property=og:locale":  "en_US"
+}
+```
+
+:::
+
+:::{tabbed} MyST Front-Matter
+
+```yaml
+---
+html_meta:
+  "description lang=en": "metadata description"
+  "description lang=fr": "description des métadonnées"
+  "keywords": "Sphinx, MyST"
+  "property=og:locale": "en_US"
+---
+```
+
+:::
+
+:::{tabbed} RestructuredText
+
+```restructuredtext
+.. meta::
+   :description lang=en: metadata description
+   :description lang=fr: description des métadonnées
+   :keywords: Sphinx, MyST
+   :property=og:locale: en_US
+```
+
+:::
+
+:::{tabbed} HTML Output
+
+```html
+<html lang="en">
+  <head>
+    <meta content="metadata description" lang="en" name="description" xml:lang="en" />
+    <meta content="description des métadonnées" lang="fr" name="description" xml:lang="fr" />
+    <meta name="keywords" content="Sphinx, MyST">
+    <meta content="en_US" property="og:locale" />
+```
+
+:::
+
+
 (syntax/comments)=
 
 ## Comments
