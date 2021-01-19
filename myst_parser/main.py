@@ -185,14 +185,18 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
 
     md.options.update(
         {
-            "commonmark_only": False,
+            # standard options
             "typographer": typographer,
             "linkify": "linkify" in config.enable_extensions,
-            "enable_html_img": "html_image" in config.enable_extensions,
-            "enable_html_admonition": "html_admonition" in config.enable_extensions,
+            # myst options
+            "commonmark_only": False,
+            "myst_extensions": set(
+                config.enable_extensions + ["heading_anchors"]
+                if config.heading_anchors is not None
+                else []
+            ),
             "myst_url_schemes": config.url_schemes,
-            "enable_anchors": config.heading_anchors is not None,
-            "substitutions": config.substitutions,
+            "myst_substitutions": config.substitutions,
         }
     )
 
@@ -218,7 +222,7 @@ def to_docutils(
     :param document: the docutils root node to use (otherwise a new one will be created)
     :param in_sphinx_env: initialise a minimal sphinx environment (useful for testing)
     :param conf: the sphinx conf.py as a dictionary
-    :param srcdir: to parse to the mock sphinc env
+    :param srcdir: to parse to the mock sphinx env
 
     :returns: docutils document
     """

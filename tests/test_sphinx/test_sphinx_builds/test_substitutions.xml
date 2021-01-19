@@ -12,13 +12,24 @@
             A note 
             nested substitution
     <paragraph>
-        b 
+        a 
+        - text
+         b
+    <paragraph>
+        c 
         output with 
         <emphasis>
             Markdown
          
         nested substitution
+        
          d
+    <paragraph>
+        e 
+        <note>
+            <paragraph>
+                Inline note
+         f
     <paragraph>
         This was from the conf
     <paragraph>
@@ -31,10 +42,11 @@
             Markdown
          
         nested substitution
+        
     <paragraph>
         This will not process the substitution
     <literal_block language="python" xml:space="preserve">
-        {{ text }}
+        {{ text_with_nest }}
     <paragraph>
         Using env and filters:
     <paragraph>

@@ -29,9 +29,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 class SphinxRenderer(DocutilsRenderer):
-    """A mistletoe renderer to populate (in-place) a `docutils.document` AST.
+    """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
-    This is sub-class of `DocutilsRenderer` that handles sphinx cross-referencing.
+    This is sub-class of `DocutilsRenderer` that handles sphinx specific aspects,
+    such as cross-referencing.
     """
 
     @property

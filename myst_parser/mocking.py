@@ -121,7 +121,8 @@ class MockState:
         match_titles: bool = False,
         state_machine_class=None,
         state_machine_kwargs=None,
-    ):
+    ) -> None:
+        """Perform a nested parse of the input block, with ``node`` as the parent."""
         current_match_titles = self.state_machine.match_titles
         self.state_machine.match_titles = match_titles
         with self._renderer.current_node_context(node):
@@ -130,7 +131,7 @@ class MockState:
             )
         self.state_machine.match_titles = current_match_titles
 
-    def parse_target(self, block, block_text, lineno):
+    def parse_target(self, block, block_text, lineno: int):
         """
         Taken from https://github.com/docutils-mirror/docutils/blob/e88c5fb08d5cdfa8b4ac1020dd6f7177778d5990/docutils/parsers/rst/states.py#L1927  # noqa: E501
         """
@@ -143,7 +144,14 @@ class MockState:
         reference = "".join(["".join(line.split()) for line in block])
         return "refuri", unescape(reference)
 
-    def inline_text(self, text: str, lineno: int):
+    def inline_text(
+        self, text: str, lineno: int
+    ) -> Tuple[List[nodes.Element], List[nodes.Element]]:
+        """Parse text with only inline rules.
+
+        :return: (list of nodes, list of messages)
+
+        """
         # TODO return messages?
         messages = []
         paragraph = nodes.paragraph("")
@@ -170,7 +178,7 @@ class MockState:
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
 
-    def block_quote(self, lines: List[str], line_offset: int):
+    def block_quote(self, lines: List[str], line_offset: int) -> List[nodes.Element]:
         """Parse a block quote, which is a block of text,
         followed by an (optional) attribution.
 
@@ -231,7 +239,7 @@ class MockState:
     def build_table_row(self, rowdata, tableline):
         return Body.build_table_row(self, rowdata, tableline)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """

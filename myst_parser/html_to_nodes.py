@@ -35,8 +35,10 @@ def html_to_nodes(
     text: str, line_number: int, renderer: "DocutilsRenderer"
 ) -> List[nodes.Element]:
     """Convert HTML to docutils nodes."""
-    enable_html_img = renderer.config.get("enable_html_img", False)
-    enable_html_admonition = renderer.config.get("enable_html_admonition", False)
+    enable_html_img = "html_image" in renderer.config.get("myst_extensions", [])
+    enable_html_admonition = "html_admonition" in renderer.config.get(
+        "myst_extensions", []
+    )
 
     if not (enable_html_img or enable_html_admonition):
         return default_html(text, renderer.document["source"], line_number)

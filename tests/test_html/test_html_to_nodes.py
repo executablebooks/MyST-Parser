@@ -19,7 +19,7 @@ def mock_renderer():
         return [node]
 
     return Mock(
-        config={"enable_html_img": True, "enable_html_admonition": True},
+        config={"myst_extensions": ["html_image", "html_admonition"]},
         document={"source": "source"},
         reporter=Mock(
             warning=Mock(return_value=nodes.system_message("warning")),
