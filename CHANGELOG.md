@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.13.2 - 2021-01-20
+
+✨ NEW: Add `html_admonition` extension
+
+: By adding `"html_admonition"` to `myst_enable_extensions`, you can enable parsing of `<div class="admonition">` HTML blocks to sphinx admonitions.
+: This is helpful when you care about viewing the "source" Markdown, such as in Jupyter Notebooks.
+: For example:
+  ```html
+  <div class="admonition note" name="html-admonition">
+  <p class="title">This is the **title**</p>
+  This is the *content*
+  </div>
+  ```
+: See [the optional syntax guide](docs/using/syntax-optional.md) for further information.
+
+👌 IMPROVE: Footnotes
+
+: If the label is an integer, then it will always use this integer for the rendered label (i.e. they are manually numbered).
+: Add `myst_footnote_transition` configuration, to turn on/off transition line.
+: Add `footnotes` class to transition `<hr>` in HTML.
+: See [the syntax guide](docs/using/syntax.md) for further information.
+
+👌 IMPROVE: `substitution` extension logic
+
+: Parse inline substitutions without block rules, unless the substitution starts with a directive.
+
+🐛 FIX: Render front-matter as `field_list`
+
+: To improve use by sphinx extensions).
+
+👌 IMPROVE: Code quality
+
+: Add isort and mypy type checking to code base.
+
+(thanks to contributors @akhmerov, @tfiers)
+
 ## 0.13.1 - 2020-12-31
 
 👌 Directives can now be used for inline substitutions, e.g.
