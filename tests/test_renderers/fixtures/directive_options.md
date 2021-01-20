@@ -165,6 +165,6 @@ Unknown Directive:
             Unknown directive type "unknown".
     <system_message level="1" line="1" source="notset" type="INFO">
         <paragraph>
-            Problem retrieving directive entry from language module 'en': 'str' object has no attribute 'directives'.
+            No directive entry for "unknown" in module "docutils.parsers.rst.languages.en".
             Trying "unknown" as canonical directive name.
 .
