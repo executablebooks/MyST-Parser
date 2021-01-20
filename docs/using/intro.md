@@ -252,6 +252,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_html_meta`
   - `{}`
   - A mapping of keys to HTML metadata, used globally for all MyST documents. See [](syntax/html_meta).
+* - `myst_footnote_transition`
+  - `True`
+  - Place a transition before any footnotes.
 `````
 
 List of extensions:

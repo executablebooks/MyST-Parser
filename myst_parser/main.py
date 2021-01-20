@@ -94,17 +94,19 @@ class MdParserConfig:
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
     )
 
+    html_meta: Dict[str, str] = attr.ib(
+        factory=dict,
+        validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
+        repr=lambda v: str(list(v)),
+    )
+
+    footnote_transition: bool = attr.ib(default=True, validator=instance_of(bool))
+
     substitutions: Dict[str, Union[str, int, float]] = attr.ib(
         factory=dict,
         validator=deep_mapping(
             instance_of(str), instance_of((str, int, float)), instance_of(dict)
         ),
-        repr=lambda v: str(list(v)),
-    )
-
-    html_meta: Dict[str, str] = attr.ib(
-        factory=dict,
-        validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
         repr=lambda v: str(list(v)),
     )
 
@@ -203,6 +205,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,
             "myst_html_meta": config.html_meta,
+            "myst_footnote_transition": config.footnote_transition,
         }
     )
 
