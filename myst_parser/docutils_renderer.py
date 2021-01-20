@@ -6,7 +6,7 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from copy import deepcopy
 from datetime import date, datetime
-from typing import Any, Dict, List, Union, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 import jinja2
 import yaml
@@ -71,9 +71,11 @@ except ImportError:
     pass
 
 
-def token_line(token: Union[Token, NestedTokens]) -> int:
+def token_line(token: Union[Token, NestedTokens], default: Optional[int] = None) -> int:
     """Retrieve the initial line of a token."""
     if not getattr(token, "map", None):
+        if default is not None:
+            return default
         raise ValueError(f"token map not set: {token}")
     return token.map[0]  # type: ignore[index]
 
@@ -149,7 +151,7 @@ class DocutilsRenderer:
                 self.current_node.append(
                     self.reporter.warning(
                         f"No render method for: {nest_token.type}",
-                        line=token_line(nest_token),
+                        line=token_line(nest_token, default=0),
                     )
                 )
 
@@ -221,7 +223,7 @@ class DocutilsRenderer:
                 self.current_node.append(
                     self.reporter.warning(
                         f"No render method for: {nest_token.type}",
-                        line=token_line(nest_token),
+                        line=token_line(nest_token, default=0),
                     )
                 )
 
@@ -242,7 +244,8 @@ class DocutilsRenderer:
             else:
                 self.current_node.append(
                     self.reporter.warning(
-                        f"No render method for: {child.type}", line=token_line(child)
+                        f"No render method for: {child.type}",
+                        line=token_line(child, default=0),
                     )
                 )
 
