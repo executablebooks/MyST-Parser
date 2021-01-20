@@ -17,11 +17,11 @@ Note: optional tags are not accounted for
 (see https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
 
 """
-from collections import abc, deque
-from html.parser import HTMLParser
 import inspect
 import itertools
-from typing import Any, Callable, Dict, Iterator, List, Optional, Type, Union
+from collections import abc, deque
+from html.parser import HTMLParser
+from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Type, Union
 
 
 class Attribute(dict):
@@ -77,17 +77,17 @@ class Element(abc.MutableSequence):
             new_children.append(item)
         self._children = new_children
 
-    def __getitem__(self, index: int) -> "Element":
+    def __getitem__(self, index: int) -> "Element":  # type: ignore[override]
         return self._children[index]
 
-    def __setitem__(self, index: int, item: "Element"):
+    def __setitem__(self, index: int, item: "Element"):  # type: ignore[override]
         assert isinstance(item, Element)
         if item._parent is not None and item._parent != self:
             raise AssertionError(f"different parent already set for: {item!r}")
         item._parent = self
         return self._children.__setitem__(index, item)
 
-    def __delitem__(self, index: int):
+    def __delitem__(self, index: int):  # type: ignore[override]
         return self._children.__delitem__(index)
 
     def __len__(self) -> int:
@@ -170,7 +170,7 @@ class Element(abc.MutableSequence):
         self,
         identifier: Union[str, Type["Element"]],
         attrs: Optional[dict] = None,
-        classes: Optional[List[str]] = None,
+        classes: Optional[Iterable[str]] = None,
         include_self: bool = False,
         recurse: bool = True,
     ) -> Iterator["Element"]:
@@ -179,7 +179,7 @@ class Element(abc.MutableSequence):
         if include_self:
             iterator = itertools.chain([self], iterator)
         if inspect.isclass(identifier):
-            test_func = lambda c: isinstance(c, identifier)  # noqa: E731
+            test_func = lambda c: isinstance(c, identifier)  # type: ignore[arg-type] # noqa: E731,E501
         else:
             test_func = lambda c: c.name == identifier  # noqa: E731
         classes = set(classes) if classes is not None else classes
@@ -197,7 +197,7 @@ class Element(abc.MutableSequence):
 class Root(Element):
     """The root of the AST tree."""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         """Returns a string HTML representation of the structure."""
         return "".join(child.render(**kwargs) for child in self)
 
@@ -237,7 +237,7 @@ class XTag(Element):
 class VoidTag(Element):
     """Represent tags with no children, only start tag, like `<img src="t.gif" >`"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"<{self.name}{' ' if self.attrs else ''}{self.attrs}>"
 
 
@@ -261,42 +261,42 @@ class TerminalElement(Element):
 class Data(TerminalElement):
     """Represent data inside xml/html documents, like raw text."""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return self.data
 
 
 class Declaration(TerminalElement):
     """Represent declarations, like `<!DOCTYPE html>`"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"<!{self.data}>"
 
 
 class Comment(TerminalElement):
     """Represent HTML comments"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"<!--{self.data}-->"
 
 
 class Pi(TerminalElement):
     """Represent processing instructions like `<?xml-stylesheet ?>`"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"<?{self.data}>"
 
 
 class Char(TerminalElement):
     """Represent character codes like: `&#0`"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"&#{self.data};"
 
 
 class Entity(TerminalElement):
     """Represent entities like `&amp`"""
 
-    def render(self, **kwargs) -> str:
+    def render(self, **kwargs) -> str:  # type: ignore[override]
         return f"&{self.data};"
 
 
@@ -307,7 +307,7 @@ class Tree(object):
         """Initialise Tree"""
         self.name = name
         self.outmost = Root(name)
-        self.stack = deque()
+        self.stack: deque = deque()
         self.stack.append(self.outmost)
 
     def clear(self):
@@ -390,7 +390,7 @@ class HtmlToAst(HTMLParser):
         super().__init__(convert_charrefs=convert_charrefs)
         self.struct = Tree(name)
 
-    def feed(self, source: str) -> Root:
+    def feed(self, source: str) -> Root:  # type: ignore[override]
         """Parse the source string."""
         self.struct.clear()
         super().feed(source)

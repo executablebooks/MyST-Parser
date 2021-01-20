@@ -4,14 +4,13 @@ This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
 import os
-from typing import Any, List, Optional, Tuple
-from typing import cast
+from typing import Any, List, Optional, Tuple, cast
 
 from docutils import nodes
-from docutils.nodes import document, Element
-
+from docutils.nodes import Element, document
 from sphinx import addnodes, version_info
 from sphinx.addnodes import pending_xref
+from sphinx.domains.std import StandardDomain
 from sphinx.locale import __
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import docname_join, logging
@@ -21,7 +20,7 @@ try:
     from sphinx.errors import NoUri
 except ImportError:
     # sphinx < 2.1
-    from sphinx.environment import NoUri
+    from sphinx.environment import NoUri  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,10 @@ class MystReferenceResolver(ReferencesResolver):
                     # we are in nit-picky mode
                     if newnode is None:
                         node["refdomain"] = ""
-                        self.warn_missing_reference(refdoc, typ, target, node, domain)
+                        # type fix: https://github.com/sphinx-doc/sphinx/pull/8710
+                        self.warn_missing_reference(
+                            refdoc, typ, target, node, domain  # type: ignore[arg-type]
+                        )
             except NoUri:
                 newnode = contnode
 
@@ -111,7 +113,7 @@ class MystReferenceResolver(ReferencesResolver):
                 results.append(("std:doc", res))
 
         # next resolve for any other standard reference objects
-        stddomain = self.env.get_domain("std")
+        stddomain = cast(StandardDomain, self.env.get_domain("std"))
         for objtype in stddomain.object_types:
             key = (objtype, target)
             if objtype == "term":
@@ -187,7 +189,7 @@ class MystReferenceResolver(ReferencesResolver):
         rel_path = os.path.normpath(rel_path)
         if rel_path == ".":
             # anchor in the same doc as the node
-            doc_path = self.env.doc2path(node.get("refdoc", fromdocname), base=None)
+            doc_path = self.env.doc2path(node.get("refdoc", fromdocname), base=False)
         else:
             # anchor in a different doc from the node
             doc_path = os.path.normpath(
@@ -201,7 +203,7 @@ class MystReferenceResolver(ReferencesResolver):
         """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
         """
-        stddomain = self.env.get_domain("std")
+        stddomain = cast(StandardDomain, self.env.get_domain("std"))
         target = target or node["reftarget"].lower()
 
         if node["refexplicit"]:
@@ -251,4 +253,4 @@ class MystReferenceResolver(ReferencesResolver):
             caption = clean_astext(self.env.titles[docname])
             innernode = nodes.inline(caption, caption, classes=["doc"])
 
-        return make_refnode(self.app.builder, fromdocname, docname, None, innernode)
+        return make_refnode(self.app.builder, fromdocname, docname, "", innernode)

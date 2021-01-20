@@ -1,25 +1,26 @@
-from contextlib import contextmanager
 import copy
-from io import StringIO
 import tempfile
+from contextlib import contextmanager
+from io import StringIO
 from typing import cast
 from urllib.parse import unquote
 from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
-
+from markdown_it.token import NestedTokens, Token
 from sphinx import addnodes
-from sphinx.application import builtin_extensions, Sphinx
+from sphinx.application import Sphinx, builtin_extensions
 from sphinx.config import Config
 from sphinx.domains.math import MathDomain
+from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
-from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
 from sphinx.util import logging
+from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
 from sphinx.util.nodes import clean_astext
 from sphinx.util.tags import Tags
 
@@ -39,14 +40,14 @@ class SphinxRenderer(DocutilsRenderer):
     def doc_env(self) -> BuildEnvironment:
         return self.document.settings.env
 
-    def handle_cross_reference(self, token, destination):
+    def handle_cross_reference(self, token: Token, destination: str):
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
             refdoc=self.doc_env.docname,
             reftarget=unquote(destination),
             reftype="myst",
             refdomain=None,  # Added to enable cross-linking
-            refexplicit=len(token.children) > 0,
+            refexplicit=len(token.children or []) > 0,
             refwarn=True,
         )
         self.add_line_and_source_path(wrap_node, token)
@@ -60,7 +61,7 @@ class SphinxRenderer(DocutilsRenderer):
         with self.current_node_context(inner_node):
             self.render_children(token)
 
-    def render_heading_open(self, token):
+    def render_heading_open(self, token: NestedTokens):
         """This extends the docutils method, to allow for the addition of heading ids.
         These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
         as "slugs" which are unique document.
@@ -73,10 +74,10 @@ class SphinxRenderer(DocutilsRenderer):
             return
 
         section = self.current_node
-        doc_slug = self.doc_env.doc2path(self.doc_env.docname, base=None) + "#" + slug
+        doc_slug = self.doc_env.doc2path(self.doc_env.docname, base=False) + "#" + slug
 
         # save the reference in the standard domain, so that it can be handled properly
-        domain = self.doc_env.get_domain("std")
+        domain = cast(StandardDomain, self.doc_env.get_domain("std"))
         if doc_slug in domain.labels:
             LOGGER.warning(
                 __("duplicate label %s, other instance in %s"),
@@ -96,10 +97,10 @@ class SphinxRenderer(DocutilsRenderer):
 
         # for debugging
         if not hasattr(self.doc_env, "myst_anchors"):
-            self.doc_env.myst_anchors = True
+            self.doc_env.myst_anchors = True  # type: ignore[attr-defined]
         section["myst-anchor"] = doc_slug
 
-    def render_math_block_eqno(self, token):
+    def render_math_block_eqno(self, token: Token):
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
         content = token.content
@@ -112,10 +113,10 @@ class SphinxRenderer(DocutilsRenderer):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def _random_label(self):
+    def _random_label(self) -> str:
         return str(uuid4())
 
-    def render_amsmath(self, token):
+    def render_amsmath(self, token: Token):
         # environment = token.meta["environment"]
         content = token.content
 
@@ -142,7 +143,7 @@ class SphinxRenderer(DocutilsRenderer):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def add_math_target(self, node):
+    def add_math_target(self, node: nodes.math_block) -> nodes.target:
         # Code mainly copied from sphinx.directives.patches.MathDirective
 
         # register label to domain

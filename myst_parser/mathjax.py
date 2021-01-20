@@ -9,7 +9,6 @@ This fixes two issues:
 
 """
 from docutils import nodes
-
 from sphinx.application import Sphinx
 from sphinx.ext import mathjax
 from sphinx.locale import _
@@ -28,12 +27,15 @@ def override_mathjax(app: Sphinx):
         and "mathjax" in app.registry.html_block_math_renderers
     ):
         app.registry.html_block_math_renderers["mathjax"] = (
-            html_visit_displaymath,
+            html_visit_displaymath,  # type: ignore[assignment]
             None,
         )
     # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax
-    if app.config.mathjax_config is None and app.env.myst_config.update_mathjax:
-        app.config.mathjax_config = {
+    if (
+        app.config.mathjax_config is None
+        and app.env.myst_config.update_mathjax  # type: ignore[attr-defined]
+    ):
+        app.config.mathjax_config = {  # type: ignore[attr-defined]
             "tex2jax": {
                 "inlineMath": [["\\(", "\\)"]],
                 "displayMath": [["\\[", "\\]"]],
@@ -41,8 +43,8 @@ def override_mathjax(app: Sphinx):
                 "processEnvironments": False,
             }
         }
-    elif app.env.myst_config.update_mathjax:
-        if "tex2jax" in app.config.mathjax_config:
+    elif app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
+        if "tex2jax" in app.config.mathjax_config:  # type: ignore[attr-defined]
             logger.warning(
                 "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax = True`, "
                 "and so this will be overridden. "

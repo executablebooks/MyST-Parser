@@ -89,6 +89,7 @@ def run_apidoc(app):
     """
     import os
     import shutil
+
     import sphinx
     from sphinx.ext import apidoc
 
@@ -133,13 +134,18 @@ intersphinx_mapping = {
 autodoc_member_order = "bysource"
 
 nitpick_ignore = [
-    ("py:class", "docutils.nodes.system_message"),
-    ("py:class", "docutils.statemachine.StringList"),
+    ("py:class", "docutils.nodes.document"),
     ("py:class", "docutils.nodes.Element"),
     ("py:class", "docutils.nodes.field_list"),
+    ("py:class", "docutils.nodes.problematic"),
+    ("py:class", "docutils.nodes.pending"),
+    ("py:class", "docutils.nodes.system_message"),
+    ("py:class", "docutils.statemachine.StringList"),
     ("py:class", "docutils.parsers.rst.directives.misc.Include"),
-    ("py:class", "docutils.nodes.document"),
     ("py:class", "docutils.parsers.rst.Parser"),
+    ("py:class", "docutils.utils.Reporter"),
+    ("py:class", "DocutilsRenderer"),
+    ("py:class", "MockStateMachine"),
 ]
 
 

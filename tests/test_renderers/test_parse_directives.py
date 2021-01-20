@@ -1,10 +1,9 @@
 # TODO add more tests
 import pytest
-
 from docutils.parsers.rst.directives.admonitions import Note
 from docutils.parsers.rst.directives.body import Rubric
 
-from myst_parser.parse_directives import parse_directive_text, DirectiveParsingError
+from myst_parser.parse_directives import DirectiveParsingError, parse_directive_text
 
 
 @pytest.mark.parametrize("klass,arguments,content", [(Note, "", "a"), (Note, "a", "")])

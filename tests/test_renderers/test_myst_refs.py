@@ -1,13 +1,12 @@
 import os
 
+import pytest
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxWarning
 
 from myst_parser.main import MdParserConfig
-from myst_parser.sphinx_renderer import mock_sphinx_env
 from myst_parser.sphinx_parser import parse
-
-import pytest
+from myst_parser.sphinx_renderer import mock_sphinx_env
 
 
 @pytest.mark.parametrize(

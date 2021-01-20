@@ -1,15 +1,13 @@
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union
 
 import attr
 from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
-
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
-
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.anchors import anchors_plugin
-from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
+from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.front_matter import front_matter_plugin
@@ -81,13 +79,13 @@ class MdParserConfig:
         if diff:
             raise ValueError(f"myst_enable_extensions not recognised: {diff}")
 
-    disable_syntax: List[str] = attr.ib(
+    disable_syntax: Iterable[str] = attr.ib(
         factory=list,
         validator=deep_iterable(instance_of(str), instance_of((list, tuple))),
     )
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
-    url_schemes: Optional[List[str]] = attr.ib(
+    url_schemes: Optional[Iterable[str]] = attr.ib(
         default=None,
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
     )
@@ -128,6 +126,8 @@ class MdParserConfig:
 
 def default_parser(config: MdParserConfig) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
+    renderer_cls: Type[Any]  # TODO no abstract render class
+
     if config.renderer == "sphinx":
         from myst_parser.sphinx_renderer import SphinxRenderer
 
@@ -197,9 +197,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             # myst options
             "commonmark_only": False,
             "myst_extensions": set(
-                config.enable_extensions + ["heading_anchors"]
-                if config.heading_anchors is not None
-                else []
+                list(config.enable_extensions)
+                + (["heading_anchors"] if config.heading_anchors is not None else [])
             ),
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,

@@ -1,18 +1,17 @@
-from os import path
 import time
+from os import path
 
 from docutils import frontend, nodes
 from docutils.core import publish_doctree
+from markdown_it.token import Token
+from markdown_it.utils import AttrDict
 from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
 from sphinx.parsers import Parser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
-from markdown_it.token import Token
-from markdown_it.utils import AttrDict
-from myst_parser.main import default_parser, MdParserConfig
-
+from myst_parser.main import MdParserConfig, default_parser
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class MystParser(Parser):
     supported = ("md", "markdown", "myst")
     translate_section_name = None
 
-    default_config = {}
+    default_config: dict = {}
 
     # these specs are copied verbatim from the docutils RST parser
     settings_spec = (
@@ -192,7 +191,7 @@ class MystParser(Parser):
         if not tokens or tokens[0].type != "front_matter":
             # we always add front matter, so that we can merge it with global keys,
             # specified in the sphinx configuration
-            tokens = [Token("front_matter", "", 0, content={}, map=[0, 0])] + tokens
+            tokens = [Token("front_matter", "", 0, content="{}", map=[0, 0])] + tokens
         parser.renderer.render(tokens, parser.options, env)
 
 

@@ -2,20 +2,24 @@
 the key difference being that nested parsing treats the text as Markdown not rST.
 """
 import os
-from pathlib import Path
 import re
 import sys
-from typing import List, Optional, Tuple, Type
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Optional, Tuple, Type
 
 from docutils import nodes
-from docutils.parsers.rst import Directive, DirectiveError, Parser as RSTParser
+from docutils.parsers.rst import Directive, DirectiveError
+from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language
-from docutils.parsers.rst.states import Inliner, RSTStateMachine, Body
+from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
 
 from .parse_directives import parse_directive_text
+
+if TYPE_CHECKING:
+    from .docutils_renderer import DocutilsRenderer
 
 
 class MockingError(Exception):
@@ -28,7 +32,7 @@ class MockInliner:
     This is parsed to role functions.
     """
 
-    def __init__(self, renderer, lineno: int):
+    def __init__(self, renderer: "DocutilsRenderer", lineno: int):
         self._renderer = renderer
         self.document = renderer.document
         self.reporter = renderer.document.reporter
@@ -40,7 +44,9 @@ class MockInliner:
         self.language = renderer.language_module
         self.rfc_url = "rfc%d.html"
 
-    def problematic(self, text: str, rawsource: str, message: nodes.system_message):
+    def problematic(
+        self, text: str, rawsource: str, message: nodes.system_message
+    ) -> nodes.problematic:
         msgid = self.document.set_id(message, self.parent)
         problematic = nodes.problematic(rawsource, rawsource, refid=msgid)
         prbid = self.document.set_id(problematic)
@@ -49,7 +55,7 @@ class MockInliner:
 
     # TODO add parse method
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
@@ -71,7 +77,12 @@ class MockState:
     rather than RST.
     """
 
-    def __init__(self, renderer, state_machine: "MockStateMachine", lineno: int):
+    def __init__(
+        self,
+        renderer: "DocutilsRenderer",
+        state_machine: "MockStateMachine",
+        lineno: int,
+    ):
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
@@ -82,7 +93,7 @@ class MockState:
             document = self.document
             reporter = self.document.reporter
             language = self.document.settings.language_code
-            title_styles = []
+            title_styles: List[str] = []
             section_level = max(renderer._level_to_elem)
             section_bubble_up_kludge = False
             inliner = MockInliner(renderer, lineno)
@@ -153,7 +164,7 @@ class MockState:
 
         """
         # TODO return messages?
-        messages = []
+        messages: List[nodes.Element] = []
         paragraph = nodes.paragraph("")
 
         tokens = self._renderer.md.parseInline(text, self._renderer.env)
@@ -222,7 +233,7 @@ class MockState:
         # parse attribution
         if attribution_lines:
             attribution_text = "\n".join(attribution_lines)
-            lineno = self._lineno + line_offset + attribution_line_offset
+            lineno = self._lineno + line_offset + (attribution_line_offset or 0)
             textnodes, messages = self.inline_text(attribution_text, lineno)
             attribution = nodes.attribution(attribution_text, "", *textnodes)
             (
@@ -233,7 +244,7 @@ class MockState:
             elements += messages
         return elements
 
-    def build_table(self, tabledata, tableline, stub_columns=0, widths=None):
+    def build_table(self, tabledata, tableline, stub_columns: int = 0, widths=None):
         return Body.build_table(self, tabledata, tableline, stub_columns, widths)
 
     def build_table_row(self, rowdata, tableline):
@@ -263,14 +274,14 @@ class MockStateMachine:
     This is parsed to the `Directives.run()` method.
     """
 
-    def __init__(self, renderer, lineno: int):
+    def __init__(self, renderer: "DocutilsRenderer", lineno: int):
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
         self.language = get_language(renderer.language_module)
         self.reporter = self.document.reporter
-        self.node = renderer.current_node
-        self.match_titles = True
+        self.node: nodes.Element = renderer.current_node
+        self.match_titles: bool = True
 
     def get_source(self, lineno: Optional[int] = None):
         """Return document source path."""
@@ -280,7 +291,7 @@ class MockStateMachine:
         """Return (source path, line) tuple for current or given line number."""
         return self.document["source"], lineno or self._lineno
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
         """
@@ -303,7 +314,7 @@ class MockIncludeDirective:
 
     def __init__(
         self,
-        renderer,
+        renderer: "DocutilsRenderer",
         name: str,
         klass: Include,
         arguments: list,
@@ -320,7 +331,7 @@ class MockIncludeDirective:
         self.body = body
         self.lineno = lineno
 
-    def run(self):
+    def run(self) -> List[nodes.Element]:
 
         from docutils.parsers.rst.directives.body import CodeBlock, NumberLines
 
@@ -455,7 +466,7 @@ class MockIncludeDirective:
                 del self.renderer.reporter.get_source_and_line
         return []
 
-    def add_name(self, node):
+    def add_name(self, node: nodes.Element):
         """Append self.options['name'] to node['names'] if it exists.
 
         Also normalize the name string and register it as explicit target.

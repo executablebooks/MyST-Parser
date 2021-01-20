@@ -36,10 +36,9 @@ This is to allow for separation between the option block and content.
 import datetime
 import re
 from textwrap import dedent
-from typing import Callable, Dict, Type
+from typing import Any, Callable, Dict, Type
 
 import yaml
-
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.misc import TestDirective
 
@@ -104,7 +103,7 @@ def parse_directive_options(
     content: str, directive_class: Type[Directive], validate: bool = True
 ):
     """Parse (and validate) the directive option section."""
-    options = {}
+    options: Dict[str, Any] = {}
     if content.startswith("---"):
         content = "\n".join(content.splitlines()[1:])
         match = re.search(r"^-{3,}", content, re.MULTILINE)
