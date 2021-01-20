@@ -11,7 +11,6 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, DirectiveError
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
-from docutils.parsers.rst.languages import get_language
 from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
@@ -41,7 +40,7 @@ class MockInliner:
             # but I can't see how that would work in RST?
             self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
         self.parent = renderer.current_node
-        self.language = renderer.language_module
+        self.language = renderer.language_module_rst
         self.rfc_url = "rfc%d.html"
 
     def problematic(
@@ -92,7 +91,7 @@ class MockState:
         class Struct:
             document = self.document
             reporter = self.document.reporter
-            language = self.document.settings.language_code
+            language = renderer.language_module_rst
             title_styles: List[str] = []
             section_level = max(renderer._level_to_elem)
             section_bubble_up_kludge = False
@@ -278,7 +277,7 @@ class MockStateMachine:
         self._renderer = renderer
         self._lineno = lineno
         self.document = renderer.document
-        self.language = get_language(renderer.language_module)
+        self.language = renderer.language_module_rst
         self.reporter = self.document.reporter
         self.node: nodes.Element = renderer.current_node
         self.match_titles: bool = True

@@ -6,17 +6,18 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from copy import deepcopy
 from datetime import date, datetime
+from types import ModuleType
 from typing import Any, Dict, List, Optional, Union, cast
 
 import jinja2
 import yaml
 from docutils import nodes
 from docutils.frontend import OptionParser
-from docutils.languages import get_language
 from docutils.parsers.rst import Directive, DirectiveError
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives.misc import Include
+from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
 from docutils.transforms.components import Filter
 from docutils.utils import Reporter, new_document
@@ -105,8 +106,11 @@ class DocutilsRenderer:
             "current_node", self.document
         )
         self.reporter: Reporter = self.document.reporter
-        self.language_module: str = self.document.settings.language_code
-        get_language(self.language_module)
+        # note there are actually two possible language modules:
+        # one from docutils.languages, and one from docutils.parsers.rst.languages
+        self.language_module_rst: ModuleType = get_language_rst(
+            self.document.settings.language_code
+        )
         self._level_to_elem: Dict[int, nodes.Element] = {0: self.document}
 
     def render(self, tokens: List[Token], options, env: AttrDict):
@@ -720,7 +724,7 @@ class DocutilsRenderer:
         rawsource = f":{name}:`{token.content}`"
         lineno = token_line(token) if token.map else 0
         role_func, messages = roles.role(
-            name, self.language_module, lineno, self.reporter
+            name, self.language_module_rst, lineno, self.reporter
         )
         inliner = MockInliner(self, lineno)
         if role_func:
@@ -847,7 +851,7 @@ class DocutilsRenderer:
 
         # get directive class
         directive_class, messages = directives.directive(
-            name, self.language_module, self.document
+            name, self.language_module_rst, self.document
         )  # type: (Directive, list)
         if not directive_class:
             error = self.reporter.error(
@@ -1015,9 +1019,6 @@ class DocutilsRenderer:
 
         # we record used references before nested parsing, then remove them after
         self.document.sub_references.update(references)
-
-        if inline:
-            state_machine = MockStateMachine(self, position)
 
         try:
             if inline and not REGEX_DIRECTIVE_START.match(rendered):
