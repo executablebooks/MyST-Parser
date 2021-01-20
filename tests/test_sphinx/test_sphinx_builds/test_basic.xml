@@ -1,4 +1,20 @@
 <document source="content.md">
+    <topic classes="dedication">
+        <title>
+            Dedication
+        <paragraph>
+            To my 
+            <emphasis>
+                homies
+            
+    <topic classes="abstract">
+        <title>
+            Abstract
+        <paragraph>
+            Something something 
+            <strong>
+                dark
+             side
     <target refid="target">
     <section ids="header target" names="header target">
         <title>

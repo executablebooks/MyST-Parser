@@ -614,6 +614,123 @@ c:
 .
 
 --------------------------
+Front Matter Biblio:
+.
+---
+author: Chris Sewell
+authors: Chris Sewell, Chris Hodgraf
+organization: EPFL
+address: |
+    1 Cedar Park Close
+    Thundersley
+    Essex
+contact: <https://example.com>
+version: 1.0
+revision: 1.1
+status: good
+date: 2/12/1985
+copyright: MIT
+dedication: |
+    To my *homies*
+abstract:
+    Something something **dark** side
+other: Something else
+---
+.
+<document source="notset">
+    <field_list>
+        <field>
+            <field_name>
+                author
+            <field_body>
+                <paragraph>
+                    Chris Sewell
+        <field>
+            <field_name>
+                authors
+            <field_body>
+                <paragraph>
+                    Chris Sewell, Chris Hodgraf
+        <field>
+            <field_name>
+                organization
+            <field_body>
+                <paragraph>
+                    EPFL
+        <field>
+            <field_name>
+                address
+            <field_body>
+                <paragraph>
+                    1 Cedar Park Close
+                    
+                    Thundersley
+                    
+                    Essex
+                    
+        <field>
+            <field_name>
+                contact
+            <field_body>
+                <paragraph>
+                    <reference refuri="https://example.com">
+                        https://example.com
+        <field>
+            <field_name>
+                version
+            <field_body>
+                <paragraph>
+                    1.0
+        <field>
+            <field_name>
+                revision
+            <field_body>
+                <paragraph>
+                    1.1
+        <field>
+            <field_name>
+                status
+            <field_body>
+                <paragraph>
+                    good
+        <field>
+            <field_name>
+                date
+            <field_body>
+                <paragraph>
+                    2/12/1985
+        <field>
+            <field_name>
+                copyright
+            <field_body>
+                <paragraph>
+                    MIT
+        <field>
+            <field_name>
+                dedication
+            <field_body>
+                <paragraph>
+                    To my 
+                    <emphasis>
+                        homies
+                    
+        <field>
+            <field_name>
+                abstract
+            <field_body>
+                <paragraph>
+                    Something something 
+                    <strong>
+                        dark
+                     side
+        <field>
+            <field_name>
+                other
+            <field_body>
+                Something else
+.
+
+--------------------------
 Front Matter Bad Yaml:
 .
 ---

@@ -31,6 +31,20 @@ def test_basic(
     get_sphinx_app_doctree(app, docname="content", resolve=True, regress=True)
     get_sphinx_app_output(app, filename="content.html", regress_html=True)
 
+    assert app.env.metadata["content"] == {
+        "author": "Chris Sewell",
+        "authors": ["Chris Sewell", "Chris Hodgraf"],
+        "organization": "EPFL",
+        "address": "1 Cedar Park Close\nThundersley\nEssex\n",
+        "contact": "https://example.com",
+        "version": "1.0",
+        "revision": "1.1",
+        "status": "good",
+        "date": "2/12/1985",
+        "copyright": "MIT",
+        "other": "Something else",
+    }
+
 
 @pytest.mark.sphinx(
     buildername="html",

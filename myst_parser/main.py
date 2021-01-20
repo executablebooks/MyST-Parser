@@ -222,7 +222,7 @@ def to_docutils(
     conf=None,
     srcdir=None,
 ):
-    """Render text to the docutils AST
+    """Render text to the docutils AST (before transforms)
 
     :param text: the text to render
     :param options: options to update the parser with
