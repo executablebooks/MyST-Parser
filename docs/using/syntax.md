@@ -789,6 +789,7 @@ This is a YAML block at the start of the document, as used for example in
 [jekyll](https://jekyllrb.com/docs/front-matter/).
 Sphinx intercepts these data and stores them within the global environment
 (as discussed [here](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
+The following keys, or their translation (dependent on the set language), are also recognised specifically by docutils and parsed to inline Markdown: author, authors, organization, address, contact, version, revision, status, date, copyright, dedication, abstract.
 
 A classic use-case is to specify 'orphan' documents, that are not specified in any toctrees.
 For example, inserting the following syntax at the top of a page will cause Sphinx to treat it as an orphan page:

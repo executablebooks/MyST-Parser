@@ -1,3 +1,24 @@
+---
+author: Chris Sewell
+authors: Chris Sewell, Chris Hodgraf
+organization: EPFL
+address: |
+    1 Cedar Park Close
+    Thundersley
+    Essex
+contact: <https://example.com>
+version: 1.0
+revision: 1.1
+status: good
+date: 2/12/1985
+copyright: MIT
+dedication: |
+    To my *homies*
+abstract:
+    Something something **dark** side
+other: Something else
+---
+
 (target)=
 
 # Header
