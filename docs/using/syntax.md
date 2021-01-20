@@ -1010,15 +1010,15 @@ All footnote definitions are collected, and displayed at the bottom of the page 
 Note that un-referenced footnote definitions will not be displayed.
 
 ```md
-- This is an auto-numbered footnote reference.[^myref]
 - This is a manually-numbered footnote reference.[^3]
+- This is an auto-numbered footnote reference.[^myref]
 
 [^myref]: This is an auto-numbered footnote definition.
 [^3]: This is a manually-numbered footnote definition.
 ```
 
-- This is an auto-numbered footnote reference.[^myref]
 - This is a manually-numbered footnote reference.[^3]
+- This is an auto-numbered footnote reference.[^myref]
 
 [^myref]: This is an auto-numbered footnote definition.
 [^3]: This is a manually-numbered footnote definition.
