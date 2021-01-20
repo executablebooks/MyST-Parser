@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.13.3 - 2021-01-20
+
+Minor fixes:
+
+- 🐛 FIX: front-matter parsing for bibliographic keys
+- 🐛 FIX: directive/role name translations
+- 👌 IMPROVE: Add warning for multiple footnote definitions
+
 ## 0.13.2 - 2021-01-20
 
 ✨ NEW: Add `html_admonition` extension
