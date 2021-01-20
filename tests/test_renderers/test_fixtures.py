@@ -1,12 +1,12 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pytest
 import sphinx
-
 from markdown_it.utils import read_fixture_file
-from myst_parser.main import to_docutils, MdParserConfig
-from myst_parser.sphinx_renderer import mock_sphinx_env, SphinxRenderer
+
+from myst_parser.main import MdParserConfig, to_docutils
+from myst_parser.sphinx_renderer import SphinxRenderer, mock_sphinx_env
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 

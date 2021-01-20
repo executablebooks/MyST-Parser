@@ -1,9 +1,9 @@
 import html
-from typing import Optional, List
+from typing import Iterable, Optional
 from urllib.parse import quote, urlparse
 
 
-def escape_url(raw):
+def escape_url(raw: str) -> str:
     """
     Escape urls to prevent code injection craziness. (Hopefully.)
     """
@@ -11,7 +11,7 @@ def escape_url(raw):
 
 
 def is_external_url(
-    reference: str, known_url_schemes: Optional[List[str]], match_fragment: bool
+    reference: str, known_url_schemes: Optional[Iterable[str]], match_fragment: bool
 ) -> bool:
     """Return if a reference should be recognised as an external URL.
 
@@ -31,4 +31,4 @@ def is_external_url(
         scheme_known = url_check.scheme in known_url_schemes
     else:
         scheme_known = bool(url_check.scheme)
-    return scheme_known or (match_fragment and url_check.fragment)
+    return scheme_known or (match_fragment and url_check.fragment != "")

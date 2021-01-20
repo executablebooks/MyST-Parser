@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import pytest
-
 from markdown_it.utils import read_fixture_file
+
 from myst_parser.parse_html import tokenize_html
 
 FIXTURE_PATH = Path(__file__).parent

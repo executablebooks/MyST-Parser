@@ -66,6 +66,8 @@ Additional Methods
 
 .. autofunction:: myst_parser.docutils_renderer.dict_to_field_list
 
+.. autofunction:: myst_parser.docutils_renderer.html_meta_to_nodes
+
 .. autofunction:: myst_parser.sphinx_renderer.minimal_sphinx_app
 
 .. autofunction:: myst_parser.sphinx_renderer.mock_sphinx_env

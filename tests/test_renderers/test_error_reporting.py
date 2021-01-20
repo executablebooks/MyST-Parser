@@ -1,11 +1,10 @@
 from pathlib import Path
 
 import pytest
-
 from markdown_it.utils import read_fixture_file
-from myst_parser.docutils_renderer import make_document
-from myst_parser.main import to_docutils, MdParserConfig
 
+from myst_parser.docutils_renderer import make_document
+from myst_parser.main import MdParserConfig, to_docutils
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 

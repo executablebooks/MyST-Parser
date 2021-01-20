@@ -1,12 +1,11 @@
 from pathlib import Path
 from unittest.mock import Mock
 
-from docutils import nodes
 import pytest
-
+from docutils import nodes
 from markdown_it.utils import read_fixture_file
-from myst_parser.html_to_nodes import html_to_nodes
 
+from myst_parser.html_to_nodes import html_to_nodes
 
 FIXTURE_PATH = Path(__file__).parent
 

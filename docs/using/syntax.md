@@ -814,7 +814,7 @@ The front-matter can contain the special key `html_meta`; a dict with data to ad
 This is equivalent to using the [RST `meta` directive](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#html-metadata).
 
 HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
-for each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
+For each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
 
 :::{tabbed} Sphinx Configuration
 
