@@ -16,11 +16,11 @@
             <footnote_reference auto="1" docname="footnote_md" ids="id4" refid="b">
                 4
         <paragraph>
-            <footnote_reference auto="1" docname="footnote_md" ids="id5" refid="id7">
-                5
+            <footnote_reference docname="footnote_md" ids="id5" refid="id7">
+                123
              
-            <footnote_reference auto="1" docname="footnote_md" ids="id6" refid="id7">
-                5
+            <footnote_reference docname="footnote_md" ids="id6" refid="id7">
+                123
         <transition classes="footnotes">
         <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
             <label>
@@ -44,8 +44,8 @@
                 4
             <paragraph>
                 a footnote before its reference
-        <footnote auto="1" backrefs="id5 id6" docname="footnote_md" ids="id7" names="123">
+        <footnote backrefs="id5 id6" docname="footnote_md" ids="id7" names="123">
             <label>
-                5
+                123
             <paragraph>
                 multiple references footnote
