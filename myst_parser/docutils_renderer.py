@@ -184,10 +184,21 @@ class DocutilsRenderer:
         if foot_refs and self.config.get("myst_footnote_transition", False):
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
-            # TODO log warning for duplicate footnote definitions
-            # (currently we just take the first one in the list)
-            foot_ref_token = self.env["foot_refs"][footref][0]
-            self.render_footnote_reference_open(foot_ref_token)
+            foot_ref_tokens = self.env["foot_refs"].get(footref, [])
+            if len(foot_ref_tokens) > 1:
+                self.current_node.append(
+                    self.reporter.warning(
+                        f"Multiple footnote definitions found for label: '{footref}'",
+                    )
+                )
+            if len(foot_ref_tokens) < 1:
+                self.current_node.append(
+                    self.reporter.warning(
+                        f"No footnote definitions found for label: '{footref}'",
+                    )
+                )
+            else:
+                self.render_footnote_reference_open(foot_ref_tokens[0])
 
         return self.document
 
