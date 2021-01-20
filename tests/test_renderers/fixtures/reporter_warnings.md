@@ -84,6 +84,17 @@ Non-consecutive headings:
 .
 source/path:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
 .
+
+multiple footnote definitions
+.
+[^a]
+
+[^a]: definition 1
+[^a]: definition 2
+.
+source/path:: (WARNING/2) Multiple footnote definitions found for label: 'a'
+.
+
 Warnings in eval-rst
 .
 some external
