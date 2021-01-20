@@ -180,8 +180,6 @@ class DocutilsRenderer:
         if foot_refs and self.config.get("myst_footnote_transition", False):
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
-            # sphinx has issue with numbers as footnote target id
-            footref = footref[3:] if footref.startswith("___") else footref
             # TODO log warning for duplicate footnote definitions
             # (currently we just take the first one in the list)
             foot_ref_token = self.env["foot_refs"][footref][0]
@@ -668,28 +666,32 @@ class DocutilsRenderer:
         .i.e. `[^a]` is read as rST `[#a]_`
         """
         target = token.meta["label"]
-        # sphinx has issue with numbers as footnote target id
-        target = f"___{target}" if target.isdigit() else target
 
         refnode = nodes.footnote_reference("[^{}]".format(target))
         self.add_line_and_source_path(refnode, token)
-        refnode["auto"] = 1
+        if not target.isdigit():
+            refnode["auto"] = 1
+            self.document.note_autofootnote_ref(refnode)
+        else:
+            refnode += nodes.Text(target)
+
         refnode["refname"] = target
-        # refnode += nodes.Text(token.target)
-        self.document.note_autofootnote_ref(refnode)
         self.document.note_footnote_ref(refnode)
+
         self.current_node.append(refnode)
 
     def render_footnote_reference_open(self, token: NestedTokens):
         target = token.meta["label"]
-        # sphinx has issue with numbers as footnote target id
-        target = f"___{target}" if target.isdigit() else target
 
         footnote = nodes.footnote()
         self.add_line_and_source_path(footnote, token)
         footnote["names"].append(target)
-        footnote["auto"] = 1
-        self.document.note_autofootnote(footnote)
+        if not target.isdigit():
+            footnote["auto"] = 1
+            self.document.note_autofootnote(footnote)
+        else:
+            footnote += nodes.label("", target)
+            self.document.note_footnote(footnote)
         self.document.note_explicit_target(footnote, footnote)
         with self.current_node_context(footnote, append=True):
             self.render_children(token)

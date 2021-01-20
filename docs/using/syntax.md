@@ -1002,27 +1002,34 @@ See the [extended image syntax guide](syntax/images).
 
 Footnotes use the [pandoc specification](https://pandoc.org/MANUAL.html#footnotes).
 Their labels **start with `^`** and can then be any alpha-numeric string (no spaces), which is case-insensitive.
-The actual label is not displayed in the rendered text; instead they are numbered, in the order which they are referenced.
-All footnote definitions are collected, and displayed at the bottom of the page (ordered by number).
+
+- If the label is an integer, then it will always use that integer for the rendered label (i.e. they are manually numbered).
+- For any other labels, they will be auto-numbered in the order which they are referenced, skipping any manually numbered labels.
+
+All footnote definitions are collected, and displayed at the bottom of the page (in the order they are referenced).
 Note that un-referenced footnote definitions will not be displayed.
 
 ```md
-This is a footnote reference.[^myref]
+- This is an auto-numbered footnote reference.[^myref]
+- This is a manually-numbered footnote reference.[^3]
 
-[^myref]: This **is** the footnote definition.
+[^myref]: This is an auto-numbered footnote definition.
+[^3]: This is a manually-numbered footnote definition.
 ```
 
-This is a footnote reference.[^myref]
+- This is an auto-numbered footnote reference.[^myref]
+- This is a manually-numbered footnote reference.[^3]
 
-[^myref]: This **is** the footnote definition.
+[^myref]: This is an auto-numbered footnote definition.
+[^3]: This is a manually-numbered footnote definition.
 
 Any preceding text after a footnote definitions, which is
-indented by four or more spaces, will also be included in the footnote definition, e.g.
+indented by four or more spaces, will also be included in the footnote definition, and the text is rendered as MyST Markdown, e.g.
 
 ```md
 A longer footnote definition.[^mylongdef]
 
-[^mylongdef]: This is the footnote definition.
+[^mylongdef]: This is the _**footnote definition**_.
 
     That continues for all indented lines
 
@@ -1036,7 +1043,7 @@ This is not part of the footnote.
 
 A longer footnote definition.[^mylongdef]
 
-[^mylongdef]: This is the footnote definition.
+[^mylongdef]: This is the _**footnote definition**_.
 
     That continues for all indented lines
 
