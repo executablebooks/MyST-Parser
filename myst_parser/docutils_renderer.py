@@ -177,12 +177,15 @@ class DocutilsRenderer:
             if refnode["refname"] not in foot_refs:
                 foot_refs[refnode["refname"]] = True
 
-        # TODO log warning for duplicate footnote definitions
-
         if foot_refs and self.config.get("myst_footnote_transition", False):
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
-            self.render_footnote_reference_open(self.env["foot_refs"][footref][0])
+            # sphinx has issue with numbers as footnote target id
+            footref = footref[3:] if footref.startswith("___") else footref
+            # TODO log warning for duplicate footnote definitions
+            # (currently we just take the first one in the list)
+            foot_ref_token = self.env["foot_refs"][footref][0]
+            self.render_footnote_reference_open(foot_ref_token)
 
         return self.document
 
@@ -664,9 +667,10 @@ class DocutilsRenderer:
         """Footnote references are added as auto-numbered,
         .i.e. `[^a]` is read as rST `[#a]_`
         """
-        # TODO we now also have ^[a] the inline version (currently disabled)
-        # that would be rendered here
         target = token.meta["label"]
+        # sphinx has issue with numbers as footnote target id
+        target = f"___{target}" if target.isdigit() else target
+
         refnode = nodes.footnote_reference("[^{}]".format(target))
         self.add_line_and_source_path(refnode, token)
         refnode["auto"] = 1
@@ -678,6 +682,9 @@ class DocutilsRenderer:
 
     def render_footnote_reference_open(self, token: NestedTokens):
         target = token.meta["label"]
+        # sphinx has issue with numbers as footnote target id
+        target = f"___{target}" if target.isdigit() else target
+
         footnote = nodes.footnote()
         self.add_line_and_source_path(footnote, token)
         footnote["names"].append(target)
