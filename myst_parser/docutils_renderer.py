@@ -179,7 +179,7 @@ class DocutilsRenderer:
 
         # TODO log warning for duplicate footnote definitions
 
-        if foot_refs:
+        if foot_refs and self.config.get("myst_footnote_transition", False):
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
             self.render_footnote_reference_open(self.env["foot_refs"][footref][0])

@@ -1064,3 +1064,6 @@ unless they will only be referenced within that same directive:
 
 This is because, in the current implementation, they may not be available to reference in text above that particular directive.
 ````
+
+By default, a transition line (with a `footnotes` class) will be placed before any footnotes.
+This can be turned off by adding `myst_footnote_transition = False` to the config file.
