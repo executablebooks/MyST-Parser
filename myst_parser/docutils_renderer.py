@@ -285,13 +285,11 @@ class DocutilsRenderer:
         )
 
         if (level > parent_level) and (parent_level + 1 != level):
-            self.current_node.append(
-                self.reporter.warning(
-                    "Non-consecutive header level increase; {} to {}".format(
-                        parent_level, level
-                    ),
-                    line=section.line,
-                )
+            self.reporter.warning(
+                "Non-consecutive header level increase; {} to {}".format(
+                    parent_level, level
+                ),
+                line=section.line,
             )
 
         parent = self._level_to_elem[parent_level]
