@@ -719,7 +719,7 @@ class DocutilsRenderer:
         with self.current_node_context(row, append=True):
             for child in token.children or []:
                 entry = nodes.entry()
-                para = nodes.paragraph("")
+                para = nodes.paragraph(child.children[0].content if child.children else "")
                 style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
                 if style:
                     entry["classes"].append(style)
@@ -865,7 +865,7 @@ class DocutilsRenderer:
                     item = nodes.definition_list_item()
                     self.add_line_and_source_path(item, child)
                     with self.current_node_context(item, append=True):
-                        term = nodes.term()
+                        term = nodes.term(child.children[0].content if child.children else "")
                         self.add_line_and_source_path(term, child)
                         with self.current_node_context(term, append=True):
                             self.render_children(child)
