@@ -325,7 +325,7 @@ class DocutilsRenderer:
     # ### render methods for commonmark tokens
 
     def render_paragraph_open(self, token: NestedTokens):
-        para = nodes.paragraph(token.children[0].content)
+        para = nodes.paragraph(token.children[0].content if token.children else "")
         self.add_line_and_source_path(para, token)
         with self.current_node_context(para, append=True):
             self.render_children(token)
@@ -449,7 +449,7 @@ class DocutilsRenderer:
             if self.is_section_level(level, self.current_node):
                 self.current_node = cast(nodes.Element, self.current_node.parent)
 
-        title_node = nodes.title(token.children[0].content)
+        title_node = nodes.title(token.children[0].content if token.children else "")
         self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
