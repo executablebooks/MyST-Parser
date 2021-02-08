@@ -1045,10 +1045,7 @@ class DocutilsRenderer:
            otherwise parse to nodes with all syntax rules.
 
         """
-
-        # TODO token.map was None when substituting an image in a table
-        # (should be fixed: https://github.com/executablebooks/markdown-it-py/pull/109)
-        position = token.map[0] if token.map else 9999
+        position = token.map[0]
 
         # front-matter substitutions take priority over config ones
         variable_context = {
