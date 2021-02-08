@@ -3,6 +3,7 @@
 see conftest.py for fixture usage
 """
 import os
+import re
 
 import pytest
 
@@ -272,3 +273,26 @@ def test_substitutions(
         )
     finally:
         get_sphinx_app_output(app, filename="index.html", regress_html=True)
+
+
+@pytest.mark.sphinx(
+    buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
+)
+def test_gettext(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+    file_regression,
+):
+    """Test gettext message extraction."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    output = get_sphinx_app_output(app, filename="index.pot", buildername="gettext")
+    output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
+
+    file_regression.check(output, extension=".pot")
