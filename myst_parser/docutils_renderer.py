@@ -325,7 +325,7 @@ class DocutilsRenderer:
     # ### render methods for commonmark tokens
 
     def render_paragraph_open(self, token: NestedTokens):
-        para = nodes.paragraph("")
+        para = nodes.paragraph(token.children[0].content if token.children else "")
         self.add_line_and_source_path(para, token)
         with self.current_node_context(para, append=True):
             self.render_children(token)
@@ -449,7 +449,7 @@ class DocutilsRenderer:
             if self.is_section_level(level, self.current_node):
                 self.current_node = cast(nodes.Element, self.current_node.parent)
 
-        title_node = nodes.title()
+        title_node = nodes.title(token.children[0].content if token.children else "")
         self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
@@ -719,7 +719,9 @@ class DocutilsRenderer:
         with self.current_node_context(row, append=True):
             for child in token.children or []:
                 entry = nodes.entry()
-                para = nodes.paragraph("")
+                para = nodes.paragraph(
+                    child.children[0].content if child.children else ""
+                )
                 style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
                 if style:
                     entry["classes"].append(style)
@@ -865,7 +867,9 @@ class DocutilsRenderer:
                     item = nodes.definition_list_item()
                     self.add_line_and_source_path(item, child)
                     with self.current_node_context(item, append=True):
-                        term = nodes.term()
+                        term = nodes.term(
+                            child.children[0].content if child.children else ""
+                        )
                         self.add_line_and_source_path(term, child)
                         with self.current_node_context(term, append=True):
                             self.render_children(child)
