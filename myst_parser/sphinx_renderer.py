@@ -2,7 +2,7 @@ import copy
 import tempfile
 from contextlib import contextmanager
 from io import StringIO
-from typing import cast
+from typing import Optional, cast
 from urllib.parse import unquote
 from uuid import uuid4
 
@@ -16,7 +16,6 @@ from sphinx.domains.math import MathDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
-from sphinx.locale import __
 from sphinx.project import Project
 from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
@@ -39,6 +38,31 @@ class SphinxRenderer(DocutilsRenderer):
     @property
     def doc_env(self) -> BuildEnvironment:
         return self.document.settings.env
+
+    def create_warning(
+        self,
+        message: str,
+        *,
+        line: Optional[int] = None,
+        append_to: Optional[nodes.Element] = None,
+        wtype: str = "myst",
+        subtype: str = "other",
+    ) -> Optional[nodes.system_message]:
+        """Generate a warning, logging it if necessary.
+
+        If the warning type is listed in the ``suppress_warnings`` configuration,
+        then ``None`` will be returned and no warning logged.
+        """
+        message = f"{message} [{wtype}.{subtype}]"
+        kwargs = {"line": line} if line is not None else {}
+
+        if not logging.is_suppressed_warning(
+            wtype, subtype, self.doc_env.app.config.suppress_warnings
+        ):
+            msg_node = self.reporter.warning(message, **kwargs)
+            if append_to is not None:
+                append_to.append(msg_node)
+        return None
 
     def handle_cross_reference(self, token: Token, destination: str):
         """Create nodes for references that are not immediately resolvable."""
@@ -79,13 +103,11 @@ class SphinxRenderer(DocutilsRenderer):
         # save the reference in the standard domain, so that it can be handled properly
         domain = cast(StandardDomain, self.doc_env.get_domain("std"))
         if doc_slug in domain.labels:
-            LOGGER.warning(
-                __("duplicate label %s, other instance in %s"),
-                doc_slug,
-                self.doc_env.doc2path(domain.labels[doc_slug][0]),
-                location=section,
-                type="myst-anchor",
-                subtype=self.doc_env.docname,
+            other_doc = self.doc_env.doc2path(domain.labels[doc_slug][0])
+            self.create_warning(
+                f"duplicate label {doc_slug}, other instance in {other_doc}",
+                line=section.line,
+                subtype="anchor",
             )
         labelid = section["ids"][0]
         domain.anonlabels[doc_slug] = self.doc_env.docname, labelid
