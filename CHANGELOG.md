@@ -11,7 +11,7 @@
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
-  See [How-to suppress warnings](./docs/using/howto.md) for more information.
+  See [How-to suppress warnings](docs/using/howto.md) for more information.
 
 ## 0.13.3 - 2021-01-20
 
