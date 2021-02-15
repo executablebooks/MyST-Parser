@@ -40,7 +40,7 @@ setup(
         "pyyaml",
         "jinja2",  # required for substitutions, but let sphinx choose version
         "docutils>=0.15",
-        "sphinx>=2,<4",
+        "sphinx>=2.1,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
