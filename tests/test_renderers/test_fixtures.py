@@ -108,15 +108,18 @@ def test_sphinx_directives(line, title, input, expected):
     # TODO test domain directives
     if title.startswith("SKIP"):
         pytest.skip(title)
-    if title.startswith("SPHINX3") and sphinx.version_info[0] < 3:
+    elif title.startswith("SPHINX3") and sphinx.version_info[0] < 3:
         pytest.skip(title)
     document = to_docutils(input, in_sphinx_env=True)
-    print(document.pformat())
     _actual, _expected = [
         "\n".join([ll.rstrip() for ll in text.splitlines()])
         for text in (document.pformat(), expected)
     ]
-    assert _actual == _expected
+    try:
+        assert _actual == _expected
+    except AssertionError:
+        print(document.pformat())
+        raise
 
 
 @pytest.mark.parametrize(

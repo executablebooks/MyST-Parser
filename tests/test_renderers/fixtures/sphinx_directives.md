@@ -178,7 +178,7 @@ acks (`sphinx.directives.other.Acks`):
 .
 
 --------------------------------
-hlist (`sphinx.directives.other.HList`):
+SPHINX3.5 hlist (`sphinx.directives.other.HList`):
 .
 ```{hlist}
 
@@ -186,7 +186,7 @@ hlist (`sphinx.directives.other.HList`):
 ```
 .
 <document source="notset">
-    <hlist>
+    <hlist ncolumns="2">
         <hlistcol>
             <bullet_list>
                 <list_item>

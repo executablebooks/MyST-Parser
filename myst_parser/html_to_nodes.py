@@ -47,9 +47,12 @@ def html_to_nodes(
     try:
         root = tokenize_html(text).strip(inplace=True, recurse=False)
     except Exception:
-        return [
-            renderer.reporter.warning("HTML could not be parsed", line=line_number)
-        ] + default_html(text, renderer.document["source"], line_number)
+        msg_node = renderer.create_warning(
+            "HTML could not be parsed", line=line_number, subtype="html"
+        )
+        return ([msg_node] if msg_node else []) + default_html(
+            text, renderer.document["source"], line_number
+        )
 
     if len(root) < 1:
         # if empty
