@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.13.4 - 2021-02-15
+
+- ⬆️ UPGRADE: required markdown-it-py to `v0.6.2`:
+  In particular, this fixes missing source line mappings for table rows and their children
+- 👌 IMPROVE: Store `rawtext` in AST nodes:
+  We now ensure that the raw text is propagated from the Markdown tokens to the Sphinx AST.
+  In particular, this is required by the `gettext` builder, to generate translation POT templates.
+  Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+- ✨ NEW: Add warning types `myst.subtype`:
+  All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
+  These warning types can be suppressed with the sphinx `suppress_warnings` config option.
+  See [How-to suppress warnings](./docs/using/howto.md) for more information.
+
 ## 0.13.3 - 2021-01-20
 
 Minor fixes:
