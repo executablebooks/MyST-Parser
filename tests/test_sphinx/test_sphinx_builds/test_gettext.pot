@@ -59,3 +59,7 @@ msgstr ""
 #: ../../index.md:26
 msgid "**bold** text 11"
 msgstr ""
+
+#: ../../index.md:28
+msgid "Extra ```backticks```"
+msgstr ""
