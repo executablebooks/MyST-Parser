@@ -140,7 +140,11 @@ class MystReferenceResolver(ReferencesResolver):
             except NotImplementedError:
                 # the domain doesn't yet support the new interface
                 # we have to manually collect possible references (SLOW)
-                if not getattr(domain, "__module__", "").startswith("sphinx."):
+                if not (
+                    getattr(domain, "__module__", "").startswith("sphinx.")
+                    # TODO glue can be removed when myst-nb fixed
+                    or "glue" in getattr(domain, "__module__", "")
+                ):
                     logger.warning(
                         f"Domain '{domain.__module__}::{domain.name}' has not "
                         "implemented a `resolve_any_xref` method [myst.domains]",
@@ -152,7 +156,7 @@ class MystReferenceResolver(ReferencesResolver):
                     res = domain.resolve_xref(
                         self.env, refdoc, self.app.builder, role, target, node, contnode
                     )
-                    if len(res) and isinstance(res[0], nodes.Element):
+                    if res and len(res) and isinstance(res[0], nodes.Element):
                         results.append((f"{domain.name}:{role}", res))
 
         # now, see how many matches we got...
