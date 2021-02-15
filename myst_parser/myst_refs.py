@@ -140,11 +140,23 @@ class MystReferenceResolver(ReferencesResolver):
             except NotImplementedError:
                 # the domain doesn't yet support the new interface
                 # we have to manually collect possible references (SLOW)
+                if not (
+                    getattr(domain, "__module__", "").startswith("sphinx.")
+                    # TODO glue can be removed when myst-nb fixed
+                    or "glue" in getattr(domain, "__module__", "")
+                ):
+                    logger.warning(
+                        f"Domain '{domain.__module__}::{domain.name}' has not "
+                        "implemented a `resolve_any_xref` method [myst.domains]",
+                        type="myst",
+                        subtype="domains",
+                        once=True,
+                    )
                 for role in domain.roles:
                     res = domain.resolve_xref(
                         self.env, refdoc, self.app.builder, role, target, node, contnode
                     )
-                    if res and isinstance(res[0], nodes.Element):
+                    if res and len(res) and isinstance(res[0], nodes.Element):
                         results.append((f"{domain.name}:{role}", res))
 
         # now, see how many matches we got...
@@ -160,9 +172,11 @@ class MystReferenceResolver(ReferencesResolver):
             logger.warning(
                 __(
                     f"more than one target found for 'myst' cross-reference {target}: "
-                    f"could be {candidates}"
+                    f"could be {candidates} [myst.ref]"
                 ),
                 location=node,
+                type="myst",
+                subtype="ref",
             )
 
         res_role, newnode = results[0]

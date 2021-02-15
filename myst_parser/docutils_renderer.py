@@ -114,6 +114,26 @@ class DocutilsRenderer:
         )
         self._level_to_elem: Dict[int, nodes.Element] = {0: self.document}
 
+    def create_warning(
+        self,
+        message: str,
+        *,
+        line: Optional[int] = None,
+        append_to: Optional[nodes.Element] = None,
+        wtype: str = "myst",
+        subtype: str = "other",
+    ) -> Optional[nodes.system_message]:
+        """Generate a warning, logging if it is necessary.
+
+        Note this is overridden in the ``SphinxRenderer``,
+        to handle suppressed warning types.
+        """
+        kwargs = {"line": line} if line is not None else {}
+        msg_node = self.reporter.warning(message, **kwargs)
+        if append_to is not None:
+            append_to.append(msg_node)
+        return msg_node
+
     def render(self, tokens: List[Token], options, env: AttrDict):
         """Run the render on a token stream.
 
@@ -153,21 +173,21 @@ class DocutilsRenderer:
             if f"render_{nest_token.type}" in self.rules:
                 self.rules[f"render_{nest_token.type}"](nest_token)
             else:
-                self.current_node.append(
-                    self.reporter.warning(
-                        f"No render method for: {nest_token.type}",
-                        line=token_line(nest_token, default=0),
-                    )
+                self.create_warning(
+                    f"No render method for: {nest_token.type}",
+                    line=token_line(nest_token, default=0),
+                    subtype="render",
+                    append_to=self.current_node,
                 )
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
         for dup_ref in self.env.get("duplicate_refs", []):
-            self.document.append(
-                self.reporter.warning(
-                    f"Duplicate reference definition: {dup_ref['label']}",
-                    line=dup_ref["map"][0] + 1,
-                )
+            self.create_warning(
+                f"Duplicate reference definition: {dup_ref['label']}",
+                line=dup_ref["map"][0] + 1,
+                subtype="ref",
+                append_to=self.document,
             )
 
         if not self.config.get("output_footnotes", True):
@@ -187,16 +207,17 @@ class DocutilsRenderer:
         for footref in foot_refs:
             foot_ref_tokens = self.env["foot_refs"].get(footref, [])
             if len(foot_ref_tokens) > 1:
-                self.current_node.append(
-                    self.reporter.warning(
-                        f"Multiple footnote definitions found for label: '{footref}'",
-                    )
+                self.create_warning(
+                    f"Multiple footnote definitions found for label: '{footref}'",
+                    subtype="footnote",
+                    append_to=self.current_node,
                 )
+
             if len(foot_ref_tokens) < 1:
-                self.current_node.append(
-                    self.reporter.warning(
-                        f"No footnote definitions found for label: '{footref}'",
-                    )
+                self.create_warning(
+                    f"No footnote definitions found for label: '{footref}'",
+                    subtype="footnote",
+                    append_to=self.current_node,
                 )
             else:
                 self.render_footnote_reference_open(foot_ref_tokens[0])
@@ -237,11 +258,11 @@ class DocutilsRenderer:
             if f"render_{nest_token.type}" in self.rules:
                 self.rules[f"render_{nest_token.type}"](nest_token)
             else:
-                self.current_node.append(
-                    self.reporter.warning(
-                        f"No render method for: {nest_token.type}",
-                        line=token_line(nest_token, default=0),
-                    )
+                self.create_warning(
+                    f"No render method for: {nest_token.type}",
+                    line=token_line(nest_token, default=0),
+                    subtype="render",
+                    append_to=self.current_node,
                 )
 
     @contextmanager
@@ -259,11 +280,11 @@ class DocutilsRenderer:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
             else:
-                self.current_node.append(
-                    self.reporter.warning(
-                        f"No render method for: {child.type}",
-                        line=token_line(child, default=0),
-                    )
+                self.create_warning(
+                    f"No render method for: {child.type}",
+                    line=token_line(child, default=0),
+                    subtype="render",
+                    append_to=self.current_node,
                 )
 
     def add_line_and_source_path(self, node, token: Union[Token, NestedTokens]):
@@ -285,13 +306,13 @@ class DocutilsRenderer:
         )
 
         if (level > parent_level) and (parent_level + 1 != level):
-            self.current_node.append(
-                self.reporter.warning(
-                    "Non-consecutive header level increase; {} to {}".format(
-                        parent_level, level
-                    ),
-                    line=section.line,
-                )
+            self.create_warning(
+                "Non-consecutive header level increase; {} to {}".format(
+                    parent_level, level
+                ),
+                line=section.line,
+                subtype="header",
+                append_to=self.current_node,
             )
 
         parent = self._level_to_elem[parent_level]
@@ -511,10 +532,11 @@ class DocutilsRenderer:
 
     def handle_cross_reference(self, token, destination):
         if not self.config.get("ignore_missing_refs", False):
-            self.current_node.append(
-                self.reporter.warning(
-                    f"Reference not found: {destination}", line=token_line(token)
-                )
+            self.create_warning(
+                f"Reference not found: {destination}",
+                line=token_line(token),
+                subtype="ref",
+                append_to=self.current_node,
             )
 
     def render_autolink(self, token: NestedTokens):
@@ -829,21 +851,21 @@ class DocutilsRenderer:
             classes = match.groupdict()["classes"][1:].split(",")
             name = match.groupdict()["name"]
             if classes and classes[0]:
-                self.current_node.append(
-                    self.reporter.warning(
-                        "comma-separated classes are deprecated, "
-                        "use `:class:` option instead",
-                        line=token_line(token),
-                    )
+                self.create_warning(
+                    "comma-separated classes are deprecated, "
+                    "use `:class:` option instead",
+                    line=token_line(token),
+                    subtype="deprecation",
+                    append_to=self.current_node,
                 )
                 # we assume that no other options have been used
                 token.content = f":class: {' '.join(classes)}\n\n" + token.content
             if name == "figure":
-                self.current_node.append(
-                    self.reporter.warning(
-                        ":::{figure} is deprecated, " "use :::{figure-md} instead",
-                        line=token_line(token),
-                    )
+                self.create_warning(
+                    ":::{figure} is deprecated, " "use :::{figure-md} instead",
+                    line=token_line(token),
+                    subtype="deprecation",
+                    append_to=self.current_node,
                 )
                 name = "figure-md"
 

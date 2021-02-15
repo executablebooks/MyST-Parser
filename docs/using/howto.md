@@ -169,3 +169,25 @@ like so:
 ```md
 {ref}`path/to/file_1:My Subtitle`
 ```
+
+(howto/warnings)=
+## Suppress warnings
+
+In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.
+However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-suppress_warnings) configuration option.
+All myst-parser warnings are prepended by their type, e.g. to suppress:
+
+```md
+# Title
+### Subtitle
+```
+
+```
+WARNING: Non-consecutive header level increase; 1 to 3 [myst.header]
+```
+
+Add to your `conf.py`:
+
+```python
+suppress_warnings = ["myst.header"]
+```
