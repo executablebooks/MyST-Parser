@@ -20,6 +20,7 @@ from myst_parser.sphinx_renderer import mock_sphinx_env
         ("ref", "(ref)=\n# Title\n[](ref)", False),
         ("ref_nested", "(ref)=\n# Title\n[*text*](ref)", False),
         ("duplicate", "(index)=\n# Title\n[](index)", True),
+        ("ref_colon", "(ref:colon)=\n# Title\n[](ref:colon)", False),
     ],
 )
 def test_parse(test_name, text, should_warn, file_regression):

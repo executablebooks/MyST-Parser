@@ -86,7 +86,7 @@ class MdParserConfig:
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
-        default=None,
+        default=("http", "https", "mailto", "ftp"),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
     )
 
