@@ -168,7 +168,7 @@ class DocutilsRenderer:
         nested_tokens = new_tokens
 
         # render
-        for i, nest_token in enumerate(nested_tokens):
+        for nest_token in nested_tokens:
             # skip hidden?
             if f"render_{nest_token.type}" in self.rules:
                 self.rules[f"render_{nest_token.type}"](nest_token)
@@ -253,7 +253,7 @@ class DocutilsRenderer:
         nested_tokens = new_tokens
 
         # render
-        for i, nest_token in enumerate(nested_tokens):
+        for nest_token in nested_tokens:
             # skip hidden?
             if f"render_{nest_token.type}" in self.rules:
                 self.rules[f"render_{nest_token.type}"](nest_token)
@@ -276,7 +276,7 @@ class DocutilsRenderer:
         self.current_node = current_node
 
     def render_children(self, token: Union[Token, NestedTokens]):
-        for i, child in enumerate(token.children or []):
+        for child in token.children or []:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
             else:
@@ -320,11 +320,11 @@ class DocutilsRenderer:
         self._level_to_elem[level] = section
 
         # Prune level to limit
-        self._level_to_elem = dict(
-            (section_level, section)
+        self._level_to_elem = {
+            section_level: section
             for section_level, section in self._level_to_elem.items()
             if section_level <= level
-        )
+        }
 
     def renderInlineAsText(self, tokens: List[Token]) -> str:
         """Special kludge for image `alt` attributes to conform CommonMark spec.

@@ -180,7 +180,11 @@ class MockState:
         nested_renderer = DocutilsRenderer(self._renderer.md)
         options = {k: v for k, v in self._renderer.config.items()}
         options.update(
-            dict(document=self.document, current_node=paragraph, output_footnotes=False)
+            {
+                "document": self.document,
+                "current_node": paragraph,
+                "output_footnotes": False,
+            }
         )
         nested_renderer.render(tokens, options, self._renderer.env)
         return paragraph.children, messages

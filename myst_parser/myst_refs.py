@@ -60,7 +60,7 @@ class MystReferenceResolver(ReferencesResolver):
                         node,
                         contnode,
                         **(
-                            dict(allowed_exceptions=(NoUri,))
+                            {"allowed_exceptions": (NoUri,)}
                             if version_info[0] > 2
                             else {}
                         ),
