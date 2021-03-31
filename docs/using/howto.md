@@ -80,8 +80,9 @@ If you encounter any issues with this feature, please don't hesitate to report i
 (howto/autodoc)=
 ## Use `sphinx.ext.autodoc` in Markdown files
 
-The [sphinx.ext.autodoc](sphinx:sphinx.ext.autodoc) is currently hard-coded to write rST, and so can not be used as a conventional MyST directive.
-Instead the special [eval-rst directive](syntax/directives/parsing) can be used to "wrap" the autodoc directives:
+The [Sphinx extension `autodoc`](sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to output reStructuredText.
+It therefore does not blend in well with MyST, which expects Markdown as input.
+However, the special [`eval-rst` directive](syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
 
 ````md
 ```{eval-rst}
@@ -101,6 +102,11 @@ As with other objects in MyST, this can then be referenced:
 
 - Using the role `` {py:class}`myst_parser.mocking.MockRSTParser` ``: {py:class}`myst_parser.mocking.MockRSTParser`
 - Using the Markdown syntax `[MockRSTParser](myst_parser.mocking.MockRSTParser)`: [MockRSTParser](myst_parser.mocking.MockRSTParser)
+
+```{warning}
+This expects docstrings to be written in reStructuredText.
+We hope to support Markdown in the future, see [GitHub issue #228](https://github.com/executablebooks/MyST-Parser/issues/228).
+```
 
 ## Show backticks inside raw markdown blocks
 
