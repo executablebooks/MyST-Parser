@@ -80,7 +80,7 @@ If you encounter any issues with this feature, please don't hesitate to report i
 (howto/autodoc)=
 ## Use `sphinx.ext.autodoc` in Markdown files
 
-The [Sphinx extension `autodoc`](sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to output reStructuredText.
+The [Sphinx extension `autodoc`](sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
 It therefore does not blend in well with MyST, which expects Markdown as input.
 However, the special [`eval-rst` directive](syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
 
