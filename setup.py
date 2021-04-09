@@ -39,7 +39,7 @@ setup(
         "mdit-py-plugins~=0.2.5",
         "pyyaml",
         "jinja2",  # required for substitutions, but let sphinx choose version
-        "docutils>=0.15,<0.18",
+        "docutils>=0.15",
         "sphinx>=2,<4",
     ],
     extras_require={
