@@ -117,7 +117,7 @@ class MystParser(Parser):
                 {"action": "store_true"},
             ),
             (
-                'Maximal number of characters in an input line. Default 10 000.',
+                "Maximal number of characters in an input line. Default 10 000.",
                 ["--line-length-limit"],
                 {
                     "metavar": "<length>",
