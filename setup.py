@@ -39,7 +39,7 @@ setup(
         "mdit-py-plugins~=0.2.5",
         "pyyaml",
         "jinja2",  # required for substitutions, but let sphinx choose version
-        "docutils>=0.15",
+        "docutils>=0.15,<0.18",
         "sphinx>=2,<4",
     ],
     extras_require={
@@ -52,6 +52,7 @@ setup(
             "pytest-cov",
             "pytest-regressions",
             "beautifulsoup4",
+            "docutils>=0.17",  # this version changes some HTML tags
         ],
         # Note: This is only required for internal use
         "rtd": [
