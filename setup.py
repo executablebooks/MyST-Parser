@@ -40,7 +40,7 @@ setup(
         "pyyaml",
         "jinja2",  # required for substitutions, but let sphinx choose version
         "docutils>=0.15",
-        "sphinx>=2,<4",
+        "sphinx>=2.1,<4",
     ],
     extras_require={
         "sphinx": [],  # left in for back-compatability
@@ -52,6 +52,7 @@ setup(
             "pytest-cov",
             "pytest-regressions",
             "beautifulsoup4",
+            "docutils>=0.17",  # this version changes some HTML tags
         ],
         # Note: This is only required for internal use
         "rtd": [

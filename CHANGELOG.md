@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.13.6 - 2021-04-10
+
+- 🐛 FIX: docutils `v0.17` compatibility
+
 ## 0.13.5 - 2021-02-15
 
 - ⬆️ UPGRADE: required markdown-it-py to `v0.6.2`:
