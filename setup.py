@@ -52,6 +52,7 @@ setup(
             "pytest-cov",
             "pytest-regressions",
             "beautifulsoup4",
+            "docutils>=0.17",  # this version changes some HTML tags
         ],
         # Note: This is only required for internal use
         "rtd": [
