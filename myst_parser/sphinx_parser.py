@@ -117,6 +117,16 @@ class MystParser(Parser):
                 {"action": "store_true"},
             ),
             (
+                'Maximal number of characters in an input line. Default 10 000.',
+                ["--line-length-limit"],
+                {
+                    "metavar": "<length>",
+                    "default": 10000,
+                    "type": "int",
+                    "validator": frontend.validate_nonnegative_int,
+                },
+            ),
+            (
                 "Token name set for parsing code with Pygments: one of "
                 '"long", "short", or "none (no parsing)". Default is "long".',
                 ["--syntax-highlight"],
