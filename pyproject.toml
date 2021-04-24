@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=46.4.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"
+known_first_party = ["myst_parser", "tests"]
+known_third_party = ["docutils", "markdown_it", "sphinx"]
+# Group first party and local folder imports together
+no_lines_before = "LOCALFOLDER"

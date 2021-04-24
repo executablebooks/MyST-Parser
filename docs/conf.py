@@ -81,6 +81,7 @@ myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
 myst_footnote_transition = True
 panels_add_bootstrap_css = False
+bibtex_bibfiles = ["examples/references.bib"]
 
 
 def run_apidoc(app):

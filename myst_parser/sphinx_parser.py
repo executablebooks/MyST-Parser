@@ -23,11 +23,11 @@ class MystParser(Parser):
     supported = ("md", "markdown", "myst")
     """Aliases this parser supports."""
 
-    settings_spec = ("MyST Parser Options", None, RstParser.settings_spec[2])
+    settings_spec = RstParser.settings_spec
     """Runtime settings specification.
 
     Defines runtime settings and associated command-line options, as used by
-    `docutils.frontend.OptionParser`.  This is a tuple of:
+    `docutils.frontend.OptionParser`.  This is a concatenation of tuples of:
 
     - Option group title (string or `None` which implies no group, just a list
       of single options).
