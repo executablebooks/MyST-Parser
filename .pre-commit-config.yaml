@@ -12,15 +12,22 @@ exclude: >
 repos:
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v3.4.0
     hooks:
     - id: check-json
     - id: check-yaml
     - id: end-of-file-fixer
     - id: trailing-whitespace
 
+  - repo: https://github.com/mgedmin/check-manifest
+    rev: "0.46"
+    hooks:
+    - id: check-manifest
+      args: [--no-build-isolation]
+      additional_dependencies: [setuptools>=46.4.0]
+
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.6.4
+    rev: 5.8.0
     hooks:
     - id: isort
 
@@ -30,7 +37,7 @@ repos:
     - id: black
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.0
+    rev: 3.9.1
     hooks:
     - id: flake8
       additional_dependencies:
@@ -50,3 +57,10 @@ repos:
         (?x)^(
             myst_parser/.*py|
         )$
+
+  # this is not used for now,
+  # since it converts myst-parser to myst_parser and removes comments
+  # - repo: https://github.com/asottile/setup-cfg-fmt
+  #   rev: v1.17.0
+  #   hooks:
+  #   - id: setup-cfg-fmt
