@@ -203,23 +203,24 @@ def minimal_sphinx_app(
             self._warning = StringIO()
             logging.setup(self, self._status, self._warning)
 
-            self.tags = Tags(None)
+            self.tags = Tags([])
             self.config = Config({}, confoverrides or {})
             self.config.pre_init_values()
             self._init_i18n()
             for extension in builtin_extensions:
                 self.registry.load_extension(self, extension)
             # fresh env
-            self.doctreedir = None
+            self.doctreedir = ""
             self.srcdir = srcdir
             self.confdir = None
-            self.outdir = None
-            self.project = Project(srcdir=srcdir, source_suffix=".md")
-            self.project.docnames = ["mock_docname"]
+            self.outdir = ""
+            self.project = Project(srcdir=srcdir, source_suffix={".md": "markdown"})
+            self.project.docnames = {"mock_docname"}
             self.env = BuildEnvironment()
             self.env.setup(self)
             self.env.temp_data["docname"] = "mock_docname"
-            self.builder = None
+            # Ignore type checkers because we disrespect superclass typing here
+            self.builder = None  # type: ignore[assignment]
 
             if not with_builder:
                 return
@@ -236,7 +237,7 @@ def minimal_sphinx_app(
                 # creating a builder attempts to make the doctreedir
                 self.doctreedir = tempdir
                 self.builder = self.create_builder(buildername)
-            self.doctreedir = None
+            self.doctreedir = ""
 
     app = MockSphinx(
         confoverrides=configuration, srcdir=sourcedir, raise_on_warning=raise_on_warning

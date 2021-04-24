@@ -42,7 +42,9 @@ def setup_sphinx(app: "Sphinx"):
 
 def create_myst_config(app):
     from sphinx.util import logging
-    from sphinx.util.console import bold
+
+    # Ignore type checkers because the attribute is dynamically assigned
+    from sphinx.util.console import bold  # type: ignore[attr-defined]
 
     from myst_parser.main import MdParserConfig
 
