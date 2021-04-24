@@ -463,8 +463,16 @@ class DocutilsRenderer:
         self.current_node.append(node)
 
     def render_heading_open(self, token: NestedTokens):
-        # Test if we're replacing a section level first
 
+        if self.env.get("match_titles", None) is False:
+            self.create_warning(
+                "Header nested in this element can lead to unexpected outcomes",
+                line=token_line(token, default=0),
+                subtype="nested_header",
+                append_to=self.current_node,
+            )
+
+        # Test if we're replacing a section level first
         level = int(token.tag[1])
         if isinstance(self.current_node, nodes.section):
             if self.is_section_level(level, self.current_node):

@@ -133,13 +133,18 @@ class MockState:
         state_machine_kwargs=None,
     ) -> None:
         """Perform a nested parse of the input block, with ``node`` as the parent."""
-        current_match_titles = self.state_machine.match_titles
-        self.state_machine.match_titles = match_titles
+        sm_match_titles = self.state_machine.match_titles
+        render_match_titles = self._renderer.env.get("match_titles", None)
+        self.state_machine.match_titles = self._renderer.env[
+            "match_titles"
+        ] = match_titles
+
         with self._renderer.current_node_context(node):
             self._renderer.nested_render_text(
                 "\n".join(block), self._lineno + input_offset
             )
-        self.state_machine.match_titles = current_match_titles
+        self.state_machine.match_titles = sm_match_titles
+        self._renderer.env["match_titles"] = render_match_titles
 
     def parse_target(self, block, block_text, lineno: int):
         """
