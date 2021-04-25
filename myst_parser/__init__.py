@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-__version__ = "0.13.7"
+__version__ = "0.14.0a1"
 
 
 if TYPE_CHECKING:
