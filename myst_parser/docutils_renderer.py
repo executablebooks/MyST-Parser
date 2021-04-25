@@ -76,7 +76,7 @@ class DocutilsRenderer:
         }
 
     def setup_render(self, options: Dict[str, Any], env: Dict[str, Any]):
-        self.env = env
+        self.md_env = env
         self.config: Dict[str, Any] = options
         self.document: nodes.document = self.config.get("document", make_document())
         self.current_node: nodes.Element = self.config.get(
@@ -132,12 +132,12 @@ class DocutilsRenderer:
         nested_tokens = nest_tokens(tokens)
 
         # move footnote definitions to env
-        self.env.setdefault("foot_refs", {})
+        self.md_env.setdefault("foot_refs", {})
         new_tokens = []
         for nest_token in nested_tokens:
             if nest_token.type == "footnote_reference_open":
                 label = nest_token.meta["label"]
-                self.env["foot_refs"].setdefault(label, []).append(nest_token)
+                self.md_env["foot_refs"].setdefault(label, []).append(nest_token)
             else:
                 new_tokens.append(nest_token)
 
@@ -158,7 +158,7 @@ class DocutilsRenderer:
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
-        for dup_ref in self.env.get("duplicate_refs", []):
+        for dup_ref in self.md_env.get("duplicate_refs", []):
             self.create_warning(
                 f"Duplicate reference definition: {dup_ref['label']}",
                 line=dup_ref["map"][0] + 1,
@@ -181,7 +181,7 @@ class DocutilsRenderer:
         if foot_refs and self.config.get("myst_footnote_transition", False):
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
-            foot_ref_tokens = self.env["foot_refs"].get(footref, [])
+            foot_ref_tokens = self.md_env["foot_refs"].get(footref, [])
             if len(foot_ref_tokens) > 1:
                 self.create_warning(
                     f"Multiple footnote definitions found for label: '{footref}'",
@@ -202,7 +202,7 @@ class DocutilsRenderer:
 
     def nested_render_text(self, text: str, lineno: int):
         """Render unparsed text."""
-        tokens = self.md.parse(text + "\n", self.env)
+        tokens = self.md.parse(text + "\n", self.md_env)
         if tokens and tokens[0].type == "front_matter":
             tokens.pop(0)
 
@@ -217,12 +217,12 @@ class DocutilsRenderer:
         nested_tokens = nest_tokens(tokens)
 
         # move footnote definitions to env
-        self.env.setdefault("foot_refs", {})
+        self.md_env.setdefault("foot_refs", {})
         new_tokens = []
         for nest_token in nested_tokens:
             if nest_token.type == "footnote_reference_open":
                 label = nest_token.meta["label"]
-                self.env["foot_refs"].setdefault(label, []).append(nest_token)
+                self.md_env["foot_refs"].setdefault(label, []).append(nest_token)
             else:
                 new_tokens.append(nest_token)
 
@@ -440,7 +440,7 @@ class DocutilsRenderer:
 
     def render_heading_open(self, token: NestedTokens):
 
-        if self.env.get("match_titles", None) is False:
+        if self.md_env.get("match_titles", None) is False:
             self.create_warning(
                 "Header nested in this element can lead to unexpected outcomes",
                 line=token_line(token, default=0),
