@@ -1,5 +1,6 @@
 import time
 from os import path
+from typing import Tuple
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -20,7 +21,7 @@ SPHINX_LOGGER = logging.getLogger(__name__)
 class MystParser(Parser):
     """Docutils parser for Markedly Structured Text (MyST)."""
 
-    supported = ("md", "markdown", "myst")
+    supported: Tuple[str, ...] = ("md", "markdown", "myst")
     """Aliases this parser supports."""
 
     settings_spec = RstParser.settings_spec
@@ -43,7 +44,7 @@ class MystParser(Parser):
 
     def parse(
         self, inputstring: str, document: nodes.document, renderer: str = "sphinx"
-    ):
+    ) -> None:
         """Parse source text.
 
         :param inputstring: The source string to parse

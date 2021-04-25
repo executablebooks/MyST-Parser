@@ -7,7 +7,17 @@ from contextlib import contextmanager
 from copy import deepcopy
 from datetime import date, datetime
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+)
 
 import jinja2
 import yaml
@@ -24,8 +34,9 @@ from docutils.transforms.components import Filter
 from docutils.utils import Reporter, new_document
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
-from markdown_it.token import NestedTokens, Token, nest_tokens
-from markdown_it.utils import AttrDict
+from markdown_it.renderer import RendererProtocol
+from markdown_it.token import Token
+from markdown_it.tree import SyntaxTreeNode
 
 from myst_parser.mocking import (
     MockIncludeDirective,
@@ -49,7 +60,7 @@ def make_document(source_path="notset") -> nodes.document:
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
-def token_line(token: Union[Token, NestedTokens], default: Optional[int] = None) -> int:
+def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
     """Retrieve the initial line of a token."""
     if not getattr(token, "map", None):
         if default is not None:
@@ -58,7 +69,7 @@ def token_line(token: Union[Token, NestedTokens], default: Optional[int] = None)
     return token.map[0]  # type: ignore[index]
 
 
-class DocutilsRenderer:
+class DocutilsRenderer(RendererProtocol):
     """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
     Note, this render is not dependent on Sphinx.
@@ -66,7 +77,7 @@ class DocutilsRenderer:
 
     __output__ = "docutils"
 
-    def __init__(self, parser: MarkdownIt):
+    def __init__(self, parser: MarkdownIt) -> None:
         """Load the renderer (called by ``MarkdownIt``)"""
         self.md = parser
         self.rules = {
@@ -75,7 +86,10 @@ class DocutilsRenderer:
             if k.startswith("render_") and k != "render_children"
         }
 
-    def setup_render(self, options: Dict[str, Any], env: Dict[str, Any]):
+    def setup_render(
+        self, options: Dict[str, Any], env: MutableMapping[str, Any]
+    ) -> None:
+        """Setup the renderer with per render variables."""
         self.md_env = env
         self.config: Dict[str, Any] = options
         self.document: nodes.document = self.config.get("document", make_document())
@@ -110,51 +124,58 @@ class DocutilsRenderer:
             append_to.append(msg_node)
         return msg_node
 
-    def render(self, tokens: List[Token], options, env: AttrDict):
+    def _render_tokens(self, tokens: List[Token]) -> None:
+        """Render the tokens."""
+        # propagate line number down to inline elements
+        for token in tokens:
+            if not token.map:
+                continue
+            # For docutils we want 1 based line numbers (not 0)
+            token.map = [token.map[0] + 1, token.map[1] + 1]
+            for token_child in token.children or []:
+                token_child.map = token.map
+
+        # nest tokens
+        node_tree = SyntaxTreeNode(tokens)
+
+        # move footnote definitions to env
+        self.md_env.setdefault("foot_refs", {})
+        new_children = []
+        for child in node_tree.children:
+            if child.type == "footnote_reference":
+                label = child.meta["label"]
+                self.md_env["foot_refs"].setdefault(label, []).append(child)
+            else:
+                new_children.append(child)
+
+        node_tree.children = new_children
+
+        # render
+        for child in node_tree.children:
+            # skip hidden?
+            if f"render_{child.type}" in self.rules:
+                self.rules[f"render_{child.type}"](child)
+            else:
+                self.create_warning(
+                    f"No render method for: {child.type}",
+                    line=token_line(child, default=0),
+                    subtype="render",
+                    append_to=self.current_node,
+                )
+
+    def render(
+        self, tokens: Sequence[Token], options, md_env: MutableMapping[str, Any]
+    ) -> nodes.document:
         """Run the render on a token stream.
 
         :param tokens: list on block tokens to render
         :param options: params of parser instance
-        :param env: the environment sandbox associated with the tokens,
+        :param md_env: the markdown-it environment sandbox associated with the tokens,
             containing additional metadata like reference info
         """
-        self.setup_render(options, env)
+        self.setup_render(options, md_env)
 
-        # propagate line number down to inline elements
-        for token in tokens:
-            if token.map:
-                # For docutils we want 1 based line numbers (not 0)
-                token.map = [token.map[0] + 1, token.map[1] + 1]
-            for child in token.children or []:
-                child.map = token.map
-
-        # nest tokens
-        nested_tokens = nest_tokens(tokens)
-
-        # move footnote definitions to env
-        self.md_env.setdefault("foot_refs", {})
-        new_tokens = []
-        for nest_token in nested_tokens:
-            if nest_token.type == "footnote_reference_open":
-                label = nest_token.meta["label"]
-                self.md_env["foot_refs"].setdefault(label, []).append(nest_token)
-            else:
-                new_tokens.append(nest_token)
-
-        nested_tokens = new_tokens
-
-        # render
-        for nest_token in nested_tokens:
-            # skip hidden?
-            if f"render_{nest_token.type}" in self.rules:
-                self.rules[f"render_{nest_token.type}"](nest_token)
-            else:
-                self.create_warning(
-                    f"No render method for: {nest_token.type}",
-                    line=token_line(nest_token, default=0),
-                    subtype="render",
-                    append_to=self.current_node,
-                )
+        self._render_tokens(list(tokens))
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -196,53 +217,25 @@ class DocutilsRenderer:
                     append_to=self.current_node,
                 )
             else:
-                self.render_footnote_reference_open(foot_ref_tokens[0])
+                self.render_footnote_reference(foot_ref_tokens[0])
 
         return self.document
 
-    def nested_render_text(self, text: str, lineno: int):
+    def nested_render_text(self, text: str, lineno: int) -> None:
         """Render unparsed text."""
+
         tokens = self.md.parse(text + "\n", self.md_env)
+
+        # remove front matter
         if tokens and tokens[0].type == "front_matter":
             tokens.pop(0)
 
-        # set correct line numbers
-        for token in tokens:
-            if token.map:
-                token.map = [token.map[0] + lineno, token.map[1] + lineno]
-                for child in token.children or []:
-                    child.map = token.map
-
-        # nest tokens
-        nested_tokens = nest_tokens(tokens)
-
-        # move footnote definitions to env
-        self.md_env.setdefault("foot_refs", {})
-        new_tokens = []
-        for nest_token in nested_tokens:
-            if nest_token.type == "footnote_reference_open":
-                label = nest_token.meta["label"]
-                self.md_env["foot_refs"].setdefault(label, []).append(nest_token)
-            else:
-                new_tokens.append(nest_token)
-
-        nested_tokens = new_tokens
-
-        # render
-        for nest_token in nested_tokens:
-            # skip hidden?
-            if f"render_{nest_token.type}" in self.rules:
-                self.rules[f"render_{nest_token.type}"](nest_token)
-            else:
-                self.create_warning(
-                    f"No render method for: {nest_token.type}",
-                    line=token_line(nest_token, default=0),
-                    subtype="render",
-                    append_to=self.current_node,
-                )
+        self._render_tokens(tokens)
 
     @contextmanager
-    def current_node_context(self, node: nodes.Element, append: bool = False):
+    def current_node_context(
+        self, node: nodes.Element, append: bool = False
+    ) -> Iterator:
         """Context manager for temporarily setting the current node."""
         if append:
             self.current_node.append(node)
@@ -251,7 +244,7 @@ class DocutilsRenderer:
         yield
         self.current_node = current_node
 
-    def render_children(self, token: Union[Token, NestedTokens]):
+    def render_children(self, token: SyntaxTreeNode) -> None:
         for child in token.children or []:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
@@ -263,7 +256,7 @@ class DocutilsRenderer:
                     append_to=self.current_node,
                 )
 
-    def add_line_and_source_path(self, node, token: Union[Token, NestedTokens]):
+    def add_line_and_source_path(self, node, token: SyntaxTreeNode) -> None:
         """Copy the line number and document source path to the docutils node."""
         try:
             node.line = token_line(token)
@@ -302,7 +295,7 @@ class DocutilsRenderer:
             if section_level <= level
         }
 
-    def renderInlineAsText(self, tokens: List[Token]) -> str:
+    def renderInlineAsText(self, tokens: List[SyntaxTreeNode]) -> str:
         """Special kludge for image `alt` attributes to conform CommonMark spec.
 
         Don't try to use it! Spec requires to show `alt` content with stripped markup,
@@ -321,71 +314,71 @@ class DocutilsRenderer:
 
     # ### render methods for commonmark tokens
 
-    def render_paragraph_open(self, token: NestedTokens):
+    def render_paragraph(self, token: SyntaxTreeNode) -> None:
         para = nodes.paragraph(token.children[0].content if token.children else "")
         self.add_line_and_source_path(para, token)
         with self.current_node_context(para, append=True):
             self.render_children(token)
 
-    def render_inline(self, token: Token):
+    def render_inline(self, token: SyntaxTreeNode) -> None:
         self.render_children(token)
 
-    def render_text(self, token: Token):
+    def render_text(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.Text(token.content, token.content))
 
-    def render_bullet_list_open(self, token: NestedTokens):
+    def render_bullet_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.bullet_list()
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
 
-    def render_ordered_list_open(self, token: Token):
+    def render_ordered_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.enumerated_list()
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
 
-    def render_list_item_open(self, token: NestedTokens):
+    def render_list_item(self, token: SyntaxTreeNode) -> None:
         item_node = nodes.list_item()
         self.add_line_and_source_path(item_node, token)
         with self.current_node_context(item_node, append=True):
             self.render_children(token)
 
-    def render_em_open(self, token: NestedTokens):
+    def render_em(self, token: SyntaxTreeNode) -> None:
         node = nodes.emphasis()
         self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             self.render_children(token)
 
-    def render_softbreak(self, token: Token):
+    def render_softbreak(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.Text("\n"))
 
-    def render_hardbreak(self, token: Token):
+    def render_hardbreak(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.raw("", "<br />\n", format="html"))
 
-    def render_strong_open(self, token: NestedTokens):
+    def render_strong(self, token: SyntaxTreeNode) -> None:
         node = nodes.strong()
         self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             self.render_children(token)
 
-    def render_blockquote_open(self, token: NestedTokens):
+    def render_blockquote(self, token: SyntaxTreeNode) -> None:
         quote = nodes.block_quote()
         self.add_line_and_source_path(quote, token)
         with self.current_node_context(quote, append=True):
             self.render_children(token)
 
-    def render_hr(self, token: Token):
+    def render_hr(self, token: SyntaxTreeNode) -> None:
         node = nodes.transition()
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_code_inline(self, token: Token):
+    def render_code_inline(self, token: SyntaxTreeNode) -> None:
         node = nodes.literal(token.content, token.content)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_code_block(self, token: Token):
+    def render_code_block(self, token: SyntaxTreeNode) -> None:
         # this should never have a language, since it is just indented text, however,
         # creating a literal_block with no language will raise a warning in sphinx
         text = token.content
@@ -395,12 +388,11 @@ class DocutilsRenderer:
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_fence(self, token: Token):
+    def render_fence(self, token: SyntaxTreeNode) -> None:
         text = token.content
-        if token.info:
-            # Ensure that we'll have an empty string if info exists but is only spaces
-            token.info = token.info.strip()
-        language = token.info.split()[0] if token.info else ""
+        # Ensure that we'll have an empty string if info exists but is only spaces
+        info = token.info.strip() if token.info else token.info
+        language = info.split()[0] if info else ""
 
         if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
             # copy necessary elements (source, line no, env, reporter)
@@ -438,7 +430,7 @@ class DocutilsRenderer:
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_heading_open(self, token: NestedTokens):
+    def render_heading(self, token: SyntaxTreeNode) -> None:
 
         if self.md_env.get("match_titles", None) is False:
             self.create_warning(
@@ -476,13 +468,13 @@ class DocutilsRenderer:
         self.document.note_implicit_target(section, section)
         self.current_node = section
 
-    def render_link_open(self, token: NestedTokens):
+    def render_link(self, token: SyntaxTreeNode) -> None:
         if token.markup == "autolink":
             return self.render_autolink(token)
 
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        destination = token.attrGet("href") or ""
+        destination = cast(str, token.attrGet("href") or "")
 
         if self.config.get(
             "relative-docs", None
@@ -514,7 +506,7 @@ class DocutilsRenderer:
         else:
             self.handle_cross_reference(token, destination)
 
-    def handle_cross_reference(self, token, destination):
+    def handle_cross_reference(self, token: SyntaxTreeNode, destination: str) -> None:
         if not self.config.get("ignore_missing_refs", False):
             self.create_warning(
                 f"Reference not found: {destination}",
@@ -523,23 +515,23 @@ class DocutilsRenderer:
                 append_to=self.current_node,
             )
 
-    def render_autolink(self, token: NestedTokens):
-        refuri = target = escapeHtml(token.attrGet("href") or "")
+    def render_autolink(self, token: SyntaxTreeNode) -> None:
+        refuri = target = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
         ref_node = nodes.reference(target, target, refuri=refuri)
         self.add_line_and_source_path(ref_node, token)
         self.current_node.append(ref_node)
 
-    def render_html_inline(self, token: Token):
+    def render_html_inline(self, token: SyntaxTreeNode) -> None:
         self.render_html_block(token)
 
-    def render_html_block(self, token: Token):
+    def render_html_block(self, token: SyntaxTreeNode) -> None:
         node_list = html_to_nodes(token.content, token_line(token), self)
         self.current_node.extend(node_list)
 
-    def render_image(self, token: Token):
+    def render_image(self, token: SyntaxTreeNode) -> None:
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
-        destination = token.attrGet("src") or ""
+        destination = cast(str, token.attrGet("src") or "")
 
         if self.config.get("relative-images", None) is not None and not is_external_url(
             destination, None, True
@@ -562,7 +554,7 @@ class DocutilsRenderer:
 
     # ### render methods for plugin tokens
 
-    def render_front_matter(self, token: Token):
+    def render_front_matter(self, token: SyntaxTreeNode) -> None:
         """Pass document front matter data."""
         position = token_line(token, default=0)
 
@@ -680,7 +672,7 @@ class DocutilsRenderer:
 
         return field_list
 
-    def render_table_open(self, token: NestedTokens):
+    def render_table(self, token: SyntaxTreeNode) -> None:
 
         assert token.children and len(token.children) > 1
 
@@ -689,7 +681,7 @@ class DocutilsRenderer:
         body = token.children[1]
         # with one header row
         assert header.children
-        header_row = cast(Token, header.children[0])
+        header_row = header.children[0]
         assert header_row.children
 
         # top-level element
@@ -718,9 +710,9 @@ class DocutilsRenderer:
         tgroup += tbody
         with self.current_node_context(tbody):
             for body_row in body.children or []:
-                self.render_table_row(cast(Token, body_row))
+                self.render_table_row(body_row)
 
-    def render_table_row(self, token: Token):
+    def render_table_row(self, token: SyntaxTreeNode) -> None:
         row = nodes.row()
         with self.current_node_context(row, append=True):
             for child in token.children or []:
@@ -735,25 +727,25 @@ class DocutilsRenderer:
                     with self.current_node_context(para, append=True):
                         self.render_children(child)
 
-    def render_math_inline(self, token: Token):
+    def render_math_inline(self, token: SyntaxTreeNode) -> None:
         content = token.content
         node = nodes.math(content, content)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_math_single(self, token: Token):
+    def render_math_single(self, token: SyntaxTreeNode) -> None:
         content = token.content
         node = nodes.math(content, content)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_math_block(self, token: Token):
+    def render_math_block(self, token: SyntaxTreeNode) -> None:
         content = token.content
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
-    def render_footnote_ref(self, token: Token):
+    def render_footnote_ref(self, token: SyntaxTreeNode) -> None:
         """Footnote references are added as auto-numbered,
         .i.e. `[^a]` is read as rST `[#a]_`
         """
@@ -772,7 +764,7 @@ class DocutilsRenderer:
 
         self.current_node.append(refnode)
 
-    def render_footnote_reference_open(self, token: NestedTokens):
+    def render_footnote_reference(self, token: SyntaxTreeNode) -> None:
         target = token.meta["label"]
 
         footnote = nodes.footnote()
@@ -788,13 +780,13 @@ class DocutilsRenderer:
         with self.current_node_context(footnote, append=True):
             self.render_children(token)
 
-    def render_myst_block_break(self, token: Token):
+    def render_myst_block_break(self, token: SyntaxTreeNode) -> None:
         block_break = nodes.comment(token.content, token.content)
         block_break["classes"] += ["block_break"]
         self.add_line_and_source_path(block_break, token)
         self.current_node.append(block_break)
 
-    def render_myst_target(self, token: Token):
+    def render_myst_target(self, token: SyntaxTreeNode) -> None:
         text = token.content
         name = nodes.fully_normalize_name(text)
         target = nodes.target(text)
@@ -803,10 +795,10 @@ class DocutilsRenderer:
         self.document.note_explicit_target(target, self.current_node)
         self.current_node.append(target)
 
-    def render_myst_line_comment(self, token: Token):
+    def render_myst_line_comment(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.comment(token.content, token.content))
 
-    def render_myst_role(self, token: Token):
+    def render_myst_role(self, token: SyntaxTreeNode) -> None:
         name = token.meta["name"]
         text = token.content
         rawsource = f":{name}:`{token.content}`"
@@ -826,24 +818,25 @@ class DocutilsRenderer:
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
 
-    def render_colon_fence(self, token: Token):
+    def render_colon_fence(self, token: SyntaxTreeNode) -> None:
         """Render a code fence with ``:`` colon delimiters."""
 
         if token.content.startswith(":::"):
             # the content starts with a nested fence block,
             # but must distinguish between ``:options:``, so we add a new line
-            token.content = "\n" + token.content
+            # TODO: shouldn't access private attribute
+            token._attribute_token().content = "\n" + token.content
 
         return self.render_fence(token)
 
-    def render_dl_open(self, token: NestedTokens):
+    def render_dl(self, token: SyntaxTreeNode) -> None:
         """Render a definition list."""
         node = nodes.definition_list(classes=["simple", "myst"])
         self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             item = None
             for child in token.children or []:
-                if isinstance(child, NestedTokens) and child.opening.type == "dt_open":
+                if child.type == "dt":
                     item = nodes.definition_list_item()
                     self.add_line_and_source_path(item, child)
                     with self.current_node_context(item, append=True):
@@ -853,9 +846,7 @@ class DocutilsRenderer:
                         self.add_line_and_source_path(term, child)
                         with self.current_node_context(term, append=True):
                             self.render_children(child)
-                elif (
-                    isinstance(child, NestedTokens) and child.opening.type == "dd_open"
-                ):
+                elif child.type == "dd":
                     if item is None:
                         error = self.reporter.error(
                             (
@@ -863,7 +854,7 @@ class DocutilsRenderer:
                                 "with no preceding term"
                             ),
                             # nodes.literal_block(content, content),
-                            line=child.map[0],
+                            line=token_line(child),
                         )
                         self.current_node += [error]
                     with self.current_node_context(item):
@@ -872,22 +863,17 @@ class DocutilsRenderer:
                         with self.current_node_context(definition, append=True):
                             self.render_children(child)
                 else:
-                    ctype = (
-                        child.opening.type
-                        if isinstance(child, NestedTokens)
-                        else child.type
-                    )
                     error_msg = self.reporter.error(
                         (
                             "Expected a term/definition as a child of a definition list"
-                            f", but found a: {ctype}"
+                            f", but found a: {child.type}"
                         ),
                         # nodes.literal_block(content, content),
                         line=token_line(child),
                     )
                     self.current_node += [error_msg]
 
-    def render_directive(self, token: Token):
+    def render_directive(self, token: SyntaxTreeNode) -> None:
         """Render special fenced code blocks as directives."""
         first_line = token.info.split(maxsplit=1)
         name = first_line[0][1:-1]
@@ -1005,15 +991,15 @@ class DocutilsRenderer:
             )
         return result
 
-    def render_substitution_inline(self, token: Token):
+    def render_substitution_inline(self, token: SyntaxTreeNode) -> None:
         """Render inline substitution {{key}}."""
         self.render_substitution(token, inline=True)
 
-    def render_substitution_block(self, token: Token):
+    def render_substitution_block(self, token: SyntaxTreeNode) -> None:
         """Render block substitution {{key}}."""
         self.render_substitution(token, inline=False)
 
-    def render_substitution(self, token, inline: bool):
+    def render_substitution(self, token: SyntaxTreeNode, inline: bool) -> None:
         """Substitutions are rendered by:
 
         1. Combining global substitutions with front-matter substitutions
@@ -1025,7 +1011,7 @@ class DocutilsRenderer:
            otherwise parse to nodes with all syntax rules.
 
         """
-        position = token.map[0]
+        position = token_line(token)
 
         # front-matter substitutions take priority over config ones
         variable_context = {
