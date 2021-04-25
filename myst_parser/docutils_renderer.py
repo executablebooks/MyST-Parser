@@ -48,30 +48,6 @@ def make_document(source_path="notset") -> nodes.document:
 
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
-# TODO remove deprecated after v0.13.0
-# CSS class regex taken from https://www.w3.org/TR/CSS21/syndata.html#characters
-REGEX_ADMONTION = re.compile(
-    r"\{(?P<name>[a-zA-Z]+)(?P<classes>(?:\,-?[_a-zA-Z]+[_a-zA-Z0-9-]*)*)\}(?P<title>.*)"  # noqa: E501
-)
-STD_ADMONITIONS = {
-    "admonition": nodes.admonition,
-    "attention": nodes.attention,
-    "caution": nodes.caution,
-    "danger": nodes.danger,
-    "error": nodes.error,
-    "important": nodes.important,
-    "hint": nodes.hint,
-    "note": nodes.note,
-    "tip": nodes.tip,
-    "warning": nodes.warning,
-}
-try:
-    from sphinx import addnodes
-
-    STD_ADMONITIONS["seealso"] = addnodes.seealso
-except ImportError:
-    pass
-
 
 def token_line(token: Union[Token, NestedTokens], default: Optional[int] = None) -> int:
     """Retrieve the initial line of a token."""
@@ -852,32 +828,6 @@ class DocutilsRenderer:
 
     def render_colon_fence(self, token: Token):
         """Render a code fence with ``:`` colon delimiters."""
-
-        # TODO remove deprecation after v0.13.0
-        match = REGEX_ADMONTION.match(token.info.strip())
-        if match and match.groupdict()["name"] in list(STD_ADMONITIONS) + ["figure"]:
-            classes = match.groupdict()["classes"][1:].split(",")
-            name = match.groupdict()["name"]
-            if classes and classes[0]:
-                self.create_warning(
-                    "comma-separated classes are deprecated, "
-                    "use `:class:` option instead",
-                    line=token_line(token),
-                    subtype="deprecation",
-                    append_to=self.current_node,
-                )
-                # we assume that no other options have been used
-                token.content = f":class: {' '.join(classes)}\n\n" + token.content
-            if name == "figure":
-                self.create_warning(
-                    ":::{figure} is deprecated, " "use :::{figure-md} instead",
-                    line=token_line(token),
-                    subtype="deprecation",
-                    append_to=self.current_node,
-                )
-                name = "figure-md"
-
-            token.info = f"{{{name}}} {match.groupdict()['title']}"
 
         if token.content.startswith(":::"):
             # the content starts with a nested fence block,
