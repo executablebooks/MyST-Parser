@@ -13,47 +13,6 @@ Basic note:
 .
 
 --------------------------------
-Nested notes:
-.
-:::: {important}
-::: {note,other}
-*hallo*
-:::
-::::
-.
-<document source="notset">
-    <important>
-        <system_message level="2" line="1" source="notset" type="WARNING">
-            <paragraph>
-                comma-separated classes are deprecated, use `:class:` option instead [myst.deprecation]
-        <note classes="other">
-            <paragraph>
-                <emphasis>
-                    hallo
-.
-
---------------------------------
-Admonition with title:
-.
-::: {admonition,other} A **title**
-*hallo*
-:::
-.
-<document source="notset">
-    <system_message level="2" line="1" source="notset" type="WARNING">
-        <paragraph>
-            comma-separated classes are deprecated, use `:class:` option instead [myst.deprecation]
-    <admonition classes="other">
-        <title>
-            A 
-            <strong>
-                title
-        <paragraph>
-            <emphasis>
-                hallo
-.
-
---------------------------------
 Admonition with options:
 .
 ::: {admonition} A **title**
