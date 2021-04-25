@@ -35,27 +35,6 @@ class MdParserConfig:
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    # TODO remove deprecated _enable attributes after v0.13.0
-    admonition_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    figure_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    dmath_enable: bool = attr.ib(default=False, validator=instance_of(bool), repr=False)
-    amsmath_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    deflist_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    html_img_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    colon_fence_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-
     enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
 
     @enable_extensions.validator
