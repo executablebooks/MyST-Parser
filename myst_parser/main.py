@@ -1,7 +1,14 @@
-from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 import attr
-from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
+from attr.validators import (
+    deep_iterable,
+    deep_mapping,
+    in_,
+    instance_of,
+    is_callable,
+    optional,
+)
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from mdit_py_plugins.amsmath import amsmath_plugin
@@ -94,6 +101,10 @@ class MdParserConfig:
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
     )
 
+    heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
+        default=None, validator=optional(is_callable())
+    )
+
     html_meta: Dict[str, str] = attr.ib(
         factory=dict,
         validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
@@ -160,6 +171,10 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         .disable("footnote_tail")
     )
 
+    use_anchors_plugin = (
+        config.heading_anchors is not None or config.heading_slug_func is not None
+    )
+
     typographer = False
     if "smartquotes" in config.enable_extensions:
         md.enable("smartquotes")
@@ -186,8 +201,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(deflist_plugin)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
-    if config.heading_anchors is not None:
-        md.use(anchors_plugin, max_level=config.heading_anchors)
+    if use_anchors_plugin:
+        max_level = config.heading_anchors if config.heading_anchors is not None else 2
+        md.use(anchors_plugin, max_level=max_level, slug_func=config.heading_slug_func)
     for name in config.disable_syntax:
         md.disable(name, True)
 
@@ -200,7 +216,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             "commonmark_only": False,
             "myst_extensions": set(
                 list(config.enable_extensions)
-                + (["heading_anchors"] if config.heading_anchors is not None else [])
+                + (["heading_anchors"] if use_anchors_plugin else [])
             ),
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,
