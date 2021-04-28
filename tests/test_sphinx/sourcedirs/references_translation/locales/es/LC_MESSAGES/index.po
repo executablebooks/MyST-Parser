@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../index.md:1
 msgid "Main Title"
-msgstr ""
+msgstr "Titulo principal"
 
 #: ../../index.md:3 ../../index.md:8
 msgid "Duplicate"
