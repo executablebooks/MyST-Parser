@@ -25,12 +25,15 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
-        sphinx: [">=3,<4"]
+        sphinx: [">=3,<5"]
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             python-version: 3.8
             sphinx: ">=2,<3"
+          - os: ubuntu-latest
+            python-version: 3.8
+            sphinx: "~=4.0.0b2"
           - os: windows-latest
             python-version: 3.8
             sphinx: ">=3,<4"
