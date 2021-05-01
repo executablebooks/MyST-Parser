@@ -52,7 +52,7 @@ repos:
       args: [--config-file=setup.cfg]
       additional_dependencies:
       - sphinx~=3.3
-      - markdown-it-py==1.0.0b2
+      - markdown-it-py>=1.0.0b3,<2.0.0
       - mdit-py-plugins~=0.2.4
       files: >
         (?x)^(

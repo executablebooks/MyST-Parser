@@ -7,7 +7,17 @@ from contextlib import contextmanager
 from copy import deepcopy
 from datetime import date, datetime
 from types import ModuleType
-from typing import Any, Dict, Iterator, List, Optional, Union, cast
+from typing import (
+    Any,
+    Dict,
+    Iterator,
+    List,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+)
 
 import jinja2
 import yaml
@@ -24,6 +34,7 @@ from docutils.transforms.components import Filter
 from docutils.utils import Reporter, new_document
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
+from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
@@ -58,7 +69,7 @@ def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
-class DocutilsRenderer:
+class DocutilsRenderer(RendererProtocol):
     """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
     Note, this render is not dependent on Sphinx.
@@ -75,7 +86,9 @@ class DocutilsRenderer:
             if k.startswith("render_") and k != "render_children"
         }
 
-    def setup_render(self, options: Dict[str, Any], env: Dict[str, Any]) -> None:
+    def setup_render(
+        self, options: Dict[str, Any], env: MutableMapping[str, Any]
+    ) -> None:
         """Setup the renderer with per render variables."""
         self.md_env = env
         self.config: Dict[str, Any] = options
@@ -151,7 +164,7 @@ class DocutilsRenderer:
                 )
 
     def render(
-        self, tokens: List[Token], options, md_env: Dict[str, Any]
+        self, tokens: Sequence[Token], options, md_env: MutableMapping[str, Any]
     ) -> nodes.document:
         """Run the render on a token stream.
 
@@ -162,7 +175,7 @@ class DocutilsRenderer:
         """
         self.setup_render(options, md_env)
 
-        self._render_tokens(tokens)
+        self._render_tokens(list(tokens))
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
