@@ -391,7 +391,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_fence(self, token: SyntaxTreeNode) -> None:
         text = token.content
         # Ensure that we'll have an empty string if info exists but is only spaces
-        info = token.info.strip() if token.info else token.info
+        info = token.info.strip()
         language = info.split()[0] if info else ""
 
         if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
