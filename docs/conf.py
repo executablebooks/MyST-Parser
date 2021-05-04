@@ -75,6 +75,7 @@ myst_enable_extensions = [
 myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
 myst_footnote_transition = True
+myst_dmath_double_inline = True
 panels_add_bootstrap_css = False
 bibtex_bibfiles = ["examples/references.bib"]
 

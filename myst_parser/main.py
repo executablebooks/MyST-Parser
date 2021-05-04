@@ -33,6 +33,7 @@ class MdParserConfig:
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
+    dmath_double_inline: bool = attr.ib(default=False, validator=instance_of(bool))
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
@@ -162,6 +163,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             allow_labels=config.dmath_allow_labels,
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
+            double_inline=config.dmath_double_inline,
         )
     if "colon_fence" in config.enable_extensions:
         md.use(colon_fence_plugin)

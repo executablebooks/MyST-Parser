@@ -763,6 +763,27 @@ There are a few other options available to control dollar math parsing:
 
 These options can both be useful if you also wish to use `$` as a unit of currency.
 
+```{versionadded} 0.14.0
+`myst_dmath_double_inline` option
+```
+
+To allow display math (i.e. `$$`) within an inline context, set `myst_dmath_double_inline = True` (`False` by default).
+This allows for example:
+
+```latex
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+```
+
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+
 ### Math in other block elements
 
 Math will also work when nested in other block elements, like lists or quotes:
