@@ -14,6 +14,7 @@ from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
 from mdit_py_plugins.substitution import substitution_plugin
+from mdit_py_plugins.wordcount import wordcount_plugin
 
 from . import __version__  # noqa: F401
 
@@ -91,6 +92,8 @@ class MdParserConfig:
 
     sub_delimiters: Tuple[str, str] = attr.ib(default=("{", "}"))
 
+    words_per_minute: int = attr.ib(default=200, validator=instance_of(int))
+
     @sub_delimiters.validator
     def check_sub_delimiters(self, attribute, value):
         if (not isinstance(value, (tuple, list))) or len(value) != 2:
@@ -123,7 +126,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         raise ValueError("unknown renderer type: {0}".format(config.renderer))
 
     if config.commonmark_only:
-        md = MarkdownIt("commonmark", renderer_cls=renderer_cls)
+        md = MarkdownIt("commonmark", renderer_cls=renderer_cls).use(
+            wordcount_plugin, per_minute=config.words_per_minute
+        )
         md.options.update({"commonmark_only": True})
         return md
 
@@ -134,6 +139,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         .use(myst_block_plugin)
         .use(myst_role_plugin)
         .use(footnote_plugin)
+        .use(wordcount_plugin, per_minute=config.words_per_minute)
         .disable("footnote_inline")
         # disable this for now, because it need a new implementation in the renderer
         .disable("footnote_tail")

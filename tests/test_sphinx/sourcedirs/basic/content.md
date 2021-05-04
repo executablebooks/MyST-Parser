@@ -92,3 +92,7 @@ this is a second paragraph
 def func(a, b=1):
     print(a)
 ```
+
+Special substitution references:
+
+{sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read

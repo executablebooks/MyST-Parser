@@ -138,3 +138,10 @@
         <literal_block language="default" xml:space="preserve">
             def func(a, b=1):
                 print(a)
+        <paragraph>
+            Special substitution references:
+        <paragraph>
+            53
+             words | 
+            0
+             min read
