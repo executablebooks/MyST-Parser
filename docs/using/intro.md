@@ -248,7 +248,7 @@ To do so, use the keywords beginning `myst_`.
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
 * - `myst_heading_slug_func`
   - `None`
-  - Enable auto-generated heading anchors, using the specified function to generate anchors, [see here](syntax/header-anchors) for details.
+  - Use the specified function to auto-generate heading anchors, [see here](syntax/header-anchors) for details.
 * - `myst_substitutions`
   - `{}`
   - A mapping of keys to substitutions, used globally for all MyST documents when the "substitution" extension is enabled.

@@ -171,10 +171,6 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         .disable("footnote_tail")
     )
 
-    use_anchors_plugin = (
-        config.heading_anchors is not None or config.heading_slug_func is not None
-    )
-
     typographer = False
     if "smartquotes" in config.enable_extensions:
         md.enable("smartquotes")
@@ -201,9 +197,12 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(deflist_plugin)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
-    if use_anchors_plugin:
-        max_level = config.heading_anchors if config.heading_anchors is not None else 2
-        md.use(anchors_plugin, max_level=max_level, slug_func=config.heading_slug_func)
+    if config.heading_anchors is not None:
+        md.use(
+            anchors_plugin,
+            max_level=config.heading_anchors,
+            slug_func=config.heading_slug_func,
+        )
     for name in config.disable_syntax:
         md.disable(name, True)
 
@@ -216,7 +215,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             "commonmark_only": False,
             "myst_extensions": set(
                 list(config.enable_extensions)
-                + (["heading_anchors"] if use_anchors_plugin else [])
+                + (["heading_anchors"] if config.heading_anchors is not None else [])
             ),
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,
