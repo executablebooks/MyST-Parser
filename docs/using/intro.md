@@ -281,9 +281,12 @@ Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math)
 * - Option
   - Default
   - Description
+* - `myst_dmath_double_inline`
+  - `False`
+  - Allow display math (i.e. `$$`) within an inline context
 * - `myst_dmath_allow_labels`
   - `True`
-  - Parse `$$...$$ (label)` syntax (if dmath enabled)
+  - Parse `$$...$$ (label)` syntax
 * - `myst_dmath_allow_space`
   - `True`
   - If False then inline math will only be parsed if there are no initial/final spaces,
