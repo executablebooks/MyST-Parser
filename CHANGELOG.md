@@ -9,32 +9,31 @@ In particular for users, this update alters the parsing of tables to be consiste
 
 ### New Features ✨
 
-Task lists utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+**Task lists** utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
 
-: ```markdown
-  - [ ] An item that needs doing
-  - [x] An item that is complete
-  ```
+```markdown
+- [ ] An item that needs doing
+- [x] An item that is complete
+```
 
-: Add "tasklist" to the `myst_enable_extensions` configuration to enable.
+Add "tasklist" to the `myst_enable_extensions` configuration to enable.
 
-: See [the optional syntax guide](docs/using/syntax-optional.md#task-lists) for further information.
+See [the optional syntax guide](docs/using/syntax-optional.md#task-lists) for further information.
 
 The **`sub-ref`** role has been added for use identical to ReST's `|name|` syntax.
 
-: This allows one to access Sphinx's built-in `|today|`, `|release|` and `|version|` substitutions,
-: and also introduces two new substitutions: `wordcount-words` and `wordcount-minutes`,
-: computed by the markdown-it-py [`wordcount_plugin`](https://github.com/executablebooks/mdit-py-plugins/pull/20).
+This allows one to access Sphinx's built-in `|today|`, `|release|` and `|version|` substitutions,
+and also introduces two new substitutions: `wordcount-words` and `wordcount-minutes`,
+computed by the markdown-it-py [`wordcount_plugin`](https://github.com/executablebooks/mdit-py-plugins/pull/20).
 
-: ```markdown
-  > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
-  ```
+```markdown
+> {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+```
 
-: See [the roles syntax guide](docs/using/syntax.md) for further information.
+See [the roles syntax guide](docs/using/syntax.md) for further information.
 
-The `dmath_double_inline` configuration option allows display math (i.e. `$$`) within an inline context.
-
-: See [the math syntax guide](docs/using/syntax.md#math-shortcuts) for further information.
+The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
+See [the math syntax guide](docs/using/syntax.md#math-shortcuts) for further information.
 
 ### Remove v0.13 deprecations ‼️
 
