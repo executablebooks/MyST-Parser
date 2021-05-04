@@ -23,11 +23,12 @@ def setup_sphinx(app: "Sphinx"):
     """Initialize all settings and transforms in Sphinx."""
     # we do this separately to setup,
     # so that it can be called by external packages like myst_nb
-    from myst_parser.directives import FigureMarkdown
+    from myst_parser.directives import FigureMarkdown, SubstitutionReferenceRole
     from myst_parser.main import MdParserConfig
     from myst_parser.mathjax import override_mathjax
     from myst_parser.myst_refs import MystReferenceResolver
 
+    app.add_role("sub-ref", SubstitutionReferenceRole())
     app.add_directive("figure-md", FigureMarkdown)
 
     app.add_post_transform(MystReferenceResolver)

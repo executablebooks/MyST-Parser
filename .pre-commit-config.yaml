@@ -53,7 +53,7 @@ repos:
       additional_dependencies:
       - sphinx~=3.3
       - markdown-it-py>=1.0.0,<2.0.0
-      - mdit-py-plugins~=0.2.4
+      - mdit-py-plugins~=0.2.8
       files: >
         (?x)^(
             myst_parser/.*py|

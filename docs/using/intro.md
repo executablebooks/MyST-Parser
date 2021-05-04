@@ -255,6 +255,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_footnote_transition`
   - `True`
   - Place a transition before any footnotes.
+* - `myst_words_per_minute`
+  - `200`
+  - Reading speed used to calculate `` {sub-ref}`wordcount-minutes` ``
 `````
 
 List of extensions:
