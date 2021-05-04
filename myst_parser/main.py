@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union, cast
 
 import attr
 from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
@@ -67,7 +67,7 @@ class MdParserConfig:
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
-        default=("http", "https", "mailto", "ftp"),
+        default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
     )
 
