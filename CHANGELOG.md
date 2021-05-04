@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.13.7 - 2021-04-25
+
+👌 IMPROVE: Add warning for nested headers:
+
+Nested headers are not supported within most elements (this is a limitation of the docutils/sphinx document structure), and can lead to unexpected outcomes.
+For example in admonitions:
+
+````markdown
+```{note}
+# Unsupported Header
+```
+````
+
+A warning (of type `myst.nested_header`) is now emitted when this occurs.
+
+🔧 MAINTAIN: Python 3.9 is now officially supported.
+
+## 0.13.6 - 2021-04-10
+
+🐛 FIX: docutils `v0.17` compatibility
+
 ## 0.13.5 - 2021-02-15
 
 - ⬆️ UPGRADE: required markdown-it-py to `v0.6.2`:

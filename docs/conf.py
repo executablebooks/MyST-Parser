@@ -4,22 +4,14 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+from myst_parser import __version__
 
 # -- Project information -----------------------------------------------------
 
 project = "MyST Parser"
 copyright = "2020, Executable Book Project"
 author = "Executable Book Project"
+version = __version__
 
 master_doc = "index"
 language = "en"
@@ -58,6 +50,9 @@ html_title = ""
 html_theme_options = {
     "github_url": "https://github.com/executablebooks/MyST-Parser",
     "repository_url": "https://github.com/executablebooks/MyST-Parser",
+    "use_edit_page_button": True,
+    "repository_branch": "master",
+    "path_to_docs": "docs",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -79,7 +74,9 @@ myst_enable_extensions = [
 ]
 myst_heading_anchors = 2
 myst_footnote_transition = True
+myst_dmath_double_inline = True
 panels_add_bootstrap_css = False
+bibtex_bibfiles = ["examples/references.bib"]
 
 
 def run_apidoc(app):

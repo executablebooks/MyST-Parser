@@ -174,12 +174,14 @@ Substitution references are assessed as [Jinja2 expressions](http://jinja.pallet
 Therefore you can do things like:
 
 ```md
-{{ env.docname | upper }}
-{{ "a" + "b" }}
+- version: {{ env.config.version }}
+- docname: {{ env.docname | upper }}
+- {{ "a" + "b" }}
 ```
 
-{{ env.docname | upper }}
-{{ "a" + "b" }}
+- version: {{ env.config.version }}
+- docname: {{ env.docname | upper }}
+- {{ "a" + "b" }}
 
 You can also change the delimiter if necessary, for example setting in the `conf.py`:
 

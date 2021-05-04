@@ -1,9 +1,10 @@
 """MyST specific directives"""
-from typing import List
+from typing import List, Tuple
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sphinx.directives import SphinxDirective
+from sphinx.util.docutils import SphinxRole
 
 
 def align(argument):
@@ -15,6 +16,19 @@ def figwidth_value(argument):
         return "image"
     else:
         return directives.length_or_percentage_or_unitless(argument, "px")
+
+
+class SubstitutionReferenceRole(SphinxRole):
+    """Implement substitution references as a role.
+
+    Note, in ``docutils/parsers/rst/roles.py`` this is left unimplemented.
+    """
+
+    def run(self) -> Tuple[List[nodes.Node], List[nodes.system_message]]:
+        subref_node = nodes.substitution_reference(self.rawtext, self.text)
+        self.set_source_info(subref_node, self.lineno)  # type: ignore[arg-type]
+        subref_node["refname"] = nodes.fully_normalize_name(self.text)
+        return [subref_node], []
 
 
 class FigureMarkdown(SphinxDirective):
