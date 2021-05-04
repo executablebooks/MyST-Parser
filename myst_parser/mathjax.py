@@ -44,7 +44,7 @@ def override_mathjax(app: Sphinx):
             }
         }
     elif app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
-        if "tex2jax" in app.config.mathjax_config:  # type: ignore[attr-defined]
+        if "tex2jax" in app.config.mathjax_config:
             logger.warning(
                 "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax = True`, "
                 "and so this will be overridden. "

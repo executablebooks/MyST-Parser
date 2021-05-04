@@ -2,6 +2,8 @@
 
 # The MyST Syntax Guide
 
+> {sub-ref}`today` | {sub-ref}`wordcount-minutes` min read
+
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
 For this, it uses the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
@@ -604,6 +606,29 @@ For example, following the `ref` example above, if you pass a string like this:
 
 How roles parse this content depends on the author that created the role.
 
+(syntax/roles/special)=
+
+### Special roles
+
+```{versionadded} 0.14.0
+The `sub-ref` role and word counting.
+```
+
+For all MyST documents, the date and word-count are made available by substitution definitions,
+which can be accessed *via* the `sub-ref` role.
+
+For example:
+
+```markdown
+> {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+```
+
+> {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+
+`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
+
+The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](intro/config-options)).
+
 (extra-markdown-syntax)=
 ## Extra markdown syntax
 
@@ -737,6 +762,27 @@ There are a few other options available to control dollar math parsing:
 `myst_dmath_allow_digits=False`, will cause inline math to only be parsed if there are no initial / final digits, e.g. `$a$` but not `1$a$` or `$a$2`.
 
 These options can both be useful if you also wish to use `$` as a unit of currency.
+
+```{versionadded} 0.14.0
+`myst_dmath_double_inline` option
+```
+
+To allow display math (i.e. `$$`) within an inline context, set `myst_dmath_double_inline = True` (`False` by default).
+This allows for example:
+
+```latex
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+```
+
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
 
 ### Math in other block elements
 

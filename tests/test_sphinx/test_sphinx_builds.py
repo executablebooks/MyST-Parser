@@ -44,6 +44,7 @@ def test_basic(
         "date": "2/12/1985",
         "copyright": "MIT",
         "other": "Something else",
+        "wordcount": {"minutes": 0, "words": 53},
     }
 
 
@@ -169,10 +170,7 @@ def test_extended_syntaxes(
     app.build()
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
-    # TODO turn back on when deprecations removed after v0.13.0
-    # assert warnings == ""
-    assert "comma-separated classes are deprecated" in warnings
-    assert ":::{figure} is deprecated" in warnings
+    assert warnings == ""
 
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
