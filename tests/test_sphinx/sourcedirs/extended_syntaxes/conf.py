@@ -3,6 +3,7 @@ language = "en"
 exclude_patterns = ["_build"]
 myst_disable_syntax = ["emphasis"]
 myst_dmath_allow_space = False
+myst_dmath_double_inline = True
 mathjax_config = {}
 myst_enable_extensions = ["dollarmath", "amsmath", "deflist", "colon_fence", "linkify"]
 myst_html_meta = {

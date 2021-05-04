@@ -16,6 +16,11 @@
             x=5
         <paragraph>
             $ a=1 $
+        <paragraph>
+            a 
+            <math_block nowrap="False" number="True" xml:space="preserve">
+                c=3
+             b
         <target refid="equation-mock-uuid">
         <math_block classes="amsmath" docname="index" ids="equation-mock-uuid" label="mock-uuid" nowrap="True" number="2" xml:space="preserve">
             \begin{equation}

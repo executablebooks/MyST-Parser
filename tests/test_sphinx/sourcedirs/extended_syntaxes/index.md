@@ -10,6 +10,8 @@ $$x=5$$ (2)
 
 $ a=1 $
 
+a $$c=3$$ b
+
 \begin{equation}
 b=2
 \end{equation}
