@@ -71,6 +71,7 @@ myst_enable_extensions = [
     "replacements",
     "linkify",
     "substitution",
+    "tasklist",
 ]
 myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2

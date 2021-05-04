@@ -360,6 +360,9 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_bullet_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.bullet_list()
+        if token.attrs.get("class"):
+            # this is used e.g. by tasklist
+            list_node["classes"] = str(token.attrs["class"]).split()
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
@@ -372,6 +375,9 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_list_item(self, token: SyntaxTreeNode) -> None:
         item_node = nodes.list_item()
+        if token.attrs.get("class"):
+            # this is used e.g. by tasklist
+            item_node["classes"] = str(token.attrs["class"]).split()
         self.add_line_and_source_path(item_node, token)
         with self.current_node_context(item_node, append=True):
             self.render_children(token)

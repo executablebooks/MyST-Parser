@@ -14,6 +14,7 @@ from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
 from mdit_py_plugins.substitution import substitution_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
 from mdit_py_plugins.wordcount import wordcount_plugin
 
 from . import __version__  # noqa: F401
@@ -55,6 +56,7 @@ class MdParserConfig:
                 "replacements",
                 "linkify",
                 "substitution",
+                "tasklist",
             ]
         )
         if diff:
@@ -171,6 +173,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(amsmath_plugin)
     if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
+    if "tasklist" in config.enable_extensions:
+        md.use(tasklists_plugin)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
     if config.heading_anchors is not None:
