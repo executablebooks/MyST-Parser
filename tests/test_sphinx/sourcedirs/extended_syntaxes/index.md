@@ -56,3 +56,6 @@ This is a caption in **Markdown**
 :::
 
 linkify URL: www.example.com
+
+- [ ] hallo
+- [x] there
