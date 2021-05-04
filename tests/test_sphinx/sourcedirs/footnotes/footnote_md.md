@@ -23,3 +23,7 @@
 [^123]: multiple references footnote
 
 [^x]: an unreferenced footnote
+
+[^e]
+
+> - [^e]: footnote definition in a block element

@@ -140,15 +140,16 @@ class DocutilsRenderer(RendererProtocol):
 
         # move footnote definitions to env
         self.md_env.setdefault("foot_refs", {})
-        new_children = []
-        for child in node_tree.children:
-            if child.type == "footnote_reference":
-                label = child.meta["label"]
-                self.md_env["foot_refs"].setdefault(label, []).append(child)
-            else:
-                new_children.append(child)
+        for node in node_tree.walk(include_self=True):
+            new_children = []
+            for child in node.children:
+                if child.type == "footnote_reference":
+                    label = child.meta["label"]
+                    self.md_env["foot_refs"].setdefault(label, []).append(child)
+                else:
+                    new_children.append(child)
 
-        node_tree.children = new_children
+            node.children = new_children
 
         # render
         for child in node_tree.children:
