@@ -312,6 +312,7 @@ To achieve this, section headings must be assigned anchors, which can be achieve
 by setting `myst_heading_anchors = 2` in your `conf.py`.
 This configures heading anchors to be assigned to both `h1` and `h2` level headings.
 The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger); lower-case text, removing punctuation, replacing spaces with `-`, uniqueness *via* suffix enumeration `-1`.
+To change the slug function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 You can inspect the links that will be created using the command-line tool:
 
 ```console

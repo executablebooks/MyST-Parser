@@ -1,7 +1,14 @@
-from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
 
 import attr
-from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
+from attr.validators import (
+    deep_iterable,
+    deep_mapping,
+    in_,
+    instance_of,
+    is_callable,
+    optional,
+)
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from mdit_py_plugins.amsmath import amsmath_plugin
@@ -75,6 +82,10 @@ class MdParserConfig:
 
     heading_anchors: Optional[int] = attr.ib(
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
+    )
+
+    heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
+        default=None, validator=optional(is_callable())
     )
 
     html_meta: Dict[str, str] = attr.ib(
@@ -178,7 +189,11 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
     if config.heading_anchors is not None:
-        md.use(anchors_plugin, max_level=config.heading_anchors)
+        md.use(
+            anchors_plugin,
+            max_level=config.heading_anchors,
+            slug_func=config.heading_slug_func,
+        )
     for name in config.disable_syntax:
         md.disable(name, True)
 
