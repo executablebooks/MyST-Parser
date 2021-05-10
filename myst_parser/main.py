@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Callable, Dict, Iterable, Optional, Tuple, Union
 
 import attr
 from attr.validators import (
@@ -10,7 +10,7 @@ from attr.validators import (
     optional,
 )
 from markdown_it import MarkdownIt
-from markdown_it.renderer import RendererHTML
+from markdown_it.renderer import RendererHTML, RendererProtocol
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
@@ -124,7 +124,7 @@ class MdParserConfig:
 
 def default_parser(config: MdParserConfig) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
-    renderer_cls: Type[Any]  # TODO no abstract render class
+    renderer_cls: Callable[[MarkdownIt], RendererProtocol]
 
     if config.renderer == "sphinx":
         from myst_parser.sphinx_renderer import SphinxRenderer
