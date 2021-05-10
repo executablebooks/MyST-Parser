@@ -62,11 +62,11 @@ REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{
 
 def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
     """Retrieve the initial line of a token."""
-    if not getattr(token, "map", None):
+    if not token.map:
         if default is not None:
             return default
         raise ValueError(f"token map not set: {token}")
-    return token.map[0]  # type: ignore[index]
+    return token.map[0]
 
 
 class DocutilsRenderer(RendererProtocol):
