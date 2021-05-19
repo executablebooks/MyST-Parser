@@ -1,6 +1,10 @@
-# How-To Guides
+# Sphinx extension usage guide
 
-This page describes several common uses of MyST parser and how to accomplish them.
+These sections describe some common scenarios and use-cases for writing MyST with Sphinx.
+
+:::{seealso}
+For an introduction to using MyST with Sphinx, see [](intro.md).
+:::
 
 (howto/include-rst)=
 ## Include rST files into a Markdown file
@@ -27,6 +31,10 @@ To include rST, we must first "wrap" the directive in the [eval-rst directive](s
 ```{eval-rst}
 .. include:: snippets/include-rst.rst
 ```
+
+## Use MyST in Jupyter Notebooks
+
+The [MyST-NB](https://myst-nb.readthedocs.io) tool provides a Sphinx extension for parsing **Jupyter Notebooks written with MyST Markdown**. It includes features like automatically executing notebooks during documentation builds, storing notebook cell outputs in order to insert them elsewhere in your documentation, and more. See the [MyST-NB documentation](https://myst-nb.readthedocs.io) for more information.
 
 (howto/include-readme)=
 ## Include a file from outside the docs folder (like README.md)
@@ -108,32 +116,6 @@ This expects docstrings to be written in reStructuredText.
 We hope to support Markdown in the future, see [GitHub issue #228](https://github.com/executablebooks/MyST-Parser/issues/228).
 ```
 
-## Show backticks inside raw markdown blocks
-
-If you'd like to show backticks inside of your markdown, you can do so by nesting them
-in backticks of a greater length. Markdown will treat the outer-most backticks as the
-edges of the "raw" block and everything inside will show up. For example:
-
-``` `` `hi` `` ```  will be rendered as: `` `hi` ``
-
-and
-
-`````
-````
-```
-hi
-```
-````
-`````
-
-will be rendered as:
-
-````
-```
-hi
-```
-````
-
 (howto/autosectionlabel)=
 ## Automatically create targets for section headers
 
@@ -196,4 +178,35 @@ Add to your `conf.py`:
 
 ```python
 suppress_warnings = ["myst.header"]
+```
+
+
+## Sphinx-specific page front matter
+
+Sphinx intercepts front matter and stores them within the global environment
+(as discussed [in the deflists documentation](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
+There are certain front-matter keys (or their translations) that are also recognised specifically by docutils and parsed to inline Markdown:
+
+- `author`
+- `authors`
+- `organization`
+- `address`
+- `contact`
+- `version`
+- `revision`
+- `status`
+- `date`
+- `copyright`
+- `dedication`
+- `abstract`
+
+A classic use-case is to specify 'orphan' documents, that are not specified in any toctrees.
+For example, inserting the following syntax at the top of a page will cause Sphinx to treat it as an orphan page:
+
+```md
+---
+orphan: true
+---
+
+This is an orphan document, not specified in any toctrees.
 ```

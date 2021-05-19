@@ -28,6 +28,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
     "sphinx_panels",
+    "sphinxext.rediraffe",
+    "sphinxcontrib.mermaid",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -79,6 +81,13 @@ myst_footnote_transition = True
 myst_dmath_double_inline = True
 panels_add_bootstrap_css = False
 bibtex_bibfiles = ["examples/references.bib"]
+rediraffe_redirects = {
+    "using/intro.md": "sphinx/intro.md",
+    "using/use_api.md": "api/index.md",
+    "using/syntax.md": "syntax/syntax.md",
+    "using/syntax-optional.md": "syntax/syntax-optional.md",
+    "using/reference.md": "syntax/reference.md",
+}
 
 
 def run_apidoc(app):

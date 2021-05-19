@@ -3,88 +3,78 @@
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
 
-**A fully-functional markdown flavor and parser for Sphinx.**
+**MyST is a rich and extensible flavor of Markdown meant for technical documentation and publishing**.
 
-MyST allows you to write Sphinx documentation entirely in markdown.
-MyST markdown provides a markdown equivalent of the reStructuredText syntax,
-meaning that you can do anything in MyST that you can do with reStructuredText.
-It is an attempt to have the best of both worlds: the flexibility
-and extensibility of Sphinx with the simplicity and readability of Markdown.
+MyST is a flavor of markdown that is designed for simplicity, flexibility, and extensibility.
+Here are a few key features of MyST Markdown:
 
-MyST has the following main features:
+{fa}`check,text-success mr-1` It is [a superset of CommonMark markdown][commonmark].
+: Any CommonMark document is also MyST-compliant.
 
-{fa}`check,text-success mr-1` [A markdown parser for Sphinx](parse-with-sphinx)
-: You can write your entire {doc}`Sphinx documentation <sphinx:usage/quickstart>` in Markdown.
+{fa}`check,text-success mr-1` It [extends CommonMark with rich writing syntax](extended-block-tokens).
+: These make it easier to write MyST and extend its functionality to technical documentation (for example, line commenting and footnotes).
 
-{fa}`check,text-success mr-1` [Call Sphinx directives and roles from within Markdown](syntax/directives)
-: Allowing you to extend your document via Sphinx extensions.
+{fa}`check,text-success mr-1` It provides [extension points with directives and roles](syntax/directives).
+: Any MyST parser can define new functionality via a standard syntax extension point (this is kind of like defining functions with markdown).
 
-{fa}`check,text-success mr-1` [Extended Markdown syntax for useful rST features](extended-block-tokens)
-: Such as line commenting and footnotes.
+This MyST Parser serves as a reference implementation for MyST Markdown, and comes bundled with several tools that help you use MyST in your work.
+It comes bundled with a few tools to help you use MyST with Python:
 
-{fa}`check,text-success mr-1` [A Sphinx-independent parser of MyST markdown](using/use_api)
-: This can be extended to add new functionality and outputs for MyST.
+[A Python parser of MyST markdown](api/index)
+: This can be extended to add new functionality and outputs for MyST, and is built on top of [`markdown-it-py`](https://markdown-it-py.readthedocs.io/).
 
-{fa}`check,text-success mr-1` [A superset of CommonMark markdown][commonmark]
-: Any CommonMark markdown (such as Jupyter Notebook markdown) is natively supported by the MyST parser.
+[A markdown parser for Sphinx](sphinx/index)
+: You can write your entire {doc}`Sphinx documentation <sphinx:usage/quickstart>` in Markdown, including [**roles** and **directives**](syntax/directives).
+  This allows you to extend MyST's functionality in Sphinx via Sphinx extensions.
 
-You may use MyST markdown **in addition to** using reStructuredText in Sphinx.
-See {doc}`using/intro` to get started.
+:::{seealso}
+For some examples of how MyST can be used, check out the [Jupyter Book project](https://jupyterbook.org), which uses MyST Markdown heavily, as well as [the Jupyter Book gallery](https://gallery.jupyterbook.org) which contains a list of books built by others, all using MyST.
+:::
 
-## Site contents
+## Get started
+
+These pages cover step-by-step instructions to get started with MyST Markdown.
 
 ```{toctree}
----
-maxdepth: 2
-caption: Using MyST Markdown
----
-using/intro.md
-using/syntax.md
-using/syntax-optional.md
-using/howto.md
-using/faq.md
-using/use_api.md
+:maxdepth: 2
+sphinx/intro.md
 ```
 
+## MyST Syntax
+
+These sections cover the syntax that makes up MyST Markdown, some common use-cases that it supports, as well as a few extensions that allow you to enable new features with MyST.
+
 ```{toctree}
----
-maxdepth: 2
-caption: Reference and contributing
----
+:caption: MyST Syntax
+:maxdepth: 2
+syntax/syntax
+syntax/syntax-optional
+syntax/reference
+```
+
+## Topic Guides
+
+Topic guides cover particular tools, use-cases, and functionality in the MyST ecosystem.
+
+```{toctree}
+:maxdepth: 2
+:caption: Topic Guides
+sphinx/index.md
+api/index.md
+explain/index.md
+```
+
+## About the project
+
+These sections cover "meta" information about the MyST Markdown project.
+
+```{toctree}
+:maxdepth: 2
+:caption: About the project
 examples/index.md
 develop/index.md
-api/index.md
 develop/_changelog.md
 GitHub repo <https://github.com/executablebooks/myst-parser>
-```
-
-## Why MyST markdown?
-
-While markdown is ubiquitous, it is not powerful enough for writing modern,
-fully-featured documentation. Some flavors of markdown support features needed for this,
-but there is no community standard around various syntactic choices for these features.
-
-Sphinx is a documentation generation framework written in Python. It heavily-utilizes
-reStructuredText syntax, which is another markup language for writing documents. In
-particular, Sphinx defines two extension points that are extremely useful:
-**{ref}`in-line roles<sphinx:rst-roles-alt>`** and **{ref}`block-level directives <sphinx:rst-directives>`**.
-
-**This project is an attempt at combining the simplicity and readability of Markdown
-with the power and flexibility of reStructuredText and the Sphinx platform.** It
-starts with the [CommonMark markdown specification][commonmark], and selectively adds a few extra
-syntax pieces to utilize the most powerful parts of reStructuredText.
-
-```{note}
-The CommonMark community has been discussing an "official" extension syntax for many
-years now (for example, see
-[this seven-year-old thread about directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444) as well as
-[this more recent converstaion](https://talk.commonmark.org/t/support-for-extension-token/2771),
-and [this comment listing several more threads on this topic](https://talk.commonmark.org/t/extension-terminology-and-rules/1233)).
-
-We have chosen a "roles and directives" syntax that seems reasonable and follows other
-common conventions in Markdown flavors. However, if the CommonMark community ever
-decides on an "official" extension syntax, we will likely utilize this syntax for
-MyST.
 ```
 
 ## Acknowledgements

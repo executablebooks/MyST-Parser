@@ -1,18 +1,17 @@
-# Python API
-
-MyST-Parser also has a Python API *via* the `myst_parser` package.
+# Parse MyST Markdown
 
 ```{seealso}
-- The [markdown-it-py](https://github.com/executablebooks/markdown-it-py) package
-- {ref}`The MyST-Parser API reference <api/main>`
+- The MyST Parser package heavily uses the the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) package.
+- {ref}`The MyST-Parser API reference <api/main>` contains a more complete reference of this API.
 ```
 
-The raw text is first parsed to syntax 'tokens',
-then these are converted to other formats using 'renderers'.
+## Parsing and rendering helper functions
 
-## Quick-Start
+The MyST Parser comes bundled with some helper functions to quickly parse MyST Markdown and render its output.
 
-The simplest way to understand how text will be parsed is using:
+### Parse MyST Markdown to HTML
+
+For example, the following code parses markdown and renders as HTML:
 
 ```python
 from myst_parser.main import to_html
@@ -24,6 +23,10 @@ to_html("some *text*")
 '<p>some <em>text</em></p>\n'
 ```
 <!-- #endregion -->
+
+### Parse MyST Markdown to docutils
+
+The following function renders your text as **docutils objects** (for example, for use with the Sphinx ecosystem):
 
 ```python
 from myst_parser.main import to_docutils
@@ -38,13 +41,19 @@ print(to_docutils("some *text*").pformat())
             text
 ```
 
+### Parse MyST Markdown as `markdown-it` tokens
+
+The MyST Parser uses `markdown-it-py` tokens as an intermediate representation of your text.
+Normally these tokens are then *rendered* into various outputs.
+If you'd like direct access to the tokens, use the `to_tokens` function.
+Here's an example of its use:
+
 ```python
 from pprint import pprint
 from myst_parser.main import to_tokens
 
 for token in to_tokens("some *text*"):
-    print(token)
-    print()
+    print(token, "\n")
 ```
 
 <!-- #region -->
@@ -57,10 +66,23 @@ Token(type='paragraph_close', tag='p', nesting=-1, attrs=None, map=None, level=0
 ```
 <!-- #endregion -->
 
-# The Parser
+Each token is an abstract representation of a piece of MyST Markdown syntax.
 
+## Use the parser object for more control
 
-The `default_parser` function loads a standard markdown-it parser with the default syntax rules for MyST.
+The MyST Parser is actually a `markdown-it-py` parser with several extensions pre-enabled that support the MyST syntax.
+If you'd like more control over the parsing process, then you can directly use a `markdown-it-py` parser with MyST syntax extensions loaded.
+
+:::{seealso}
+[`markdown-it-py`](https://markdown-it-py.readthedocs.io/) is an extensible Python parser and renderer for flavors of markdown.
+It is inspired heavily by the [`markdown-it`](https://github.com/markdown-it/markdown-it) Javascript package.
+See the documentation of these tools for more information.
+:::
+
+### Load a parser
+
+To load one of these parsers for your own use, use the `default_parser` function.
+Below we'll create such a parser and show that it is an instance of a `markdown-it-py` parser:
 
 ```python
 from myst_parser.main import default_parser, MdParserConfig
@@ -74,6 +96,12 @@ parser
 markdown_it.main.MarkdownIt()
 ```
 <!-- #endregion -->
+
+### List the active rules
+
+We can list the **currently active rules** for this parser.
+Each rules maps onto a particular markdown syntax, and a Token.
+To list the active rules, use the `get_active_rules` method:
 
 ```python
 pprint(parser.get_active_rules())
@@ -118,6 +146,11 @@ pprint(parser.get_active_rules())
 ```
 <!-- #endregion -->
 
+### Parse and render markdown
+
+Once we have a Parser instance, we can use it to parse some markdown.
+Use the `render` function to do so:
+
 ```python
 parser.render("*abc*")
 ```
@@ -128,7 +161,10 @@ parser.render("*abc*")
 ```
 <!-- #endregion -->
 
-Any of these rules can be disabled:
+### Disable and enable rules
+
+You can disable and enable rules for a parser using the `disable` and `enable` methods.
+For example, below we'll disable the `emphasis` rule (which is what detected the `*abc*` syntax above) and re-render the text:
 
 ```python
 parser.disable("emphasis").render("*abc*")
@@ -140,7 +176,11 @@ parser.disable("emphasis").render("*abc*")
 ```
 <!-- #endregion -->
 
-`renderInline` turns off any block syntax rules.
+As you can see, the parser no longer detected the `*<text>*` syntax as requiring an _emphasis_.
+
+### Turn off all block-level syntax
+
+If you'd like to use your parser *only* for in-line content, you may turn off all block-level syntax with the `renderInline` method:
 
 ```python
 parser.enable("emphasis").renderInline("- *abc*")
@@ -152,12 +192,13 @@ parser.enable("emphasis").renderInline("- *abc*")
 ```
 <!-- #endregion -->
 
+
 ## The Token Stream
 
+When you parse markdown with the MyST Parser, the result is a flat stream of **Tokens**.
+These are abstract representations of each type of syntax that the parser has detected.
 
-
-
-The text is parsed to a flat token stream:
+For example, below we'll show the token stream for some simple markdown:
 
 ```python
 from myst_parser.main import to_tokens
@@ -190,7 +231,10 @@ Here's some *text*
 ```
 <!-- #endregion -->
 
-Inline type tokens contain the inline tokens as children:
+Note that these tokens are **flat**, although some of the tokens refere to one another (for example, Tokens with `_open` and `_close` represent the start/end of blocks).
+
+Tokens of type `inline` will have a `children` attribute that contains a list of the Tokens that they contain.
+For example:
 
 ```python
 tokens[6]
@@ -202,7 +246,12 @@ Token(type='inline', tag='', nesting=0, attrs=None, map=[3, 4], level=3, childre
 ```
 <!-- #endregion -->
 
-The sphinx renderer first converts the token to a nested structure, collapsing the opening/closing tokens into single tokens:
+### Rendering tokens
+
+The list of Token objects can be rendered to a number of different outputs.
+This involves first processing the Tokens, and then defining how each should be rendered in an output format (e.g., HTML or Docutils).
+
+For example, the sphinx renderer first converts the token to a nested structure, collapsing the opening/closing tokens into single tokens:
 
 ```python
 from markdown_it.token import nest_tokens
@@ -232,142 +281,5 @@ Token(type='paragraph_close', tag='p', nesting=-1, attrs=None, map=None, level=0
 ```
 <!-- #endregion -->
 
-## Renderers
-
-The `myst_parser.docutils_renderer.DocutilsRenderer` converts a token directly to the `docutils.document` representation of the document, converting roles and directives to a `docutils.nodes` if a converter can be found for the given name.
-
-````python
-from myst_parser.main import to_docutils
-
-document = to_docutils("""
-Here's some *text*
-
-1. a list
-
-> a quote
-
-{emphasis}`content`
-
-```{sidebar} my sidebar
-content
-```
-""")
-
-print(document.pformat())
-````
-
-```xml
-<document source="notset">
-    <paragraph>
-        Here's some
-        <emphasis>
-            text
-    <enumerated_list>
-        <list_item>
-            <paragraph>
-                a list
-    <block_quote>
-        <paragraph>
-            a quote
-    <paragraph>
-        <emphasis>
-            content
-    <sidebar>
-        <title>
-            my sidebar
-        <paragraph>
-            content
-```
-
-
-The `myst_parser.sphinx_renderer.SphinxRenderer` builds on the `DocutilsRenderer` to add sphinx specific nodes, e.g. for cross-referencing between documents.
-
-To use the sphinx specific roles and directives outside of a `sphinx-build`, they must first be loaded with the `in_sphinx_env` option.
-
-````python
-document = to_docutils("""
-Here's some *text*
-
-1. a list
-
-> a quote
-
-{ref}`target`
-
-```{glossary} my gloassary
-name
-    definition
-```
-""",
-    in_sphinx_env=True)
-print(document.pformat())
-````
-
-```xml
-<document source="notset">
-    <paragraph>
-        Here's some
-        <emphasis>
-            text
-    <enumerated_list>
-        <list_item>
-            <paragraph>
-                a list
-    <block_quote>
-        <paragraph>
-            a quote
-    <paragraph>
-        <pending_xref refdoc="mock_docname" refdomain="std" refexplicit="False" reftarget="target" reftype="ref" refwarn="True">
-            <inline classes="xref std std-ref">
-                target
-    <glossary>
-        <definition_list classes="glossary">
-            <definition_list_item>
-                <term ids="term-my-gloassary">
-                    my gloassary
-                    <index entries="('single',\ 'my\ gloassary',\ 'term-my-gloassary',\ 'main',\ None)">
-                <term ids="term-name">
-                    name
-                    <index entries="('single',\ 'name',\ 'term-name',\ 'main',\ None)">
-                <definition>
-                    <paragraph>
-                        definition
-```
-
-
-You can also set Sphinx configuration *via* `sphinx_conf`. This is a dictionary representation of the contents of the Sphinx `conf.py`.
-
-```{warning}
-This feature is only meant for simple testing.
-It will fail for extensions that require the full
-Sphinx build process and/or access to external files.
-```
-
-`````python
-document = to_docutils("""
-````{tabs}
-
-```{tab} Apples
-
-Apples are green, or sometimes red.
-```
-````
-""",
-    in_sphinx_env=True,
-    conf={"extensions": ["sphinx_tabs.tabs"]}
-)
-print(document.pformat())
-`````
-
-```xml
-<document source="notset">
-    <container classes="sphinx-tabs">
-        <container>
-            <a classes="item">
-                <container>
-                    <paragraph>
-                        Apples
-            <container classes="ui bottom attached sphinx-tab tab segment sphinx-data-tab-0-0 active">
-                <paragraph>
-                    Apples are green, or sometimes red.
-```
+It then renders each token to a Sphinx-based docutils object.
+See [the renderers section](renderers.md) for more information about rendering tokens.
