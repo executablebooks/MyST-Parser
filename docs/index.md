@@ -5,27 +5,42 @@
 
 **MyST is a rich and extensible flavor of Markdown meant for technical documentation and publishing**.
 
-MyST is a flavor of markdown that is designed for simplicity, flexibility, and extensibility.
-Here are a few key features of MyST Markdown:
+MyST is a flavor of markdown that is designed for simplicity, flexibility, and extensibility. Here are a few major features
 
-{fa}`check,text-success mr-1` It is [a superset of CommonMark markdown][commonmark].
-: Any CommonMark document is also MyST-compliant.
+:::{panels}
+:container: +full-width text-center
+:column: col-4 px-2 py-2
+:card:
 
-{fa}`check,text-success mr-1` It [extends CommonMark with rich writing syntax](extended-block-tokens).
-: These make it easier to write MyST and extend its functionality to technical documentation (for example, line commenting and footnotes).
+**[CommonMark compliant](commonmark-block-tokens)** ✔
+^^^
+MyST is a superset of [CommonMark markdown][commonmark]. Any CommonMark document is also MyST-compliant.
+---
 
-{fa}`check,text-success mr-1` It provides [extension points with directives and roles](syntax/directives).
-: Any MyST parser can define new functionality via a standard syntax extension point (this is kind of like defining functions with markdown).
+**[Extra syntax for authoring](extended-block-tokens)** ✍
+^^^
+MyST extends CommonMark with [syntax meant for scholarly writing and technical documentation](extended-block-tokens).
 
-This MyST Parser serves as a reference implementation for MyST Markdown, and comes bundled with several tools that help you use MyST in your work.
-It comes bundled with a few tools to help you use MyST with Python:
+---
+**[Extendable syntax](syntax/directives)** 🚀
+^^^
+MyST provides [roles](syntax/roles) and [directives](syntax/directives), allowing you to extend MyST's functionality.
 
-[A Python parser of MyST markdown](api/index)
-: This can be extended to add new functionality and outputs for MyST, and is built on top of [`markdown-it-py`](https://markdown-it-py.readthedocs.io/).
+---
+**[Compatible with Sphinx](sphinx/index.md)** 📄
+^^^
+MyST is inspired by Sphinx, and comes with [its own Sphinx parser](sphinx/index.md). [Write your Sphinx docs in markdown](sphinx:usage/quickstart)!
 
-[A markdown parser for Sphinx](sphinx/index)
-: You can write your entire {doc}`Sphinx documentation <sphinx:usage/quickstart>` in Markdown, including [**roles** and **directives**](syntax/directives).
-  This allows you to extend MyST's functionality in Sphinx via Sphinx extensions.
+---
+**[Hackable with Python](api/index.md)** 🐍
+^^^
+This MyST parser is built on top of the [`markdown-it-py` package][markdown-it-py], an pluggable Python parser for Markdown.
+
+---
+**[Hackable with Javascript][markdown-it-myst]** 🌍
+^^^
+The [Javascript parser][markdown-it-myst] builds on [markdown-it][markdown-it], and allows you to parse MyST in websites.
+:::
 
 :::{seealso}
 For some examples of how MyST can be used, check out the [Jupyter Book project](https://jupyterbook.org), which uses MyST Markdown heavily, as well as [the Jupyter Book gallery](https://gallery.jupyterbook.org) which contains a list of books built by others, all using MyST.
@@ -59,9 +74,10 @@ Topic guides cover particular tools, use-cases, and functionality in the MyST ec
 ```{toctree}
 :maxdepth: 2
 :caption: Topic Guides
+explain/index.md
 sphinx/index.md
 api/index.md
-explain/index.md
+develop/index.md
 ```
 
 ## About the project
@@ -72,7 +88,6 @@ These sections cover "meta" information about the MyST Markdown project.
 :maxdepth: 2
 :caption: About the project
 examples/index.md
-develop/index.md
 develop/_changelog.md
 GitHub repo <https://github.com/executablebooks/myst-parser>
 ```
@@ -96,3 +111,6 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [conda-link]: https://anaconda.org/conda-forge/myst-parser
 [black-link]: https://github.com/ambv/black
 [github-badge]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=github
+[markdown-it-py]: https://markdown-it-py.readthedocs.io/
+[markdown-it-myst]: https://github.com/executablebooks/markdown-it-myst
+[markdown-it]: https://markdown-it.github.io/

@@ -1,7 +1,6 @@
-# Discussion and explanation
+# Background and explanation
 
 These sections discuss high-level questions about the MyST ecosystem, and explain a few decisions made in the project.
-
 
 ## Why did we create MyST markdown?
 
