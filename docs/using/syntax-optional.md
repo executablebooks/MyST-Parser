@@ -395,6 +395,7 @@ Term *with Markdown*
 : Definition [with reference](syntax/definition-lists)
 
   A second paragraph
+: A second definition
 
 Term 2
   ~ Definition 2a
