@@ -1,4 +1,4 @@
-# MyST - Markedly Structured Text <img src="_static/logo-square.png" width=40 />
+# MyST - Markedly Structured Text <img src="_static/logo-square.svg" width=40 />
 
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
