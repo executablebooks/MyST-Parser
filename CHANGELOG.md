@@ -45,7 +45,7 @@ In particular for users, this update alters the parsing of tables to be consiste
 
   Add "tasklist" to the `myst_enable_extensions` configuration to enable.
 
-  See [the optional syntax guide](docs/syntax/syntax-optional.md#task-lists) for further information.
+  See [the optional syntax guide](docs/syntax/optional.md#task-lists) for further information.
 
 - The **`sub-ref`** role has been added for use identical to ReST's `|name|` syntax.
 
@@ -58,7 +58,7 @@ In particular for users, this update alters the parsing of tables to be consiste
   See [the roles syntax guide](docs/syntax/syntax.md) for further information.
 
 - The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
-  See [the math syntax guide](docs/syntax/syntax-optional.md#math-shortcuts) for further information.
+  See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
 
 ### Remove v0.13 deprecations ‼️
 
@@ -133,7 +133,7 @@ Minor fixes:
   This is the *content*
   </div>
   ```
-: See [the optional syntax guide](docs/syntax/syntax-optional.md) for further information.
+: See [the optional syntax guide](docs/syntax/optional.md) for further information.
 
 👌 IMPROVE: Footnotes
 
@@ -176,7 +176,7 @@ An inline image: {{ key }}
 ## 0.13.0 - 2020-12-18
 
 This release makes some major updates to the optional syntaxes.
-For full details see [Optional MyST Syntaxes](docs/syntax/syntax-optional.md).
+For full details see [Optional MyST Syntaxes](docs/syntax/optional.md).
 
 ### 🗑 Deprecations
 
@@ -261,7 +261,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 
   It is enabled in your `conf.py` *via* `myst_heading_anchors = 2` (sets maximum heading level).
 
-  See [the documentation here](docs/syntax/syntax-optional.md#auto-generated-header-anchors).
+  See [the documentation here](docs/syntax/optional.md#auto-generated-header-anchors).
 
 🐛 FIX: doc reference resolution for singlehtml/latex.
 : These reference resolutions are passed to the "missing-reference" event, and require the `node["refdoc"]` attribute to be available, which was missing for `[text](./path/to/file.md)` type references.
@@ -278,7 +278,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ✨ NEW: Add Markdown figure syntax
 : Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
   to create a fully Markdown compliant version of the `figure` directive.
-  See [Markdown Figures](docs/syntax/syntax-optional.md#markdown-figures) for details.
+  See [Markdown Figures](docs/syntax/optional.md#markdown-figures) for details.
 
 (👌 formatting of caption improved in 0.12.6)
 
@@ -296,7 +296,7 @@ Term 1
 : Definition
 ```
 
-See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/syntax/syntax-optional.html#definition-lists) for further details.
+See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#definition-lists) for further details.
 
 👌 IMPROVE: mathjax_config override.
 : Only `mathjax_config["tex2jax"]` will now be overridden, in order to not interfere with other user configurations, such as adding TeX macros.

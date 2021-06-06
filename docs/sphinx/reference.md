@@ -18,7 +18,7 @@ To do so, use the keywords beginning `myst_`.
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
 * - `myst_enable_extensions`
   - `["dollarmath"]`
-  - Enable Markdown extensions, [see here](../syntax/syntax-optional.md) for details.
+  - Enable Markdown extensions, [see here](../syntax/optional.md) for details.
 * - `myst_url_schemes`
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.

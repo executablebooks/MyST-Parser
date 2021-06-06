@@ -42,37 +42,59 @@ This MyST parser is built on top of the [`markdown-it-py` package][markdown-it-p
 The [Javascript parser][markdown-it-myst] builds on [markdown-it][markdown-it], and allows you to parse MyST in websites.
 :::
 
-:::{seealso}
-For some examples of how MyST can be used, check out the [Jupyter Book project](https://jupyterbook.org), which uses MyST Markdown heavily, as well as [the Jupyter Book gallery](https://gallery.jupyterbook.org) which contains a list of books built by others, all using MyST.
+## Find the right documentation resources
+
+This documentation is organized into a few major sections. **Tutorials** are step-by-step introductory guides to MyST Markdown. **Topic Guides** cover specific areas in more depth, and are organized as discrete "how-to" sections. **Reference** sections describe the API/syntax/etc of the MyST Parser in detail.
+
+In addition, here are a few pointers to help you get started.
+
+:::{panels}
+:container: full-width
+:column: col-4 p-2
+---
+:header: bg-myst-one
+**Get started with MyST**
+^^^
+**[](sphinx/intro.md)**: a step-by-step tutorial.
+
+**[](syntax/syntax.md)**: discusses major MyST syntax components.
+
+**[The Sphinx guide](sphinx/index.md)**: how to use MyST with your Sphinx documentation.
+---
+:header: bg-myst-two
+
+**Learn more about MyST**
+^^^
+**[](syntax/optional.md)**: additional syntax you can enable for extra features.
+
+**[The Python API guide](api/index.md)**: parsing and rendering MyST with Python.
+
+**[](explain/index.md)**: background understanding and discussions of MyST markdown.
+---
+:header: bg-myst-three
+
+**Get inspired**
+^^^
+**[Jupyter Book](https://jupyterbook.org)**: An open source project for building beautiful, publication-quality books and documents from computational material, built on top of the MyST Parser.
+
+**[The Jupyter Book gallery](https://gallery.jupyterbook.org)**: examples of documents built with MyST.
 :::
 
-## Get started
-
-These pages cover step-by-step instructions to get started with MyST Markdown.
-
 ```{toctree}
-:maxdepth: 2
+:hidden:
 sphinx/intro.md
 ```
 
-## MyST Syntax
-
-These sections cover the syntax that makes up MyST Markdown, some common use-cases that it supports, as well as a few extensions that allow you to enable new features with MyST.
-
 ```{toctree}
 :caption: MyST Syntax
-:maxdepth: 2
+:hidden:
 syntax/syntax
-syntax/syntax-optional
+syntax/optional
 syntax/reference
 ```
 
-## Topic Guides
-
-Topic guides cover particular tools, use-cases, and functionality in the MyST ecosystem.
-
 ```{toctree}
-:maxdepth: 2
+:hidden:
 :caption: Topic Guides
 explain/index.md
 sphinx/index.md
@@ -80,12 +102,8 @@ api/index.md
 develop/index.md
 ```
 
-## About the project
-
-These sections cover "meta" information about the MyST Markdown project.
-
 ```{toctree}
-:maxdepth: 2
+:hidden:
 :caption: About the project
 examples/index.md
 develop/_changelog.md

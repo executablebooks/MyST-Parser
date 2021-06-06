@@ -210,3 +210,7 @@ orphan: true
 
 This is an orphan document, not specified in any toctrees.
 ```
+
+## Migrate pre-existing rST into MyST
+
+If you've already got some reStructuredText files that you'd like to convert into MyST Markdown, try the [`rst-to-myst`](https://github.com/executablebooks/rst-to-myst) tool, which allows you to convert single rST files to MyST markdown documents.

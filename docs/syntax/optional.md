@@ -480,7 +480,7 @@ To change the slug function, set `myst_heading_slug_func` in your `conf.py` to a
 You can inspect the links that will be created using the command-line tool:
 
 ```console
-$ myst-anchors -l 2 docs/syntax/syntax-optional.md
+$ myst-anchors -l 2 docs/syntax/optional.md
 <h1 id="optional-myst-syntaxes"></h1>
 <h2 id="admonition-directives"></h2>
 <h2 id="auto-generated-header-anchors"></h2>

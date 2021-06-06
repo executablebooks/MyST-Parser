@@ -85,7 +85,7 @@ rediraffe_redirects = {
     "using/intro.md": "sphinx/intro.md",
     "using/use_api.md": "api/index.md",
     "using/syntax.md": "syntax/syntax.md",
-    "using/syntax-optional.md": "syntax/syntax-optional.md",
+    "using/syntax-optional.md": "syntax/optional.md",
     "using/reference.md": "syntax/reference.md",
 }
 
@@ -161,3 +161,4 @@ nitpick_ignore = [
 def setup(app):
     """Add functions to the Sphinx setup."""
     # app.connect("builder-inited", run_apidoc)
+    app.add_css_file("custom.css")
