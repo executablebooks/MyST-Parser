@@ -45,7 +45,7 @@ You can now use for example:
 
 ````md
 Source:
-```{include-literal} ../../example.md
+```{literalinclude} ../../example.md
 :language: md
 ```
 Included:
