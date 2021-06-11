@@ -1,5 +1,5 @@
 <document source="index.md">
-    <section ids="main-title" names="main\ title">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="main-title" names="main\ title">
         <title>
             Main Title
         <target refid="inc-header">

@@ -25,15 +25,15 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
-        sphinx: [">=3,<4"]
+        sphinx: [">=4,<5"]
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             python-version: 3.8
-            sphinx: ">=2,<3"
+            sphinx: ">=3,<4"
           - os: windows-latest
             python-version: 3.8
-            sphinx: ">=3,<4"
+            sphinx: ">=4,<5"
 
     runs-on: ${{ matrix.os }}
 
@@ -46,8 +46,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install "sphinx${{ matrix.sphinx }}"
         pip install -e .[linkify,testing]
+        pip install --upgrade-strategy "only-if-needed" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
       run: pytest
 

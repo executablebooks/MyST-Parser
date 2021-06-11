@@ -810,22 +810,24 @@ See [the extended syntax option](syntax/amsmath).
 (syntax/mathjax)=
 ### Mathjax and math parsing
 
-When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
+When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
+Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
-Since such parsing is already covered by the plugins above, MyST-Parser disables this behaviour by overriding the `mathjax_config['tex2jax']` option with:
+MathJax v2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
 
-```python
-mathjax_config["tex2jax"] = {
-  "inlineMath": [["\\(", "\\)"]],
-  "displayMath": [["\\[", "\\]"]],
-  "processRefs": False,
-  "processEnvironments": False,
-}
+```javascript
+MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math"}})
 ```
 
-Since these delimiters are how `sphinx.ext.mathjax` wraps the math content in the built HTML documents.
+MathJax v3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
 
-To inhibit this override, set `myst_update_mathjax=False`.
+```javascript
+window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math"}}
+```
+
+This is to ensure that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
+
+To change this behaviour, set a custom regex like `myst_mathjax_classes="math|myclass"`, or `update_mathjax=False` to inhibit the override and process all HTML elements.
 
 (syntax/frontmatter)=
 

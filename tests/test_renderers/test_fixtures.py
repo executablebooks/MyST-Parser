@@ -110,6 +110,8 @@ def test_sphinx_directives(line, title, input, expected):
         pytest.skip(title)
     elif title.startswith("SPHINX3") and sphinx.version_info[0] < 3:
         pytest.skip(title)
+    elif title.startswith("SPHINX4") and sphinx.version_info[0] < 4:
+        pytest.skip(title)
     document = to_docutils(input, in_sphinx_env=True)
     _actual, _expected = [
         "\n".join([ll.rstrip() for ll in text.splitlines()])
@@ -129,6 +131,8 @@ def test_sphinx_directives(line, title, input, expected):
 )
 def test_sphinx_roles(line, title, input, expected):
     if title.startswith("SKIP"):
+        pytest.skip(title)
+    elif title.startswith("SPHINX4") and sphinx.version_info[0] < 4:
         pytest.skip(title)
     document = to_docutils(input, in_sphinx_env=True)
     print(document.pformat())
