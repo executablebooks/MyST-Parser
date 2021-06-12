@@ -240,7 +240,7 @@ To do so, use the keywords beginning `myst_`.
   - `["dollarmath"]`
   - Enable Markdown extensions, [see here](syntax-optional) for details.
 * - `myst_url_schemes`
-  - `None`
+  - `("http", "https", "mailto", "ftp")`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
 * - `myst_heading_anchors`
