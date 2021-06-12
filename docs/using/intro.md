@@ -232,7 +232,7 @@ To do so, use the keywords beginning `myst_`.
   - Description
 * - `myst_commonmark_only`
   - `False`
-  - If `True` convert text as strict CommonMark (all options below are then ignored)
+  - If `True` convert text as strict CommonMark (all options below are then ignored). Note that strict CommonMark is unable to parse any directives, including the `toctree` directive, thus limiting MyST parser to single-page documentations. Use in conjunction with [sphinx-external-toc](https://github.com/executablebooks/sphinx-external-toc) Sphinx extension to counter this limitation.
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).
@@ -240,12 +240,15 @@ To do so, use the keywords beginning `myst_`.
   - `["dollarmath"]`
   - Enable Markdown extensions, [see here](syntax-optional) for details.
 * - `myst_url_schemes`
-  - `None`
+  - `("http", "https", "mailto", "ftp")`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.
+* - `myst_heading_slug_func`
+  - `None`
+  - Use the specified function to auto-generate heading anchors, [see here](syntax/header-anchors) for details.
 * - `myst_substitutions`
   - `{}`
   - A mapping of keys to substitutions, used globally for all MyST documents when the "substitution" extension is enabled.
@@ -255,6 +258,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_footnote_transition`
   - `True`
   - Place a transition before any footnotes.
+* - `myst_words_per_minute`
+  - `200`
+  - Reading speed used to calculate `` {sub-ref}`wordcount-minutes` ``
 `````
 
 List of extensions:
@@ -269,6 +275,7 @@ List of extensions:
 - "replacements": automatically convert some common typographic texts
 - "smartquotes": automatically convert standard quotations to their opening/closing variants
 - "substitution": substitute keys, see the [substitutions syntax](syntax/substitutions) for details
+- "tasklist": add check-boxes to the start of list items, see the [tasklist syntax](syntax/tasklists) for details
 
 Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math) for more details:
 
@@ -278,9 +285,12 @@ Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math)
 * - Option
   - Default
   - Description
+* - `myst_dmath_double_inline`
+  - `False`
+  - Allow display math (i.e. `$$`) within an inline context
 * - `myst_dmath_allow_labels`
   - `True`
-  - Parse `$$...$$ (label)` syntax (if dmath enabled)
+  - Parse `$$...$$ (label)` syntax
 * - `myst_dmath_allow_space`
   - `True`
   - If False then inline math will only be parsed if there are no initial/final spaces,
@@ -289,14 +299,12 @@ Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math)
   - `True`
   - If False then inline math will only be parsed if there are no initial/final digits,
     e.g. `$a$` but not `1$a$` or `$a$2` (this is useful for using `$` as currency)
-* - `myst_amsmath_enable`
-  - `False`
-  - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath)
 * - `myst_update_mathjax`
   - `True`
-  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be updated,
-  to ignore `$` delimiters and LaTeX environments, which should instead be handled by
-  `myst_dmath_enable` and `myst_amsmath_enable` respectively.
+  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be updated to only process specific HTML classes.
+* - `myst_mathjax_classes`
+  - `"tex2jax_process|mathjax_process|math"`
+  - A regex for the HTML classes that MathJax will process
 `````
 
 ## Disable markdown syntax for the parser

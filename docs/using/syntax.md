@@ -2,6 +2,8 @@
 
 # The MyST Syntax Guide
 
+> {sub-ref}`today` | {sub-ref}`wordcount-minutes` min read
+
 As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
 For this, it uses the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) parser,
 which is a well-structured markdown parser for Python that is CommonMark-compliant
@@ -604,6 +606,29 @@ For example, following the `ref` example above, if you pass a string like this:
 
 How roles parse this content depends on the author that created the role.
 
+(syntax/roles/special)=
+
+### Special roles
+
+```{versionadded} 0.14.0
+The `sub-ref` role and word counting.
+```
+
+For all MyST documents, the date and word-count are made available by substitution definitions,
+which can be accessed *via* the `sub-ref` role.
+
+For example:
+
+```markdown
+> {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+```
+
+> {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+
+`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
+
+The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](intro/config-options)).
+
 (extra-markdown-syntax)=
 ## Extra markdown syntax
 
@@ -738,6 +763,27 @@ There are a few other options available to control dollar math parsing:
 
 These options can both be useful if you also wish to use `$` as a unit of currency.
 
+```{versionadded} 0.14.0
+`myst_dmath_double_inline` option
+```
+
+To allow display math (i.e. `$$`) within an inline context, set `myst_dmath_double_inline = True` (`False` by default).
+This allows for example:
+
+```latex
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+```
+
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+
 ### Math in other block elements
 
 Math will also work when nested in other block elements, like lists or quotes:
@@ -764,22 +810,24 @@ See [the extended syntax option](syntax/amsmath).
 (syntax/mathjax)=
 ### Mathjax and math parsing
 
-When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default), its default configuration is to also search for `$` delimiters and LaTeX environments (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax)).
+When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
+Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
-Since such parsing is already covered by the plugins above, MyST-Parser disables this behaviour by overriding the `mathjax_config['tex2jax']` option with:
+MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
 
-```python
-mathjax_config["tex2jax"] = {
-  "inlineMath": [["\\(", "\\)"]],
-  "displayMath": [["\\[", "\\]"]],
-  "processRefs": False,
-  "processEnvironments": False,
-}
+```javascript
+MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math"}})
 ```
 
-Since these delimiters are how `sphinx.ext.mathjax` wraps the math content in the built HTML documents.
+MathJax version 3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
 
-To inhibit this override, set `myst_update_mathjax=False`.
+```javascript
+window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math"}}
+```
+
+This ensurea that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
+
+To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `update_mathjax=False` to inhibit this override and process all HTML elements.
 
 (syntax/frontmatter)=
 

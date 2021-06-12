@@ -17,16 +17,16 @@ default-domain (`sphinx.directives.DefaultDomain`):
 .
 
 --------------------------------
-SPHINX3 object (`sphinx.directives.ObjectDescription`):
+SPHINX4 object (`sphinx.directives.ObjectDescription`):
 .
 ```{object} something
 ```
 .
 <document source="notset">
     <index entries="">
-    <desc desctype="object" domain="" noindex="False" objtype="object">
-        <desc_signature>
-            <desc_name xml:space="preserve">
+    <desc classes="object" desctype="object" domain="" noindex="False" objtype="object">
+        <desc_signature classes="sig sig-object">
+            <desc_name classes="sig-name descname" xml:space="preserve">
                 something
         <desc_content>
 .
@@ -178,7 +178,7 @@ acks (`sphinx.directives.other.Acks`):
 .
 
 --------------------------------
-SPHINX3.5 hlist (`sphinx.directives.other.HList`):
+SPHINX4 hlist (`sphinx.directives.other.HList`):
 .
 ```{hlist}
 
@@ -430,47 +430,47 @@ SPHINX3 productionlist (`sphinx.domains.std.ProductionList`):
 .
 
 --------------------------------
-SPHINX3 cmdoption (`sphinx.domains.std.Cmdoption`):
+SPHINX4 cmdoption (`sphinx.domains.std.Cmdoption`):
 .
 ```{cmdoption} a
 ```
 .
 <document source="notset">
     <index entries="('pair',\ 'command\ line\ option;\ a',\ 'cmdoption-arg-a',\ '',\ None)">
-    <desc classes="std" desctype="cmdoption" domain="std" noindex="False" objtype="cmdoption">
-        <desc_signature allnames="a" ids="cmdoption-arg-a">
-            <desc_name xml:space="preserve">
+    <desc classes="std cmdoption" desctype="cmdoption" domain="std" noindex="False" objtype="cmdoption">
+        <desc_signature allnames="a" classes="sig sig-object" ids="cmdoption-arg-a">
+            <desc_name classes="sig-name descname" xml:space="preserve">
                 a
-            <desc_addname xml:space="preserve">
+            <desc_addname classes="sig-prename descclassname" xml:space="preserve">
         <desc_content>
 .
 
 --------------------------------
-SPHINX3 rst:directive (`sphinx.domains.rst.ReSTDirective`):
+SPHINX4 rst:directive (`sphinx.domains.rst.ReSTDirective`):
 .
 ```{rst:directive} a
 ```
 .
 <document source="notset">
     <index entries="('single',\ 'a\ (directive)',\ 'directive-a',\ '',\ None)">
-    <desc classes="rst" desctype="directive" domain="rst" noindex="False" objtype="directive">
-        <desc_signature ids="directive-a">
-            <desc_name xml:space="preserve">
+    <desc classes="rst directive" desctype="directive" domain="rst" noindex="False" objtype="directive">
+        <desc_signature classes="sig sig-object" ids="directive-a">
+            <desc_name classes="sig-name descname" xml:space="preserve">
                 .. a::
         <desc_content>
 .
 
 --------------------------------
-SPHINX3 rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
+SPHINX4 rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 .
 ```{rst:directive:option} a
 ```
 .
 <document source="notset">
     <index entries="('single',\ ':a:\ (directive\ option)',\ 'directive-option-a',\ '',\ 'A')">
-    <desc classes="rst" desctype="directive:option" domain="rst" noindex="False" objtype="directive:option">
-        <desc_signature ids="directive-option-a directive:option--a">
-            <desc_name xml:space="preserve">
+    <desc classes="rst directive:option" desctype="directive:option" domain="rst" noindex="False" objtype="directive:option">
+        <desc_signature classes="sig sig-object" ids="directive-option-a directive:option--a">
+            <desc_name classes="sig-name descname" xml:space="preserve">
                 :a:
         <desc_content>
 .

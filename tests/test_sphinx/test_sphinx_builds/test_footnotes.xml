@@ -1,5 +1,5 @@
 <document source="footnote_md.md">
-    <section ids="footnotes-with-markdown" names="footnotes\ with\ markdown">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="footnotes-with-markdown" names="footnotes\ with\ markdown">
         <title>
             Footnotes with Markdown
         <paragraph>
@@ -16,11 +16,17 @@
             <footnote_reference auto="1" docname="footnote_md" ids="id4" refid="b">
                 4
         <paragraph>
-            <footnote_reference docname="footnote_md" ids="id5" refid="id7">
+            <footnote_reference docname="footnote_md" ids="id5" refid="id8">
                 123
              
-            <footnote_reference docname="footnote_md" ids="id6" refid="id7">
+            <footnote_reference docname="footnote_md" ids="id6" refid="id8">
                 123
+        <paragraph>
+            <footnote_reference auto="1" docname="footnote_md" ids="id7" refid="e">
+                5
+        <block_quote>
+            <bullet_list>
+                <list_item>
         <transition classes="footnotes">
         <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
             <label>
@@ -44,8 +50,13 @@
                 4
             <paragraph>
                 a footnote before its reference
-        <footnote backrefs="id5 id6" docname="footnote_md" ids="id7" names="123">
+        <footnote backrefs="id5 id6" docname="footnote_md" ids="id8" names="123">
             <label>
                 123
             <paragraph>
                 multiple references footnote
+        <footnote auto="1" backrefs="id7" docname="footnote_md" ids="e" names="e">
+            <label>
+                5
+            <paragraph>
+                footnote definition in a block element

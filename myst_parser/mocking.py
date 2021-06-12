@@ -133,13 +133,18 @@ class MockState:
         state_machine_kwargs=None,
     ) -> None:
         """Perform a nested parse of the input block, with ``node`` as the parent."""
-        current_match_titles = self.state_machine.match_titles
-        self.state_machine.match_titles = match_titles
+        sm_match_titles = self.state_machine.match_titles
+        render_match_titles = self._renderer.md_env.get("match_titles", None)
+        self.state_machine.match_titles = self._renderer.md_env[
+            "match_titles"
+        ] = match_titles
+
         with self._renderer.current_node_context(node):
             self._renderer.nested_render_text(
                 "\n".join(block), self._lineno + input_offset
             )
-        self.state_machine.match_titles = current_match_titles
+        self.state_machine.match_titles = sm_match_titles
+        self._renderer.md_env["match_titles"] = render_match_titles
 
     def parse_target(self, block, block_text, lineno: int):
         """
@@ -166,7 +171,7 @@ class MockState:
         messages: List[nodes.Element] = []
         paragraph = nodes.paragraph("")
 
-        tokens = self._renderer.md.parseInline(text, self._renderer.env)
+        tokens = self._renderer.md.parseInline(text, self._renderer.md_env)
         for token in tokens:
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
@@ -180,9 +185,13 @@ class MockState:
         nested_renderer = DocutilsRenderer(self._renderer.md)
         options = {k: v for k, v in self._renderer.config.items()}
         options.update(
-            dict(document=self.document, current_node=paragraph, output_footnotes=False)
+            {
+                "document": self.document,
+                "current_node": paragraph,
+                "output_footnotes": False,
+            }
         )
-        nested_renderer.render(tokens, options, self._renderer.env)
+        nested_renderer.render(tokens, options, self._renderer.md_env)
         return paragraph.children, messages
 
     # U+2014 is an em-dash:

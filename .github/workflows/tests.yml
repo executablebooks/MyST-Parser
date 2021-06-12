@@ -24,16 +24,16 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
-        sphinx: [">=3,<4"]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        sphinx: [">=4,<5"]
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
             python-version: 3.8
-            sphinx: ">=2,<3"
+            sphinx: ">=3,<4"
           - os: windows-latest
             python-version: 3.8
-            sphinx: ">=3,<4"
+            sphinx: ">=4,<5"
 
     runs-on: ${{ matrix.os }}
 
@@ -46,8 +46,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install "sphinx${{ matrix.sphinx }}"
         pip install -e .[linkify,testing]
+        pip install --upgrade-strategy "only-if-needed" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
       run: pytest
 
@@ -55,14 +55,13 @@ jobs:
 
     name: Run test coverage and upload to Codecov
     if: github.repository == 'executablebooks/MyST-Parser'
-    needs: [tests]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -76,32 +75,10 @@ jobs:
     - name: Upload to Codecov
       uses: codecov/codecov-action@v1
       with:
-        name: myst-parser-pytests-py3.7
+        name: myst-parser-pytests
         flags: pytests
         file: ./coverage.xml
         fail_ci_if_error: true
-
-  docs:
-
-    name: Test documentation build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .[linkify,rtd]
-
-      # Build the docs
-      - name: Build docs to store
-        run: |
-          cd docs
-          make html-strict
-
 
   publish:
 
@@ -112,10 +89,10 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v2
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Build package
       run: |
         pip install wheel

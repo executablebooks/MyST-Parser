@@ -1,9 +1,16 @@
-from typing import Any, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Callable, Dict, Iterable, Optional, Tuple, Union, cast
 
 import attr
-from attr.validators import deep_iterable, deep_mapping, in_, instance_of, optional
+from attr.validators import (
+    deep_iterable,
+    deep_mapping,
+    in_,
+    instance_of,
+    is_callable,
+    optional,
+)
 from markdown_it import MarkdownIt
-from markdown_it.renderer import RendererHTML
+from markdown_it.renderer import RendererHTML, RendererProtocol
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
@@ -14,6 +21,8 @@ from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
 from mdit_py_plugins.substitution import substitution_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
+from mdit_py_plugins.wordcount import wordcount_plugin
 
 from . import __version__  # noqa: F401
 
@@ -29,34 +38,19 @@ class MdParserConfig:
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
     commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
+    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
+    dmath_double_inline: bool = attr.ib(default=False, validator=instance_of(bool))
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    # TODO remove deprecated _enable attributes after v0.13.0
-    admonition_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
+    mathjax_classes: str = attr.ib(
+        default="tex2jax_process|mathjax_process|math",
+        validator=instance_of(str),
     )
-    figure_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    dmath_enable: bool = attr.ib(default=False, validator=instance_of(bool), repr=False)
-    amsmath_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    deflist_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    html_img_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-    colon_fence_enable: bool = attr.ib(
-        default=False, validator=instance_of(bool), repr=False
-    )
-
-    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
 
     @enable_extensions.validator
     def check_extensions(self, attribute, value):
@@ -74,6 +68,7 @@ class MdParserConfig:
                 "replacements",
                 "linkify",
                 "substitution",
+                "tasklist",
             ]
         )
         if diff:
@@ -86,12 +81,16 @@ class MdParserConfig:
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
-        default=None,
+        default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
     )
 
     heading_anchors: Optional[int] = attr.ib(
         default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
+    )
+
+    heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
+        default=None, validator=optional(is_callable())
     )
 
     html_meta: Dict[str, str] = attr.ib(
@@ -112,6 +111,8 @@ class MdParserConfig:
 
     sub_delimiters: Tuple[str, str] = attr.ib(default=("{", "}"))
 
+    words_per_minute: int = attr.ib(default=200, validator=instance_of(int))
+
     @sub_delimiters.validator
     def check_sub_delimiters(self, attribute, value):
         if (not isinstance(value, (tuple, list))) or len(value) != 2:
@@ -122,13 +123,17 @@ class MdParserConfig:
                     f"myst_sub_delimiters does not contain strings of length 1: {value}"
                 )
 
+    @classmethod
+    def get_fields(cls) -> Tuple[attr.Attribute, ...]:
+        return attr.fields(cls)
+
     def as_dict(self, dict_factory=dict) -> dict:
         return attr.asdict(self, dict_factory=dict_factory)
 
 
 def default_parser(config: MdParserConfig) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
-    renderer_cls: Type[Any]  # TODO no abstract render class
+    renderer_cls: Callable[[MarkdownIt], RendererProtocol]
 
     if config.renderer == "sphinx":
         from myst_parser.sphinx_renderer import SphinxRenderer
@@ -144,7 +149,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         raise ValueError("unknown renderer type: {0}".format(config.renderer))
 
     if config.commonmark_only:
-        md = MarkdownIt("commonmark", renderer_cls=renderer_cls)
+        md = MarkdownIt("commonmark", renderer_cls=renderer_cls).use(
+            wordcount_plugin, per_minute=config.words_per_minute
+        )
         md.options.update({"commonmark_only": True})
         return md
 
@@ -155,6 +162,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         .use(myst_block_plugin)
         .use(myst_role_plugin)
         .use(footnote_plugin)
+        .use(wordcount_plugin, per_minute=config.words_per_minute)
         .disable("footnote_inline")
         # disable this for now, because it need a new implementation in the renderer
         .disable("footnote_tail")
@@ -177,6 +185,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
             allow_labels=config.dmath_allow_labels,
             allow_space=config.dmath_allow_space,
             allow_digits=config.dmath_allow_digits,
+            double_inline=config.dmath_double_inline,
         )
     if "colon_fence" in config.enable_extensions:
         md.use(colon_fence_plugin)
@@ -184,10 +193,16 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(amsmath_plugin)
     if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
+    if "tasklist" in config.enable_extensions:
+        md.use(tasklists_plugin)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
     if config.heading_anchors is not None:
-        md.use(anchors_plugin, max_level=config.heading_anchors)
+        md.use(
+            anchors_plugin,
+            max_level=config.heading_anchors,
+            slug_func=config.heading_slug_func,
+        )
     for name in config.disable_syntax:
         md.disable(name, True)
 

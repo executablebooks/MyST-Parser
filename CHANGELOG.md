@@ -1,5 +1,77 @@
 # Changelog
 
+## 0.14.0 - 2021-05-04
+
+### Upgrade to `markdown-it-py` v1.0 ⬆️
+
+This release updates the code-base to fully support the [markdown-it-py](https://markdown-it-py.readthedocs.io) `v1.0.0` release.
+In particular for users, this update alters the parsing of tables to be consistent with the [Github Flavoured Markdown (GFM) specification](https://github.github.com/gfm/#tables-extension-).
+
+### New Features ✨
+
+- **Task lists** utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+
+  ```markdown
+  - [ ] An item that needs doing
+  - [x] An item that is complete
+  ```
+
+  Add "tasklist" to the `myst_enable_extensions` configuration to enable.
+
+  See [the optional syntax guide](docs/using/syntax-optional.md#task-lists) for further information.
+
+- The **`sub-ref`** role has been added for use identical to ReST's `|name|` syntax.
+
+  This allows one to access Sphinx's built-in `|today|`, `|release|` and `|version|` substitutions, and also introduces two new substitutions: `wordcount-words` and `wordcount-minutes`, computed by the markdown-it-py [`wordcount_plugin`](https://github.com/executablebooks/mdit-py-plugins/pull/20).
+
+  ```markdown
+  > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+  ```
+
+  See [the roles syntax guide](docs/using/syntax.md) for further information.
+
+- The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
+  See [the math syntax guide](docs/using/syntax.md#math-shortcuts) for further information.
+
+### Remove v0.13 deprecations ‼️
+
+The deprecations made to extension configurations and colon fences in `0.13.0` (see below) have now been removed:
+
+- Configuration variables: `myst_admonition_enable`, `myst_figure_enable`, `myst_dmath_enable`, `myst_amsmath_enable`, `myst_deflist_enable`, `myst_html_img_enable`
+- `:::{admonition,class}` -> `:::{admonition}\n:class: class`
+- `:::{figure}` -> `:::{figure-md}`
+
+### Fix extraction of nested footnotes 🐛
+
+Previously footnote definitions in block elements like lists would crash the parsing:
+
+```markdown
+- [^e]: footnote definition in a block element
+```
+
+These are now correctly extracted.
+
+## 0.13.7 - 2021-04-25
+
+👌 IMPROVE: Add warning for nested headers:
+
+Nested headers are not supported within most elements (this is a limitation of the docutils/sphinx document structure), and can lead to unexpected outcomes.
+For example in admonitions:
+
+````markdown
+```{note}
+# Unsupported Header
+```
+````
+
+A warning (of type `myst.nested_header`) is now emitted when this occurs.
+
+🔧 MAINTAIN: Python 3.9 is now officially supported.
+
+## 0.13.6 - 2021-04-10
+
+🐛 FIX: docutils `v0.17` compatibility
+
 ## 0.13.5 - 2021-02-15
 
 - ⬆️ UPGRADE: required markdown-it-py to `v0.6.2`:

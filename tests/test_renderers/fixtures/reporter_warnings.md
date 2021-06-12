@@ -129,3 +129,12 @@ source/path:1: (ERROR/3) Directive 'note': option "class" value not string (encl
 :class: [1]
 
 .
+
+header nested in admonition
+.
+```{note}
+# Header
+```
+.
+source/path:1: (WARNING/2) Header nested in this element can lead to unexpected outcomes
+.
