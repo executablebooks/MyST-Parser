@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Iterable, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, Optional, Tuple, Union, cast
 
 import attr
 from attr.validators import (
