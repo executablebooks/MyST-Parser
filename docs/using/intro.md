@@ -299,14 +299,12 @@ Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math)
   - `True`
   - If False then inline math will only be parsed if there are no initial/final digits,
     e.g. `$a$` but not `1$a$` or `$a$2` (this is useful for using `$` as currency)
-* - `myst_amsmath_enable`
-  - `False`
-  - Enable direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath)
 * - `myst_update_mathjax`
   - `True`
-  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be updated,
-  to ignore `$` delimiters and LaTeX environments, which should instead be handled by
-  `myst_dmath_enable` and `myst_amsmath_enable` respectively.
+  - If using [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) (the default) then `mathjax_config` will be updated to only process specific HTML classes.
+* - `myst_mathjax_classes`
+  - `"tex2jax_process|mathjax_process|math"`
+  - A regex for the HTML classes that MathJax will process
 `````
 
 ## Disable markdown syntax for the parser

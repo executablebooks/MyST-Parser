@@ -813,21 +813,21 @@ See [the extended syntax option](syntax/amsmath).
 When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
 Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
-MathJax v2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
+MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
 
 ```javascript
 MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math"}})
 ```
 
-MathJax v3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
+MathJax version 3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
 
 ```javascript
 window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math"}}
 ```
 
-This is to ensure that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
+This ensurea that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
 
-To change this behaviour, set a custom regex like `myst_mathjax_classes="math|myclass"`, or `update_mathjax=False` to inhibit the override and process all HTML elements.
+To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `update_mathjax=False` to inhibit this override and process all HTML elements.
 
 (syntax/frontmatter)=
 

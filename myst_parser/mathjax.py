@@ -51,7 +51,7 @@ def override_mathjax(app: Sphinx):
                 "Set `myst_mathjax_classes = None` if this is undesirable."
             )
         app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
-    else:
+    elif "mathjax_config" in app.config:
         # sphinx 3 + mathjax 2
         app.config.mathjax_config = app.config.mathjax_config or {}  # type: ignore[attr-defined]
         app.config.mathjax_config.setdefault("tex2jax", {})
