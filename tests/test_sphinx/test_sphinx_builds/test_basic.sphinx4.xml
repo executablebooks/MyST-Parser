@@ -16,7 +16,7 @@
                 dark
              side
     <target refid="target">
-    <section ids="header target" names="header target">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="header target" names="header target">
         <title>
             Header
         <comment xml:space="preserve">
@@ -33,7 +33,7 @@
                 <paragraph>
                     xyz
         <target refid="target2">
-        <figure align="default" ids="id1 target2" names="target2">
+        <figure ids="id1 target2" names="target2">
             <reference refuri="https://www.google.com">
                 <image candidates="{'*': 'example.jpg'}" height="40px" uri="example.jpg">
             <caption>
@@ -66,7 +66,7 @@
         <paragraph>
             <literal>
                 a=1{`}
-        <table align="default" classes="colwidths-auto">
+        <table classes="colwidths-auto">
             <tgroup cols="2">
                 <colspec colwidth="50.0">
                 <colspec colwidth="50.0">

@@ -1,4 +1,4 @@
-<document ids="title ref" names="title ref" source="root/index.md" title="Title">
+<document classes="tex2jax_ignore mathjax_ignore" ids="title ref" names="title ref" source="root/index.md" title="Title">
     <title>
         Title
     <target refid="ref">

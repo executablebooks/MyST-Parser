@@ -38,6 +38,8 @@ class MdParserConfig:
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
     commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
+    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
@@ -45,7 +47,10 @@ class MdParserConfig:
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+    mathjax_classes: str = attr.ib(
+        default="tex2jax_process|mathjax_process|math",
+        validator=instance_of(str),
+    )
 
     @enable_extensions.validator
     def check_extensions(self, attribute, value):
@@ -117,6 +122,10 @@ class MdParserConfig:
                 raise TypeError(
                     f"myst_sub_delimiters does not contain strings of length 1: {value}"
                 )
+
+    @classmethod
+    def get_fields(cls) -> Tuple[attr.Attribute, ...]:
+        return attr.fields(cls)
 
     def as_dict(self, dict_factory=dict) -> dict:
         return attr.asdict(self, dict_factory=dict_factory)
