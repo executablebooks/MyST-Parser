@@ -377,5 +377,6 @@ def test_gettext(
 
     output = get_sphinx_app_output(app, filename="index.pot", buildername="gettext")
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
+    output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
     file_regression.check(output, extension=".pot")
