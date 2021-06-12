@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.15.0 - 2021-06-13
+
+### Upgraded to `sphinx` v4 ⬆️
+
+A principe change in this release is to updates the requirements of myst-parser from `sphinx>=2,<4` to `sphinx>=3,<5`.
+
+### Changed MathJax handling ♻️
+
+Instead of removing all `$` processing for the whole project,
+during MyST document parsing, the top-level section is now given the classes `tex2jax_ignore` and `mathjax_ignore` (turning off default MathJax processing of all HTML elements)
+and MathJax is then configured to process elements with the `tex2jax_process|mathjax_process|math` classes.
+
+See [the math syntax guide](docs/using/syntax.md#math-shortcuts) for further information.
+
+### Set URL scheme defaults ‼️
+
+The `myst_url_schemes` default is now: `("http", "https", "mailto", "ftp")`.
+This means that only these URL will be considered as external (e.g. `[](https://example.com)`),
+and references like `[](prefix:main)` will be considered as internal references.
+Set `myst_url_schemes = None`, to revert to the previous default.
+
+### Added `myst_heading_slug_func` option 👌
+
+Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/using/syntax-optional.md#auto-generated-header-anchors)).
+
+Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+
 ## 0.14.0 - 2021-05-04
 
 ### Upgrade to `markdown-it-py` v1.0 ⬆️
