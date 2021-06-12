@@ -65,6 +65,7 @@ def get_sphinx_app_output(file_regression):
         extract_body=False,
         remove_scripts=False,
         regress_html=False,
+        regress_ext=".html",
         replace=None,
     ):
 
@@ -85,7 +86,7 @@ def get_sphinx_app_output(file_regression):
             text = doc_div.prettify()
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
-            file_regression.check(text, extension=".html", encoding="utf8")
+            file_regression.check(text, extension=regress_ext, encoding="utf8")
 
         return content
 
@@ -94,13 +95,20 @@ def get_sphinx_app_output(file_regression):
 
 @pytest.fixture
 def get_sphinx_app_doctree(file_regression):
-    def read(app, docname="index", resolve=False, regress=False, replace=None):
+    def read(
+        app,
+        docname="index",
+        resolve=False,
+        regress=False,
+        replace=None,
+        regress_ext=".xml",
+    ):
         if resolve:
             doctree = app.env.get_and_resolve_doctree(docname, app.builder)
-            extension = ".resolved.xml"
+            extension = f".resolved{regress_ext}"
         else:
             doctree = app.env.get_doctree(docname)
-            extension = ".xml"
+            extension = regress_ext
 
         # convert absolute filenames
         for node in doctree.traverse(

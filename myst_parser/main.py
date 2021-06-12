@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Callable, Dict, Iterable, Optional, Tuple, Union, cast
 
 import attr
 from attr.validators import (
@@ -10,7 +10,7 @@ from attr.validators import (
     optional,
 )
 from markdown_it import MarkdownIt
-from markdown_it.renderer import RendererHTML
+from markdown_it.renderer import RendererHTML, RendererProtocol
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
@@ -38,6 +38,8 @@ class MdParserConfig:
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
     commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
+    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+
     dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
     dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
@@ -45,7 +47,10 @@ class MdParserConfig:
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+    mathjax_classes: str = attr.ib(
+        default="tex2jax_process|mathjax_process|math",
+        validator=instance_of(str),
+    )
 
     @enable_extensions.validator
     def check_extensions(self, attribute, value):
@@ -76,7 +81,7 @@ class MdParserConfig:
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
-        default=None,
+        default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
     )
 
@@ -118,13 +123,17 @@ class MdParserConfig:
                     f"myst_sub_delimiters does not contain strings of length 1: {value}"
                 )
 
+    @classmethod
+    def get_fields(cls) -> Tuple[attr.Attribute, ...]:
+        return attr.fields(cls)
+
     def as_dict(self, dict_factory=dict) -> dict:
         return attr.asdict(self, dict_factory=dict_factory)
 
 
 def default_parser(config: MdParserConfig) -> MarkdownIt:
     """Return the default parser configuration for MyST"""
-    renderer_cls: Type[Any]  # TODO no abstract render class
+    renderer_cls: Callable[[MarkdownIt], RendererProtocol]
 
     if config.renderer == "sphinx":
         from myst_parser.sphinx_renderer import SphinxRenderer

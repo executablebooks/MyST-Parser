@@ -104,6 +104,14 @@ class DocutilsRenderer(RendererProtocol):
         )
         self._level_to_elem: Dict[int, nodes.Element] = {0: self.document}
 
+    @property
+    def sphinx_env(self) -> Optional[Any]:
+        """Return the sphinx env, if using Sphinx."""
+        try:
+            return self.document.settings.env
+        except AttributeError:
+            return None
+
     def create_warning(
         self,
         message: str,
@@ -232,12 +240,8 @@ class DocutilsRenderer(RendererProtocol):
             return
 
         # save the wordcount to the sphinx BuildEnvironment metadata
-        try:
-            sphinx_env = self.document.settings.env
-        except AttributeError:
-            pass  # if not sphinx renderer
-        else:
-            meta = sphinx_env.metadata.setdefault(sphinx_env.docname, {})
+        if self.sphinx_env is not None:
+            meta = self.sphinx_env.metadata.setdefault(self.sphinx_env.docname, {})
             meta["wordcount"] = wordcount_metadata
 
         # now add the wordcount as substitution definitions,
@@ -455,13 +459,11 @@ class DocutilsRenderer(RendererProtocol):
             return self.render_directive(token)
 
         if not language:
-            try:
-                sphinx_env = self.document.settings.env
-                language = sphinx_env.temp_data.get(
-                    "highlight_language", sphinx_env.config.highlight_language
+            if self.sphinx_env is not None:
+                language = self.sphinx_env.temp_data.get(
+                    "highlight_language", self.sphinx_env.config.highlight_language
                 )
-            except AttributeError:
-                pass
+
         if not language:
             language = self.config.get("highlight_language", "")
         node = nodes.literal_block(text, text, language=language)
@@ -488,6 +490,14 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
+        if level == 1 and (
+            self.sphinx_env is None
+            or (
+                "myst_update_mathjax" in self.sphinx_env.config
+                and self.sphinx_env.config.myst_update_mathjax
+            )
+        ):
+            new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
         self.add_line_and_source_path(new_section, token)
         new_section.append(title_node)
 
@@ -866,8 +876,10 @@ class DocutilsRenderer(RendererProtocol):
         if token.content.startswith(":::"):
             # the content starts with a nested fence block,
             # but must distinguish between ``:options:``, so we add a new line
-            # TODO: shouldn't access private attribute
-            token._attribute_token().content = "\n" + token.content
+            assert token.token is not None, '"colon_fence" must have a `token`'
+            linear_token = token.token.copy()
+            linear_token.content = "\n" + linear_token.content
+            token.token = linear_token
 
         return self.render_fence(token)
 
@@ -1060,10 +1072,8 @@ class DocutilsRenderer(RendererProtocol):
             **self.config.get("myst_substitutions", {}),
             **getattr(self.document, "fm_substitutions", {}),
         }
-        try:
-            variable_context["env"] = self.document.settings.env
-        except AttributeError:
-            pass  # if not sphinx renderer
+        if self.sphinx_env is not None:
+            variable_context["env"] = self.sphinx_env
 
         # fail on undefined variables
         env = jinja2.Environment(undefined=jinja2.StrictUndefined)

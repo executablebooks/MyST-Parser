@@ -1,7 +1,7 @@
 <document source="index.md">
     <meta content="meta description" lang="en" name="description">
     <meta content="en_US" property="og:locale">
-    <section ids="test" names="test">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="test" names="test">
         <title>
             Test
         <paragraph>

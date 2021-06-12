@@ -45,7 +45,8 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_book_theme"
-html_logo = "_static/logo.png"
+html_logo = "_static/logo-wide.svg"
+html_favicon = "_static/logo-square.svg"
 html_title = ""
 html_theme_options = {
     "github_url": "https://github.com/executablebooks/MyST-Parser",
@@ -73,7 +74,6 @@ myst_enable_extensions = [
     "substitution",
     "tasklist",
 ]
-myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
