@@ -876,8 +876,10 @@ class DocutilsRenderer(RendererProtocol):
         if token.content.startswith(":::"):
             # the content starts with a nested fence block,
             # but must distinguish between ``:options:``, so we add a new line
-            # TODO: shouldn't access private attribute
-            token._attribute_token().content = "\n" + token.content
+            assert token.token is not None, '"colon_fence" must have a `token`'
+            linear_token = token.token.copy()
+            linear_token.content = "\n" + linear_token.content
+            token.token = linear_token
 
         return self.render_fence(token)
 
