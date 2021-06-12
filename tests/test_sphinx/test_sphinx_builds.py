@@ -1,11 +1,17 @@
 """Uses sphinx's pytest fixture to run builds.
 
 see conftest.py for fixture usage
+
+NOTE: sphinx 3 & 4 regress against different output files,
+the major difference being sphinx 4 uses docutils 0.17,
+which uses semantic HTML tags
+(e.g. converting `<div class="section">` to `<section>`)
 """
 import os
 import re
 
 import pytest
+import sphinx
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -28,9 +34,25 @@ def test_basic(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(app, docname="content", regress=True)
-    get_sphinx_app_doctree(app, docname="content", resolve=True, regress=True)
-    get_sphinx_app_output(app, filename="content.html", regress_html=True)
+    get_sphinx_app_doctree(
+        app,
+        docname="content",
+        regress=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+    )
+    get_sphinx_app_doctree(
+        app,
+        docname="content",
+        resolve=True,
+        regress=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+    )
+    get_sphinx_app_output(
+        app,
+        filename="content.html",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+    )
 
     assert app.env.metadata["content"] == {
         "author": "Chris Sewell",
@@ -72,7 +94,12 @@ def test_references(
         get_sphinx_app_doctree(app, docname="index", regress=True)
     finally:
         get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
-    get_sphinx_app_output(app, filename="index.html", regress_html=True)
+    get_sphinx_app_output(
+        app,
+        filename="index.html",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+    )
 
 
 @pytest.mark.sphinx(
@@ -118,7 +145,43 @@ def test_references_singlehtml(
         )
 
     get_sphinx_app_output(
-        app, filename="index.html", buildername="singlehtml", regress_html=True
+        app,
+        filename="index.html",
+        buildername="singlehtml",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "heading_slug_func"),
+    freshenv=True,
+)
+def test_heading_slug_func(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test heading_slug_func configuration."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+    get_sphinx_app_output(
+        app,
+        filename="index.html",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
     )
 
 
@@ -146,9 +209,19 @@ def test_extended_syntaxes(
     assert warnings == ""
 
     try:
-        get_sphinx_app_doctree(app, docname="index", regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+        )
     finally:
-        get_sphinx_app_output(app, filename="index.html", regress_html=True)
+        get_sphinx_app_output(
+            app,
+            filename="index.html",
+            regress_html=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        )
 
 
 @pytest.mark.sphinx(
@@ -174,6 +247,7 @@ def test_includes(
             app,
             docname="index",
             regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
             # fix for Windows CI
             replace={
                 r"subfolder\example2.jpg": "subfolder/example2.jpg",
@@ -186,6 +260,7 @@ def test_includes(
             app,
             filename="index.html",
             regress_html=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
             replace={
                 r"'subfolder\\example2'": "'subfolder/example2'",
                 r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
@@ -215,7 +290,12 @@ def test_footnotes(
     try:
         get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
     finally:
-        get_sphinx_app_output(app, filename="footnote_md.html", regress_html=True)
+        get_sphinx_app_output(
+            app,
+            filename="footnote_md.html",
+            regress_html=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        )
 
 
 @pytest.mark.sphinx(
@@ -240,7 +320,12 @@ def test_commonmark_only(
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
     finally:
-        get_sphinx_app_output(app, filename="index.html", regress_html=True)
+        get_sphinx_app_output(
+            app,
+            filename="index.html",
+            regress_html=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        )
 
 
 @pytest.mark.sphinx(

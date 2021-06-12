@@ -35,7 +35,8 @@ myst_enable_extensions = [
     "linkify",
     "replacements",
     "smartquotes",
-    "substitution"
+    "substitution",
+    "tasklist",
 ]
 ```
 
@@ -311,6 +312,7 @@ To achieve this, section headings must be assigned anchors, which can be achieve
 by setting `myst_heading_anchors = 2` in your `conf.py`.
 This configures heading anchors to be assigned to both `h1` and `h2` level headings.
 The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger); lower-case text, removing punctuation, replacing spaces with `-`, uniqueness *via* suffix enumeration `-1`.
+To change the slug function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 You can inspect the links that will be created using the command-line tool:
 
 ```console
@@ -335,7 +337,7 @@ The paths to other files should be relative to the current file, for example
 
 By adding `"deflist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 you will be able to utilise definition lists.
-Definition lists utlise the [markdown-it-py deflist plugin](markdown_it:md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
+Definition lists utilise the [markdown-it-py deflist plugin](markdown_it:md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
 
 This syntax can be useful, for example, as an alternative to nested bullet-lists:
 
@@ -407,6 +409,22 @@ Term 3
 
   <img src="img/fun-fish.png" alt="fishy" width="200px">
 ```
+
+(syntax/tasklists)=
+## Task Lists
+
+By adding `"tasklist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+you will be able to utilise task lists.
+Task lists utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins),
+and are applied to markdown list items starting with `[ ]` or `[x]`:
+
+```markdown
+- [ ] An item that needs doing
+- [x] An item that is complete
+```
+
+- [ ] An item that needs doing
+- [x] An item that is complete
 
 (syntax/images)=
 
