@@ -12,7 +12,7 @@ Instead of removing all `$` processing for the whole project,
 during MyST document parsing, the top-level section is now given the classes `tex2jax_ignore` and `mathjax_ignore` (turning off default MathJax processing of all HTML elements)
 and MathJax is then configured to process elements with the `tex2jax_process|mathjax_process|math` classes.
 
-See [the math syntax guide](docs/using/syntax.md#math-shortcuts) for further information.
+See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
 
 ### Set URL scheme defaults ‼️
 
@@ -23,7 +23,7 @@ Set `myst_url_schemes = None`, to revert to the previous default.
 
 ### Added `myst_heading_slug_func` option 👌
 
-Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/using/syntax-optional.md#auto-generated-header-anchors)).
+Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/syntax/optional.md#auto-generated-header-anchors)).
 
 Thanks to [@jpmckinney](https://github.com/jpmckinney)!
 
