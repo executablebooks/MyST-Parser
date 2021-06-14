@@ -28,6 +28,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
     "sphinx_panels",
+    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,6 +56,10 @@ html_theme_options = {
     "repository_branch": "master",
     "path_to_docs": "docs",
 }
+# OpenGraph metadata
+ogp_site_url = "https://myst-parser.readthedocs.io/en/latest"
+# This is the image that GitHub stores for our social media previews
+ogp_image = "https://repository-images.githubusercontent.com/240151150/316bc480-cc23-11eb-96fc-4ab2f981a65d"  # noqa: E501
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
