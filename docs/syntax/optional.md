@@ -19,7 +19,7 @@ substitutions:
 # Optional MyST Syntaxes
 
 MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](markdown_it:index) parser.
-The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](intro/config-options)).
+The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](sphinx/config-options)).
 Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](markdown_it:md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:
@@ -73,6 +73,170 @@ text  | converted
 ``---`` | ---
 
 (syntax/linkify)=
+
+
+(syntax/math)=
+## Math shortcuts
+
+Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
+
+- `"dollarmath"` (added by default) for parsing of dollar `$` and `$$` encapsulated math.
+- `"amsmath"` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
+
+These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+
+:::{important}
+`myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
+:::
+
+### Dollar delimited math
+
+Enabling dollar math will parse the following syntax:
+
+- Inline math: `$...$`
+- Display (block) math: `$$...$$`
+
+Additionally if `myst_dmath_allow_labels=True` is set (the default):
+
+- Display (block) math with equation label: `$$...$$ (1)`
+
+For example, `$x_{hey}=it+is^{math}$` renders as $x_{hey}=it+is^{math}$.
+This is equivalent to writing:
+
+```md
+{math}`x_{hey}=it+is^{math}`
+```
+
+:::{admonition} Escaping Dollars
+:class: tip
+
+Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
+Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.
+
+Conversely `\\` will negate the escaping, so `\\$a$` renders as \\$a$.
+:::
+
+Block-level math can be specified with `$$` signs that wrap the math block you'd like to parse.
+For example:
+
+```latex
+$$
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+$$
+```
+
+becomes
+
+$$
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+$$
+
+This is equivalent to the following directive:
+
+````md
+```{math}
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+```
+````
+
+You can also add labels to block equations:
+
+```latex
+$$
+e = mc^2
+$$ (eqn:best)
+
+This is the best equation {eq}`eqn:best`
+```
+
+$$
+e = mc^2
+$$ (eqn:best)
+
+This is the best equation {eq}`eqn:best`
+
+There are a few other options available to control dollar math parsing:
+
+`myst_dmath_allow_space=False`, will cause inline math to only be parsed if there are no initial / final spaces, e.g. `$a$` but not `$ a$` or `$a $`.
+
+`myst_dmath_allow_digits=False`, will cause inline math to only be parsed if there are no initial / final digits, e.g. `$a$` but not `1$a$` or `$a$2`.
+
+These options can both be useful if you also wish to use `$` as a unit of currency.
+
+```{versionadded} 0.14.0
+`myst_dmath_double_inline` option
+```
+
+To allow display math (i.e. `$$`) within an inline context, set `myst_dmath_double_inline = True` (`False` by default).
+This allows for example:
+
+```latex
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+```
+
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+
+### Math in other block elements
+
+Math will also work when nested in other block elements, like lists or quotes:
+
+```md
+- A list
+- $$ a = 1 $$
+
+> A block quote
+> $$ a = 1 $$
+```
+
+- A list
+- $$ a = 1 $$
+
+> A block quote
+> $$ a = 1 $$
+
+### Direct LaTeX Math
+
+Want to use [amsmath](https://ctan.org/pkg/amsmath) LaTeX directly, with no dollars?
+See [the extended syntax option](syntax/amsmath).
+
+(syntax/mathjax)=
+### Mathjax and math parsing
+
+When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
+Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
+
+MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
+
+```javascript
+MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math"}})
+```
+
+MathJax version 3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
+
+```javascript
+window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math"}}
+```
+
+This ensurea that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
+
+To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `update_mathjax=False` to inhibit this override and process all HTML elements.
 
 ## Linkify
 
@@ -316,7 +480,7 @@ To change the slug function, set `myst_heading_slug_func` in your `conf.py` to a
 You can inspect the links that will be created using the command-line tool:
 
 ```console
-$ myst-anchors -l 2 docs/using/syntax-optional.md
+$ myst-anchors -l 2 docs/syntax/optional.md
 <h1 id="optional-myst-syntaxes"></h1>
 <h2 id="admonition-directives"></h2>
 <h2 id="auto-generated-header-anchors"></h2>

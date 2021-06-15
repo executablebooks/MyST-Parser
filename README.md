@@ -8,9 +8,16 @@
 [![Conda][conda-badge]][conda-link]
 [![PyPI - Downloads][install-badge]][install-link]
 
-An extended [CommonMark](https://commonmark.org)-compliant parser, with bridges to [Docutils](https://docutils.sourceforge.io) and [Sphinx](https://www.sphinx-doc.org).
 
-## Usage
+**MyST is a rich and extensible flavor of Markdown meant for technical documentation and publishing**.
+
+MyST is a flavor of markdown that is designed for simplicity, flexibility, and extensibility.
+This repository serves as the reference implementation of MyST Markdown, as well as a collection of tools to support working with MyST in Python and Sphinx.
+It contains an extended [CommonMark](https://commonmark.org)-compliant parser using [`markdown-it-py`](https://markdown-it-py.readthedocs.io/), as well as a [Sphinx](https://www.sphinx-doc.org) extension that allows you to write MyST Markdown in Sphinx.
+
+[**See the MyST Parser documentation for more information**](https://myst-parser.readthedocs.io/en/latest/).
+
+## Installation
 
 To install the MyST parser, run the following in a
 [Conda environment](https://docs.conda.io) (recommended):

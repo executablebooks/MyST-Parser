@@ -267,7 +267,7 @@ class MockState:
             msg = (
                 f"{cls} has not yet implemented attribute '{name}'. "
                 "You can parse RST directly via the `{eval-rst}` directive: "
-                "https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content"  # noqa: E501
+                "https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#how-directives-parse-content"  # noqa: E501
             )
         else:
             # The requested `name` is not a docutils Body element

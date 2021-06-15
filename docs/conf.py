@@ -28,6 +28,8 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
     "sphinx_panels",
+    "sphinxext.rediraffe",
+    "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
 ]
 
@@ -84,6 +86,13 @@ myst_footnote_transition = True
 myst_dmath_double_inline = True
 panels_add_bootstrap_css = False
 bibtex_bibfiles = ["examples/references.bib"]
+rediraffe_redirects = {
+    "using/intro.md": "sphinx/intro.md",
+    "using/use_api.md": "api/index.md",
+    "using/syntax.md": "syntax/syntax.md",
+    "using/syntax-optional.md": "syntax/optional.md",
+    "using/reference.md": "syntax/reference.md",
+}
 
 
 def run_apidoc(app):
@@ -157,3 +166,4 @@ nitpick_ignore = [
 def setup(app):
     """Add functions to the Sphinx setup."""
     # app.connect("builder-inited", run_apidoc)
+    app.add_css_file("custom.css")
