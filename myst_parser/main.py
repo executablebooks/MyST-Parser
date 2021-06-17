@@ -48,7 +48,7 @@ class MdParserConfig:
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
     mathjax_classes: str = attr.ib(
-        default="tex2jax_process|mathjax_process|math",
+        default="tex2jax_process|mathjax_process|math|output_area",
         validator=instance_of(str),
     )
 
