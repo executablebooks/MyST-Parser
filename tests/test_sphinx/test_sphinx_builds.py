@@ -380,3 +380,22 @@ def test_gettext(
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
     file_regression.check(output, extension=".pot")
+
+
+@pytest.mark.sphinx(
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "mathjax"), freshenv=True
+)
+def test_mathjax_warning(
+    app,
+    status,
+    warning,
+    remove_sphinx_builds,
+):
+    """Test mathjax config override warning."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert (
+        "overridden by myst-parser: 'other' -> 'tex2jax_process|mathjax_process|math|output_area'"
+        in warnings
+    )
