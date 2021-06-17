@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.1 - 2021-06-18
+
+👌 IMPROVE: MathJax compatibility with `nbsphinx`
+
+`nbsphinx` also overrides the MathJax configuration.
+For compatibility, `output_area` is added to the list of default processed classes, and the override warning is allowed to be suppressed with `suppress_warnings = ["myst.mathjax"]`.
+
 ## 0.15.0 - 2021-06-13
 
 ### Upgraded to `sphinx` v4 ⬆️
