@@ -49,30 +49,11 @@ jobs:
         pip install -e .[linkify,testing]
         pip install --upgrade-strategy "only-if-needed" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
-      run: pytest
-
-  coverage:
-
-    name: Run test coverage and upload to Codecov
-    if: github.repository == 'executablebooks/MyST-Parser'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[linkify,testing]
-
-    - name: Run pytest
       run: |
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
-
     - name: Upload to Codecov
+      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.8
       uses: codecov/codecov-action@v1
       with:
         name: myst-parser-pytests

@@ -19,6 +19,22 @@ from sphinx.writers.html import HTMLTranslator
 logger = logging.getLogger(__name__)
 
 
+def log_override_warning(app: Sphinx, version: int, current: str, new: str) -> None:
+    """Log a warning if MathJax configuration being overriden."""
+    if logging.is_suppressed_warning("myst", "mathjax", app.config.suppress_warnings):
+        return
+    config_name = (
+        "mathjax3_config['options']['processHtmlClass']"
+        if version == 3
+        else "mathjax_config['tex2jax']['processClass']"
+    )
+    logger.warning(
+        f"`{config_name}` is being overridden by myst-parser: '{current}' -> '{new}'. "
+        "Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or "
+        "`myst_update_mathjax=False` if this is undesirable."
+    )
+
+
 def override_mathjax(app: Sphinx):
     """Override aspects of the mathjax extension.
 
@@ -44,22 +60,31 @@ def override_mathjax(app: Sphinx):
         # sphinx 4 + mathjax 3
         app.config.mathjax3_config = app.config.mathjax3_config or {}  # type: ignore[attr-defined]
         app.config.mathjax3_config.setdefault("options", {})
-        if "processHtmlClass" in app.config.mathjax3_config["options"]:
-            logger.warning(
-                "`mathjax3_config['options']['processHtmlClass']` is being overridden "
-                f"by myst-parser to {mjax_classes}. "
-                "Set `myst_mathjax_classes = None` if this is undesirable."
+        if (
+            "processHtmlClass" in app.config.mathjax3_config["options"]
+            and app.config.mathjax3_config["options"]["processHtmlClass"]
+            != mjax_classes
+        ):
+            log_override_warning(
+                app,
+                3,
+                app.config.mathjax3_config["options"]["processHtmlClass"],
+                mjax_classes,
             )
         app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
     elif "mathjax_config" in app.config:
         # sphinx 3 + mathjax 2
         app.config.mathjax_config = app.config.mathjax_config or {}  # type: ignore[attr-defined]
         app.config.mathjax_config.setdefault("tex2jax", {})
-        if "processClass" in app.config.mathjax_config["tex2jax"]:
-            logger.warning(
-                "`mathjax_config['tex2jax']['processClass']` is being overridden by "
-                f"myst-parser to {mjax_classes}. "
-                "Set `myst_mathjax_classes = None` if this is undesirable."
+        if (
+            "processClass" in app.config.mathjax_config["tex2jax"]
+            and app.config.mathjax_config["tex2jax"]["processClass"] != mjax_classes
+        ):
+            log_override_warning(
+                app,
+                2,
+                app.config.mathjax_config["tex2jax"]["processClass"],
+                mjax_classes,
             )
         app.config.mathjax_config["tex2jax"]["processClass"] = mjax_classes
 

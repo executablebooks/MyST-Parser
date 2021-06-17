@@ -72,9 +72,6 @@ text  | converted
 ``--`` | --
 ``---`` | ---
 
-(syntax/linkify)=
-
-
 (syntax/math)=
 ## Math shortcuts
 
@@ -225,19 +222,20 @@ Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (Mat
 MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
 
 ```javascript
-MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math"}})
+MathJax.Hub.Config({"tex2jax": {"processClass": "tex2jax_process|mathjax_process|math|output_area"}})
 ```
 
 MathJax version 3 (see [the document options](https://docs.mathjax.org/en/latest/options/document.html?highlight=ignoreHtmlClass#the-configuration-block)):
 
 ```javascript
-window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math"}}
+window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}
 ```
 
 This ensurea that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
 
-To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `update_mathjax=False` to inhibit this override and process all HTML elements.
+To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `myst_update_mathjax=False` to inhibit this override and process all HTML elements.
 
+(syntax/linkify)=
 ## Linkify
 
 Adding `"linkify"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will automatically identify "bare" web URLs and add hyperlinks:
