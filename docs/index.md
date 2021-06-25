@@ -14,7 +14,7 @@ MyST is a flavor of markdown that is designed for simplicity, flexibility, and e
 
 **[CommonMark compliant](commonmark-block-tokens)** ✔
 ^^^
-MyST is a superset of [CommonMark markdown][commonmark]. Any CommonMark document is also MyST-compliant.
+MyST is a superset of [CommonMark Markdown][commonmark]. Any CommonMark document is also MyST-compliant.
 ---
 
 **[Extra syntax for authoring](extended-block-tokens)** ✍
@@ -29,7 +29,8 @@ MyST provides [roles](syntax/roles) and [directives](syntax/directives), allowin
 ---
 **[Compatible with Sphinx](sphinx/index.md)** 📄
 ^^^
-MyST is inspired by Sphinx, and comes with [its own Sphinx parser](sphinx/index.md). [Write your Sphinx docs in markdown](sphinx:usage/quickstart)!
+MyST is inspired by Sphinx, and comes with [its own Sphinx parser](sphinx/index.md).
+[Write your Sphinx docs in Markdown](sphinx:usage/quickstart), or convert existing [RST to Markdown][rst-to-myst]!
 
 ---
 **[Hackable with Python](api/index.md)** 🐍
@@ -132,3 +133,4 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [markdown-it-py]: https://markdown-it-py.readthedocs.io/
 [markdown-it-myst]: https://github.com/executablebooks/markdown-it-myst
 [markdown-it]: https://markdown-it.github.io/
+[rst-to-myst]: https://rst-to-myst.readthedocs.io
