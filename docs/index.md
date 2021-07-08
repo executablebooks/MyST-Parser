@@ -9,7 +9,7 @@ MyST is a flavor of markdown that is designed for simplicity, flexibility, and e
 
 :::{panels}
 :container: +full-width text-center
-:column: col-4 px-2 py-2
+:column: col-lg-4 px-2 py-2
 :card:
 
 **[CommonMark compliant](commonmark-block-tokens)** ✔
@@ -51,7 +51,7 @@ In addition, here are a few pointers to help you get started.
 
 :::{panels}
 :container: full-width
-:column: col-4 p-2
+:column: col-lg-4 p-2
 ---
 :header: bg-myst-one
 **Get started with MyST**
