@@ -47,11 +47,6 @@ class MdParserConfig:
 
     update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
 
-    mathjax_classes: str = attr.ib(
-        default="tex2jax_process|mathjax_process|math|output_area",
-        validator=instance_of(str),
-    )
-
     @enable_extensions.validator
     def check_extensions(self, attribute, value):
         if not isinstance(value, Iterable):

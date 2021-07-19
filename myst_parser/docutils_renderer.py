@@ -470,6 +470,13 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
+    @property
+    def blocks_mathjax_processing(self):
+        return self.sphinx_env is None or (
+            "myst_update_mathjax" in self.sphinx_env.config
+            and self.sphinx_env.config.myst_update_mathjax
+        )
+
     def render_heading(self, token: SyntaxTreeNode) -> None:
 
         if self.md_env.get("match_titles", None) is False:
@@ -490,13 +497,7 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
-        if level == 1 and (
-            self.sphinx_env is None
-            or (
-                "myst_update_mathjax" in self.sphinx_env.config
-                and self.sphinx_env.config.myst_update_mathjax
-            )
-        ):
+        if level == 1 and self.blocks_mathjax_processing:
             new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
         self.add_line_and_source_path(new_section, token)
         new_section.append(title_node)
@@ -775,6 +776,10 @@ class DocutilsRenderer(RendererProtocol):
                     with self.current_node_context(para, append=True):
                         self.render_children(child)
 
+    def mark_mathjax_node(self, node):
+        if self.blocks_mathjax_processing:
+            node.attributes.setdefault("classes", []).append("mathjax_process")
+
     def render_math_inline(self, token: SyntaxTreeNode) -> None:
         content = token.content
         if token.markup == "$$":
@@ -782,18 +787,21 @@ class DocutilsRenderer(RendererProtocol):
             node = nodes.math_block(content, content, nowrap=False, number=None)
         else:
             node = nodes.math(content, content)
+        self.mark_mathjax_node(node)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_math_single(self, token: SyntaxTreeNode) -> None:
         content = token.content
-        node = nodes.math(content, content)
+        node = nodes.math(content, content, classes=["mathjax_process"])
+        self.mark_mathjax_node(node)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_math_block(self, token: SyntaxTreeNode) -> None:
         content = token.content
         node = nodes.math_block(content, content, nowrap=False, number=None)
+        self.mark_mathjax_node(node)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
