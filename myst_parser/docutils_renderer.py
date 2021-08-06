@@ -609,7 +609,12 @@ class DocutilsRenderer(RendererProtocol):
         if not isinstance(token.content, dict):
             try:
                 data = yaml.safe_load(token.content)
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
+                assert isinstance(data, dict), "not dict"
+            except (
+                AssertionError,
+                yaml.parser.ParserError,
+                yaml.scanner.ScannerError,
+            ) as error:
                 msg_node = self.reporter.error(
                     "Front matter block:\n" + str(error), line=position
                 )

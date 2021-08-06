@@ -192,7 +192,11 @@ def minimal_sphinx_app(
         def __init__(self, confoverrides=None, srcdir=None, raise_on_warning=False):
             self.extensions = {}
             self.registry = SphinxComponentRegistry()
-            self.html_themes = {}
+            try:
+                self.html_themes = {}
+            except AttributeError:
+                # changed to property in sphinx 4.1
+                pass
             self.events = EventManager(self)
 
             # logging
