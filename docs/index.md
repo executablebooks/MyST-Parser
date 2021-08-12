@@ -61,6 +61,8 @@ In addition, here are a few pointers to help you get started.
 **[](syntax/syntax.md)**: discusses major MyST syntax components.
 
 **[The Sphinx guide](sphinx/index.md)**: how to use MyST with your Sphinx documentation.
+
+**[MySTyc](https://mystyc.herokuapp.com/)**: an online reST to MyST conversion tool.
 ---
 :header: bg-myst-two
 
