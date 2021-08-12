@@ -1,3 +1,4 @@
+import sys
 from typing import TYPE_CHECKING
 
 __version__ = "0.15.1"
@@ -9,10 +10,16 @@ if TYPE_CHECKING:
 
 def setup(app):
     """Initialize Sphinx extension."""
+    # Avoid circular import referencing __version__
     from myst_parser.sphinx_parser import MystParser
 
     app.add_source_suffix(".md", "markdown")
     app.add_source_parser(MystParser)
+
+    # docutils compatibility: making myst_parser.Parser be a parser allows
+    # `.. ::include:` to specify `:parser: myst_parser`
+    module = sys.modules[__name__]
+    setattr(module, "Parser", MystParser)
 
     setup_sphinx(app)
 
