@@ -238,7 +238,7 @@ Enumerated List:
 1. *foo*
 .
 <document source="notset">
-    <enumerated_list>
+    <enumerated_list enumtype="arabic" suffix=".">
         <list_item>
             <paragraph>
                 <emphasis>
@@ -253,14 +253,14 @@ Nested Enumrated List:
     1. c
 .
 <document source="notset">
-    <enumerated_list>
+    <enumerated_list enumtype="arabic" suffix=".">
         <list_item>
             <paragraph>
                 a
         <list_item>
             <paragraph>
                 b
-            <enumerated_list>
+            <enumerated_list enumtype="arabic" suffix=".">
                 <list_item>
                     <paragraph>
                         c
