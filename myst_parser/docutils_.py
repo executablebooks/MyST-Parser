@@ -1,25 +1,20 @@
-import time
-from os import path
+"""A module for compatibility with the docutils>=0.17 `include` directive, in RST documents::
+
+   .. include::
+      :parser: myst_parser.docutils_
+"""
 from typing import Tuple
 
 from docutils import nodes
-from docutils.core import publish_doctree
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
 from markdown_it.utils import AttrDict
-from sphinx.application import Sphinx
-from sphinx.io import SphinxStandaloneReader
-from sphinx.parsers import Parser as SphinxParser
-from sphinx.util import logging
-from sphinx.util.docutils import sphinx_domains
 
-from myst_parser.main import default_parser
-
-SPHINX_LOGGER = logging.getLogger(__name__)
+from myst_parser.main import MdParserConfig, default_parser
 
 
-class MystParser(SphinxParser):
-    """Sphinx parser for Markedly Structured Text (MyST)."""
+class Parser(RstParser):
+    """Docutils parser for Markedly Structured Text (MyST)."""
 
     supported: Tuple[str, ...] = ("md", "markdown", "myst")
     """Aliases this parser supports."""
@@ -49,7 +44,7 @@ class MystParser(SphinxParser):
         :param document: The root docutils node to add AST elements to
 
         """
-        config = document.settings.env.myst_config
+        config = MdParserConfig(renderer="docutils")
         parser = default_parser(config)
         parser.options["document"] = document
         env = AttrDict()
@@ -59,22 +54,3 @@ class MystParser(SphinxParser):
             # specified in the sphinx configuration
             tokens = [Token("front_matter", "", 0, content="{}", map=[0, 0])] + tokens
         parser.renderer.render(tokens, parser.options, env)
-
-
-def parse(app: Sphinx, text: str, docname: str = "index") -> nodes.document:
-    """Parse a string as MystMarkdown with Sphinx application."""
-    app.env.temp_data["docname"] = docname
-    app.env.all_docs[docname] = time.time()
-    reader = SphinxStandaloneReader()
-    reader.setup(app)
-    parser = MystParser()
-    parser.set_application(app)
-    with sphinx_domains(app.env):
-        return publish_doctree(
-            text,
-            path.join(app.srcdir, docname + ".md"),
-            reader=reader,
-            parser=parser,
-            parser_name="markdown",
-            settings_overrides={"env": app.env, "gettext_compact": True},
-        )
