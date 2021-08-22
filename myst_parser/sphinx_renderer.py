@@ -220,7 +220,7 @@ def minimal_sphinx_app(
             self.outdir = ""
             self.project = Project(srcdir=srcdir, source_suffix={".md": "markdown"})
             self.project.docnames = {"mock_docname"}
-            self.env = BuildEnvironment()
+            self.env = BuildEnvironment(self)
             self.env.setup(self)
             self.env.temp_data["docname"] = "mock_docname"
             # Ignore type checkers because we disrespect superclass typing here
