@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.15.2 - 2021-08-26
+
+This is mainly a maintenance release that fixes some incompatibilities with `sphinx<3.1`, improvements for compatibility
+with `docutils=0.17`, and improvements to robustness.
+
 ## 0.15.1 - 2021-06-18
 
 👌 IMPROVE: MathJax compatibility with `nbsphinx`
