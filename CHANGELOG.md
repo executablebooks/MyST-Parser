@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.15.2 - 2021-08-27
+
+Minor fixes
+
 ## 0.15.1 - 2021-06-18
 
 👌 IMPROVE: MathJax compatibility with `nbsphinx`
