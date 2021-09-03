@@ -373,6 +373,8 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_ordered_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.enumerated_list()
+        list_node["enumtype"] = "arabic"
+        list_node["suffix"] = "."
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
