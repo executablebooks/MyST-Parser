@@ -6,7 +6,7 @@
 from typing import Iterable, Tuple, Union
 
 from attr import Attribute
-from docutils import nodes, frontend
+from docutils import frontend, nodes
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
 from markdown_it.utils import AttrDict
@@ -153,11 +153,11 @@ class Parser(RstParser):
 
 
 if __name__ == "__main__":
-    from docutils.core import publish_cmdline, default_description
+    from docutils.core import default_description, publish_cmdline
 
     publish_cmdline(
         parser=Parser(),
-        writer_name='html',
+        writer_name="html",
         description="Generates (X)HTML documents from standalone MyST sources.  "
         + default_description,
     )
