@@ -535,11 +535,11 @@ class DocutilsRenderer(RendererProtocol):
                 os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
 
-        ref_node["refuri"] = destination  # type: ignore[index]
+        ref_node["refuri"] = destination
 
         title = token.attrGet("title")
         if title:
-            ref_node["title"] = title  # type: ignore[index]
+            ref_node["title"] = title
         next_node = ref_node
 
         # TODO currently any reference with a fragment # is deemed external

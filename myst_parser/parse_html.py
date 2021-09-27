@@ -343,7 +343,7 @@ class Tree(object):
         top.append(item)
 
     def nest_terminal(self, klass: Type[TerminalElement], data: str):
-        """ Nest the data onto the tree."""
+        """Nest the data onto the tree."""
         top = self.last()
         item = klass(data)
         top.append(item)
