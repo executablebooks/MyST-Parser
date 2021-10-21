@@ -191,27 +191,29 @@ cpp:enumerator (`sphinx.domains.cpp.CPPEnumeratorObject`):
 .
 
 --------------------------------
-cpp:expr (`sphinx.domains.cpp.CPPExprRole`):
+SKIP cpp:expr (`sphinx.domains.cpp.CPPExprRole`):
 .
 {cpp:expr}`a`
 .
 <document source="notset">
     <paragraph>
-        <literal classes="xref cpp cpp-expr">
-            <pending_xref classname="True" cpp:parent_key="" modname="True" refdomain="cpp" reftarget="a" reftype="identifier">
-                a
+        <desc_inline classes="cpp-expr sig sig-inline cpp">
+            <pending_xref classname="True" cpp:parent_key="<sphinx.domains.cpp.LookupKey object at 0x7f948a6a73d0>" modname="True" refdomain="cpp" reftarget="a" reftype="identifier">
+                <desc_sig_name classes="n">
+                    a
 .
 
 --------------------------------
-cpp:texpr (`sphinx.domains.cpp.CPPExprRole`):
+SKIP cpp:texpr (`sphinx.domains.cpp.CPPExprRole`):
 .
 {cpp:texpr}`a`
 .
 <document source="notset">
     <paragraph>
-        <inline classes="xref cpp cpp-texpr">
-            <pending_xref classname="True" cpp:parent_key="" modname="True" refdomain="cpp" reftarget="a" reftype="identifier">
-                a
+        <desc_inline classes="cpp-texpr sig sig-inline cpp">
+            <pending_xref classname="True" cpp:parent_key="<sphinx.domains.cpp.LookupKey object at 0x7fac40b5f950>" modname="True" refdomain="cpp" reftarget="a" reftype="identifier">
+                <desc_sig_name classes="n">
+                    a
 .
 
 --------------------------------

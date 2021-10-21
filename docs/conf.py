@@ -4,22 +4,14 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+from myst_parser import __version__
 
 # -- Project information -----------------------------------------------------
 
 project = "MyST Parser"
 copyright = "2020, Executable Book Project"
 author = "Executable Book Project"
+version = __version__
 
 master_doc = "index"
 language = "en"
@@ -36,6 +28,9 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.bibtex",
     "sphinx_panels",
+    "sphinxext.rediraffe",
+    "sphinxcontrib.mermaid",
+    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -53,12 +48,23 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_book_theme"
-html_logo = "_static/logo.png"
+html_logo = "_static/logo-wide.svg"
+html_favicon = "_static/logo-square.svg"
 html_title = ""
 html_theme_options = {
     "github_url": "https://github.com/executablebooks/MyST-Parser",
     "repository_url": "https://github.com/executablebooks/MyST-Parser",
+    "use_edit_page_button": True,
+    "repository_branch": "master",
+    "path_to_docs": "docs",
 }
+# OpenGraph metadata
+ogp_site_url = "https://myst-parser.readthedocs.io/en/latest"
+# This is the image that GitHub stores for our social media previews
+ogp_image = "https://repository-images.githubusercontent.com/240151150/316bc480-cc23-11eb-96fc-4ab2f981a65d"  # noqa: E501
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image">',
+]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -76,12 +82,20 @@ myst_enable_extensions = [
     "replacements",
     "linkify",
     "substitution",
+    "tasklist",
 ]
-myst_url_schemes = ("http", "https", "mailto")
 myst_heading_anchors = 2
 myst_footnote_transition = True
+myst_dmath_double_inline = True
 panels_add_bootstrap_css = False
 bibtex_bibfiles = ["examples/references.bib"]
+rediraffe_redirects = {
+    "using/intro.md": "sphinx/intro.md",
+    "using/use_api.md": "api/index.md",
+    "using/syntax.md": "syntax/syntax.md",
+    "using/syntax-optional.md": "syntax/optional.md",
+    "using/reference.md": "syntax/reference.md",
+}
 
 
 def run_apidoc(app):
@@ -155,3 +169,4 @@ nitpick_ignore = [
 def setup(app):
     """Add functions to the Sphinx setup."""
     # app.connect("builder-inited", run_apidoc)
+    app.add_css_file("custom.css")

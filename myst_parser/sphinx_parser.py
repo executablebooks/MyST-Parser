@@ -1,5 +1,6 @@
 import time
 from os import path
+from typing import Tuple
 
 from docutils import nodes
 from docutils.core import publish_doctree
@@ -8,19 +9,19 @@ from markdown_it.token import Token
 from markdown_it.utils import AttrDict
 from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
-from sphinx.parsers import Parser
+from sphinx.parsers import Parser as SphinxParser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
-from myst_parser.main import MdParserConfig, default_parser
+from myst_parser.main import default_parser
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
 
-class MystParser(Parser):
-    """Docutils parser for Markedly Structured Text (MyST)."""
+class MystParser(SphinxParser):
+    """Sphinx parser for Markedly Structured Text (MyST)."""
 
-    supported = ("md", "markdown", "myst")
+    supported: Tuple[str, ...] = ("md", "markdown", "myst")
     """Aliases this parser supports."""
 
     settings_spec = RstParser.settings_spec
@@ -41,19 +42,14 @@ class MystParser(Parser):
     config_section_dependencies = ("parsers",)
     translate_section_name = None
 
-    def parse(
-        self, inputstring: str, document: nodes.document, renderer: str = "sphinx"
-    ):
+    def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.
 
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
 
         """
-        if renderer == "sphinx":
-            config = document.settings.env.myst_config
-        else:
-            config = MdParserConfig()
+        config = document.settings.env.myst_config
         parser = default_parser(config)
         parser.options["document"] = document
         env = AttrDict()

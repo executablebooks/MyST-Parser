@@ -10,6 +10,8 @@ $$x=5$$ (2)
 
 $ a=1 $
 
+a $$c=3$$ b
+
 \begin{equation}
 b=2
 \end{equation}
@@ -37,16 +39,23 @@ Term 3
 
   : other
 
-:::{figure,other} target
+:::{figure-md} target
+:class: other
+
 ![fun-fish](fun-fish.png)
 
 This is a caption in **Markdown**
 :::
 
-:::{figure,other} other-target
+:::{figure-md} other-target
+:class: other
+
 <img src="fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
 
 This is a caption in **Markdown**
 :::
 
 linkify URL: www.example.com
+
+- [ ] hallo
+- [x] there

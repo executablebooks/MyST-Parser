@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
-from markdown_it.token import NestedTokens, Token
+from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
 from sphinx.application import Sphinx, builtin_extensions
 from sphinx.config import Config
@@ -64,7 +64,7 @@ class SphinxRenderer(DocutilsRenderer):
                 append_to.append(msg_node)
         return None
 
-    def handle_cross_reference(self, token: Token, destination: str):
+    def handle_cross_reference(self, token: SyntaxTreeNode, destination: str) -> None:
         """Create nodes for references that are not immediately resolvable."""
         wrap_node = addnodes.pending_xref(
             refdoc=self.doc_env.docname,
@@ -85,15 +85,15 @@ class SphinxRenderer(DocutilsRenderer):
         with self.current_node_context(inner_node):
             self.render_children(token)
 
-    def render_heading_open(self, token: NestedTokens):
+    def render_heading(self, token: SyntaxTreeNode) -> None:
         """This extends the docutils method, to allow for the addition of heading ids.
         These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
         as "slugs" which are unique document.
 
         The approach is similar to ``sphinx.ext.autosectionlabel``
         """
-        super().render_heading_open(token)
-        slug = token.attrGet("id")
+        super().render_heading(token)
+        slug = cast(str, token.attrGet("id"))
         if slug is None:
             return
 
@@ -122,7 +122,7 @@ class SphinxRenderer(DocutilsRenderer):
             self.doc_env.myst_anchors = True  # type: ignore[attr-defined]
         section["myst-anchor"] = doc_slug
 
-    def render_math_block_eqno(self, token: Token):
+    def render_math_block_eqno(self, token: SyntaxTreeNode) -> None:
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
         content = token.content
@@ -138,7 +138,7 @@ class SphinxRenderer(DocutilsRenderer):
     def _random_label(self) -> str:
         return str(uuid4())
 
-    def render_amsmath(self, token: Token):
+    def render_amsmath(self, token: SyntaxTreeNode) -> None:
         # environment = token.meta["environment"]
         content = token.content
 
@@ -192,7 +192,11 @@ def minimal_sphinx_app(
         def __init__(self, confoverrides=None, srcdir=None, raise_on_warning=False):
             self.extensions = {}
             self.registry = SphinxComponentRegistry()
-            self.html_themes = {}
+            try:
+                self.html_themes = {}
+            except AttributeError:
+                # changed to property in sphinx 4.1
+                pass
             self.events = EventManager(self)
 
             # logging
@@ -216,7 +220,7 @@ def minimal_sphinx_app(
             self.outdir = ""
             self.project = Project(srcdir=srcdir, source_suffix={".md": "markdown"})
             self.project.docnames = {"mock_docname"}
-            self.env = BuildEnvironment()
+            self.env = BuildEnvironment(self)
             self.env.setup(self)
             self.env.temp_data["docname"] = "mock_docname"
             # Ignore type checkers because we disrespect superclass typing here

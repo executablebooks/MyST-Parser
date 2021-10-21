@@ -1,8 +1,115 @@
 # Changelog
 
+## 0.15.2 - 2021-08-26
+
+This is mainly a maintenance release that fixes some incompatibilities with `sphinx<3.1`, improvements for compatibility
+with `docutils=0.17`, and improvements to robustness.
+
+## 0.15.1 - 2021-06-18
+
+👌 IMPROVE: MathJax compatibility with `nbsphinx`
+
+`nbsphinx` also overrides the MathJax configuration.
+For compatibility, `output_area` is added to the list of default processed classes, and the override warning is allowed to be suppressed with `suppress_warnings = ["myst.mathjax"]`.
+
+## 0.15.0 - 2021-06-13
+
+### Upgraded to `sphinx` v4 ⬆️
+
+A principe change in this release is to updates the requirements of myst-parser from `sphinx>=2,<4` to `sphinx>=3,<5`.
+
+### Changed MathJax handling ♻️
+
+Instead of removing all `$` processing for the whole project,
+during MyST document parsing, the top-level section is now given the classes `tex2jax_ignore` and `mathjax_ignore` (turning off default MathJax processing of all HTML elements)
+and MathJax is then configured to process elements with the `tex2jax_process|mathjax_process|math` classes.
+
+See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
+
+### Set URL scheme defaults ‼️
+
+The `myst_url_schemes` default is now: `("http", "https", "mailto", "ftp")`.
+This means that only these URL will be considered as external (e.g. `[](https://example.com)`),
+and references like `[](prefix:main)` will be considered as internal references.
+Set `myst_url_schemes = None`, to revert to the previous default.
+
+### Added `myst_heading_slug_func` option 👌
+
+Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/syntax/optional.md#auto-generated-header-anchors)).
+
+Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+
+## 0.14.0 - 2021-05-04
+
+### Upgrade to `markdown-it-py` v1.0 ⬆️
+
+This release updates the code-base to fully support the [markdown-it-py](https://markdown-it-py.readthedocs.io) `v1.0.0` release.
+In particular for users, this update alters the parsing of tables to be consistent with the [Github Flavoured Markdown (GFM) specification](https://github.github.com/gfm/#tables-extension-).
+
+### New Features ✨
+
+- **Task lists** utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+
+  ```markdown
+  - [ ] An item that needs doing
+  - [x] An item that is complete
+  ```
+
+  Add "tasklist" to the `myst_enable_extensions` configuration to enable.
+
+  See [the optional syntax guide](docs/syntax/optional.md#task-lists) for further information.
+
+- The **`sub-ref`** role has been added for use identical to ReST's `|name|` syntax.
+
+  This allows one to access Sphinx's built-in `|today|`, `|release|` and `|version|` substitutions, and also introduces two new substitutions: `wordcount-words` and `wordcount-minutes`, computed by the markdown-it-py [`wordcount_plugin`](https://github.com/executablebooks/mdit-py-plugins/pull/20).
+
+  ```markdown
+  > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
+  ```
+
+  See [the roles syntax guide](docs/syntax/syntax.md) for further information.
+
+- The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
+  See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
+
+### Remove v0.13 deprecations ‼️
+
+The deprecations made to extension configurations and colon fences in `0.13.0` (see below) have now been removed:
+
+- Configuration variables: `myst_admonition_enable`, `myst_figure_enable`, `myst_dmath_enable`, `myst_amsmath_enable`, `myst_deflist_enable`, `myst_html_img_enable`
+- `:::{admonition,class}` -> `:::{admonition}\n:class: class`
+- `:::{figure}` -> `:::{figure-md}`
+
+### Fix extraction of nested footnotes 🐛
+
+Previously footnote definitions in block elements like lists would crash the parsing:
+
+```markdown
+- [^e]: footnote definition in a block element
+```
+
+These are now correctly extracted.
+
+## 0.13.7 - 2021-04-25
+
+👌 IMPROVE: Add warning for nested headers:
+
+Nested headers are not supported within most elements (this is a limitation of the docutils/sphinx document structure), and can lead to unexpected outcomes.
+For example in admonitions:
+
+````markdown
+```{note}
+# Unsupported Header
+```
+````
+
+A warning (of type `myst.nested_header`) is now emitted when this occurs.
+
+🔧 MAINTAIN: Python 3.9 is now officially supported.
+
 ## 0.13.6 - 2021-04-10
 
-- 🐛 FIX: docutils `v0.17` compatibility
+🐛 FIX: docutils `v0.17` compatibility
 
 ## 0.13.5 - 2021-02-15
 
@@ -15,7 +122,7 @@
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
-  See [How-to suppress warnings](docs/using/howto.md) for more information.
+  See [How-to suppress warnings](howto/warnings) for more information.
 
 ## 0.13.3 - 2021-01-20
 
@@ -38,14 +145,14 @@ Minor fixes:
   This is the *content*
   </div>
   ```
-: See [the optional syntax guide](docs/using/syntax-optional.md) for further information.
+: See [the optional syntax guide](docs/syntax/optional.md) for further information.
 
 👌 IMPROVE: Footnotes
 
 : If the label is an integer, then it will always use this integer for the rendered label (i.e. they are manually numbered).
 : Add `myst_footnote_transition` configuration, to turn on/off transition line.
 : Add `footnotes` class to transition `<hr>` in HTML.
-: See [the syntax guide](docs/using/syntax.md) for further information.
+: See [the syntax guide](docs/syntax/syntax.md) for further information.
 
 👌 IMPROVE: `substitution` extension logic
 
@@ -81,7 +188,7 @@ An inline image: {{ key }}
 ## 0.13.0 - 2020-12-18
 
 This release makes some major updates to the optional syntaxes.
-For full details see [Optional MyST Syntaxes](docs/using/syntax-optional.md).
+For full details see [Optional MyST Syntaxes](docs/syntax/optional.md).
 
 ### 🗑 Deprecations
 
@@ -166,7 +273,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 
   It is enabled in your `conf.py` *via* `myst_heading_anchors = 2` (sets maximum heading level).
 
-  See [the documentation here](docs/using/syntax-optional.md#auto-generated-header-anchors).
+  See [the documentation here](docs/syntax/optional.md#auto-generated-header-anchors).
 
 🐛 FIX: doc reference resolution for singlehtml/latex.
 : These reference resolutions are passed to the "missing-reference" event, and require the `node["refdoc"]` attribute to be available, which was missing for `[text](./path/to/file.md)` type references.
@@ -174,7 +281,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ## 0.12.7 - 2020-08-31
 
 ✨ NEW: Want to include your README.md in the documentation?
-: See [including a file from outside the docs folder](docs/using/howto.md).
+: See [including a file from outside the docs folder](howto/include-readme).
 
 (👌 added `relative-docs` option in 0.12.8)
 
@@ -183,7 +290,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ✨ NEW: Add Markdown figure syntax
 : Setting `myst_figure_enable = True` in your sphinx `conf.py`, combines the above two extended syntaxes,
   to create a fully Markdown compliant version of the `figure` directive.
-  See [Markdown Figures](docs/using/syntax-optional.md#markdown-figures) for details.
+  See [Markdown Figures](docs/syntax/optional.md#markdown-figures) for details.
 
 (👌 formatting of caption improved in 0.12.6)
 
@@ -201,18 +308,18 @@ Term 1
 : Definition
 ```
 
-See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax-optional.html#definition-lists) for further details.
+See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html#definition-lists) for further details.
 
 👌 IMPROVE: mathjax_config override.
 : Only `mathjax_config["tex2jax"]` will now be overridden, in order to not interfere with other user configurations, such as adding TeX macros.
   The configuration name has also changed from `myst_override_mathjax` to `myst_update_mathjax`.
-  See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#mathjax-and-math-parsing) for further details.
+  See [Mathjax and math parsing](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#mathjax-and-math-parsing) for further details.
 
 ## 0.12.2 - 2020-08-25
 
 ✨ NEW: Add the `eval-rst` directive
 
-: This directive parses its contents as ReStructuredText, which integrates back into the rest of the document, e.g. for cross-referencing. See [this documentation](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#how-directives-parse-content) for further explanation.
+: This directive parses its contents as ReStructuredText, which integrates back into the rest of the document, e.g. for cross-referencing. See [this documentation](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#how-directives-parse-content) for further explanation.
 
   In particular, this addition solves some outstanding user requests:
 
@@ -229,7 +336,7 @@ See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/l
 
 ### ‼️ BREAKING
 
-If you are using math in your documents, be sure to read the updated [Math syntax guide](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#math-shortcuts)!
+If you are using math in your documents, be sure to read the updated [Math syntax guide](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#math-shortcuts)!
 In particular, the Mathjax configuration is now overridden, such that LaTeX environments will only be rendered if `myst_amsmath_enable=True` is set.
 
 The `myst_math_delimiters` option has also been removed (please open an issue if you would like brackets math parsing to be re-implemented).
@@ -246,7 +353,7 @@ More configuration options for math parsing (see [MyST configuration options](ht
 
 ### Added ✨
 
-- `<img src="file.png" width="200px">` tag parsing to sphinx representation, see [the image syntax guide](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#images)
+- `<img src="file.png" width="200px">` tag parsing to sphinx representation, see [the image syntax guide](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#images)
 
 ### Improved 👌
 
@@ -271,10 +378,10 @@ More configuration options for math parsing (see [MyST configuration options](ht
   :::
   ```
 
-  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#admonition-directives-special-syntax-optional) for details.
+  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#admonition-directives-special-syntax-optional) for details.
 
 * Direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations (optional).
-  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/using/syntax.html#direct-latex-math-optional) for details.
+  See [the syntax guide section](https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#direct-latex-math-optional) for details.
 
 ### Breaking ‼️
 

@@ -70,10 +70,7 @@ class MystReferenceResolver(ReferencesResolver):
                     # we are in nit-picky mode
                     if newnode is None:
                         node["refdomain"] = ""
-                        # type fix: https://github.com/sphinx-doc/sphinx/pull/8710
-                        self.warn_missing_reference(
-                            refdoc, typ, target, node, domain  # type: ignore[arg-type]
-                        )
+                        self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
 

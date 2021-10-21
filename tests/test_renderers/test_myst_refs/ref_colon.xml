@@ -1,0 +1,8 @@
+<document classes="tex2jax_ignore mathjax_ignore" ids="title ref-colon" names="title ref:colon" source="root/index.md" title="Title">
+    <title>
+        Title
+    <target refid="ref-colon">
+    <paragraph>
+        <reference internal="True" refid="ref-colon">
+            <inline classes="std std-ref">
+                Title

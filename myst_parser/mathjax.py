@@ -19,9 +19,29 @@ from sphinx.writers.html import HTMLTranslator
 logger = logging.getLogger(__name__)
 
 
-def override_mathjax(app: Sphinx):
-    """Override aspects of the mathjax extension, but only if necessary."""
+def log_override_warning(app: Sphinx, version: int, current: str, new: str) -> None:
+    """Log a warning if MathJax configuration being overriden."""
+    if logging.is_suppressed_warning("myst", "mathjax", app.config.suppress_warnings):
+        return
+    config_name = (
+        "mathjax3_config['options']['processHtmlClass']"
+        if version == 3
+        else "mathjax_config['tex2jax']['processClass']"
+    )
+    logger.warning(
+        f"`{config_name}` is being overridden by myst-parser: '{current}' -> '{new}'. "
+        "Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or "
+        "`myst_update_mathjax=False` if this is undesirable."
+    )
 
+
+def override_mathjax(app: Sphinx):
+    """Override aspects of the mathjax extension.
+
+    MyST-Parser parses dollar and latex math, via markdown-it plugins.
+    Therefore, we tell Mathjax to only render these HTML elements.
+    This is accompanied by setting the `ignoreClass` on the top-level section of each MyST document.
+    """
     if (
         "amsmath" in app.config["myst_enable_extensions"]
         and "mathjax" in app.registry.html_block_math_renderers
@@ -30,32 +50,43 @@ def override_mathjax(app: Sphinx):
             html_visit_displaymath,  # type: ignore[assignment]
             None,
         )
-    # https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax
-    if (
-        app.config.mathjax_config is None
-        and app.env.myst_config.update_mathjax  # type: ignore[attr-defined]
-    ):
-        app.config.mathjax_config = {  # type: ignore[attr-defined]
-            "tex2jax": {
-                "inlineMath": [["\\(", "\\)"]],
-                "displayMath": [["\\[", "\\]"]],
-                "processRefs": False,
-                "processEnvironments": False,
-            }
-        }
-    elif app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
-        if "tex2jax" in app.config.mathjax_config:  # type: ignore[attr-defined]
-            logger.warning(
-                "`mathjax_config['tex2jax']` is set, but `myst_update_mathjax = True`, "
-                "and so this will be overridden. "
-                "Set `myst_update_mathjax = False` if you wish to use your own config"
+
+    if not app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
+        return
+
+    mjax_classes = app.env.myst_config.mathjax_classes  # type: ignore[attr-defined]
+
+    if "mathjax3_config" in app.config:
+        # sphinx 4 + mathjax 3
+        app.config.mathjax3_config = app.config.mathjax3_config or {}  # type: ignore[attr-defined]
+        app.config.mathjax3_config.setdefault("options", {})
+        if (
+            "processHtmlClass" in app.config.mathjax3_config["options"]
+            and app.config.mathjax3_config["options"]["processHtmlClass"]
+            != mjax_classes
+        ):
+            log_override_warning(
+                app,
+                3,
+                app.config.mathjax3_config["options"]["processHtmlClass"],
+                mjax_classes,
             )
-        app.config.mathjax_config["tex2jax"] = {
-            "inlineMath": [["\\(", "\\)"]],
-            "displayMath": [["\\[", "\\]"]],
-            "processRefs": False,
-            "processEnvironments": False,
-        }
+        app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
+    elif "mathjax_config" in app.config:
+        # sphinx 3 + mathjax 2
+        app.config.mathjax_config = app.config.mathjax_config or {}  # type: ignore[attr-defined]
+        app.config.mathjax_config.setdefault("tex2jax", {})
+        if (
+            "processClass" in app.config.mathjax_config["tex2jax"]
+            and app.config.mathjax_config["tex2jax"]["processClass"] != mjax_classes
+        ):
+            log_override_warning(
+                app,
+                2,
+                app.config.mathjax_config["tex2jax"]["processClass"],
+                mjax_classes,
+            )
+        app.config.mathjax_config["tex2jax"]["processClass"] = mjax_classes
 
 
 def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None:
