@@ -369,6 +369,15 @@ Target:
 .
 
 --------------------------
+Target with whitespace:
+.
+(target with space)=
+.
+<document source="notset">
+    <target ids="target-with-space" names="target\ with\ space">
+.
+
+--------------------------
 Referencing:
 .
 (target)=

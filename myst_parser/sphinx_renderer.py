@@ -122,7 +122,7 @@ class SphinxRenderer(DocutilsRenderer):
             self.doc_env.myst_anchors = True  # type: ignore[attr-defined]
         section["myst-anchor"] = doc_slug
 
-    def render_math_block_eqno(self, token: SyntaxTreeNode) -> None:
+    def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
         content = token.content
