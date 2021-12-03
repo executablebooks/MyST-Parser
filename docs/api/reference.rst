@@ -36,7 +36,7 @@ Sphinx
 
 .. autoclass:: myst_parser.sphinx_renderer.SphinxRenderer
     :special-members: __output__
-    :members: handle_cross_reference, render_math_block_eqno
+    :members: handle_cross_reference, render_math_block_label
     :undoc-members:
     :member-order: alphabetical
     :show-inheritance:

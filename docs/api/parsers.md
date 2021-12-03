@@ -112,7 +112,7 @@ pprint(parser.get_active_rules())
 {'block': ['front_matter',
            'table',
            'code',
-           'math_block_eqno',
+           'math_block_label',
            'math_block',
            'fence',
            'myst_line_comment',
