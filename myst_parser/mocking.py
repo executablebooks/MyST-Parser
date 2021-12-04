@@ -357,12 +357,15 @@ class MockIncludeDirective:
             # i.e. relative to source directory
             try:
                 sphinx_env = self.document.settings.env
-                _, include_arg = sphinx_env.relfn2path(self.arguments[0])
-                sphinx_env.note_included(include_arg)
             except AttributeError:
                 pass
+            else:
+                _, include_arg = sphinx_env.relfn2path(self.arguments[0])
+                sphinx_env.note_included(include_arg)
             path = Path(include_arg)
         path = source_dir.joinpath(path)
+        # this ensures that the parent file is rebuilt if the included file changes
+        self.document.settings.record_dependencies.add(str(path))
 
         # read file
         encoding = self.options.get("encoding", self.document.settings.input_encoding)
