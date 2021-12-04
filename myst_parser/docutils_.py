@@ -8,7 +8,6 @@ from typing import Tuple
 from docutils import nodes
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
-from markdown_it.utils import AttrDict
 
 from myst_parser.main import MdParserConfig, default_parser
 
@@ -47,7 +46,7 @@ class Parser(RstParser):
         config = MdParserConfig(renderer="docutils")
         parser = default_parser(config)
         parser.options["document"] = document
-        env = AttrDict()
+        env: dict = {}
         tokens = parser.parse(inputstring, env)
         if not tokens or tokens[0].type != "front_matter":
             # we always add front matter, so that we can merge it with global keys,

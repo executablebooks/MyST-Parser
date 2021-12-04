@@ -9,6 +9,22 @@ foo
 .
 
 ---------------------------
+Hard-break
+.
+foo\
+bar
+.
+<document source="notset">
+    <paragraph>
+        foo
+        <raw format="html" xml:space="preserve">
+            <br />
+        <raw format="latex" xml:space="preserve">
+            \\
+        bar
+.
+
+---------------------------
 Strong:
 .
 **foo**
@@ -366,6 +382,15 @@ Target:
 .
 <document source="notset">
     <target ids="target" names="target">
+.
+
+--------------------------
+Target with whitespace:
+.
+(target with space)=
+.
+<document source="notset">
+    <target ids="target-with-space" names="target\ with\ space">
 .
 
 --------------------------

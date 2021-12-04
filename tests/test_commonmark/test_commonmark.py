@@ -26,9 +26,6 @@ def test_commonmark(entry):
         pytest.skip(
             "Thematic breaks on the first line conflict with front matter syntax"
         )
-    if entry["example"] == 599:  # <http://example.com/\\[\\>\n
-        # TODO awaiting upstream fix
-        pytest.skip("url backslash escaping")
     test_case = entry["markdown"]
     output = to_html(test_case)
 

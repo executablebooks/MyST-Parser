@@ -29,6 +29,27 @@ a|b
 .
 
 --------------------------
+Header only:
+.
+| abc | def |
+| --- | --- |
+.
+<document source="notset">
+    <table classes="colwidths-auto">
+        <tgroup cols="2">
+            <colspec colwidth="50.0">
+            <colspec colwidth="50.0">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            abc
+                    <entry>
+                        <paragraph>
+                            def
+.
+
+--------------------------
 Aligned:
 .
 a | b | c
@@ -43,24 +64,24 @@ a | b | c
             <colspec colwidth="33.33">
             <thead>
                 <row>
-                    <entry classes="text-align:left">
+                    <entry classes="text-left">
                         <paragraph>
                             a
-                    <entry classes="text-align:center">
+                    <entry classes="text-center">
                         <paragraph>
                             b
-                    <entry classes="text-align:right">
+                    <entry classes="text-right">
                         <paragraph>
                             c
             <tbody>
                 <row>
-                    <entry classes="text-align:left">
+                    <entry classes="text-left">
                         <paragraph>
                             1
-                    <entry classes="text-align:center">
+                    <entry classes="text-center">
                         <paragraph>
                             2
-                    <entry classes="text-align:right">
+                    <entry classes="text-right">
                         <paragraph>
                             3
 .
