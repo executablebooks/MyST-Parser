@@ -147,7 +147,7 @@ def parse_directive_options(
             raise DirectiveParsingError(f"Unknown option: {name}")
         if not isinstance(value, str):
             if value is True or value is None:
-                value = ""  # flag converter requires no argument
+                value = None  # flag converter requires no argument
             elif isinstance(value, (int, float, datetime.date, datetime.datetime)):
                 # convertor always requires string input
                 value = str(value)
