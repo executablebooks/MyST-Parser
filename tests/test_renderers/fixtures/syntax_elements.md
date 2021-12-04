@@ -9,6 +9,22 @@ foo
 .
 
 ---------------------------
+Hard-break
+.
+foo\
+bar
+.
+<document source="notset">
+    <paragraph>
+        foo
+        <raw format="html" xml:space="preserve">
+            <br />
+        <raw format="latex" xml:space="preserve">
+            \\
+        bar
+.
+
+---------------------------
 Strong:
 .
 **foo**

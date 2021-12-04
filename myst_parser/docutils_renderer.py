@@ -400,6 +400,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_hardbreak(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.raw("", "<br />\n", format="html"))
+        self.current_node.append(nodes.raw("", "\\\\\n", format="latex"))
 
     def render_strong(self, token: SyntaxTreeNode) -> None:
         node = nodes.strong()
