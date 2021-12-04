@@ -577,6 +577,50 @@ leave the "text" section of the markdown link empty. For example, this
 markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
+## Tables
+
+Tables can be written using the standard [Github Flavoured Markdown syntax](https://github.github.com/gfm/#tables-extension-):
+
+```md
+| foo | bar |
+| --- | --- |
+| baz | bim |
+```
+
+| foo | bar |
+| --- | --- |
+| baz | bim |
+
+Cells in a column can be aligned using the `:` character:
+
+```md
+| left | center | right |
+| :--- | :----: | ----: |
+| a    | b      | c     |
+```
+
+| left | center | right |
+| :--- | :----: | ----: |
+| a    | b      | c     |
+
+:::{note}
+
+Text is aligned by assigning `text-left`, `text-center`, or `text-right` to the cell.
+It is then necessary for the theme you are using to include the appropriate css styling.
+
+```html
+<table class="colwidths-auto table">
+  <thead>
+    <tr><th class="text-left head"><p>left</p></th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="text-left"><p>a</p></td></tr>
+  </tbody>
+</table>
+```
+
+:::
+
 ## Images
 
 MyST provides a few different syntaxes for including images in your documentation.
