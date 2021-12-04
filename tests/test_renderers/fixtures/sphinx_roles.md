@@ -638,6 +638,22 @@ ref (`sphinx.roles.XRefRole`):
 .
 
 --------------------------------
+ref with line breaks (`sphinx.roles.XRefRole`):
+.
+{ref}`some
+text
+<and
+a
+custom reference>`
+.
+<document source="notset">
+    <paragraph>
+        <pending_xref refdoc="mock_docname" refdomain="std" refexplicit="True" reftarget="and a custom reference" reftype="ref" refwarn="True">
+            <inline classes="xref std std-ref">
+                some text
+.
+
+--------------------------------
 numref (`sphinx.roles.XRefRole`):
 .
 {numref}`a`

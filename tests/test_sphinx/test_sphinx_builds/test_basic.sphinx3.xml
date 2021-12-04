@@ -75,7 +75,7 @@
                         <entry>
                             <paragraph>
                                 a
-                        <entry classes="text-align:right">
+                        <entry classes="text-right">
                             <paragraph>
                                 b
                 <tbody>
@@ -84,7 +84,7 @@
                             <paragraph>
                                 <emphasis>
                                     a
-                        <entry classes="text-align:right">
+                        <entry classes="text-right">
                             <paragraph>
                                 2
                     <row>
@@ -92,7 +92,7 @@
                             <paragraph>
                                 <reference refuri="https://google.com">
                                     link-a
-                        <entry classes="text-align:right">
+                        <entry classes="text-right">
                             <paragraph>
                                 <reference refuri="https://python.org">
                                     link-b

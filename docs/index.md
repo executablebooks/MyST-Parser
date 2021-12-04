@@ -30,7 +30,8 @@ MyST provides [roles](syntax/roles) and [directives](syntax/directives), allowin
 **[Compatible with Sphinx](sphinx/index.md)** 📄
 ^^^
 MyST is inspired by Sphinx, and comes with [its own Sphinx parser](sphinx/index.md).
-[Write your Sphinx docs in Markdown](sphinx:usage/quickstart), or convert existing [RST to Markdown][rst-to-myst]!
+[Write your Sphinx docs in Markdown](sphinx:usage/quickstart), or convert existing [RST to Markdown][rst-to-myst]
+from the CLI or [using an interactive web interface][mystyc]!
 
 ---
 **[Hackable with Python](api/index.md)** 🐍
@@ -134,3 +135,4 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [markdown-it-myst]: https://github.com/executablebooks/markdown-it-myst
 [markdown-it]: https://markdown-it.github.io/
 [rst-to-myst]: https://rst-to-myst.readthedocs.io
+[mystyc]: https://mystyc.herokuapp.com

@@ -45,8 +45,9 @@ highlight (`sphinx.directives.code.Highlight`):
 code-block (`sphinx.directives.code.CodeBlock`):
 .
 ```{code-block}
+:dedent:
 
-a=1
+    a=1
 ```
 .
 <document source="notset">

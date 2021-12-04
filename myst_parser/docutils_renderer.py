@@ -15,6 +15,7 @@ from typing import (
     MutableMapping,
     Optional,
     Sequence,
+    Tuple,
     Union,
     cast,
 )
@@ -399,6 +400,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_hardbreak(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.raw("", "<br />\n", format="html"))
+        self.current_node.append(nodes.raw("", "\\\\\n", format="latex"))
 
     def render_strong(self, token: SyntaxTreeNode) -> None:
         node = nodes.strong()
@@ -535,11 +537,11 @@ class DocutilsRenderer(RendererProtocol):
                 os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
 
-        ref_node["refuri"] = destination  # type: ignore[index]
+        ref_node["refuri"] = destination
 
         title = token.attrGet("title")
         if title:
-            ref_node["title"] = title  # type: ignore[index]
+            ref_node["title"] = title
         next_node = ref_node
 
         # TODO currently any reference with a fragment # is deemed external
@@ -729,11 +731,9 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_table(self, token: SyntaxTreeNode) -> None:
 
-        assert token.children and len(token.children) > 1
-
-        # markdown-it table always contains two elements:
+        # markdown-it table always contains at least a header:
+        assert token.children
         header = token.children[0]
-        body = token.children[1]
         # with one header row
         assert header.children
         header_row = header.children[0]
@@ -761,11 +761,13 @@ class DocutilsRenderer(RendererProtocol):
             self.render_table_row(header_row)
 
         # body
-        tbody = nodes.tbody()
-        tgroup += tbody
-        with self.current_node_context(tbody):
-            for body_row in body.children or []:
-                self.render_table_row(body_row)
+        if len(token.children) > 1:
+            body = token.children[1]
+            tbody = nodes.tbody()
+            tgroup += tbody
+            with self.current_node_context(tbody):
+                for body_row in body.children or []:
+                    self.render_table_row(body_row)
 
     def render_table_row(self, token: SyntaxTreeNode) -> None:
         row = nodes.row()
@@ -776,19 +778,25 @@ class DocutilsRenderer(RendererProtocol):
                     child.children[0].content if child.children else ""
                 )
                 style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
-                if style:
-                    entry["classes"].append(style)
+                if style and style in (
+                    "text-align:left",
+                    "text-align:right",
+                    "text-align:center",
+                ):
+                    entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
                 with self.current_node_context(entry, append=True):
                     with self.current_node_context(para, append=True):
                         self.render_children(child)
 
     def render_math_inline(self, token: SyntaxTreeNode) -> None:
         content = token.content
-        if token.markup == "$$":
-            # available when dmath_double_inline is True
-            node = nodes.math_block(content, content, nowrap=False, number=None)
-        else:
-            node = nodes.math(content, content)
+        node = nodes.math(content, content)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def render_math_inline_double(self, token: SyntaxTreeNode) -> None:
+        content = token.content
+        node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
@@ -961,9 +969,10 @@ class DocutilsRenderer(RendererProtocol):
         self.document.current_line = position
 
         # get directive class
-        directive_class, messages = directives.directive(
+        output: Tuple[Directive, list] = directives.directive(
             name, self.language_module_rst, self.document
-        )  # type: (Directive, list)
+        )
+        directive_class, messages = output
         if not directive_class:
             error = self.reporter.error(
                 'Unknown directive type "{}".\n'.format(name),
