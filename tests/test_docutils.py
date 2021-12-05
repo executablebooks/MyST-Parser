@@ -1,6 +1,9 @@
 import io
 from textwrap import dedent
 
+import pytest
+from docutils import VersionInfo, __version_info__
+
 from myst_parser.docutils_ import (
     Parser,
     cli_html,
@@ -72,6 +75,9 @@ def test_help_text():
     assert "MyST options" in stream.getvalue()
 
 
+@pytest.mark.skipif(
+    __version_info__ < VersionInfo(0, 17), reason="parser option added in docutils 0.17"
+)
 def test_include_from_rst(tmp_path):
     """Test including a MyST file from within an RST file."""
     from docutils.parsers.rst import Parser as RSTParser
