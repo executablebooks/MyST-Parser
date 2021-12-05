@@ -23,45 +23,49 @@ def test_parser():
 
 
 def test_cli_html(monkeypatch, capsys):
-    monkeypatch.setattr("sys.argv", ["cli"])
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
-    cli_html()
+    cli_html([])
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
 
 
 def test_cli_html5(monkeypatch, capsys):
-    monkeypatch.setattr("sys.argv", ["cli"])
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
-    cli_html5()
+    cli_html5([])
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
 
 
 def test_cli_latex(monkeypatch, capsys):
-    monkeypatch.setattr("sys.argv", ["cli"])
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
-    cli_latex()
+    cli_latex([])
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
 
 
 def test_cli_xml(monkeypatch, capsys):
-    monkeypatch.setattr("sys.argv", ["cli"])
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
-    cli_xml()
+    cli_xml([])
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
 
 
 def test_cli_pseudoxml(monkeypatch, capsys):
-    monkeypatch.setattr("sys.argv", ["cli"])
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
-    cli_pseudoxml()
+    cli_pseudoxml([])
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
+
+
+def test_help_text():
+    """Test retrieving settings help text."""
+    from docutils.frontend import OptionParser
+
+    stream = io.StringIO()
+    OptionParser(components=(Parser,)).print_help(stream)
+    assert "MyST options" in stream.getvalue()

@@ -3,7 +3,7 @@
    .. include::
       :parser: myst_parser.docutils_
 """
-from typing import Any, Callable, Iterable, Tuple, Union
+from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from attr import Attribute
 from docutils import frontend, nodes
@@ -113,6 +113,7 @@ def _docutils_setting_tuple_of_attribute(
 
 
 def _myst_docutils_setting_tuples():
+    """Return a list of Docutils setting for the MyST section."""
     defaults = MdParserConfig()
     return tuple(
         _docutils_setting_tuple_of_attribute(at, getattr(defaults, at.name))
@@ -122,6 +123,7 @@ def _myst_docutils_setting_tuples():
 
 
 def create_myst_config(settings: frontend.Values):
+    """Create a ``MdParserConfig`` from the given settings."""
     values = {}
     for attribute in MdParserConfig.get_fields():
         if attribute.name in DOCUTILS_EXCLUDED_ARGS:
@@ -175,56 +177,38 @@ class Parser(RstParser):
         parser.renderer.render(tokens, parser.options, env)
 
 
-def cli_html():
+def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
+    """Run the command line interface for a particular writer."""
+    publish_cmdline(
+        parser=Parser(),
+        writer_name=writer_name,
+        description=(
+            f"Generates {writer_description} from standalone MyST sources.\n{default_description}"
+        ),
+        argv=argv,
+    )
+
+
+def cli_html(argv: Optional[List[str]] = None) -> None:
     """Cmdline entrypoint for converting MyST to HTML."""
-    publish_cmdline(
-        parser=Parser(),
-        writer_name="html",
-        description=(
-            f"Generates (X)HTML documents from standalone MyST sources.\n{default_description}"
-        ),
-    )
+    _run_cli("html", "(X)HTML documents", argv)
 
 
-def cli_html5():
+def cli_html5(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to HTML5."""
-    publish_cmdline(
-        parser=Parser(),
-        writer_name="html5",
-        description=(
-            f"Generates HTML5 documents from standalone MyST sources.\n{default_description}"
-        ),
-    )
+    _run_cli("html5", "HTML5 documents", argv)
 
 
-def cli_latex():
+def cli_latex(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to LaTeX."""
-    publish_cmdline(
-        parser=Parser(),
-        writer_name="latex",
-        description=(
-            f"Generates LaTeX documents from standalone MyST sources.\n{default_description}"
-        ),
-    )
+    _run_cli("latex", "LaTeX documents", argv)
 
 
-def cli_xml():
+def cli_xml(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to XML."""
-    publish_cmdline(
-        parser=Parser(),
-        writer_name="xml",
-        description=(
-            f"Generates Docutils-native XML from standalone MyST sources.\n{default_description}"
-        ),
-    )
+    _run_cli("xml", "Docutils-native XML", argv)
 
 
-def cli_pseudoxml():
+def cli_pseudoxml(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to pseudo-XML."""
-    publish_cmdline(
-        parser=Parser(),
-        writer_name="pseudoxml",
-        description=(
-            f"Generates pseudo-XML from standalone MyST sources.\n{default_description}"
-        ),
-    )
+    _run_cli("pseudoxml", "pseudo-XML", argv)
