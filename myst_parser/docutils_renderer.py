@@ -52,9 +52,9 @@ from .parse_directives import DirectiveParsingError, parse_directive_text
 from .utils import is_external_url
 
 
-def make_document(source_path="notset") -> nodes.document:
+def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     """Create a new docutils document."""
-    settings = OptionParser(components=(RSTParser,)).get_default_values()
+    settings = OptionParser(components=(parser_cls,)).get_default_values()
     return new_document(source_path, settings=settings)
 
 

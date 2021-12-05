@@ -37,19 +37,46 @@ class MdParserConfig:
     renderer: str = attr.ib(
         default="sphinx", validator=in_(["sphinx", "html", "docutils"])
     )
-    commonmark_only: bool = attr.ib(default=False, validator=instance_of(bool))
-    enable_extensions: Iterable[str] = attr.ib(factory=lambda: ["dollarmath"])
+    commonmark_only: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Use strict CommonMark parser"},
+    )
+    enable_extensions: Iterable[str] = attr.ib(
+        factory=lambda: ["dollarmath"], metadata={"help": "Enable extensions"}
+    )
 
-    dmath_allow_labels: bool = attr.ib(default=True, validator=instance_of(bool))
-    dmath_allow_space: bool = attr.ib(default=True, validator=instance_of(bool))
-    dmath_allow_digits: bool = attr.ib(default=True, validator=instance_of(bool))
-    dmath_double_inline: bool = attr.ib(default=False, validator=instance_of(bool))
+    dmath_allow_labels: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "Parse `$$...$$ (label)`"},
+    )
+    dmath_allow_space: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "Allow intial/final spaces in `$ ... $`"},
+    )
+    dmath_allow_digits: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "Allow digits in `1$ ...$2`"},
+    )
+    dmath_double_inline: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Parse inline `$$ ... $$`"},
+    )
 
-    update_mathjax: bool = attr.ib(default=True, validator=instance_of(bool))
+    update_mathjax: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "Update mathjax configuration"},
+    )
 
     mathjax_classes: str = attr.ib(
         default="tex2jax_process|mathjax_process|math|output_area",
         validator=instance_of(str),
+        metadata={"help": "MathJax classes to add to HTML"},
     )
 
     @enable_extensions.validator
@@ -77,29 +104,40 @@ class MdParserConfig:
     disable_syntax: Iterable[str] = attr.ib(
         factory=list,
         validator=deep_iterable(instance_of(str), instance_of((list, tuple))),
+        metadata={"help": "Disable syntax elements"},
     )
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
+        metadata={"help": "URL schemes to allow in links"},
     )
 
     heading_anchors: Optional[int] = attr.ib(
-        default=None, validator=optional(in_([1, 2, 3, 4, 5, 6, 7]))
+        default=None,
+        validator=optional(in_([1, 2, 3, 4, 5, 6, 7])),
+        metadata={"help": "Heading level depth to assign anchors"},
     )
 
     heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
-        default=None, validator=optional(is_callable())
+        default=None,
+        validator=optional(is_callable()),
+        metadata={"help": "Function for creating heading anchors"},
     )
 
     html_meta: Dict[str, str] = attr.ib(
         factory=dict,
         validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
         repr=lambda v: str(list(v)),
+        metadata={"help": "HTML meta tags"},
     )
 
-    footnote_transition: bool = attr.ib(default=True, validator=instance_of(bool))
+    footnote_transition: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "Place a transition before any footnotes"},
+    )
 
     substitutions: Dict[str, Union[str, int, float]] = attr.ib(
         factory=dict,
@@ -107,11 +145,18 @@ class MdParserConfig:
             instance_of(str), instance_of((str, int, float)), instance_of(dict)
         ),
         repr=lambda v: str(list(v)),
+        metadata={"help": "Substitutions"},
     )
 
-    sub_delimiters: Tuple[str, str] = attr.ib(default=("{", "}"))
+    sub_delimiters: Tuple[str, str] = attr.ib(
+        default=("{", "}"), metadata={"help": "Substitution delimiters"}
+    )
 
-    words_per_minute: int = attr.ib(default=200, validator=instance_of(int))
+    words_per_minute: int = attr.ib(
+        default=200,
+        validator=instance_of(int),
+        metadata={"help": "For reading speed calculations"},
+    )
 
     @sub_delimiters.validator
     def check_sub_delimiters(self, attribute, value):

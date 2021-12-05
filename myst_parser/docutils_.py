@@ -3,45 +3,45 @@
    .. include::
       :parser: myst_parser.docutils_
 """
-from typing import Iterable, Tuple, Union
+from typing import Any, Callable, Iterable, Tuple, Union
 
 from attr import Attribute
 from docutils import frontend, nodes
+from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
 
 from myst_parser.main import MdParserConfig, default_parser
 
 
-def validate_int(
+def _validate_int(
     setting, value, option_parser, config_parser=None, config_section=None
-):
+) -> int:
+    """Validate an integer setting."""
     return int(value)
 
 
-def validate_tuple(length: int):
-    def validate(
+def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
+    """Create a validator for a tuple of length `length`."""
+
+    def _validate(
         setting, value, option_parser, config_parser=None, config_section=None
     ):
-        l = frontend.validate_comma_separated_list(
+        string_list = frontend.validate_comma_separated_list(
             setting, value, option_parser, config_parser, config_section
         )
-        if len(l) != length:
-            MSG = "Expecting {} items in {}, got {}: {}."
-            raise ValueError(MSG.format(length, setting, len(l)))
-        return tuple(l)
+        if len(string_list) != length:
+            raise ValueError(
+                f"Expecting {length} items in {setting}, got {len(string_list)}."
+            )
+        return tuple(string_list)
 
-    return validate
+    return _validate
 
 
 DOCUTILS_UNSET = object()
 """Sentinel for arguments not set through docutils.conf."""
 
-DOCUTILS_OPTPARSE_OVERRIDES = {
-    "url_schemes": {"validator": frontend.validate_comma_separated_list},
-    # url_schemes accepts an iterable or ``None``, but ``None`` is the same as ``()``.
-}
-"""Custom optparse configurations for docutils.conf entries."""
 
 DOCUTILS_EXCLUDED_ARGS = (
     # docutils.conf can't represent callables
@@ -49,51 +49,70 @@ DOCUTILS_EXCLUDED_ARGS = (
     # docutils.conf can't represent dicts
     "html_meta",
     "substitutions",
+    # we can't add substitutions so not needed
+    "sub_delimiters",
     # We don't want to set the renderer from docutils.conf
     "renderer",
 )
 """Names of settings that cannot be set in docutils.conf."""
 
 
-def _docutils_optparse_options_of_attribute(a: Attribute):
-    override = DOCUTILS_OPTPARSE_OVERRIDES.get(a.name)
-    if override is not None:
-        return override
-    if a.type is int:
-        return {"validator": validate_int}
-    if a.type is bool:
-        return {"validator": frontend.validate_boolean}
-    if a.type is str:
-        return {}
-    if a.type == Iterable[str]:
-        return {"validator": frontend.validate_comma_separated_list}
-    if a.type == Tuple[str, str]:
-        return {"validator": validate_tuple(2)}
-    if a.type == Union[int, type(None)] and a.default is None:
-        return {"validator": validate_int, "default": None}
-    if a.type == Union[Iterable[str], type(None)] and a.default is None:
-        return {"validator": frontend.validate_comma_separated_list, "default": None}
+def _docutils_optparse_options_of_attribute(
+    at: Attribute, default: Any
+) -> Tuple[dict, str]:
+    """Convert an ``MdParserConfig`` attribute into a Docutils optparse options dict."""
+    if at.type is int:
+        return {"validator": _validate_int}, f"(type: int, default: {default})"
+    if at.type is bool:
+        return {
+            "validator": frontend.validate_boolean
+        }, f"(type: bool, default: {default})"
+    if at.type is str:
+        return {}, f"(type: str, default: '{default}')"
+    if at.type == Iterable[str] or at.name == "url_schemes":
+        return {
+            "validator": frontend.validate_comma_separated_list
+        }, f"(type: comma-delimited, default: '{','.join(default)}')"
+    if at.type == Tuple[str, str]:
+        return {
+            "validator": _create_validate_tuple(2)
+        }, f"(type: str,str, default: '{','.join(default)}')"
+    if at.type == Union[int, type(None)] and at.default is None:
+        return {
+            "validator": _validate_int,
+            "default": None,
+        }, f"(type: null|int, default: {default})"
+    if at.type == Union[Iterable[str], type(None)] and at.default is None:
+        return {
+            "validator": frontend.validate_comma_separated_list,
+            "default": None,
+        }, f"(type: comma-delimited, default: '{default or ','.join(default)}')"
     raise AssertionError(
-        f"""Configuration option {a.name} not set up for use \
-in docutils.conf.  Either add {a.name} to docutils_.DOCUTILS_EXCLUDED_ARGS, or \
-add a new entry in _docutils_optparse_of_attribute."""
+        f"Configuration option {at.name} not set up for use in docutils.conf."
+        f"Either add {at.name} to docutils_.DOCUTILS_EXCLUDED_ARGS,"
+        "or add a new entry in _docutils_optparse_of_attribute."
     )
 
 
-def _docutils_setting_tuple_of_attribute(attribute):
+def _docutils_setting_tuple_of_attribute(
+    attribute: Attribute, default: Any
+) -> Tuple[str, Any, Any]:
     """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple."""
-    name = "myst_" + attribute.name
+    name = f"myst_{attribute.name}"
     flag = "--" + name.replace("_", "-")
     options = {"dest": name, "default": DOCUTILS_UNSET}
-    options.update(_docutils_optparse_options_of_attribute(attribute))
-    return (None, [flag], options)
+    at_options, type_str = _docutils_optparse_options_of_attribute(attribute, default)
+    options.update(at_options)
+    help_str = attribute.metadata.get("help", "") if attribute.metadata else ""
+    return (f"{help_str} {type_str}", [flag], options)
 
 
 def _myst_docutils_setting_tuples():
+    defaults = MdParserConfig()
     return tuple(
-        _docutils_setting_tuple_of_attribute(a)
-        for a in MdParserConfig.get_fields()
-        if not a.name in DOCUTILS_EXCLUDED_ARGS
+        _docutils_setting_tuple_of_attribute(at, getattr(defaults, at.name))
+        for at in MdParserConfig.get_fields()
+        if at.name not in DOCUTILS_EXCLUDED_ARGS
     )
 
 
@@ -151,12 +170,56 @@ class Parser(RstParser):
         parser.renderer.render(tokens, parser.options, env)
 
 
-if __name__ == "__main__":
-    from docutils.core import default_description, publish_cmdline
-
+def cli_html():
+    """Cmdline entrypoint for converting MyST to HTML."""
     publish_cmdline(
         parser=Parser(),
         writer_name="html",
-        description="Generates (X)HTML documents from standalone MyST sources.  "
-        + default_description,
+        description=(
+            f"Generates (X)HTML documents from standalone MyST sources.\n{default_description}"
+        ),
+    )
+
+
+def cli_html5():
+    """Cmdline entrypoint for converting MyST to HTML5."""
+    publish_cmdline(
+        parser=Parser(),
+        writer_name="html5",
+        description=(
+            f"Generates HTML5 documents from standalone MyST sources.\n{default_description}"
+        ),
+    )
+
+
+def cli_latex():
+    """Cmdline entrypoint for converting MyST to LaTeX."""
+    publish_cmdline(
+        parser=Parser(),
+        writer_name="latex",
+        description=(
+            f"Generates LaTeX documents from standalone MyST sources.\n{default_description}"
+        ),
+    )
+
+
+def cli_xml():
+    """Cmdline entrypoint for converting MyST to XML."""
+    publish_cmdline(
+        parser=Parser(),
+        writer_name="xml",
+        description=(
+            f"Generates Docutils-native XML from standalone MyST sources.\n{default_description}"
+        ),
+    )
+
+
+def cli_pseudoxml():
+    """Cmdline entrypoint for converting MyST to pseudo-XML."""
+    publish_cmdline(
+        parser=Parser(),
+        writer_name="pseudoxml",
+        description=(
+            f"Generates pseudo-XML from standalone MyST sources.\n{default_description}"
+        ),
     )
