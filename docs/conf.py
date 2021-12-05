@@ -4,6 +4,9 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+from sphinx.application import Sphinx
+from sphinx.util.docutils import SphinxDirective
+
 from myst_parser import __version__
 
 # -- Project information -----------------------------------------------------
@@ -166,7 +169,34 @@ nitpick_ignore = [
 ]
 
 
-def setup(app):
+def setup(app: Sphinx):
     """Add functions to the Sphinx setup."""
+
+    class DocutilsCliHelpDirective(SphinxDirective):
+        """Directive to print the docutils CLI help."""
+
+        has_content = False
+        required_arguments = 0
+        optional_arguments = 0
+        final_argument_whitespace = False
+        option_spec = {}
+
+        def run(self):
+            """Run the directive."""
+            import io
+
+            from docutils import nodes
+            from docutils.frontend import OptionParser
+
+            from myst_parser.docutils_ import Parser as DocutilsParser
+
+            stream = io.StringIO()
+            OptionParser(
+                components=(DocutilsParser,),
+                usage="myst-docutils-<writer> [options] [<source> [<destination>]]",
+            ).print_help(stream)
+            return [nodes.literal_block("", stream.getvalue())]
+
     # app.connect("builder-inited", run_apidoc)
     app.add_css_file("custom.css")
+    app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)

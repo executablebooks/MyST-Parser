@@ -40,7 +40,14 @@ def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
     return _validate
 
 
-DOCUTILS_UNSET = object()
+class Unset:
+    """A sentinel class for unset settings."""
+
+    def __repr__(self):
+        return "UNSET"
+
+
+DOCUTILS_UNSET = Unset()
 """Sentinel for arguments not set through docutils.conf."""
 
 

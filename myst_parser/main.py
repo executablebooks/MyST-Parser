@@ -311,6 +311,10 @@ def to_docutils(
 
 
 def to_html(text: str, env=None, config: Optional[MdParserConfig] = None):
+    """Render text to HTML directly using markdown-it-py.
+
+    This is mainly for test purposes only.
+    """
     config = config or MdParserConfig()
     config.renderer = "html"
     md = default_parser(config)
