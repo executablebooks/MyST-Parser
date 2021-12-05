@@ -76,7 +76,8 @@ def test_help_text():
 
 
 @pytest.mark.skipif(
-    __version_info__ < VersionInfo(0, 17), reason="parser option added in docutils 0.17"
+    __version_info__ < VersionInfo(0, 17, 0, "final", 0, True),
+    reason="parser option added in docutils 0.17",
 )
 def test_include_from_rst(tmp_path):
     """Test including a MyST file from within an RST file."""
