@@ -1,4 +1,5 @@
 import io
+from textwrap import dedent
 
 from myst_parser.docutils_ import (
     Parser,
@@ -69,3 +70,28 @@ def test_help_text():
     stream = io.StringIO()
     OptionParser(components=(Parser,)).print_help(stream)
     assert "MyST options" in stream.getvalue()
+
+
+def test_include_from_rst(tmp_path):
+    """Test including a MyST file from within an RST file."""
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text("# Title")
+
+    parser = RSTParser()
+    document = make_document(parser_cls=RSTParser)
+    parser.parse(
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
+    )
+    assert (
+        document.pformat().strip()
+        == dedent(
+            """\
+            <document source="notset">
+                <section ids="title" names="title">
+                    <title>
+                        Title
+            """
+        ).strip()
+    )
