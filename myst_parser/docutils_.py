@@ -3,7 +3,6 @@
    .. include:: path/to/file.md
       :parser: myst_parser.docutils_
 """
-from contextlib import suppress
 from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
 
 from attr import Attribute
@@ -138,8 +137,6 @@ def create_myst_config(settings: frontend.Values):
             continue
         setting = f"myst_{attribute.name}"
         val = getattr(settings, setting, DOCUTILS_UNSET)
-        with suppress(AttributeError):
-            delattr(settings, setting)
         if val is not DOCUTILS_UNSET:
             values[attribute.name] = val
     values["renderer"] = "docutils"
