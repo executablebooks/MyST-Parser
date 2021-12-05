@@ -53,7 +53,7 @@ from .utils import is_external_url
 
 
 def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
-    """Create a new docutils document."""
+    """Create a new docutils document, with the parser classes' default settings."""
     settings = OptionParser(components=(parser_cls,)).get_default_values()
     return new_document(source_path, settings=settings)
 
