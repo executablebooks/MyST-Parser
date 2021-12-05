@@ -51,6 +51,11 @@ DOCUTILS_EXCLUDED_ARGS = (
     "substitutions",
     # we can't add substitutions so not needed
     "sub_delimiters",
+    # heading anchors are currently sphinx only
+    "heading_anchors",
+    # sphinx.ext.mathjax only options
+    "update_mathjax",
+    "mathjax_classes",
     # We don't want to set the renderer from docutils.conf
     "renderer",
 )

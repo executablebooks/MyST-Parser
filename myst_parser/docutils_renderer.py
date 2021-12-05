@@ -495,8 +495,8 @@ class DocutilsRenderer(RendererProtocol):
 
         new_section = nodes.section()
         if level == 1 and (
-            self.sphinx_env is None
-            or (
+            self.sphinx_env is not None
+            and (
                 "myst_update_mathjax" in self.sphinx_env.config
                 and self.sphinx_env.config.myst_update_mathjax
             )

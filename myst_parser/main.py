@@ -54,29 +54,29 @@ class MdParserConfig:
     dmath_allow_space: bool = attr.ib(
         default=True,
         validator=instance_of(bool),
-        metadata={"help": "Allow intial/final spaces in `$ ... $`"},
+        metadata={"help": "dollarmath: allow initial/final spaces in `$ ... $`"},
     )
     dmath_allow_digits: bool = attr.ib(
         default=True,
         validator=instance_of(bool),
-        metadata={"help": "Allow digits in `1$ ...$2`"},
+        metadata={"help": "dollarmath: allow initial/final digits `1$ ...$2`"},
     )
     dmath_double_inline: bool = attr.ib(
         default=False,
         validator=instance_of(bool),
-        metadata={"help": "Parse inline `$$ ... $$`"},
+        metadata={"help": "dollarmath: parse inline `$$ ... $$`"},
     )
 
     update_mathjax: bool = attr.ib(
         default=True,
         validator=instance_of(bool),
-        metadata={"help": "Update mathjax configuration"},
+        metadata={"help": "Update sphinx.ext.mathjax configuration"},
     )
 
     mathjax_classes: str = attr.ib(
         default="tex2jax_process|mathjax_process|math|output_area",
         validator=instance_of(str),
-        metadata={"help": "MathJax classes to add to HTML"},
+        metadata={"help": "MathJax classes to add to math HTML"},
     )
 
     @enable_extensions.validator
@@ -117,7 +117,7 @@ class MdParserConfig:
     heading_anchors: Optional[int] = attr.ib(
         default=None,
         validator=optional(in_([1, 2, 3, 4, 5, 6, 7])),
-        metadata={"help": "Heading level depth to assign anchors"},
+        metadata={"help": "Heading level depth to assign HTML anchors"},
     )
 
     heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
