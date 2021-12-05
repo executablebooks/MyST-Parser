@@ -474,6 +474,15 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
+    @property
+    def blocks_mathjax_processing(self) -> bool:
+        """Only add mathjax ignore classes if using sphinx and myst_update_mathjax is True."""
+        return (
+            self.sphinx_env is not None
+            and "myst_update_mathjax" in self.sphinx_env.config
+            and self.sphinx_env.config.myst_update_mathjax
+        )
+
     def render_heading(self, token: SyntaxTreeNode) -> None:
 
         if self.md_env.get("match_titles", None) is False:
@@ -494,13 +503,7 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(title_node, token)
 
         new_section = nodes.section()
-        if level == 1 and (
-            self.sphinx_env is not None
-            and (
-                "myst_update_mathjax" in self.sphinx_env.config
-                and self.sphinx_env.config.myst_update_mathjax
-            )
-        ):
+        if level == 1 and self.blocks_mathjax_processing:
             new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
         self.add_line_and_source_path(new_section, token)
         new_section.append(title_node)
