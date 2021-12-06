@@ -67,3 +67,15 @@ msgstr ""
 #: ../../index.md:55
 msgid "![Fun Fish 1](fun-fish.png)"
 msgstr ""
+
+#: ../../index.md:55
+msgid "Fun Fish 1"
+msgstr ""
+
+#: ../../index.md:57
+msgid "Fun Fish 2"
+msgstr ""
+
+#: ../../index.md:61
+msgid "Fun Fish 3"
+msgstr ""
