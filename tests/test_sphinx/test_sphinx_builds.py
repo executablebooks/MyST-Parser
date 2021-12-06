@@ -383,6 +383,41 @@ def test_gettext(
 
 
 @pytest.mark.sphinx(
+    buildername="gettext",
+    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    freshenv=True,
+    confoverrides={
+        "gettext_additional_targets": [
+            "index",
+            "literal-block",
+            "doctest-block",
+            "raw",
+            "image",
+        ],
+    },
+)
+def test_gettext_additional_targets(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+    file_regression,
+):
+    """Test gettext message extraction."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    output = get_sphinx_app_output(app, filename="index.pot", buildername="gettext")
+    output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
+    output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
+
+    file_regression.check(output, extension=".pot")
+
+
+@pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "mathjax"), freshenv=True
 )
 def test_mathjax_warning(
