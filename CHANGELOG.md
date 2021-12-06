@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.16.0 - 2021-12-06
+
+https://github.com/executablebooks/markdown-it-py/releases/tag/v2.0.0
+
+https://spec.commonmark.org/0.30/
+
+https://github.com/executablebooks/mdit-py-plugins/releases/tag/v0.3.0
+
+improve role, target
+
+docutils
+
+field list
+
+table alignment
+
+### Pull Requests
+
+* 🐛 FIX: Add mandatory attributes on `enumerated_list` by @cpitclaudel in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
+* 📚 DOCS: Add reference to MySTyc in landing page by @astrojuanlu in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+* ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by @chrisjsewell in [#449](https://github.com/executablebooks/MyST-Parser/pull/449)
+* 👌 IMPROVE: Table rendering by @chrisjsewell in [#450](https://github.com/executablebooks/MyST-Parser/pull/450)
+* 🐛 FIX: Ensure parent files are re-built if `include` file changes by @chrisjsewell in [#451](https://github.com/executablebooks/MyST-Parser/pull/451)
+* 🐛 FIX: Convert empty directive option to `None` by @chrisjsewell in [#452](https://github.com/executablebooks/MyST-Parser/pull/452)
+* 👌 IMPROVE: Add `\\` for hard-breaks in latex by @chrisjsewell in [#453](https://github.com/executablebooks/MyST-Parser/pull/453)
+* 🔧 MAINTAIN: Remove empty "sphinx" extra by @hukkin in [#350](https://github.com/executablebooks/MyST-Parser/pull/350)
+* ✨ NEW: Add `fieldlist` extension by @chrisjsewell in [#455](https://github.com/executablebooks/MyST-Parser/pull/455)
+* ✨ NEW: Add Docutils MyST config and CLI by @cpitclaudel in [#426](https://github.com/executablebooks/MyST-Parser/pull/426)
+* 🔧 MAINTAIN: Add publishing job for `myst-docutils` by @chrisjsewell in [#456](https://github.com/executablebooks/MyST-Parser/pull/456)
+
+### New Contributors
+
+* @cpitclaudel made their first contribution in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
+* @astrojuanlu made their first contribution in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+
+**Full Changelog**: <https://github.com/executablebooks/MyST-Parser/compare/v0.15.2...v0.16.0>
+
 ## 0.15.2 - 2021-08-26
 
 This is mainly a maintenance release that fixes some incompatibilities with `sphinx<3.1`, improvements for compatibility
