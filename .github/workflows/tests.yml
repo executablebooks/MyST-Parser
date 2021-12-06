@@ -85,7 +85,7 @@ jobs:
         pip install .
         pip install docutils==${{ matrix.docutils-version }}
     - name: Run CLI
-      run: python -m myst_parser.docutils_ --help
+      run: echo "test" | python -m myst_parser.docutils_
 
 
   publish:
