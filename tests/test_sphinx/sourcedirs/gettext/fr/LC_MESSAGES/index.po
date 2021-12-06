@@ -99,20 +99,29 @@ msgstr "<iframe src=\"http://sphinx-doc.org/fr/master/\"></iframe>"
 msgid "![Fun Fish 1](fun-fish.png)"
 msgstr "![Poisson amusant 1](poisson-amusant.png)"
 
-#: ../../index.md:55
 msgid "Fun Fish 1"
 msgstr "Poisson amusant 1"
 
-#: ../../index.md:55
-#: ../../index.md:57
-#: ../../index.md:61
 msgid ".. image:: fun-fish.png"
 msgstr ".. image:: poisson-amusant.png"
 
-#: ../../index.md:57
 msgid "Fun Fish 2"
 msgstr "Poisson amusant 2"
 
-#: ../../index.md:61
 msgid "Fun Fish 3"
 msgstr "Poisson amusant 3"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 1"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 1"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 2"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 2"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 3"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 3"

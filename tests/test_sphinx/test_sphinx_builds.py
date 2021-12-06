@@ -403,9 +403,20 @@ def test_gettext_html(
     assert warnings == ""
 
     try:
-        get_sphinx_app_doctree(app, docname="index", regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml"
+        )
     finally:
-        get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            resolve=True,
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml"
+        )
     get_sphinx_app_output(
         app,
         filename="index.html",
