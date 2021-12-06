@@ -81,3 +81,13 @@
             }
         <raw format="html" xml:space="preserve">
             <h3>**additional** text 15</h3>
+        <literal_block language="python" xml:space="preserve">
+            >>> print('doctest block')
+            doctest block
+        <raw format="html" xml:space="preserve">
+            <iframe src="http://sphinx-doc.org"></iframe>
+        <paragraph>
+            <image alt="Poisson amusant 1" candidates="{'*': 'poisson-amusant.png'}" uri="poisson-amusant.png">
+        <image alt="Fun Fish 2" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
+        <figure>
+            <image alt="Fun Fish 3" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">

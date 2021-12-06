@@ -95,3 +95,32 @@ msgstr ""
 msgid "<h3>**additional** text 15</h3>\n"
 ""
 msgstr ""
+
+#: ../../index.md:46
+msgid ">>> print('doctest block')\n"
+"doctest block\n"
+""
+msgstr ""
+
+#: ../../index.md:51
+msgid "<iframe src=\"http://sphinx-doc.org\"></iframe>"
+msgstr ""
+
+#: ../../index.md:55
+msgid "![Fun Fish 1](fun-fish.png)"
+msgstr ""
+
+#: ../../index.md:55
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 1"
+msgstr ""
+
+#: ../../index.md:57
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 2"
+msgstr ""
+
+#: ../../index.md:61
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 3"
+msgstr ""

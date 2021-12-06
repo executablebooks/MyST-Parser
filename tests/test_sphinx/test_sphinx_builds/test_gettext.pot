@@ -63,3 +63,7 @@ msgstr ""
 #: ../../index.md:28
 msgid "Extra ```backticks```"
 msgstr ""
+
+#: ../../index.md:55
+msgid "![Fun Fish 1](fun-fish.png)"
+msgstr ""

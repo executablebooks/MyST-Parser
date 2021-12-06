@@ -51,3 +51,6 @@ msgstr "texte 11 en **gras**"
 
 msgid "Extra ```backticks```"
 msgstr "\"```Backtick```\" supplémentaire"
+
+msgid "![Fun Fish 1](fun-fish.png)"
+msgstr "![Poisson amusant 1](poisson-amusant.png)"
