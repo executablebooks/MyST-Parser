@@ -945,6 +945,42 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     self.current_node += [error_msg]
 
+    def render_field_list(self, token: SyntaxTreeNode) -> None:
+        """Render a field list."""
+        field_list = nodes.field_list(classes=["myst"])
+        self.add_line_and_source_path(field_list, token)
+        with self.current_node_context(field_list, append=True):
+            # raise ValueError(token.pretty(show_text=True))
+            children = (token.children or [])[:]
+            while children:
+                child = children.pop(0)
+                if not child.type == "fieldlist_name":
+                    error_msg = self.reporter.error(
+                        (
+                            "Expected a fieldlist_name as a child of a field_list"
+                            f", but found a: {child.type}"
+                        ),
+                        # nodes.literal_block(content, content),
+                        line=token_line(child),
+                    )
+                    self.current_node += [error_msg]
+                    break
+                field = nodes.field()
+                self.add_line_and_source_path(field, child)
+                field_list += field
+                field_name = nodes.field_name()
+                self.add_line_and_source_path(field_name, child)
+                field += field_name
+                with self.current_node_context(field_name):
+                    self.render_children(child)
+                field_body = nodes.field_body()
+                self.add_line_and_source_path(field_name, child)
+                field += field_body
+                if children and children[0].type == "fieldlist_body":
+                    child = children.pop(0)
+                    with self.current_node_context(field_body):
+                        self.render_children(child)
+
     def render_directive(self, token: SyntaxTreeNode) -> None:
         """Render special fenced code blocks as directives."""
         first_line = token.info.split(maxsplit=1)

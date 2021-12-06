@@ -47,9 +47,10 @@ List of extensions:
 
 - "amsmath": enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
 - "colon_fence": Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
-- "deflist"
+- "deflist": Enable definition lists, [see here](syntax/definition-lists) for details
 - "dollarmath": Enable parsing of dollar `$` and `$$` encapsulated math
 - "html_admonition": Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](syntax/html-admonition) for details
+- "fieldlist": Enable field lists, [see here](syntax/fieldlists) for details
 - "html_image": Convert HTML `<img>` elements to sphinx image nodes, see the [image syntax](syntax/images) for details
 - "linkify": automatically identify "bare" web URLs and add hyperlinks
 - "replacements": automatically convert some common typographic texts
