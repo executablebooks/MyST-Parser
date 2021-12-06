@@ -17,22 +17,22 @@ jobs:
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: "3.8"
     - uses: pre-commit/action@v2.0.0
 
   tests:
 
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
         sphinx: [">=4,<5"]
         os: [ubuntu-latest]
         include:
           - os: ubuntu-latest
-            python-version: 3.8
+            python-version: "3.8"
             sphinx: ">=3,<4"
           - os: windows-latest
-            python-version: 3.8
+            python-version: "3.8"
             sphinx: ">=4,<5"
 
     runs-on: ${{ matrix.os }}
@@ -64,21 +64,26 @@ jobs:
   check-myst-docutils:
 
     name: Check myst-docutils install
-
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        docutils-version: ["0.16", "0.17", "0.18"]
+
     steps:
     - name: Checkout source
       uses: actions/checkout@v2
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: "3.8"
     - name: Modify setup
       run: python .github/workflows/docutils_setup.py setup.cfg README.md
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install .
+        pip install docutils==${{ matrix.docutils-version }}
     - name: Run CLI
       run: python -m myst_parser.docutils_ --help
 
@@ -95,7 +100,7 @@ jobs:
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: "3.8"
     - name: Build package
       run: |
         pip install build
@@ -118,7 +123,7 @@ jobs:
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: "3.8"
     - name: Modify setup
       run: python .github/workflows/docutils_setup.py setup.cfg README.md
     - name: Build package
