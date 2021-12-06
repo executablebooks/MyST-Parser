@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) XXXX, Executable Book Project
+# This file is distributed under the same license as the Python package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Python \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2000-01-01 00:00+0000\n"
+"PO-Revision-Date: 2000-01-01 00:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "**bold** text 1"
+msgstr "texte 1 en **gras**"
+
+msgid "**bold** text 2"
+msgstr "texte 2 en **gras**"
+
+msgid "**bold** text 3"
+msgstr "texte 3 en **gras**"
+
+msgid "**bold** text 4"
+msgstr "texte 4 en **gras**"
+
+msgid "**bold** text 5"
+msgstr "texte 5 en **gras**"
+
+msgid "**bold** text 6"
+msgstr "texte 6 en **gras**"
+
+msgid "**bold** text 7"
+msgstr "texte 7 en **gras**"
+
+msgid "**bold** text 8"
+msgstr "texte 8 en **gras**"
+
+msgid "**bold** text 9"
+msgstr "texte 9 en **gras**"
+
+msgid "**bold** text 10"
+msgstr "texte 10 en **gras**"
+
+msgid "**bold** text 11"
+msgstr "texte 11 en **gras**"
+
+msgid "Extra ```backticks```"
+msgstr "\"```Backtick```\" supplémentaire"

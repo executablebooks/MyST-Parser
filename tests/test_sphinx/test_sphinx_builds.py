@@ -383,6 +383,38 @@ def test_gettext(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    freshenv=True,
+    confoverrides={"language": "fr", "gettext_compact": False, "locale_dirs": ["."]},
+)
+def test_gettext_html(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test gettext message extraction."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    try:
+        get_sphinx_app_doctree(app, docname="index", regress=True)
+    finally:
+        get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+    get_sphinx_app_output(
+        app,
+        filename="index.html",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+    )
+
+
+@pytest.mark.sphinx(
     buildername="gettext",
     srcdir=os.path.join(SOURCE_DIR, "gettext"),
     freshenv=True,
