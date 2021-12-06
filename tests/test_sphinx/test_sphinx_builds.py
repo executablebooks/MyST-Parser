@@ -407,7 +407,7 @@ def test_gettext_html(
             app,
             docname="index",
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml"
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
         )
     finally:
         get_sphinx_app_doctree(
@@ -415,7 +415,7 @@ def test_gettext_html(
             docname="index",
             resolve=True,
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml"
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
         )
     get_sphinx_app_output(
         app,
