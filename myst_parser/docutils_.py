@@ -53,3 +53,14 @@ class Parser(RstParser):
             # specified in the sphinx configuration
             tokens = [Token("front_matter", "", 0, content="{}", map=[0, 0])] + tokens
         parser.renderer.render(tokens, parser.options, env)
+
+
+if __name__ == "__main__":
+    from docutils.core import default_description, publish_cmdline
+
+    publish_cmdline(
+        parser=Parser(),
+        writer_name="html",
+        description="Generates (X)HTML documents from standalone MyST sources.  "
+        + default_description,
+    )

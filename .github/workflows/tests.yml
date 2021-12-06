@@ -61,10 +61,32 @@ jobs:
         file: ./coverage.xml
         fail_ci_if_error: true
 
+  check-myst-docutils:
+
+    name: Check myst-docutils install
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - name: Modify setup
+      run: python .github/workflows/docutils_setup.py setup.cfg README.md
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+    - name: Run CLI
+      run: python -m myst_docutils.docutils_ --help
+
+
   publish:
 
     name: Publish myst-parser to PyPi
-    needs: [pre-commit, tests]
+    needs: [pre-commit, tests, check-myst-docutils]
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
