@@ -16,6 +16,7 @@ from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
 from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
+from mdit_py_plugins.field_list import fieldlist_plugin
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
@@ -61,6 +62,7 @@ class MdParserConfig:
                 "dollarmath",
                 "amsmath",
                 "deflist",
+                "fieldlist",
                 "html_admonition",
                 "html_image",
                 "colon_fence",
@@ -193,6 +195,8 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.use(amsmath_plugin)
     if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
+    if "fieldlist" in config.enable_extensions:
+        md.use(fieldlist_plugin)
     if "tasklist" in config.enable_extensions:
         md.use(tasklists_plugin)
     if "substitution" in config.enable_extensions:

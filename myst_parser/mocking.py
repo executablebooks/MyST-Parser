@@ -87,6 +87,7 @@ class MockState:
         self.document = renderer.document
         self.reporter = renderer.document.reporter
         self.state_machine = state_machine
+        self.inliner = MockInliner(renderer, lineno)
 
         class Struct:
             document = self.document
@@ -95,7 +96,7 @@ class MockState:
             title_styles: List[str] = []
             section_level = max(renderer._level_to_elem)
             section_bubble_up_kludge = False
-            inliner = MockInliner(renderer, lineno)
+            inliner = self.inliner
 
         self.memo = Struct
 
