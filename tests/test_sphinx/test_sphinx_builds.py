@@ -399,3 +399,38 @@ def test_mathjax_warning(
         "overridden by myst-parser: 'other' -> 'tex2jax_process|mathjax_process|math|output_area'"
         in warnings
     )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "fieldlist"),
+    freshenv=True,
+)
+def test_fieldlist_extension(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """test setting addition configuration values."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    try:
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+        )
+    finally:
+        get_sphinx_app_output(
+            app,
+            filename="index.html",
+            regress_html=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        )
