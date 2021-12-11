@@ -2,38 +2,144 @@
 
 ## 0.16.0 - 2021-12-06
 
-https://github.com/executablebooks/markdown-it-py/releases/tag/v2.0.0
+This release contains a number of exciting improvements:
 
-https://spec.commonmark.org/0.30/
+### Upgrade of Markdown parser
 
-https://github.com/executablebooks/mdit-py-plugins/releases/tag/v0.3.0
+`markdown-it-py` has been upgraded to [v2.0.0](https://github.com/executablebooks/markdown-it-py/releases/tag/v2.0.0).
+This upgrade brings full compliance with the [CommonMark v0.30 specification](https://spec.commonmark.org/0.30/).
 
-improve role, target
+Additionally, `mdit-py-plugins` has been upgraded to [v0.3.0](https://github.com/executablebooks/mdit-py-plugins/releases/tag/v0.3.0).
+This improves the parsing of the MyST target syntax, to allow for spaces and additional special characters in the target name,
+for example this is now valid:
 
-docutils
+```md
+(a bc   |@<>*./_-+:)=
 
-field list
+# Header
+```
 
-table alignment
+Also MyST role syntax now supports unlimited length in the role name and new lines in the content.
+For example, this is now valid:
+
+```md
+{abc}`xy
+new line`
+```
+
+### Improvements for Docutils-only use
+
+MyST now allows for Docutils-only use (outside of Sphinx), that allows for MyST configuration options to be set via the `docutils.conf` file, or on the command line.
+
+On installing MyST-Parser, the following CLI-commands are made available:
+
+- `myst-docutils-html`: converts MyST to HTML
+- `myst-docutils-html5`: converts MyST to HTML5
+- `myst-docutils-latex`: converts MyST to LaTeX
+- `myst-docutils-xml`: converts MyST to docutils-native XML
+- `myst-docutils-pseudoxml`: converts MyST to pseudo-XML (to visualise the AST structure)
+
+You can also install the `myst-docutils` package from `pip`, which includes no direct install requirements on docutils or sphinx.
+
+See [MyST with Docutils](docs/docutils.md) for more information.
+
+Thanks to help from [@cpitclaudel](https://github.com/cpitclaudel)!
+
+### Include MyST files in RST files
+
+With `docutils>=0.17`, the `include` directive has a `parser` option.
+This can be used with myst-parser to include MyST files in RST files.
+
+```md
+Parse using the docutils only parser:
+
+.. include:: include.md
+   :parser: myst_parser.docutils_
+
+Parse using the sphinx parser:
+
+.. include:: include.md
+   :parser: myst_parser.sphinx_
+```
+
+### Addition of the `fieldlist` syntax extension
+
+Field lists are mappings from field names to field bodies, based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists):
+
+```rst
+:name only:
+:name: body
+:name:
+  Multiple
+
+  Paragraphs
+```
+
+This should eventually allow for MyST Markdown docstrings! (see <https://github.com/executablebooks/MyST-Parser/issues/228>)
+
+See [Field Lists syntax](docs/syntax/optional.md#field-lists) for more information.
+
+### Improvements to table rendering
+
+Tables with no body are now allowed, for example:
+
+```md
+| abc | def |
+| --- | --- |
+```
+
+Also cell alignment HTML classes have now been changed to: `text-left`, `text-center`, or `text-right`, for example:
+
+```md
+| left | center | right |
+| :--- | :----: | ----: |
+| a    | b      | c     |
+```
+
+is converted to:
+
+```html
+<table class="colwidths-auto">
+  <thead>
+  <tr>
+    <th class="text-left head"><p>left</p></th>
+    <th class="text-center head"><p>center</p></th>
+    <th class="text-right head"><p>right</p></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td class="text-left"><p>a</p></td>
+    <td class="text-center"><p>b</p></td>
+    <td class="text-right"><p>c</p></td>
+  </tr>
+  </tbody>
+</table>
+```
+
+These classes should be supported by most sphinx HTML themes.
+
+See [Tables syntax](docs/syntax/syntax.md#tables) for more information.
 
 ### Pull Requests
 
-* 🐛 FIX: Add mandatory attributes on `enumerated_list` by @cpitclaudel in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-* 📚 DOCS: Add reference to MySTyc in landing page by @astrojuanlu in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
-* ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by @chrisjsewell in [#449](https://github.com/executablebooks/MyST-Parser/pull/449)
-* 👌 IMPROVE: Table rendering by @chrisjsewell in [#450](https://github.com/executablebooks/MyST-Parser/pull/450)
-* 🐛 FIX: Ensure parent files are re-built if `include` file changes by @chrisjsewell in [#451](https://github.com/executablebooks/MyST-Parser/pull/451)
-* 🐛 FIX: Convert empty directive option to `None` by @chrisjsewell in [#452](https://github.com/executablebooks/MyST-Parser/pull/452)
-* 👌 IMPROVE: Add `\\` for hard-breaks in latex by @chrisjsewell in [#453](https://github.com/executablebooks/MyST-Parser/pull/453)
-* 🔧 MAINTAIN: Remove empty "sphinx" extra by @hukkin in [#350](https://github.com/executablebooks/MyST-Parser/pull/350)
-* ✨ NEW: Add `fieldlist` extension by @chrisjsewell in [#455](https://github.com/executablebooks/MyST-Parser/pull/455)
-* ✨ NEW: Add Docutils MyST config and CLI by @cpitclaudel in [#426](https://github.com/executablebooks/MyST-Parser/pull/426)
-* 🔧 MAINTAIN: Add publishing job for `myst-docutils` by @chrisjsewell in [#456](https://github.com/executablebooks/MyST-Parser/pull/456)
+- 🐛 FIX: Add mandatory attributes on `enumerated_list` by @cpitclaudel in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
+- 📚 DOCS: Add reference to MySTyc in landing page by @astrojuanlu in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+- ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by @chrisjsewell in [#449](https://github.com/executablebooks/MyST-Parser/pull/449)
+- 👌 IMPROVE: Table rendering by @chrisjsewell in [#450](https://github.com/executablebooks/MyST-Parser/pull/450)
+- 🐛 FIX: Ensure parent files are re-built if `include` file changes by @chrisjsewell in [#451](https://github.com/executablebooks/MyST-Parser/pull/451)
+- 🐛 FIX: Convert empty directive option to `None` by @chrisjsewell in [#452](https://github.com/executablebooks/MyST-Parser/pull/452)
+- 👌 IMPROVE: Add `\\` for hard-breaks in latex by @chrisjsewell in [#453](https://github.com/executablebooks/MyST-Parser/pull/453)
+- 🔧 MAINTAIN: Remove empty "sphinx" extra by @hukkin in [#350](https://github.com/executablebooks/MyST-Parser/pull/350)
+- ✨ NEW: Add `fieldlist` extension by @chrisjsewell in [#455](https://github.com/executablebooks/MyST-Parser/pull/455)
+- ✨ NEW: Add Docutils MyST config and CLI by @cpitclaudel in [#426](https://github.com/executablebooks/MyST-Parser/pull/426)
+- 🔧 MAINTAIN: Add publishing job for `myst-docutils` by @chrisjsewell in [#456](https://github.com/executablebooks/MyST-Parser/pull/456)
+- 🧪 TESTS: Add for `gettext_additional_targets` by @jpmckinney in [#459](https://github.com/executablebooks/MyST-Parser/pull/459)
 
 ### New Contributors
 
-* @cpitclaudel made their first contribution in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-* @astrojuanlu made their first contribution in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+- @cpitclaudel made their first contribution in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
+- @astrojuanlu made their first contribution in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
 
 **Full Changelog**: <https://github.com/executablebooks/MyST-Parser/compare/v0.15.2...v0.16.0>
 
