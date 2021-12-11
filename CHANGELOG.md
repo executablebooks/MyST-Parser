@@ -39,7 +39,8 @@ On installing MyST-Parser, the following CLI-commands are made available:
 - `myst-docutils-xml`: converts MyST to docutils-native XML
 - `myst-docutils-pseudoxml`: converts MyST to pseudo-XML (to visualise the AST structure)
 
-You can also install the `myst-docutils` package from `pip`, which includes no direct install requirements on docutils or sphinx.
+You can also install the [myst-docutils](https://pypi.org/project/myst-docutils/) package from `pip`,
+which includes no direct install requirements on docutils or sphinx.
 
 See [MyST with Docutils](docs/docutils.md) for more information.
 
