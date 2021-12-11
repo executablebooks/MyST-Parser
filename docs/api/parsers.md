@@ -9,28 +9,34 @@
 
 The MyST Parser comes bundled with some helper functions to quickly parse MyST Markdown and render its output.
 
+:::{important}
+These APIs are primarily intended for testing and development purposes.
+For proper parsing see {ref}`myst-sphinx` and {ref}`myst-docutils`.
+:::
+
 ### Parse MyST Markdown to HTML
 
-For example, the following code parses markdown and renders as HTML:
+The following code parses markdown and renders as HTML using only the markdown-it parser
+(i.e. no sphinx or docutils specific processing is done):
 
 ```python
 from myst_parser.main import to_html
-to_html("some *text*")
+to_html("some *text* {literal}`a`")
 ```
 
 <!-- #region -->
 ```html
-'<p>some <em>text</em></p>\n'
+'<p>some <em>text</em> <code class="myst role">{literal}[a]</code></p>\n'
 ```
 <!-- #endregion -->
 
 ### Parse MyST Markdown to docutils
 
-The following function renders your text as **docutils objects** (for example, for use with the Sphinx ecosystem):
+The following function renders your text as **docutils AST objects** (for example, for use with the Sphinx ecosystem):
 
 ```python
 from myst_parser.main import to_docutils
-print(to_docutils("some *text*").pformat())
+print(to_docutils("some *text* {literal}`a`").pformat())
 ```
 
 ```xml
@@ -39,7 +45,16 @@ print(to_docutils("some *text*").pformat())
         some
         <emphasis>
             text
+
+        <literal>
+            a
 ```
+
+:::{note}
+This function only performs the initial parse of the AST,
+without applying any transforms or post-processing.
+See for example the [Sphinx core events](https://www.sphinx-doc.org/en/master/extdev/appapi.html?highlight=config-inited#sphinx-core-events).
+:::
 
 ### Parse MyST Markdown as `markdown-it` tokens
 
