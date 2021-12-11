@@ -100,6 +100,7 @@ syntax/reference
 :caption: Topic Guides
 explain/index.md
 sphinx/index.md
+docutils.md
 api/index.md
 develop/index.md
 ```

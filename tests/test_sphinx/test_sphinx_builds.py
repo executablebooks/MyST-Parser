@@ -12,6 +12,7 @@ import re
 
 import pytest
 import sphinx
+from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -269,6 +270,38 @@ def test_includes(
         )
 
 
+@pytest.mark.skipif(
+    __version_info__ < VersionInfo(0, 17, 0, "final", 0, True),
+    reason="parser option added in docutils 0.17",
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "include_from_rst"),
+    freshenv=True,
+)
+def test_include_from_rst(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test of include directive inside RST file."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(
+        app,
+        docname="index",
+        regress=True,
+        regress_ext=".xml",
+    )
+
+
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
 )
@@ -379,7 +412,85 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    file_regression.check(output, extension=".pot")
+    file_regression.check(output, extension=f".sphinx{sphinx.version_info[0]}.pot")
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    freshenv=True,
+    confoverrides={"language": "fr", "gettext_compact": False, "locale_dirs": ["."]},
+)
+def test_gettext_html(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test gettext message extraction."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    try:
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+        )
+    finally:
+        get_sphinx_app_doctree(
+            app,
+            docname="index",
+            resolve=True,
+            regress=True,
+            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+        )
+    get_sphinx_app_output(
+        app,
+        filename="index.html",
+        regress_html=True,
+        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="gettext",
+    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    freshenv=True,
+    confoverrides={
+        "gettext_additional_targets": [
+            "index",
+            "literal-block",
+            "doctest-block",
+            "raw",
+            "image",
+        ],
+    },
+)
+def test_gettext_additional_targets(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+    file_regression,
+):
+    """Test gettext message extraction."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    output = get_sphinx_app_output(app, filename="index.pot", buildername="gettext")
+    output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
+    output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
+
+    file_regression.check(output, extension=f".sphinx{sphinx.version_info[0]}.pot")
 
 
 @pytest.mark.sphinx(
