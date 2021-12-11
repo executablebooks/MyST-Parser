@@ -31,6 +31,7 @@ extensions = [
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
+    "myst_parser.autodoc",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
