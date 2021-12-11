@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) XXXX, Executable Book Project
+# This file is distributed under the same license as the Python package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Python \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2000-01-01 00:00+0000\n"
+"PO-Revision-Date: 2000-01-01 00:00+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "**bold** text 1"
+msgstr "texte 1 en **gras**"
+
+msgid "**bold** text 2"
+msgstr "texte 2 en **gras**"
+
+msgid "**bold** text 3"
+msgstr "texte 3 en **gras**"
+
+msgid "**bold** text 4"
+msgstr "texte 4 en **gras**"
+
+msgid "**bold** text 5"
+msgstr "texte 5 en **gras**"
+
+msgid "**bold** text 6"
+msgstr "texte 6 en **gras**"
+
+msgid "**bold** text 7"
+msgstr "texte 7 en **gras**"
+
+msgid "**bold** text 8"
+msgstr "texte 8 en **gras**"
+
+msgid "**bold** text 9"
+msgstr "texte 9 en **gras**"
+
+msgid "**bold** text 10"
+msgstr "texte 10 en **gras**"
+
+msgid "<div markdown=1>\n"
+""
+msgstr "<span markdown=1>\n"
+""
+
+msgid "**bold** text 11"
+msgstr "texte 11 en **gras**"
+
+msgid "Extra ```backticks```"
+msgstr "\"```Backtick```\" supplémentaire"
+
+msgid "</div>\n"
+""
+msgstr "</span>\n"
+""
+
+msgid "**additional** text 12\n"
+""
+msgstr "texte 12 **supplémentaire**\n"
+""
+
+msgid "**additional** text 13\n"
+""
+msgstr "texte 13 **supplémentaire**\n"
+""
+
+msgid "{\n"
+"    \"additional\": \"text 14\"\n"
+"}\n"
+""
+msgstr "{\n"
+"    \"supplémentaire\": \"texte 14\"\n"
+"}\n"
+""
+
+msgid "<h3>**additional** text 15</h3>\n"
+""
+msgstr "<h3>texte 15 **supplémentaire**</h3>\n"
+""
+
+msgid ">>> print('doctest block')\n"
+"doctest block\n"
+""
+msgstr ">>> print('bloque doctest')\n"
+"'bloque doctest\n"
+""
+
+msgid "<iframe src=\"http://sphinx-doc.org\"></iframe>"
+msgstr "<iframe src=\"http://sphinx-doc.org/fr/master/\"></iframe>"
+
+msgid "![Fun Fish 1](fun-fish.png)"
+msgstr "![Poisson amusant 1](poisson-amusant.png)"
+
+msgid "Fun Fish 1"
+msgstr "Poisson amusant 1"
+
+msgid ".. image:: fun-fish.png"
+msgstr ".. image:: poisson-amusant.png"
+
+msgid "Fun Fish 2"
+msgstr "Poisson amusant 2"
+
+msgid "Fun Fish 3"
+msgstr "Poisson amusant 3"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 1"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 1"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 2"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 2"
+
+msgid ".. image:: fun-fish.png\n"
+"   :alt: Fun Fish 3"
+msgstr ".. image:: poisson-amusant.png\n"
+"   :alt: Poisson amusant 3"

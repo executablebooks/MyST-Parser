@@ -1,0 +1,93 @@
+<document source="index.md">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="bold-text-1" names="bold\ text\ 1 texte\ 1\ en\ gras">
+        <title>
+            texte 1 en 
+            <strong>
+                gras
+        <paragraph>
+            texte 2 en 
+            <strong>
+                gras
+        <block_quote>
+            <paragraph>
+                texte 3 en 
+                <strong>
+                    gras
+        <note>
+            <paragraph>
+                texte 4 en 
+                <strong>
+                    gras
+        <bullet_list>
+            <list_item>
+                <paragraph>
+                    texte 5 en 
+                    <strong>
+                        gras
+        <enumerated_list enumtype="arabic" suffix=".">
+            <list_item>
+                <paragraph>
+                    texte 6 en 
+                    <strong>
+                        gras
+        <definition_list classes="simple myst">
+            <definition_list_item>
+                <term>
+                    texte 7 en 
+                    <strong>
+                        gras
+                <definition>
+                    <paragraph>
+                        texte 8 en 
+                        <strong>
+                            gras
+        <table align="default" classes="colwidths-auto">
+            <tgroup cols="1">
+                <colspec colwidth="100.0">
+                <thead>
+                    <row>
+                        <entry>
+                            <paragraph>
+                                texte 9 en 
+                                <strong>
+                                    gras
+                <tbody>
+                    <row>
+                        <entry>
+                            <paragraph>
+                                texte 10 en 
+                                <strong>
+                                    gras
+        <raw format="html" xml:space="preserve">
+            <div markdown=1>
+        <paragraph>
+            texte 11 en 
+            <strong>
+                gras
+        <paragraph>
+            « 
+            <literal>
+                Backtick
+             » supplémentaire
+        <raw format="html" xml:space="preserve">
+            </div>
+        <literal_block language="none" linenos="False" xml:space="preserve">
+            **additional** text 12
+        <literal_block language="default" linenos="False" xml:space="preserve">
+            **additional** text 13
+        <literal_block language="json" linenos="False" xml:space="preserve">
+            {
+                "additional": "text 14"
+            }
+        <raw format="html" xml:space="preserve">
+            <h3>**additional** text 15</h3>
+        <literal_block language="python" linenos="False" xml:space="preserve">
+            >>> print('doctest block')
+            doctest block
+        <raw format="html" xml:space="preserve">
+            <iframe src="http://sphinx-doc.org"></iframe>
+        <paragraph>
+            <image alt="Poisson amusant 1" candidates="{'*': 'poisson-amusant.png'}" uri="poisson-amusant.png">
+        <image alt="Fun Fish 2" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
+        <figure align="default">
+            <image alt="Fun Fish 3" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">

@@ -56,10 +56,74 @@ msgstr ""
 msgid "**bold** text 10"
 msgstr ""
 
+#: ../../index.md:24
+msgid "<div markdown=1>\n"
+""
+msgstr ""
+
 #: ../../index.md:26
 msgid "**bold** text 11"
 msgstr ""
 
 #: ../../index.md:28
 msgid "Extra ```backticks```"
+msgstr ""
+
+#: ../../index.md:30
+msgid "</div>\n"
+""
+msgstr ""
+
+#: ../../index.md:32
+msgid "**additional** text 12\n"
+""
+msgstr ""
+
+#: ../../index.md:34
+msgid "**additional** text 13\n"
+""
+msgstr ""
+
+#: ../../index.md:38
+msgid "{\n"
+"    \"additional\": \"text 14\"\n"
+"}\n"
+""
+msgstr ""
+
+#: ../../index.md:44
+msgid "<h3>**additional** text 15</h3>\n"
+""
+msgstr ""
+
+#: ../../index.md:46
+msgid ">>> print('doctest block')\n"
+"doctest block\n"
+""
+msgstr ""
+
+#: ../../index.md:51
+msgid "<iframe src=\"http://sphinx-doc.org\"></iframe>"
+msgstr ""
+
+#: ../../index.md:55
+msgid "![Fun Fish 1](fun-fish.png)"
+msgstr ""
+
+#: ../../index.md:55
+msgid "Fun Fish 1"
+msgstr ""
+
+#: ../../index.md:55
+#: ../../index.md:57
+#: ../../index.md:61
+msgid ".. image:: fun-fish.png"
+msgstr ""
+
+#: ../../index.md:57
+msgid "Fun Fish 2"
+msgstr ""
+
+#: ../../index.md:61
+msgid "Fun Fish 3"
 msgstr ""

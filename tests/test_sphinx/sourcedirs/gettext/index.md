@@ -29,16 +29,35 @@ Extra ```backticks```
 
 </div>
 
-    **skip** text
+    **additional** text 12
 
 ```
-**skip** text
+**additional** text 13
 ```
 
 ```json
 {
-    "skip": "text"
+    "additional": "text 14"
 }
 ```
 
-<h3>**skip** text</h3>
+<h3>**additional** text 15</h3>
+
+```python
+>>> print('doctest block')
+doctest block
+```
+
+```{raw} html
+<iframe src="http://sphinx-doc.org"></iframe>
+```
+
+![Fun Fish 1](fun-fish.png)
+
+```{image} fun-fish.png
+:alt: Fun Fish 2
+```
+
+```{figure} fun-fish.png
+:alt: Fun Fish 3
+```
