@@ -12,6 +12,7 @@ import re
 
 import pytest
 import sphinx
+from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -267,6 +268,38 @@ def test_includes(
                 "_images/example21.jpg": "_images/example2.jpg",
             },
         )
+
+
+@pytest.mark.skipif(
+    __version_info__ < VersionInfo(0, 17, 0, "final", 0, True),
+    reason="parser option added in docutils 0.17",
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "include_from_rst"),
+    freshenv=True,
+)
+def test_include_from_rst(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    get_sphinx_app_output,
+    remove_sphinx_builds,
+):
+    """Test of include directive inside RST file."""
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(
+        app,
+        docname="index",
+        regress=True,
+        regress_ext=".xml",
+    )
 
 
 @pytest.mark.sphinx(
