@@ -32,6 +32,20 @@ To include rST, we must first "wrap" the directive in the [eval-rst directive](s
 .. include:: snippets/include-rst.rst
 ```
 
+(howto/include-md)=
+## Include Markdown files into an rST file
+
+To include a MyST file within a ReStructuredText file, we can use the `parser` option of the `include` directive:
+
+```rst
+.. include:: include.md
+   :parser: myst_parser.sphinx_
+```
+
+```{important}
+The `parser` option requires `docutils>=0.17`
+```
+
 ## Use MyST in Jupyter Notebooks
 
 The [MyST-NB](https://myst-nb.readthedocs.io) tool provides a Sphinx extension for parsing **Jupyter Notebooks written with MyST Markdown**. It includes features like automatically executing notebooks during documentation builds, storing notebook cell outputs in order to insert them elsewhere in your documentation, and more. See the [MyST-NB documentation](https://myst-nb.readthedocs.io) for more information.
