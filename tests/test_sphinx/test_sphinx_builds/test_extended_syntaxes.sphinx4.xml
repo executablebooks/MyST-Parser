@@ -73,7 +73,7 @@
             linkify URL: 
             <reference refuri="http://www.example.com">
                 www.example.com
-        <bullet_list classes="contains-task-list">
+        <bullet_list bullet="-" classes="contains-task-list">
             <list_item classes="task-list-item">
                 <paragraph>
                     <raw format="html" xml:space="preserve">
