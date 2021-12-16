@@ -181,9 +181,7 @@ class MockState:
         # so that the nested parse does not effect the current renderer,
         # but we use the same env, so that link references, etc
         # are added to the global parse.
-        from myst_parser.docutils_renderer import DocutilsRenderer
-
-        nested_renderer = DocutilsRenderer(self._renderer.md)
+        nested_renderer = self._renderer.__class__(self._renderer.md)
         options = {k: v for k, v in self._renderer.config.items()}
         options.update(
             {
