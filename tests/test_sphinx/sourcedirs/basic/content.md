@@ -34,6 +34,10 @@ abcd *abc* [google](https://www.google.com)
 
 ````
 
+```{admonition} Title with [link](target2)
+Content
+```
+
 (target2)=
 
 ```{figure} example.jpg

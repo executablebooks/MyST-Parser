@@ -32,6 +32,14 @@
             <warning>
                 <paragraph>
                     xyz
+        <admonition classes="admonition-title-with-link-target2">
+            <title>
+                Title with 
+                <reference internal="True" refid="target2">
+                    <inline classes="std std-ref">
+                        link
+            <paragraph>
+                Content
         <target refid="target2">
         <figure align="default" ids="id1 target2" names="target2">
             <reference refuri="https://www.google.com">
@@ -140,7 +148,7 @@
         <paragraph>
             Special substitution references:
         <paragraph>
-            53
+            57
              words | 
             0
              min read

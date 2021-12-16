@@ -67,7 +67,7 @@ def test_basic(
         "date": "2/12/1985",
         "copyright": "MIT",
         "other": "Something else",
-        "wordcount": {"minutes": 0, "words": 53},
+        "wordcount": {"minutes": 0, "words": 57},
     }
 
 
