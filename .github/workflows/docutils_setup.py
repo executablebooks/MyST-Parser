@@ -31,12 +31,12 @@ def modify_setup_cfg(content: str) -> str:
 
 def modify_readme(content: str) -> str:
     """Modify README.md."""
+    content = content.replace("myst-parser", "myst-docutils")
     content = content.replace(
         "# MyST-Parser",
         "# MyST-Parser\n\nNote: myst-docutils is identical to myst-parser, "
         "but without installation requirements on sphinx",
     )
-    content = content.replace("myst-parser", "myst-docutils")
     content = content.replace("myst-docutils.readthedocs", "myst-parser.readthedocs")
     content = content.replace(
         "readthedocs.org/projects/myst-docutils", "readthedocs.org/projects/myst-parser"
