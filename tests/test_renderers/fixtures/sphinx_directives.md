@@ -172,7 +172,7 @@ acks (`sphinx.directives.other.Acks`):
 .
 <document source="notset">
     <acks>
-        <bullet_list>
+        <bullet_list bullet="-">
             <list_item>
                 <paragraph>
                     name

@@ -25,7 +25,7 @@
             <footnote_reference auto="1" docname="footnote_md" ids="id7" refid="e">
                 5
         <block_quote>
-            <bullet_list>
+            <bullet_list bullet="-">
                 <list_item>
         <transition classes="footnotes">
         <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">

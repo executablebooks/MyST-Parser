@@ -46,7 +46,7 @@ In list:
   \end{equation}
 .
 <document source="notset">
-    <bullet_list>
+    <bullet_list bullet="-">
         <list_item>
             <target ids="equation-mock-uuid">
             <math_block classes="amsmath" docname="mock_docname" label="mock-uuid" nowrap="True" number="1" xml:space="preserve">

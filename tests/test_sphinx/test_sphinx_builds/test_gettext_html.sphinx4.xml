@@ -18,7 +18,7 @@
                 texte 4 en 
                 <strong>
                     gras
-        <bullet_list>
+        <bullet_list bullet="*">
             <list_item>
                 <paragraph>
                     texte 5 en 

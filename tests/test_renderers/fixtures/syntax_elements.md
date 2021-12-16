@@ -213,13 +213,18 @@ Block Quote:
 Bullet List:
 .
 - *foo*
+* bar
 .
 <document source="notset">
-    <bullet_list>
+    <bullet_list bullet="-">
         <list_item>
             <paragraph>
                 <emphasis>
                     foo
+    <bullet_list bullet="*">
+        <list_item>
+            <paragraph>
+                bar
 .
 
 --------------------------
@@ -231,15 +236,15 @@ Nested Bullets
   - d
 .
 <document source="notset">
-    <bullet_list>
+    <bullet_list bullet="-">
         <list_item>
             <paragraph>
                 a
-            <bullet_list>
+            <bullet_list bullet="-">
                 <list_item>
                     <paragraph>
                         b
-                    <bullet_list>
+                    <bullet_list bullet="-">
                         <list_item>
                             <paragraph>
                                 c
@@ -601,7 +606,7 @@ finish
         <block_quote>
             <paragraph>
                 a
-        <bullet_list>
+        <bullet_list bullet="-">
             <list_item>
                 <paragraph>
                     b

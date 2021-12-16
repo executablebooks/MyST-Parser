@@ -365,6 +365,8 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_bullet_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.bullet_list()
+        if token.markup:
+            list_node["bullet"] = token.markup
         if token.attrs.get("class"):
             # this is used e.g. by tasklist
             list_node["classes"] = str(token.attrs["class"]).split()

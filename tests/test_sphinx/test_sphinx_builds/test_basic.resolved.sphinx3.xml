@@ -107,17 +107,17 @@
             a comment 2
         <paragraph>
             this is a second paragraph
-        <bullet_list>
+        <bullet_list bullet="-">
             <list_item>
                 <paragraph>
                     a list
-                <bullet_list>
+                <bullet_list bullet="-">
                     <list_item>
                         <paragraph>
                             a sub list
         <comment xml:space="preserve">
             a comment 3
-        <bullet_list>
+        <bullet_list bullet="-">
             <list_item>
                 <paragraph>
                     new list?
