@@ -47,6 +47,12 @@ class MdParserConfig:
         factory=lambda: ["dollarmath"], metadata={"help": "Enable extensions"}
     )
 
+    linkify_fuzzy_links: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={"help": "linkify: recognise URLs without schema prefixes"},
+    )
+
     dmath_allow_labels: bool = attr.ib(
         default=True,
         validator=instance_of(bool),
@@ -223,8 +229,9 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
         md.enable("replacements")
         typographer = True
     if "linkify" in config.enable_extensions:
-        # TODO warn, don't enable, if linkify-it-py not installed
         md.enable("linkify")
+        if md.linkify is not None:
+            md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
 
     if "dollarmath" in config.enable_extensions:
         md.use(
