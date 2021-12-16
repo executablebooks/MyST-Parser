@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.16.1 - 2021-12-16
+
+✨ NEW: Add `myst_linkify_fuzzy_links` option.
+When using the [`linkify` extension](docs/syntax/optional.md#linkify), this option can be used to disable matching of links that do not contain a schema (such as `http://`).
+
 ## 0.16.0 - 2021-12-06
 
 This release contains a number of exciting improvements:
