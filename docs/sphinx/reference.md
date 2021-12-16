@@ -23,6 +23,9 @@ To do so, use the keywords beginning `myst_`.
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
+* - `myst_linkify_fuzzy_links`
+  - `True`
+  - If `False`, only links that contain a scheme (such as `http`) will be recognised as external links.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.

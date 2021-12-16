@@ -243,6 +243,8 @@ Adding `"linkify"` to `myst_enable_extensions` (in the sphinx `conf.py` [configu
 
 `www.example.com` -> www.example.com
 
+To only match URLs that start with schema, such as `http://example.com`, set `myst_linkify_fuzzy_links=False`.
+
 :::{important}
 This extension requires that [linkify-it-py](https://github.com/tsutsu3/linkify-it-py) is installed.
 Either directly; `pip install linkify-it-py` or *via* `pip install myst-parser[linkify]`.
