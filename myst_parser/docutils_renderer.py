@@ -546,7 +546,7 @@ class DocutilsRenderer(RendererProtocol):
 
         title = token.attrGet("title")
         if title:
-            ref_node["title"] = title
+            ref_node["reftitle"] = title
         next_node = ref_node
 
         # TODO currently any reference with a fragment # is deemed external
