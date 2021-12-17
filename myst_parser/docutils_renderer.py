@@ -526,51 +526,69 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node = section
 
     def render_link(self, token: SyntaxTreeNode) -> None:
+        """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
+
+        - If `<>` autolink, forward to `render_autolink`
+        - If `myst_all_links_external` is True, forward to `render_external_url`
+        - If link is an external URL, forward to `render_external_url`
+          - External URLs start with a scheme (e.g. `http:`) in `myst_url_schemes`,
+            or any scheme if  `myst_url_schemes` is None.
+        - Otherwise, forward to `render_internal_link`
+        """
         if token.markup == "autolink":
             return self.render_autolink(token)
 
+        if self.config.get("myst_all_links_external", False):
+            return self.render_external_url(token)
+
+        destination = cast(str, token.attrGet("href") or "")
+        if is_external_url(destination, self.config.get("myst_url_schemes", None)):
+            return self.render_external_url(token)
+
+        # TODO previously, we also interpreted any link containing a `#` as external,
+        # e.g. `[alt](#fragment)` (only if `heading_anchors`` extension was not active)
+        # should we still do that?
+
+        return self.render_internal_link(token)
+
+    def render_external_url(self, token: SyntaxTreeNode) -> None:
+        """Render link token `[text](link "title")`,
+        where the link has been identified as an external URL::
+
+            <reference refuri="link" title="title">
+                text
+
+        `text` can contain nested syntax, e.g. `[**bold**](url "title")`.
+        """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        destination = cast(str, token.attrGet("href") or "")
-
-        if self.config.get(
-            "relative-docs", None
-        ) is not None and destination.startswith(self.config["relative-docs"][0]):
-            # make the path relative to an "including" document
-            source_dir, include_dir = self.config["relative-docs"][1:]
-            destination = os.path.relpath(
-                os.path.join(include_dir, os.path.normpath(destination)), source_dir
-            )
-
-        ref_node["refuri"] = destination
-
+        ref_node["refuri"] = cast(str, token.attrGet("href") or "")
         title = token.attrGet("title")
         if title:
             ref_node["title"] = title
-        next_node = ref_node
+        with self.current_node_context(ref_node, append=True):
+            self.render_children(token)
 
-        # TODO currently any reference with a fragment # is deemed external
-        # (if anchors are not enabled)
-        # This comes from recommonmark, but I am not sure of the rationale for it
-        if is_external_url(
-            destination,
-            self.config.get("myst_url_schemes", None),
-            "heading_anchors" not in self.config.get("myst_extensions", []),
-        ):
-            self.current_node.append(next_node)
-            with self.current_node_context(ref_node):
-                self.render_children(token)
-        else:
-            self.handle_cross_reference(token, destination)
+    def render_internal_link(self, token: SyntaxTreeNode) -> None:
+        """Render link token `[text](link "title")`,
+        where the link has not been identified as an external URL::
 
-    def handle_cross_reference(self, token: SyntaxTreeNode, destination: str) -> None:
-        if not self.config.get("ignore_missing_refs", False):
-            self.create_warning(
-                f"Reference not found: {destination}",
-                line=token_line(token),
-                subtype="ref",
-                append_to=self.current_node,
-            )
+            <reference refname="link" title="title">
+                text
+
+        `text` can contain nested syntax, e.g. `[**bold**](link "title")`.
+
+        Note, this is overridden by `SphinxRenderer`, to use `pending_xref` nodes.
+        """
+        # TODO is this too strict for docutils?
+        ref_node = nodes.reference()
+        self.add_line_and_source_path(ref_node, token)
+        ref_node["refname"] = cast(str, token.attrGet("href") or "")
+        title = token.attrGet("title")
+        if title:
+            ref_node["title"] = title
+        with self.current_node_context(ref_node, append=True):
+            self.render_children(token)
 
     def render_autolink(self, token: SyntaxTreeNode) -> None:
         refuri = target = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
@@ -594,6 +612,7 @@ class DocutilsRenderer(RendererProtocol):
             destination, None, True
         ):
             # make the path relative to an "including" document
+            # this is set when using the `relative-images` option of the MyST `include` directive
             destination = os.path.normpath(
                 os.path.join(
                     self.config.get("relative-images", ""),

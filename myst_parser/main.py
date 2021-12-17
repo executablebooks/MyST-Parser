@@ -115,6 +115,12 @@ class MdParserConfig:
         metadata={"help": "Disable syntax elements"},
     )
 
+    all_links_external: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Parse all links as simple hyperlinks"},
+    )
+
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = attr.ib(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
@@ -273,6 +279,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
                 list(config.enable_extensions)
                 + (["heading_anchors"] if config.heading_anchors is not None else [])
             ),
+            "myst_all_links_external": config.all_links_external,
             "myst_url_schemes": config.url_schemes,
             "myst_substitutions": config.substitutions,
             "myst_html_meta": config.html_meta,

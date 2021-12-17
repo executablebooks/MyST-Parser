@@ -70,6 +70,8 @@ class MystReferenceResolver(ReferencesResolver):
                     # we are in nit-picky mode
                     if newnode is None:
                         node["refdomain"] = ""
+                        # TODO ideally we would override the warning message here,
+                        # to show the [ref.<type>] for supressing warning
                         self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
