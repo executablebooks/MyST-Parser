@@ -5,17 +5,39 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 from datetime import date
+from functools import partial
+from pathlib import Path
 
+from setuptools_scm import get_version
 from sphinx.application import Sphinx
 
-from myst_parser import __version__
+# -- Path setup --------------------------------------------------------------
 
+PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()  # pylint: disable=no-member
+get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 # -- Project information -----------------------------------------------------
+
+github_url = "https://github.com"
+github_repo_org = "ansible"
+github_repo_name = "ansible-language-server"
+github_repo_slug = f"{github_repo_org}/{github_repo_name}"
+github_repo_url = f"{github_url}/{github_repo_slug}"
+github_sponsors_url = f"{github_url}/sponsors"
 
 project = "MyST Parser"
 copyright = f"{date.today().year}, Executable Book Project"
 author = "Executable Book Project"
-version = __version__
+
+# The short X.Y version
+version = ".".join(
+    get_scm_version(local_scheme="no-local-version",).split(
+        "."
+    )[:3],
+)
+
+# The full version, including alpha/beta/rc tags
+release = get_scm_version()
+
 
 master_doc = "index"
 language = "en"
@@ -28,12 +50,14 @@ language = "en"
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx_design",
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
+    "sphinxcontrib.towncrier",  # provides `towncrier-draft-entries` directive
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -42,7 +66,12 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "changelog-fragments.d/**",  # Towncrier-managed change notes
+]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -93,6 +122,12 @@ myst_enable_extensions = [
     "attrs_image",
 ]
 myst_number_code_blocks = ["typescript"]
+myst_substitutions = {
+    "project": project,
+    "release": release,
+    "release_l": f"`{release}`",  # Needed in draft changelog for spelling ext
+    "version": version,
+}
 myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
@@ -114,6 +149,22 @@ rediraffe_redirects = {
 
 suppress_warnings = ["myst.strikethrough"]
 
+# -- Options for towncrier_draft extension -----------------------------------
+
+towncrier_draft_autoversion_mode = "draft"  # or: 'sphinx-version', 'sphinx-release'
+towncrier_draft_include_empty = True
+towncrier_draft_working_directory = PROJECT_ROOT_DIR
+# towncrier_draft_config_path = 'pyproject.toml'  # relative to cwd
+
+# -- Options for extlinks extension ------------------------------------------
+
+extlinks = {
+    "issue": (f"{github_repo_url}/issues/%s", "#%s"),  # noqa: WPS323
+    "pr": (f"{github_repo_url}/pull/%s", "PR #%s"),  # noqa: WPS323
+    "commit": (f"{github_repo_url}/commit/%s", "%s"),  # noqa: WPS323
+    "gh": (f"{github_url}/%s", "GitHub: %s"),  # noqa: WPS323
+    "user": (f"{github_sponsors_url}/%s", "@%s"),  # noqa: WPS323
+}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.7", None),

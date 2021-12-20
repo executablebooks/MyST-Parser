@@ -1,5 +1,23 @@
 # Changelog
 
+[//]: # (DO-NOT-REMOVE-versioning-promise-START)
+
+```{note}
+The change notes follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+except for the title formatting, and this project adheres to [Semantic
+Versioning](https://semver.org/spec/v2.0.0.html).
+```
+
+<!--
+Do *NOT* manually add changelog entries here!
+This changelog is managed by Towncrier and is built at release time.
+See https://myst-parser.rtfd.io/en/latest/develop/contributing#adding-change-notes-with-your-prs
+for details. Or read
+https://github.com/executablebooks/MyST-Parser/tree/master/docs/changelog-fragments.d#adding-change-notes-with-your-prs
+-->
+
+<!-- towncrier release notes start -->
+
 ## 0.18.1 - 2022-27-09
 
 Full Changelog: [v0.18.0...v0.18.1](https://github.com/executablebooks/MyST-Parser/compare/v0.18.0...v0.18.1)
