@@ -84,6 +84,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install .
         pip install docutils==${{ matrix.docutils-version }}
+    - name: ensure sphinx is not installed
+      run: |
+        python -c "import sphinx"
+        if [ $? -eq 0 ]; then
+          echo "Sphinx is installed, but should not be"
+          exit 1
+        fi
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 
