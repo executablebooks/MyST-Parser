@@ -3,14 +3,14 @@ Duplicate Reference definitions:
 [a]: b
 [a]: c
 .
-source/path:2: (WARNING/2) Duplicate reference definition: A
+<string>:2: (WARNING/2) Duplicate reference definition: A
 .
 
 Missing Reference:
 .
 [a](b)
 .
-source/path:1: (WARNING/2) Reference not found: b
+<string>:1: (WARNING/2) Reference not found: b
 .
 
 Unknown role:
@@ -19,7 +19,7 @@ abc
 
 {xyz}`a`
 .
-source/path:3: (ERROR/3) Unknown interpreted text role "xyz".
+<string>:3: (ERROR/3) Unknown interpreted text role "xyz".
 .
 
 Unknown directive:
@@ -28,7 +28,7 @@ Unknown directive:
 ```{xyz}
 ```
 .
-source/path:2: (ERROR/3) Unknown directive type "xyz".
+<string>:2: (ERROR/3) Unknown directive type "xyz".
 .
 
 Bad Front Matter:
@@ -37,7 +37,7 @@ Bad Front Matter:
 a: {
 ---
 .
-source/path:1: (ERROR/3) Front matter block:
+<string>:1: (ERROR/3) Front matter block:
 while parsing a flow node
 expected the node content, but found '<stream end>'
   in "<unicode string>", line 1, column 5:
@@ -54,8 +54,8 @@ html_meta:
 
 ---
 .
-source/path:: (ERROR/3) Error parsing meta tag attribute "empty": No content.
-source/path:: (ERROR/3) Error parsing meta tag attribute "name noequals": no '=' in noequals.
+<string>:: (ERROR/3) Error parsing meta tag attribute "empty": No content.
+<string>:: (ERROR/3) Error parsing meta tag attribute "name noequals": no '=' in noequals.
 .
 
 Directive parsing error:
@@ -64,7 +64,7 @@ Directive parsing error:
 ```{class}
 ```
 .
-source/path:2: (ERROR/3) Directive 'class': 1 argument(s) required, 0 supplied
+<string>:2: (ERROR/3) Directive 'class': 1 argument(s) required, 0 supplied
 .
 
 Directive run error:
@@ -74,7 +74,7 @@ Directive run error:
 x
 ```
 .
-source/path:2: (ERROR/3) Invalid context: the "date" directive can only be used within a substitution definition.
+<string>:2: (ERROR/3) Invalid context: the "date" directive can only be used within a substitution definition.
 .
 
 Non-consecutive headings:
@@ -82,7 +82,7 @@ Non-consecutive headings:
 # title 1
 ### title 3
 .
-source/path:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
+<string>:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
 .
 
 multiple footnote definitions
@@ -92,7 +92,7 @@ multiple footnote definitions
 [^a]: definition 1
 [^a]: definition 2
 .
-source/path:: (WARNING/2) Multiple footnote definitions found for label: 'a'
+<string>:: (WARNING/2) Multiple footnote definitions found for label: 'a'
 .
 
 Warnings in eval-rst
@@ -111,11 +111,11 @@ lines
 :unknown:`a`
 ```
 .
-source/path:10: (ERROR/3) Unknown directive type "unknown".
+<string>:10: (ERROR/3) Unknown directive type "unknown".
 
 .. unknown:: some text
 
-source/path:12: (ERROR/3) Unknown interpreted text role "unknown".
+<string>:12: (ERROR/3) Unknown interpreted text role "unknown".
 .
 
 bad-option-value
@@ -124,7 +124,7 @@ bad-option-value
 :class: [1]
 ```
 .
-source/path:1: (ERROR/3) Directive 'note': option "class" value not string (enclose with ""): [1]
+<string>:1: (ERROR/3) Directive 'note': option "class" value not string (enclose with ""): [1]
 
 :class: [1]
 
@@ -136,5 +136,5 @@ header nested in admonition
 # Header
 ```
 .
-source/path:1: (WARNING/2) Header nested in this element can lead to unexpected outcomes
+<string>:1: (WARNING/2) Header nested in this element can lead to unexpected outcomes
 .
