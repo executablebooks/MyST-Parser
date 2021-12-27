@@ -10,7 +10,7 @@ Missing Reference:
 .
 [a](b)
 .
-<string>:1: (WARNING/2) Reference not found: b
+<string>:1: (ERROR/3) Unknown target name: "b".
 .
 
 Unknown role:

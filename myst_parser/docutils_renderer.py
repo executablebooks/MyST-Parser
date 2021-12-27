@@ -19,6 +19,7 @@ from typing import (
     Union,
     cast,
 )
+from urllib.parse import urlparse
 
 import jinja2
 import yaml
@@ -541,13 +542,13 @@ class DocutilsRenderer(RendererProtocol):
         if self.config.get("myst_all_links_external", False):
             return self.render_external_url(token)
 
-        destination = cast(str, token.attrGet("href") or "")
-        if is_external_url(destination, self.config.get("myst_url_schemes", None)):
+        # Check for external URL
+        url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
+        allowed_url_schemes = self.config.get("myst_url_schemes", None)
+        if (allowed_url_schemes is None and url_scheme) or (
+            url_scheme in allowed_url_schemes
+        ):
             return self.render_external_url(token)
-
-        # TODO previously, we also interpreted any link containing a `#` as external,
-        # e.g. `[alt](#fragment)` (only if `heading_anchors`` extension was not active)
-        # should we still do that?
 
         return self.render_internal_link(token)
 
@@ -580,7 +581,6 @@ class DocutilsRenderer(RendererProtocol):
 
         Note, this is overridden by `SphinxRenderer`, to use `pending_xref` nodes.
         """
-        # TODO is this too strict for docutils?
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         ref_node["refname"] = cast(str, token.attrGet("href") or "")

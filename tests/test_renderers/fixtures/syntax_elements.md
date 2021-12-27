@@ -430,8 +430,9 @@ Title
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <reference refuri="#target3">
-                alt3
+            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="#target3" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
+                    alt3
 .
 
 --------------------------
