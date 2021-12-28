@@ -741,9 +741,10 @@ class DocutilsRenderer(RendererProtocol):
             value = str(value)
             if key in bibliofields:
                 para_nodes, _ = state.inline_text(value, line)
-                body_children = [nodes.paragraph("", "", *para_nodes)]
             else:
-                body_children = [nodes.Text(value, value)]
+                para_nodes = [nodes.Text(value, value)]
+
+            body_children = [nodes.paragraph("", "", *para_nodes)]
 
             field_node = nodes.field()
             field_node.source = value

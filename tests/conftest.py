@@ -1,3 +1,4 @@
+"""Top-level configuration for pytest."""
 try:
     import sphinx  # noqa: F401
 except ImportError:
