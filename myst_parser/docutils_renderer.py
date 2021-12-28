@@ -730,6 +730,7 @@ class DocutilsRenderer(RendererProtocol):
 
         """
         field_list = nodes.field_list()
+        field_list.source, field_list.line = self.document["source"], line
 
         bibliofields = get_language(language_code).bibliographic_fields
         state_machine = MockStateMachine(self, line)
@@ -745,6 +746,8 @@ class DocutilsRenderer(RendererProtocol):
                 para_nodes = [nodes.Text(value, value)]
 
             body_children = [nodes.paragraph("", "", *para_nodes)]
+            body_children[0].source = self.document["source"]
+            body_children[0].line = 0
 
             field_node = nodes.field()
             field_node.source = value
