@@ -1,7 +1,9 @@
 import copy
+import os
 import tempfile
 from contextlib import contextmanager
 from io import StringIO
+from pathlib import Path
 from typing import Optional, cast
 from urllib.parse import unquote
 from uuid import uuid4
@@ -64,23 +66,63 @@ class SphinxRenderer(DocutilsRenderer):
                 append_to.append(msg_node)
         return None
 
-    def handle_cross_reference(self, token: SyntaxTreeNode, destination: str) -> None:
-        """Create nodes for references that are not immediately resolvable."""
-        wrap_node = addnodes.pending_xref(
-            refdoc=self.doc_env.docname,
-            reftarget=unquote(destination),
-            reftype="myst",
-            refdomain=None,  # Added to enable cross-linking
-            refexplicit=len(token.children or []) > 0,
-            refwarn=True,
+    def render_internal_link(self, token: SyntaxTreeNode) -> None:
+        """Render link token `[text](link "title")`,
+        where the link has not been identified as an external URL.
+        """
+        destination = unquote(cast(str, token.attrGet("href") or ""))
+
+        # make the path relative to an "including" document
+        # this is set when using the `relative-docs` option of the MyST `include` directive
+        relative_include = self.config.get("relative-docs", None)
+        if relative_include is not None and destination.startswith(relative_include[0]):
+            source_dir, include_dir = relative_include[1:]
+            destination = os.path.relpath(
+                os.path.join(include_dir, os.path.normpath(destination)), source_dir
+            )
+
+        potential_path = (
+            Path(self.doc_env.doc2path(self.doc_env.docname)).parent / destination
+            if self.doc_env.srcdir  # not set in some test situations
+            else None
         )
+        if (
+            potential_path
+            and potential_path.is_file()
+            and not any(
+                destination.endswith(suffix)
+                for suffix in self.doc_env.config.source_suffix
+            )
+        ):
+            wrap_node = addnodes.download_reference(
+                refdoc=self.doc_env.docname,
+                reftarget=destination,
+                reftype="myst",
+                refdomain=None,  # Added to enable cross-linking
+                refexplicit=len(token.children or []) > 0,
+                refwarn=False,
+            )
+            classes = ["xref", "download", "myst"]
+            text = destination if not token.children else ""
+        else:
+            wrap_node = addnodes.pending_xref(
+                refdoc=self.doc_env.docname,
+                reftarget=destination,
+                reftype="myst",
+                refdomain=None,  # Added to enable cross-linking
+                refexplicit=len(token.children or []) > 0,
+                refwarn=True,
+            )
+            classes = ["xref", "myst"]
+            text = ""
+
         self.add_line_and_source_path(wrap_node, token)
         title = token.attrGet("title")
         if title:
             wrap_node["title"] = title
         self.current_node.append(wrap_node)
 
-        inner_node = nodes.inline("", "", classes=["xref", "myst"])
+        inner_node = nodes.inline("", text, classes=classes)
         wrap_node.append(inner_node)
         with self.current_node_context(inner_node):
             self.render_children(token)
@@ -88,7 +130,7 @@ class SphinxRenderer(DocutilsRenderer):
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """This extends the docutils method, to allow for the addition of heading ids.
         These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
-        as "slugs" which are unique document.
+        as "slugs" which are unique to a document.
 
         The approach is similar to ``sphinx.ext.autosectionlabel``
         """

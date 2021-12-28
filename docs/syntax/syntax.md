@@ -518,6 +518,39 @@ Is below, but it won't be parsed into the document.
 
 +++
 
+(syntax/referencing)=
+
+## Markdown Links and Referencing
+
+Markdown links are of the form: `[text](link)`.
+
+If you set the configuration `myst_all_links_external = True` (`False` by default),
+then all links will be treated simply as "external" links.
+For example, in HTML outputs, `[text](link)` will be rendered as `<a href="link">text</a>`.
+
+Otherwise, links will only be treated as "external" links if they are prefixed with a scheme,
+configured with `myst_url_schemes` (by default, `http`, `https`, `ftp`, or `mailto`).
+For example, `[example.com](https://example.com)` becomes [example.com](https://example.com).
+
+:::{note}
+The `text` will be parsed as nested Markdown, for example `[here's some *emphasised text*](https://example.com)` will be parsed as [here's some *emphasised text*](https://example.com).
+:::
+
+For "internal" links, myst-parser in Sphinx will attempt to resolve the reference to either a relative document path, or a cross-reference to a target (see [](syntax/targets)):
+
+- `[this doc](syntax.md)` will link to a rendered source document: [this doc](syntax.md)
+  - This is similar to `` {doc}`this doc <syntax>` ``; {doc}`this doc <syntax>`, but allows for document extensions, and parses nested Markdown text.
+- `[example text](example.txt)` will link to a non-source (downloadable) file: [example text](example.txt)
+  - The linked document itself will be copied to the build directory.
+  - This is similar to `` {download}`example text <example.txt>` ``; {download}`example text <example.txt>`, but parses nested Markdown text.
+- `[reference](syntax/referencing)` will link to an internal cross-reference: [reference](syntax/referencing)
+  - This is similar to `` {any}`reference <syntax/referencing>` ``; {any}`reference <syntax/referencing>`, but parses nested Markdown text.
+  - You can limit the scope of the cross-reference to specific [sphinx domains](sphinx:domain), by using the `myst_ref_domains` configuration.
+    For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
+
+Additionally, only if [](syntax/header-anchors) are enabled, then internal links to document headers can be used.
+For example `[a header](syntax.md#markdown-links-and-referencing)` will link to a header anchor: [a header](syntax.md#markdown-links-and-referencing).
+
 (syntax/targets)=
 
 ## Targets and Cross-Referencing

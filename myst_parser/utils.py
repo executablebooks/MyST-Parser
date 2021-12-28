@@ -11,7 +11,9 @@ def escape_url(raw: str) -> str:
 
 
 def is_external_url(
-    reference: str, known_url_schemes: Optional[Iterable[str]], match_fragment: bool
+    reference: str,
+    known_url_schemes: Optional[Iterable[str]],
+    match_fragment: bool = False,
 ) -> bool:
     """Return if a reference should be recognised as an external URL.
 

@@ -26,7 +26,6 @@ def test_basic(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """basic test."""
     app.build()
@@ -82,7 +81,6 @@ def test_references(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test reference resolution."""
     app.build()
@@ -94,13 +92,15 @@ def test_references(
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
     finally:
-        get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
-    get_sphinx_app_output(
-        app,
-        filename="index.html",
-        regress_html=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
-    )
+        try:
+            get_sphinx_app_doctree(app, docname="index", resolve=True, regress=True)
+        finally:
+            get_sphinx_app_output(
+                app,
+                filename="index.html",
+                regress_html=True,
+                regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+            )
 
 
 @pytest.mark.sphinx(
@@ -115,7 +115,6 @@ def test_references_singlehtml(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test reference resolution for singlehtml builds."""
     app.build()
@@ -165,7 +164,6 @@ def test_heading_slug_func(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test heading_slug_func configuration."""
     app.build()
@@ -197,7 +195,6 @@ def test_extended_syntaxes(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
     monkeypatch,
 ):
     """test setting addition configuration values."""
@@ -234,7 +231,6 @@ def test_includes(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test of include directive."""
     app.build()
@@ -284,8 +280,6 @@ def test_include_from_rst(
     status,
     warning,
     get_sphinx_app_doctree,
-    get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test of include directive inside RST file."""
     app.build()
@@ -311,7 +305,6 @@ def test_footnotes(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test of include directive."""
     app.build()
@@ -342,7 +335,6 @@ def test_commonmark_only(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """test setting addition configuration values."""
     app.build()
@@ -372,7 +364,6 @@ def test_substitutions(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
     file_regression,
 ):
     """test setting addition configuration values."""
@@ -399,7 +390,6 @@ def test_gettext(
     status,
     warning,
     get_sphinx_app_output,
-    remove_sphinx_builds,
     file_regression,
 ):
     """Test gettext message extraction."""
@@ -427,7 +417,6 @@ def test_gettext_html(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """Test gettext message extraction."""
     app.build()
@@ -477,7 +466,6 @@ def test_gettext_additional_targets(
     status,
     warning,
     get_sphinx_app_output,
-    remove_sphinx_builds,
     file_regression,
 ):
     """Test gettext message extraction."""
@@ -500,7 +488,6 @@ def test_mathjax_warning(
     app,
     status,
     warning,
-    remove_sphinx_builds,
 ):
     """Test mathjax config override warning."""
     app.build()
@@ -523,7 +510,6 @@ def test_fieldlist_extension(
     warning,
     get_sphinx_app_doctree,
     get_sphinx_app_output,
-    remove_sphinx_builds,
 ):
     """test setting addition configuration values."""
     app.build()

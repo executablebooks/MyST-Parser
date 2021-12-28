@@ -42,10 +42,7 @@ from sphinx.testing.path import path
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
 
-# TODO autouse not working, may need to be in root conftest
-# (ideally _build folder should be in tempdir)
-# @pytest.fixture(scope="session", autouse=True)
-@pytest.fixture()
+@pytest.fixture(scope="session", autouse=True)
 def remove_sphinx_builds():
     """remove all build directories from the test folder"""
     yield
@@ -62,8 +59,6 @@ def get_sphinx_app_output(file_regression):
         buildername="html",
         filename="index.html",
         encoding="utf-8",
-        extract_body=False,
-        remove_scripts=False,
         regress_html=False,
         regress_ext=".html",
         replace=None,

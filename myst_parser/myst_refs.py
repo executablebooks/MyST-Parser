@@ -42,7 +42,6 @@ class MystReferenceResolver(ReferencesResolver):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
             newnode = None
 
-            typ = node["reftype"]
             target = node["reftarget"]
             refdoc = node.get("refdoc", self.env.docname)
             domain = None
@@ -54,23 +53,29 @@ class MystReferenceResolver(ReferencesResolver):
                     # but first we change the the reftype to 'any'
                     # this means it is picked up by extensions like intersphinx
                     node["reftype"] = "any"
-                    newnode = self.app.emit_firstresult(
-                        "missing-reference",
-                        self.env,
-                        node,
-                        contnode,
-                        **(
-                            {"allowed_exceptions": (NoUri,)}
-                            if version_info[0] > 2
-                            else {}
-                        ),
-                    )
-                    node["reftype"] = "myst"
+                    try:
+                        newnode = self.app.emit_firstresult(
+                            "missing-reference",
+                            self.env,
+                            node,
+                            contnode,
+                            **(
+                                {"allowed_exceptions": (NoUri,)}
+                                if version_info[0] > 2
+                                else {}
+                            ),
+                        )
+                    finally:
+                        node["reftype"] = "myst"
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:
                         node["refdomain"] = ""
-                        self.warn_missing_reference(refdoc, typ, target, node, domain)
+                        # TODO ideally we would override the warning message here,
+                        # to show the [ref.myst] for supressing warning
+                        self.warn_missing_reference(
+                            refdoc, node["reftype"], target, node, domain
+                        )
             except NoUri:
                 newnode = contnode
 
@@ -109,25 +114,30 @@ class MystReferenceResolver(ReferencesResolver):
             if res:
                 results.append(("std:doc", res))
 
-        # next resolve for any other standard reference objects
-        stddomain = cast(StandardDomain, self.env.get_domain("std"))
-        for objtype in stddomain.object_types:
-            key = (objtype, target)
-            if objtype == "term":
-                key = (objtype, target.lower())
-            if key in stddomain.objects:
-                docname, labelid = stddomain.objects[key]
-                domain_role = "std:" + stddomain.role_for_objtype(objtype)
-                ref_node = make_refnode(
-                    self.app.builder, refdoc, docname, labelid, contnode
-                )
-                results.append((domain_role, ref_node))
+        # get allowed domains for referencing
+        ref_domains = self.env.config.myst_ref_domains
 
-        # finally resolve for any other type of reference
-        # TODO do we want to restrict this at all?
+        # next resolve for any other standard reference objects
+        if ref_domains is None or "std" in ref_domains:
+            stddomain = cast(StandardDomain, self.env.get_domain("std"))
+            for objtype in stddomain.object_types:
+                key = (objtype, target)
+                if objtype == "term":
+                    key = (objtype, target.lower())
+                if key in stddomain.objects:
+                    docname, labelid = stddomain.objects[key]
+                    domain_role = "std:" + stddomain.role_for_objtype(objtype)
+                    ref_node = make_refnode(
+                        self.app.builder, refdoc, docname, labelid, contnode
+                    )
+                    results.append((domain_role, ref_node))
+
+        # finally resolve for any other type of allowed reference domain
         for domain in self.env.domains.values():
             if domain.name == "std":
                 continue  # we did this one already
+            if ref_domains is not None and domain.name not in ref_domains:
+                continue
             try:
                 results.extend(
                     domain.resolve_any_xref(

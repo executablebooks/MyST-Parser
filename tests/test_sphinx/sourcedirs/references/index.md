@@ -20,6 +20,10 @@
 
 [nested *syntax*](index.md)
 
+[download **link**](file_link.txt)
+
+[](subfolder/file_link2.txt)
+
 ```{eval-rst}
 .. _insidecodeblock:
 
