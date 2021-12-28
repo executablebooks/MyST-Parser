@@ -85,37 +85,46 @@ DOCUTILS_EXCLUDED_ARGS = (
 def _attr_to_optparse_option(at: Attribute, default: Any) -> Tuple[dict, str]:
     """Convert an ``attrs.Attribute`` into a Docutils optparse options dict."""
     if at.type is int:
-        return {"validator": _validate_int}, f"(type: int, default: {default})"
+        return {"metavar": "<int>", "validator": _validate_int}, f"(default: {default})"
     if at.type is bool:
         return {
-            "validator": frontend.validate_boolean
-        }, f"(type: bool, default: {default})"
+            "metavar": "<boolean>",
+            "validator": frontend.validate_boolean,
+        }, f"(default: {default})"
     if at.type is str:
-        return {}, f"(type: str, default: '{default}')"
+        return {
+            "metavar": "<str>",
+        }, f"(default: '{default}')"
     if get_origin(at.type) is Literal and all(
         isinstance(a, str) for a in get_args(at.type)
     ):
         args = get_args(at.type)
         return {
-            "validator": _create_validate_choice(args),
-        }, f"(type: {'|'.join(args)}, default: {default!r})"
+            "metavar": f"<{'|'.join(repr(a) for a in args)}>",
+            "type": "choice",
+            "choices": args,
+        }, f"(default: {default!r})"
     if at.type in (Iterable[str], Sequence[str]):
         return {
-            "validator": frontend.validate_comma_separated_list
-        }, f"(type: comma-delimited, default: '{','.join(default)}')"
+            "metavar": "<comma-delimited>",
+            "validator": frontend.validate_comma_separated_list,
+        }, f"(default: '{','.join(default)}')"
     if at.type == Tuple[str, str]:
         return {
-            "validator": _create_validate_tuple(2)
-        }, f"(type: str,str, default: '{','.join(default)}')"
+            "metavar": "<str,str>",
+            "validator": _create_validate_tuple(2),
+        }, f"(default: '{','.join(default)}')"
     if at.type == Union[int, type(None)]:
         return {
+            "metavar": "<null|int>",
             "validator": _validate_int,
-        }, f"(type: null|int, default: {default})"
+        }, f"(default: {default})"
     if at.type == Union[Iterable[str], type(None)]:
         default_str = ",".join(default) if default else ""
         return {
+            "metavar": "<null|comma-delimited>",
             "validator": frontend.validate_comma_separated_list,
-        }, f"(type: null|comma-delimited, default: {default_str!r})"
+        }, f"(default: {default_str!r})"
     raise AssertionError(
         f"Configuration option {at.name} not set up for use in docutils.conf."
     )
