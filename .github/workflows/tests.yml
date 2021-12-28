@@ -83,7 +83,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-        pip install docutils==${{ matrix.docutils-version }}
+        pip install pytest~=6.2 docutils==${{ matrix.docutils-version }}
     - name: ensure sphinx is not installed
       run: |
         python -c "\
@@ -93,6 +93,8 @@ jobs:
             pass
         else:
             raise AssertionError()"
+    - name: Run pytest for docutils-only tests
+      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 

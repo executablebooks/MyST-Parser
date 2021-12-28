@@ -1,3 +1,7 @@
+"""Test fixture files, using the ``SphinxRenderer``.
+
+Note, the output AST is before any transforms are applied.
+"""
 import re
 from pathlib import Path
 
@@ -53,41 +57,6 @@ def test_tables(line, title, input, expected):
     ],
 )
 def test_directive_options(line, title, input, expected):
-    document = to_docutils(input)
-    print(document.pformat())
-    assert "\n".join(
-        [ll.rstrip() for ll in document.pformat().splitlines()]
-    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
-
-
-@pytest.mark.parametrize(
-    "line,title,input,expected",
-    read_fixture_file(FIXTURE_PATH.joinpath("docutil_roles.md")),
-    ids=[
-        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "docutil_roles.md")
-    ],
-)
-def test_docutils_roles(line, title, input, expected):
-    document = to_docutils(input)
-    print(document.pformat())
-    assert "\n".join(
-        [ll.rstrip() for ll in document.pformat().splitlines()]
-    ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
-
-
-@pytest.mark.parametrize(
-    "line,title,input,expected",
-    read_fixture_file(FIXTURE_PATH.joinpath("docutil_directives.md")),
-    ids=[
-        f"{i[0]}-{i[1]}"
-        for i in read_fixture_file(FIXTURE_PATH / "docutil_directives.md")
-    ],
-)
-def test_docutils_directives(line, title, input, expected):
-    # TODO fix skipped directives
-    # TODO test domain directives
-    if title.startswith("SKIP"):
-        pytest.skip(title)
     document = to_docutils(input)
     print(document.pformat())
     assert "\n".join(
