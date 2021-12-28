@@ -21,6 +21,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
     ],
 )
 def test_docutils_roles(line, title, input, expected):
+    """Test output of docutils roles."""
     parser = create_md_parser(MdParserConfig(), DocutilsRenderer)
     parser.options["document"] = document = make_document()
     parser.render(input)
@@ -42,6 +43,7 @@ def test_docutils_roles(line, title, input, expected):
     ],
 )
 def test_docutils_directives(line, title, input, expected):
+    """Test output of docutils directives."""
     if title.startswith("SKIP"):  # line-block directive not yet supported
         pytest.skip(title)
     parser = create_md_parser(MdParserConfig(), DocutilsRenderer)
