@@ -96,13 +96,14 @@ See the documentation of these tools for more information.
 
 ### Load a parser
 
-To load one of these parsers for your own use, use the `default_parser` function.
+To load one of these parsers for your own use, use the `create_md_parser` function.
 Below we'll create such a parser and show that it is an instance of a `markdown-it-py` parser:
 
 ```python
-from myst_parser.main import default_parser, MdParserConfig
-config = MdParserConfig(renderer="html")
-parser = default_parser(config)
+from markdown_it.renderer import RendererHTML
+from myst_parser.main import create_md_parser, MdParserConfig
+config = MdParserConfig()
+parser = create_md_parser(config, RendererHTML)
 parser
 ```
 

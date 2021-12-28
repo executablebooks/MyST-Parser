@@ -61,8 +61,6 @@ class FigureMarkdown(SphinxDirective):
         figclasses = self.options.pop("class", None)
         align = self.options.pop("align", None)
 
-        # parser = default_parser(self.env.myst_config)
-
         node = nodes.Element()
         # TODO test that we are using myst parser
         # ensure html image enabled

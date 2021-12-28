@@ -12,7 +12,8 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
-from myst_parser.main import default_parser
+from myst_parser.main import create_md_parser
+from myst_parser.sphinx_renderer import SphinxRenderer
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ class MystParser(SphinxParser):
 
         """
         config = document.settings.env.myst_config
-        parser = default_parser(config)
+        parser = create_md_parser(config, SphinxRenderer)
         parser.options["document"] = document
         env: dict = {}
         tokens = parser.parse(inputstring, env)

@@ -35,9 +35,6 @@ class MdParserConfig:
     Note in the sphinx configuration these option names are prepended with ``myst_``
     """
 
-    renderer: str = attr.ib(
-        default="sphinx", validator=in_(["sphinx", "html", "docutils"])
-    )
     commonmark_only: bool = attr.ib(
         default=False,
         validator=instance_of(bool),
@@ -196,32 +193,27 @@ class MdParserConfig:
         return attr.asdict(self, dict_factory=dict_factory)
 
 
-def default_parser(config: MdParserConfig) -> MarkdownIt:
-    """Return the default parser configuration for MyST"""
-    renderer_cls: Callable[[MarkdownIt], RendererProtocol]
+def default_parser(config: MdParserConfig):
+    raise NotImplementedError(
+        "default_parser has been deprecated and replaced by create_md_parser."
+        "You must also supply the renderer class directly to create_md_parser."
+    )
 
-    if config.renderer == "sphinx":
-        from myst_parser.sphinx_renderer import SphinxRenderer
 
-        renderer_cls = SphinxRenderer
-    elif config.renderer == "html":
-        renderer_cls = RendererHTML
-    elif config.renderer == "docutils":
-        from myst_parser.docutils_renderer import DocutilsRenderer
-
-        renderer_cls = DocutilsRenderer
-    else:
-        raise ValueError("unknown renderer type: {0}".format(config.renderer))
+def create_md_parser(
+    config: MdParserConfig, renderer: Callable[[MarkdownIt], RendererProtocol]
+) -> MarkdownIt:
+    """Return a Markdown parser with the required MyST configuration."""
 
     if config.commonmark_only:
-        md = MarkdownIt("commonmark", renderer_cls=renderer_cls).use(
+        md = MarkdownIt("commonmark", renderer_cls=renderer).use(
             wordcount_plugin, per_minute=config.words_per_minute
         )
         md.options.update({"commonmark_only": True})
         return md
 
     md = (
-        MarkdownIt("commonmark", renderer_cls=renderer_cls)
+        MarkdownIt("commonmark", renderer_cls=renderer)
         .enable("table")
         .use(front_matter_plugin)
         .use(myst_block_plugin)
@@ -299,6 +291,7 @@ def default_parser(config: MdParserConfig) -> MarkdownIt:
 def to_docutils(
     text: str,
     parser_config: Optional[MdParserConfig] = None,
+    *,
     options=None,
     env=None,
     document=None,
@@ -320,8 +313,9 @@ def to_docutils(
     :returns: docutils document
     """
     from myst_parser.docutils_renderer import make_document
+    from myst_parser.sphinx_renderer import SphinxRenderer
 
-    md = default_parser(parser_config or MdParserConfig())
+    md = create_md_parser(parser_config or MdParserConfig(), SphinxRenderer)
     if options:
         md.options.update(options)
     md.options["document"] = document or make_document()
@@ -340,13 +334,11 @@ def to_html(text: str, env=None, config: Optional[MdParserConfig] = None):
     This is mainly for test purposes only.
     """
     config = config or MdParserConfig()
-    config.renderer = "html"
-    md = default_parser(config)
+    md = create_md_parser(config, RendererHTML)
     return md.render(text, env)
 
 
 def to_tokens(text: str, env=None, config: Optional[MdParserConfig] = None):
     config = config or MdParserConfig()
-    config.renderer = "html"
-    md = default_parser(config)
+    md = create_md_parser(config, RendererHTML)
     return md.parse(text, env)
