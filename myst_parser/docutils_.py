@@ -195,14 +195,15 @@ class Parser(RstParser):
         self.setup_parse(inputstring, document)
 
         # check for exorbitantly long lines
-        for i, line in enumerate(inputstring.split("\n")):
-            if len(line) > document.settings.line_length_limit:
-                error = document.reporter.error(
-                    f"Line {i+1} exceeds the line-length-limit:"
-                    f" {document.settings.line_length_limit}."
-                )
-                document.append(error)
-                return
+        if hasattr(document.settings, "line_length_limit"):
+            for i, line in enumerate(inputstring.split("\n")):
+                if len(line) > document.settings.line_length_limit:
+                    error = document.reporter.error(
+                        f"Line {i+1} exceeds the line-length-limit:"
+                        f" {document.settings.line_length_limit}."
+                    )
+                    document.append(error)
+                    return
 
         # create parsing configuration
         try:
@@ -226,7 +227,7 @@ class Parser(RstParser):
         # post-processing
 
         # replace raw nodes if raw is not allowed
-        if not document.settings.raw_enabled:
+        if not getattr(document.settings, "raw_enabled", True):
             for node in document.traverse(nodes.raw):
                 warning = document.reporter.warning("Raw content disabled.")
                 node.parent.replace(node, warning)
