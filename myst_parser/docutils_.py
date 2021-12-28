@@ -3,13 +3,14 @@
    .. include:: path/to/file.md
       :parser: myst_parser.docutils_
 """
-from typing import Any, Callable, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from attr import Attribute
 from docutils import frontend, nodes
 from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
+from typing_extensions import Literal, get_args, get_origin
 
 from myst_parser.docutils_renderer import DocutilsRenderer
 from myst_parser.main import MdParserConfig, create_md_parser
@@ -20,6 +21,19 @@ def _validate_int(
 ) -> int:
     """Validate an integer setting."""
     return int(value)
+
+
+def _create_validate_choice(choices: Sequence[str]) -> Callable[..., str]:
+    """Create a validator for a choice from a sequence of strings."""
+
+    def _validate(
+        setting, value, option_parser, config_parser=None, config_section=None
+    ):
+        if value not in choices:
+            raise ValueError(f"Expecting one of {choices!r}, got {value}.")
+        return value
+
+    return _validate
 
 
 def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
@@ -68,10 +82,8 @@ DOCUTILS_EXCLUDED_ARGS = (
 """Names of settings that cannot be set in docutils.conf."""
 
 
-def _docutils_optparse_options_of_attribute(
-    at: Attribute, default: Any
-) -> Tuple[dict, str]:
-    """Convert an ``MdParserConfig`` attribute into a Docutils optparse options dict."""
+def _attr_to_optparse_option(at: Attribute, default: Any) -> Tuple[dict, str]:
+    """Convert an ``attrs.Attribute`` into a Docutils optparse options dict."""
     if at.type is int:
         return {"validator": _validate_int}, f"(type: int, default: {default})"
     if at.type is bool:
@@ -80,7 +92,14 @@ def _docutils_optparse_options_of_attribute(
         }, f"(type: bool, default: {default})"
     if at.type is str:
         return {}, f"(type: str, default: '{default}')"
-    if at.type == Iterable[str] or at.name == "url_schemes":
+    if get_origin(at.type) is Literal and all(
+        isinstance(a, str) for a in get_args(at.type)
+    ):
+        args = get_args(at.type)
+        return {
+            "validator": _create_validate_choice(args),
+        }, f"(type: {'|'.join(args)}, default: {default!r})"
+    if at.type in (Iterable[str], Sequence[str]):
         return {
             "validator": frontend.validate_comma_separated_list
         }, f"(type: comma-delimited, default: '{','.join(default)}')"
@@ -88,57 +107,64 @@ def _docutils_optparse_options_of_attribute(
         return {
             "validator": _create_validate_tuple(2)
         }, f"(type: str,str, default: '{','.join(default)}')"
-    if at.type == Union[int, type(None)] and at.default is None:
+    if at.type == Union[int, type(None)]:
         return {
             "validator": _validate_int,
-            "default": None,
         }, f"(type: null|int, default: {default})"
-    if at.type == Union[Iterable[str], type(None)] and at.default is None:
+    if at.type == Union[Iterable[str], type(None)]:
+        default_str = ",".join(default) if default else ""
         return {
             "validator": frontend.validate_comma_separated_list,
-            "default": None,
-        }, f"(type: comma-delimited, default: '{default or ','.join(default)}')"
+        }, f"(type: null|comma-delimited, default: {default_str!r})"
     raise AssertionError(
         f"Configuration option {at.name} not set up for use in docutils.conf."
-        f"Either add {at.name} to docutils_.DOCUTILS_EXCLUDED_ARGS,"
-        "or add a new entry in _docutils_optparse_of_attribute."
     )
 
 
-def _docutils_setting_tuple_of_attribute(
-    attribute: Attribute, default: Any
-) -> Tuple[str, Any, Any]:
-    """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple."""
-    name = f"myst_{attribute.name}"
+def attr_to_optparse_option(
+    attribute: Attribute, default: Any, prefix: str = "myst_"
+) -> Tuple[str, List[str], Dict[str, Any]]:
+    """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple.
+
+    :returns: A tuple of ``(help string, option flags, optparse kwargs)``.
+    """
+    name = f"{prefix}{attribute.name}"
     flag = "--" + name.replace("_", "-")
     options = {"dest": name, "default": DOCUTILS_UNSET}
-    at_options, type_str = _docutils_optparse_options_of_attribute(attribute, default)
+    at_options, type_str = _attr_to_optparse_option(attribute, default)
     options.update(at_options)
     help_str = attribute.metadata.get("help", "") if attribute.metadata else ""
     return (f"{help_str} {type_str}", [flag], options)
 
 
-def _myst_docutils_setting_tuples():
-    """Return a list of Docutils setting for the MyST section."""
-    defaults = MdParserConfig()
+def create_myst_settings_spec(
+    excluded: Sequence[str], config_cls=MdParserConfig, prefix: str = "myst_"
+):
+    """Return a list of Docutils setting for the docutils MyST section."""
+    defaults = config_cls()
     return tuple(
-        _docutils_setting_tuple_of_attribute(at, getattr(defaults, at.name))
-        for at in MdParserConfig.get_fields()
-        if at.name not in DOCUTILS_EXCLUDED_ARGS
+        attr_to_optparse_option(at, getattr(defaults, at.name), prefix)
+        for at in config_cls.get_fields()
+        if at.name not in excluded
     )
 
 
-def create_myst_config(settings: frontend.Values):
-    """Create a ``MdParserConfig`` from the given settings."""
+def create_myst_config(
+    settings: frontend.Values,
+    excluded: Sequence[str],
+    config_cls=MdParserConfig,
+    prefix: str = "myst_",
+):
+    """Create a configuration instance from the given settings."""
     values = {}
-    for attribute in MdParserConfig.get_fields():
-        if attribute.name in DOCUTILS_EXCLUDED_ARGS:
+    for attribute in config_cls.get_fields():
+        if attribute.name in excluded:
             continue
-        setting = f"myst_{attribute.name}"
+        setting = f"{prefix}{attribute.name}"
         val = getattr(settings, setting, DOCUTILS_UNSET)
         if val is not DOCUTILS_UNSET:
             values[attribute.name] = val
-    return MdParserConfig(**values)
+    return config_cls(**values)
 
 
 class Parser(RstParser):
@@ -148,10 +174,10 @@ class Parser(RstParser):
     """Aliases this parser supports."""
 
     settings_spec = (
-        *RstParser.settings_spec,
         "MyST options",
         None,
-        _myst_docutils_setting_tuples(),
+        create_myst_settings_spec(DOCUTILS_EXCLUDED_ARGS),
+        *RstParser.settings_spec,
     )
     """Runtime settings specification."""
 
@@ -165,11 +191,26 @@ class Parser(RstParser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
+
+        # check for exorbitantly long lines
+        for i, line in enumerate(inputstring.split("\n")):
+            if len(line) > document.settings.line_length_limit:
+                error = document.reporter.error(
+                    f"Line {i+1} exceeds the line-length-limit:"
+                    f" {document.settings.line_length_limit}."
+                )
+                document.append(error)
+                return
+
+        # create parsing configuration
         try:
-            config = create_myst_config(document.settings)
-        except (TypeError, ValueError) as error:
-            document.reporter.error(f"myst configuration invalid: {error.args[0]}")
+            config = create_myst_config(document.settings, DOCUTILS_EXCLUDED_ARGS)
+        except Exception as exc:
+            error = document.reporter.error(f"myst configuration invalid: {exc}")
+            document.append(error)
             config = MdParserConfig()
+
+        # parse content
         parser = create_md_parser(config, DocutilsRenderer)
         parser.options["document"] = document
         env: dict = {}
@@ -179,6 +220,14 @@ class Parser(RstParser):
             # specified in the sphinx configuration
             tokens = [Token("front_matter", "", 0, content="{}", map=[0, 0])] + tokens
         parser.renderer.render(tokens, parser.options, env)
+
+        # post-processing
+
+        # replace raw nodes if raw is not allowed
+        if not document.settings.raw_enabled:
+            for node in document.traverse(nodes.raw):
+                warning = document.reporter.warning("Raw content disabled.")
+                node.parent.replace(node, warning)
 
 
 def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
