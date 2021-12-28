@@ -192,6 +192,8 @@ class Parser(RstParser):
         :param document: The root docutils node to add AST elements to
         """
 
+        self.setup_parse(inputstring, document)
+
         # check for exorbitantly long lines
         for i, line in enumerate(inputstring.split("\n")):
             if len(line) > document.settings.line_length_limit:
@@ -228,6 +230,8 @@ class Parser(RstParser):
             for node in document.traverse(nodes.raw):
                 warning = document.reporter.warning("Raw content disabled.")
                 node.parent.replace(node, warning)
+
+        self.finish_parse()
 
 
 def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
