@@ -19,10 +19,16 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_enable_extensions`
   - `["dollarmath"]`
   - Enable Markdown extensions, [see here](../syntax/optional.md) for details.
+* - `myst_all_links_external`
+  - `False`
+  - If `True`, all Markdown links `[text](link)` are treated as external.
 * - `myst_url_schemes`
   - `None`
   - [URI schemes](https://en.wikipedia.org/wiki/List_of_URI_schemes) that will be recognised as external URLs in `[](scheme:loc)` syntax, or set `None` to recognise all.
     Other links will be resolved as internal cross-references.
+* - `myst_ref_domains`
+  - `None`
+  - If a list, then only these [sphinx domains](sphinx:domain) will be searched for when resolving Markdown links like `[text](reference)`.
 * - `myst_linkify_fuzzy_links`
   - `True`
   - If `False`, only links that contain a scheme (such as `http`) will be recognised as external links.

@@ -128,6 +128,12 @@ class MdParserConfig:
         metadata={"help": "URL scheme prefixes identified as external links"},
     )
 
+    ref_domains: Optional[Iterable[str]] = attr.ib(
+        default=None,
+        validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
+        metadata={"help": "Sphinx domain names to search in for references"},
+    )
+
     heading_anchors: Optional[int] = attr.ib(
         default=None,
         validator=optional(in_([1, 2, 3, 4, 5, 6, 7])),

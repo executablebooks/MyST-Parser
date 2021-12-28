@@ -242,7 +242,7 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
     ![alt](src "title")
     ```
 * - Link
-  - Reference `LinkDefinitions`
+  - Reference `LinkDefinitions`. See {ref}`syntax/referencing` for more details.
   - ```md
     [text](target "title") or [text][key]
     ```
