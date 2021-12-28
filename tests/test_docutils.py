@@ -1,11 +1,14 @@
 import io
 from textwrap import dedent
 
+import attr
 import pytest
 from docutils import VersionInfo, __version_info__
+from typing_extensions import Literal
 
 from myst_parser.docutils_ import (
     Parser,
+    attr_to_optparse_option,
     cli_html,
     cli_html5,
     cli_latex,
@@ -13,6 +16,15 @@ from myst_parser.docutils_ import (
     cli_xml,
 )
 from myst_parser.docutils_renderer import make_document
+
+
+def test_attr_to_optparse_option():
+    @attr.s
+    class Config:
+        name: Literal["a"] = attr.ib(default="default")
+
+    output = attr_to_optparse_option(attr.fields(Config).name, "default")
+    assert len(output) == 3
 
 
 def test_parser():
