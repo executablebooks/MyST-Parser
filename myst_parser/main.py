@@ -125,7 +125,7 @@ class MdParserConfig:
     url_schemes: Optional[Iterable[str]] = attr.ib(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
         validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
-        metadata={"help": "URL schemes to allow in links"},
+        metadata={"help": "URL scheme prefixes identified as external links"},
     )
 
     heading_anchors: Optional[int] = attr.ib(

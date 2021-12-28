@@ -35,6 +35,7 @@ def setup_sphinx(app: "Sphinx"):
 
     for name, default in MdParserConfig().as_dict().items():
         if not name == "renderer":
+            # TODO add types?
             app.add_config_value(f"myst_{name}", default, "env")
 
     app.connect("builder-inited", create_myst_config)

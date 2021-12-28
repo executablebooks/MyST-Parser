@@ -104,7 +104,6 @@ class SphinxRenderer(DocutilsRenderer):
             )
             classes = ["xref", "download", "myst"]
             text = destination if not token.children else ""
-            # TODO warn if there are other matching references
         else:
             wrap_node = addnodes.pending_xref(
                 refdoc=self.doc_env.docname,
