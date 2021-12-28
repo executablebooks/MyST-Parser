@@ -23,19 +23,6 @@ def _validate_int(
     return int(value)
 
 
-def _create_validate_choice(choices: Sequence[str]) -> Callable[..., str]:
-    """Create a validator for a choice from a sequence of strings."""
-
-    def _validate(
-        setting, value, option_parser, config_parser=None, config_section=None
-    ):
-        if value not in choices:
-            raise ValueError(f"Expecting one of {choices!r}, got {value}.")
-        return value
-
-    return _validate
-
-
 def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
     """Create a validator for a tuple of length `length`."""
 
