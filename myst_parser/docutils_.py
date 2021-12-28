@@ -11,7 +11,8 @@ from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
 from markdown_it.token import Token
 
-from myst_parser.main import MdParserConfig, default_parser
+from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.main import MdParserConfig, create_md_parser
 
 
 def _validate_int(
@@ -63,8 +64,6 @@ DOCUTILS_EXCLUDED_ARGS = (
     "ref_domains",
     "update_mathjax",
     "mathjax_classes",
-    # We don't want to set the renderer from docutils.conf
-    "renderer",
 )
 """Names of settings that cannot be set in docutils.conf."""
 
@@ -139,7 +138,6 @@ def create_myst_config(settings: frontend.Values):
         val = getattr(settings, setting, DOCUTILS_UNSET)
         if val is not DOCUTILS_UNSET:
             values[attribute.name] = val
-    values["renderer"] = "docutils"
     return MdParserConfig(**values)
 
 
@@ -171,8 +169,8 @@ class Parser(RstParser):
             config = create_myst_config(document.settings)
         except (TypeError, ValueError) as error:
             document.reporter.error(f"myst configuration invalid: {error.args[0]}")
-            config = MdParserConfig(renderer="docutils")
-        parser = default_parser(config)
+            config = MdParserConfig()
+        parser = create_md_parser(config, DocutilsRenderer)
         parser.options["document"] = document
         env: dict = {}
         tokens = parser.parse(inputstring, env)

@@ -1,7 +1,9 @@
 import argparse
 import sys
 
-from myst_parser.main import MdParserConfig, default_parser
+from markdown_it.renderer import RendererHTML
+
+from myst_parser.main import MdParserConfig, create_md_parser
 
 
 def print_anchors(args=None):
@@ -25,7 +27,7 @@ def print_anchors(args=None):
         "-l", "--level", type=int, default=2, help="Maximum heading level."
     )
     args = arg_parser.parse_args(args)
-    parser = default_parser(MdParserConfig(renderer="html", heading_anchors=args.level))
+    parser = create_md_parser(MdParserConfig(heading_anchors=args.level), RendererHTML)
 
     def _filter_plugin(state):
         state.tokens = [
