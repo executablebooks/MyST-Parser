@@ -27,10 +27,11 @@ def test_syntax_elements(line, title, input, expected):
     )
     parser.options["document"] = document = make_document()
     parser.render(input)
+    outcome = "\n".join([ll.rstrip() for ll in document.pformat().splitlines()])
+    # in docutils 0.18 footnote ids have changed
+    outcome = outcome.replace('"footnote-reference-1"', '"id1"')
     try:
-        assert "\n".join(
-            [ll.rstrip() for ll in document.pformat().splitlines()]
-        ) == "\n".join([ll.rstrip() for ll in expected.splitlines()])
+        assert outcome == "\n".join([ll.rstrip() for ll in expected.splitlines()])
     except AssertionError:
         print(document.pformat())
         raise
