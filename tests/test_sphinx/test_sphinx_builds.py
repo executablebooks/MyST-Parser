@@ -66,6 +66,7 @@ def test_basic(
         "date": "2/12/1985",
         "copyright": "MIT",
         "other": "Something else",
+        "other_dict": '{"key": "value"}',
         "wordcount": {"minutes": 0, "words": 57},
     }
 
