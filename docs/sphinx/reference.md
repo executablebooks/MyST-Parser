@@ -38,6 +38,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_heading_slug_func`
   - `None`
   - Use the specified function to auto-generate heading anchors, [see here](syntax/header-anchors) for details.
+* - `myst_number_code_blocks`
+  - `()`
+  - Add line numbers to code blocks with these languages, [see here](syntax/code-blocks) for details.
 * - `myst_substitutions`
   - `{}`
   - A mapping of keys to substitutions, used globally for all MyST documents when the "substitution" extension is enabled.

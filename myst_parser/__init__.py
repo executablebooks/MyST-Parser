@@ -33,9 +33,10 @@ def setup_sphinx(app: "Sphinx"):
 
     app.add_post_transform(MystReferenceResolver)
 
-    for name, default in MdParserConfig().as_dict().items():
-        # TODO add types?
-        app.add_config_value(f"myst_{name}", default, "env")
+    for name, default, field in MdParserConfig().as_triple():
+        if not field.metadata.get("docutils_only", False):
+            # TODO add types?
+            app.add_config_value(f"myst_{name}", default, "env")
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
@@ -53,8 +54,8 @@ def create_myst_config(app):
 
     values = {
         name: app.config[f"myst_{name}"]
-        for name in MdParserConfig().as_dict().keys()
-        if name != "renderer"
+        for name, _, field in MdParserConfig().as_triple()
+        if not field.metadata.get("docutils_only", False)
     }
 
     try:

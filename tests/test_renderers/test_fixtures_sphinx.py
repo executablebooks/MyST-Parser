@@ -22,9 +22,10 @@ def test_minimal_sphinx():
 
 @pytest.mark.parametrize(
     "line,title,input,expected",
-    read_fixture_file(FIXTURE_PATH.joinpath("syntax_elements.md")),
+    read_fixture_file(FIXTURE_PATH.joinpath("sphinx_syntax_elements.md")),
     ids=[
-        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "syntax_elements.md")
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "sphinx_syntax_elements.md")
     ],
 )
 def test_syntax_elements(line, title, input, expected):

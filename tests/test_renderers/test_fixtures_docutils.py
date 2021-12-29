@@ -15,6 +15,30 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 @pytest.mark.parametrize(
     "line,title,input,expected",
+    read_fixture_file(FIXTURE_PATH.joinpath("docutil_syntax_elements.md")),
+    ids=[
+        f"{i[0]}-{i[1]}"
+        for i in read_fixture_file(FIXTURE_PATH / "docutil_syntax_elements.md")
+    ],
+)
+def test_syntax_elements(line, title, input, expected):
+    parser = create_md_parser(
+        MdParserConfig(highlight_code_blocks=False), DocutilsRenderer
+    )
+    parser.options["document"] = document = make_document()
+    parser.render(input)
+    outcome = "\n".join([ll.rstrip() for ll in document.pformat().splitlines()])
+    # in docutils 0.18 footnote ids have changed
+    outcome = outcome.replace('"footnote-reference-1"', '"id1"')
+    try:
+        assert outcome == "\n".join([ll.rstrip() for ll in expected.splitlines()])
+    except AssertionError:
+        print(document.pformat())
+        raise
+
+
+@pytest.mark.parametrize(
+    "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("docutil_roles.md")),
     ids=[
         f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "docutil_roles.md")

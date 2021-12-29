@@ -59,3 +59,9 @@ linkify URL: www.example.com
 
 - [ ] hallo
 - [x] there
+
+Numbered code block:
+
+```typescript
+type Result = "pass" | "fail"
+```

@@ -67,6 +67,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         docutils-version: ["0.16", "0.17", "0.18"]
 
