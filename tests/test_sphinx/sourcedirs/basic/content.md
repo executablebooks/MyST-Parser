@@ -17,6 +17,8 @@ dedication: |
 abstract:
     Something something **dark** side
 other: Something else
+other_dict:
+  key: value
 ---
 
 (target)=

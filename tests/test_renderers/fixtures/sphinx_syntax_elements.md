@@ -632,19 +632,22 @@ c:
                 a
             <field_body>
                 <paragraph>
-                    1
+                    <literal>
+                        1
         <field>
             <field_name>
                 b
             <field_body>
                 <paragraph>
-                    foo
+                    <literal>
+                        foo
         <field>
             <field_name>
                 c
             <field_body>
                 <paragraph>
-                    {"d": 2}
+                    <literal>
+                        {"d": 2}
 .
 
 --------------------------
@@ -762,7 +765,8 @@ other: Something else
                 other
             <field_body>
                 <paragraph>
-                    Something else
+                    <literal>
+                        Something else
 .
 
 --------------------------
@@ -864,7 +868,8 @@ a = 1
                 a
             <field_body>
                 <paragraph>
-                    1
+                    <literal>
+                        1
     <target ids="target" names="target">
     <section ids="header-1" names="header\ 1">
         <title>

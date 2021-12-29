@@ -818,7 +818,7 @@ class DocutilsRenderer(RendererProtocol):
             if key in bibliofields:
                 para_nodes, _ = state.inline_text(value, line)
             else:
-                para_nodes = [nodes.Text(value, value)]
+                para_nodes = [nodes.literal(value, value)]
 
             body_children = [nodes.paragraph("", "", *para_nodes)]
             body_children[0].source = self.document["source"]
