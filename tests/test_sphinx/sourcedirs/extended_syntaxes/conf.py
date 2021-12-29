@@ -13,6 +13,7 @@ myst_enable_extensions = [
     "linkify",
     "tasklist",
 ]
+myst_number_code_blocks = ["typescript"]
 myst_html_meta = {
     "description lang=en": "meta description",
     "property=og:locale": "en_US",
