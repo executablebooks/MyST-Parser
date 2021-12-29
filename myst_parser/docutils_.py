@@ -187,6 +187,7 @@ class Parser(RstParser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
+
         self.setup_parse(inputstring, document)
 
         # check for exorbitantly long lines
