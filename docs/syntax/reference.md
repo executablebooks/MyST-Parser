@@ -120,12 +120,13 @@ we have shown equivalent rST syntax for many MyST markdown features below.
     ======
     ```
 * - Quote
-  - quoted text
+  - Quoted text
   - ```md
     > this is a quote
     ```
 * - CodeFence
-  - enclosed in 3 or more backticks with an optional language name
+  - Enclosed in 3 or more `` ` `` or `~` with an optional language name.
+    See {ref}`syntax/code-blocks` for more information.
   - ````md
     ```python
     print('this is python')
@@ -176,8 +177,7 @@ In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax
   - Description
   - Example
 * - Role
-  - See {ref}`syntax/roles` for more
-  information.
+  - See {ref}`syntax/roles` for more information.
   - ```md
     {rolename}`interpreted text`
     ```

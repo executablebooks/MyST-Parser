@@ -610,6 +610,65 @@ leave the "text" section of the markdown link empty. For example, this
 markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
+(syntax/code-blocks)=
+## Code blocks
+
+Code blocks contain a language identifier, which is used to determine the language of the code.
+This language is used to determine the syntax highlighting, using an available [pygments lexer](https://pygments.org/docs/lexers/).
+
+````markdown
+```python
+from a import b
+c = "string"
+```
+````
+
+```python
+from a import b
+c = "string"
+```
+
+You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
+or within a sphinx extension, with the [`app.add_lexer` method](sphinx:sphinx.application.Sphinx.add_lexer).
+
+Using the `myst_number_code_blocks` configuration option, you can also control whether code blocks are numbered by line.
+For example, using `myst_number_code_blocks = ["typescript"]`:
+
+```typescript
+type MyBool = true | false;
+
+interface User {
+  name: string;
+  id: number;
+}
+```
+
+### Show backticks inside raw markdown blocks
+
+If you'd like to show backticks inside of your markdown, you can do so by nesting them
+in backticks of a greater length. Markdown will treat the outer-most backticks as the
+edges of the "raw" block and everything inside will show up. For example:
+
+``` `` `hi` `` ```  will be rendered as: `` `hi` ``
+
+and
+
+`````
+````
+```
+hi
+```
+````
+`````
+
+will be rendered as:
+
+````
+```
+hi
+```
+````
+
 ## Tables
 
 Tables can be written using the standard [Github Flavoured Markdown syntax](https://github.github.com/gfm/#tables-extension-):
@@ -746,33 +805,3 @@ This is because, in the current implementation, they may not be available to ref
 
 By default, a transition line (with a `footnotes` class) will be placed before any footnotes.
 This can be turned off by adding `myst_footnote_transition = False` to the config file.
-
-
-## Code blocks
-
-
-### Show backticks inside raw markdown blocks
-
-If you'd like to show backticks inside of your markdown, you can do so by nesting them
-in backticks of a greater length. Markdown will treat the outer-most backticks as the
-edges of the "raw" block and everything inside will show up. For example:
-
-``` `` `hi` `` ```  will be rendered as: `` `hi` ``
-
-and
-
-`````
-````
-```
-hi
-```
-````
-`````
-
-will be rendered as:
-
-````
-```
-hi
-```
-````

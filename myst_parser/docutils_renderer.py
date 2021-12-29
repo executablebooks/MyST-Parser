@@ -34,6 +34,7 @@ from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
 from docutils.transforms.components import Filter
 from docutils.utils import Reporter, new_document
+from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
 from markdown_it.renderer import RendererProtocol
@@ -427,14 +428,84 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
+    def create_highlighted_code_block(
+        self,
+        text: str,
+        lexer_name: str,
+        number_lines: bool = False,
+        lineno_start: int = 1,
+        source: Optional[str] = None,
+        line: Optional[int] = None,
+    ) -> nodes.literal_block:
+        """Create a literal block with syntax highlighting.
+
+        This mimics the behaviour of the `code-block` directive.
+
+        In docutils, this directive directly parses the text with the pygments lexer,
+        whereas in sphinx, the lexer name is only recorded as the `language` attribute,
+        and the text is lexed later by pygments within the `visit_literal_block`
+        method of the output format ``SphinxTranslator``.
+
+        Note, this function does not add the literal block to the document.
+        """
+        if self.sphinx_env is not None:
+            node = nodes.literal_block(text, text, language=lexer_name)
+            if number_lines:
+                node["linenos"] = True
+                if lineno_start != 1:
+                    node["highlight_args"] = {"linenostart": lineno_start}
+        else:
+            node = nodes.literal_block(
+                text, classes=["code"] + ([lexer_name] if lexer_name else [])
+            )
+            try:
+                lex_tokens = Lexer(
+                    text,
+                    lexer_name,
+                    "short"
+                    if self.config.get("myst_highlight_code_blocks", True)
+                    else "none",
+                )
+            except LexerError as err:
+                self.reporter.warning(
+                    str(err),
+                    **{
+                        name: value
+                        for name, value in (("source", source), ("line", line))
+                        if value is not None
+                    },
+                )
+                lex_tokens = Lexer(text, lexer_name, "none")
+
+            if number_lines:
+                lex_tokens = NumberLines(
+                    lex_tokens, lineno_start, lineno_start + len(text.splitlines())
+                )
+
+            for classes, value in lex_tokens:
+                if classes:
+                    node += nodes.inline(value, value, classes=classes)
+                else:
+                    # insert as Text to decrease the verbosity of the output
+                    node += nodes.Text(value)
+
+        if source is not None:
+            node.source = source
+        if line is not None:
+            node.line = line
+        return node
+
     def render_code_block(self, token: SyntaxTreeNode) -> None:
         # this should never have a language, since it is just indented text, however,
         # creating a literal_block with no language will raise a warning in sphinx
-        text = token.content
-        language = token.info.split()[0] if token.info else "none"
-        language = language or "none"
-        node = nodes.literal_block(text, text, language=language)
-        self.add_line_and_source_path(node, token)
+        lexer = token.info.split()[0] if token.info else None
+        lexer = lexer or "none"
+        node = self.create_highlighted_code_block(
+            token.content,
+            lexer,
+            source=self.document["source"],
+            line=token_line(token, 0) or None,
+        )
         self.current_node.append(node)
 
     def render_fence(self, token: SyntaxTreeNode) -> None:
@@ -465,16 +536,20 @@ class DocutilsRenderer(RendererProtocol):
         ):
             return self.render_directive(token)
 
-        if not language:
-            if self.sphinx_env is not None:
-                language = self.sphinx_env.temp_data.get(
-                    "highlight_language", self.sphinx_env.config.highlight_language
-                )
+        if not language and self.sphinx_env is not None:
+            # use the current highlight setting, via the ``highlight`` directive,
+            # or ``highlight_language`` configuration.
+            language = self.sphinx_env.temp_data.get(
+                "highlight_language", self.sphinx_env.config.highlight_language
+            )
 
-        if not language:
-            language = self.config.get("highlight_language", "")
-        node = nodes.literal_block(text, text, language=language)
-        self.add_line_and_source_path(node, token)
+        node = self.create_highlighted_code_block(
+            text,
+            language,
+            number_lines=language in self.config.get("myst_number_code_blocks", ()),
+            source=self.document["source"],
+            line=token_line(token, 0) or None,
+        )
         self.current_node.append(node)
 
     @property

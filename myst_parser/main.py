@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Iterable, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union, cast
 
 import attr
 from attr.validators import (
@@ -131,6 +131,21 @@ class MdParserConfig:
         metadata={"help": "Sphinx domain names to search in for references"},
     )
 
+    highlight_code_blocks: bool = attr.ib(
+        default=True,
+        validator=instance_of(bool),
+        metadata={
+            "help": "Syntax highlight code blocks with pygments",
+            "docutils_only": True,
+        },
+    )
+
+    number_code_blocks: Sequence[str] = attr.ib(
+        default=(),
+        validator=deep_iterable(instance_of(str)),
+        metadata={"help": "Add line numbers to code blocks with these languages"},
+    )
+
     heading_anchors: Optional[int] = attr.ib(
         default=None,
         validator=optional(in_([1, 2, 3, 4, 5, 6, 7])),
@@ -187,10 +202,18 @@ class MdParserConfig:
 
     @classmethod
     def get_fields(cls) -> Tuple[attr.Attribute, ...]:
+        """Return all attribute fields in this class."""
         return attr.fields(cls)
 
     def as_dict(self, dict_factory=dict) -> dict:
+        """Return a dictionary of field name -> value."""
         return attr.asdict(self, dict_factory=dict_factory)
+
+    def as_triple(self) -> Iterable[Tuple[str, Any, attr.Attribute]]:
+        """Yield triples of (name, value, field)."""
+        fields = attr.fields_dict(self.__class__)
+        for name, value in attr.asdict(self).items():
+            yield name, value, fields[name]
 
 
 def default_parser(config: MdParserConfig):
@@ -282,6 +305,8 @@ def create_md_parser(
             "myst_substitutions": config.substitutions,
             "myst_html_meta": config.html_meta,
             "myst_footnote_transition": config.footnote_transition,
+            "myst_number_code_blocks": config.number_code_blocks,
+            "myst_highlight_code_blocks": config.highlight_code_blocks,
         }
     )
 
