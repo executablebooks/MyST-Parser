@@ -659,6 +659,7 @@ class DocutilsRenderer(RendererProtocol):
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         ref_node["refname"] = cast(str, token.attrGet("href") or "")
+        self.document.note_refname(ref_node)
         title = token.attrGet("title")
         if title:
             ref_node["title"] = title
