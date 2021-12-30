@@ -24,7 +24,7 @@
                     texte 5 en 
                     <strong>
                         gras
-        <enumerated_list enumtype="arabic" suffix=".">
+        <enumerated_list enumtype="arabic" prefix="" suffix=".">
             <list_item>
                 <paragraph>
                     texte 6 en 
