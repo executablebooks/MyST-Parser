@@ -96,6 +96,7 @@ class DocutilsRenderer(RendererProtocol):
         self.md_env = env
         self.config: Dict[str, Any] = options
         self.document: nodes.document = self.config.get("document", make_document())
+        self.document.settings.myst_bib_files = self.config.get("myst_bib_files", [])
         self.current_node: nodes.Element = self.config.get(
             "current_node", self.document
         )
@@ -617,8 +618,15 @@ class DocutilsRenderer(RendererProtocol):
         if self.config.get("myst_all_links_external", False):
             return self.render_external_url(token)
 
+        href = cast(str, token.attrGet("href") or "")
+
+        # TODO better to parse this as a separate token in markdown-it,
+        # e.g. like footnotes `[@id]`
+        if href.startswith("@"):  # TODO config to enable/disable
+            return self.render_citation_link(token)
+
         # Check for external URL
-        url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
+        url_scheme = urlparse(href).scheme
         allowed_url_schemes = self.config.get("myst_url_schemes", None)
         if (allowed_url_schemes is None and url_scheme) or (
             url_scheme in allowed_url_schemes
@@ -626,6 +634,20 @@ class DocutilsRenderer(RendererProtocol):
             return self.render_external_url(token)
 
         return self.render_internal_link(token)
+
+    def render_citation_link(self, token: SyntaxTreeNode) -> None:
+        """Parse `()[@citation]` syntax to docutils AST"""
+        href = cast(str, token.attrGet("href") or "")
+        citation_key = href[1:]  # remove leading `@`
+        # TODO how to allow for multiple citations? for example `@citation1;@citation2`
+        # could just have a transform merge adjacent citations in some way
+        citation_ref = nodes.citation_reference(
+            citation_key, refname=citation_key, classes=["myst-citation-ref"]
+        )
+        self.add_line_and_source_path(citation_ref, token)
+        self.document.note_citation_ref(citation_ref)
+        self.current_node.append(citation_ref)
+        # TODO ignoring children
 
     def render_external_url(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
@@ -729,6 +751,18 @@ class DocutilsRenderer(RendererProtocol):
 
         substitutions = data.pop("substitutions", {})
         html_meta = data.pop("html_meta", {})
+
+        # TODO add front-matter support for bibliographies?
+        # bib_files = data.pop("bib_files", [])
+        # if isinstance(bib_files, str):
+        #     bib_files = [bib_files]
+        # # TODO check all strings
+        # # TODO this path join is probably not right
+        # bib_files = [
+        #     os.path.join(self.document["source"], str(b)) for b in bibliographies
+        # ]
+        # for sphinx, should be relative to the source directory
+        # self.document.settings.myst_bib_files.update(bib_files)
 
         if data:
             field_list = self.dict_to_fm_field_list(

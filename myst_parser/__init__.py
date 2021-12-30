@@ -43,6 +43,7 @@ def setup_sphinx(app: "Sphinx"):
 
 
 def create_myst_config(app):
+    """Create a MystConfig object from Sphinx config."""
     from sphinx.util import logging
 
     # Ignore type checkers because the attribute is dynamically assigned

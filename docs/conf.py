@@ -92,6 +92,7 @@ myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
+myst_bib_files = ["test-bib.yaml"]
 panels_add_bootstrap_css = False
 bibtex_bibfiles = ["examples/references.bib"]
 rediraffe_redirects = {

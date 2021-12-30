@@ -165,6 +165,12 @@ class MdParserConfig:
         metadata={"help": "HTML meta tags"},
     )
 
+    bib_files: Sequence[str] = attr.ib(
+        factory=list,
+        validator=deep_iterable(instance_of(str)),
+        metadata={"help": "Paths to bibliography files"},
+    )
+
     footnote_transition: bool = attr.ib(
         default=True,
         validator=instance_of(bool),
@@ -307,6 +313,7 @@ def create_md_parser(
             "myst_footnote_transition": config.footnote_transition,
             "myst_number_code_blocks": config.number_code_blocks,
             "myst_highlight_code_blocks": config.highlight_code_blocks,
+            "myst_bib_files": config.bib_files,
         }
     )
 

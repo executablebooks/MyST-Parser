@@ -3,15 +3,28 @@
    .. include:: path/to/file.md
       :parser: myst_parser.docutils_
 """
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 from attr import Attribute
 from docutils import frontend, nodes
 from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
+from docutils.transforms import Transform
 from markdown_it.token import Token
 from typing_extensions import Literal, get_args, get_origin
 
+from myst_parser.bibliography import MystBibliographyTransform
 from myst_parser.docutils_renderer import DocutilsRenderer
 from myst_parser.main import MdParserConfig, create_md_parser
 
@@ -180,6 +193,9 @@ class Parser(RstParser):
     config_section = "myst parser"
     config_section_dependencies = ("parsers",)
     translate_section_name = None
+
+    def get_transforms(self) -> List[Type[Transform]]:
+        return super().get_transforms() + [MystBibliographyTransform]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.

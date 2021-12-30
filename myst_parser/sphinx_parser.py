@@ -1,10 +1,11 @@
 import time
 from os import path
-from typing import Tuple
+from typing import List, Tuple, Type
 
 from docutils import nodes
 from docutils.core import publish_doctree
 from docutils.parsers.rst import Parser as RstParser
+from docutils.transforms import Transform
 from markdown_it.token import Token
 from sphinx.application import Sphinx
 from sphinx.io import SphinxStandaloneReader
@@ -12,6 +13,7 @@ from sphinx.parsers import Parser as SphinxParser
 from sphinx.util import logging
 from sphinx.util.docutils import sphinx_domains
 
+from myst_parser.bibliography import MystBibliographyTransform
 from myst_parser.main import create_md_parser
 from myst_parser.sphinx_renderer import SphinxRenderer
 
@@ -41,6 +43,9 @@ class MystParser(SphinxParser):
     config_section = "myst parser"
     config_section_dependencies = ("parsers",)
     translate_section_name = None
+
+    def get_transforms(self) -> List[Type[Transform]]:
+        return super().get_transforms() + [MystBibliographyTransform]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.
