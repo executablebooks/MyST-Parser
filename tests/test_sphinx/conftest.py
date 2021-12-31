@@ -78,6 +78,9 @@ def get_sphinx_app_output(file_regression):
             # only regress the inner body, since other sections are non-deterministic
             soup = BeautifulSoup(content, "html.parser")
             doc_div = soup.findAll("div", {"class": "documentwrapper"})[0]
+            # pygments 2.11.0 introduces a whitespace tag
+            for pygment_whitespace in doc_div.select("pre > span.w"):
+                pygment_whitespace.replace_with(pygment_whitespace.text)
             text = doc_div.prettify()
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
