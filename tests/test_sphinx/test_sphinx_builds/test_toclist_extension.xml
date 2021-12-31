@@ -3,7 +3,7 @@
         <title>
             Title
         <compound classes="toctree-wrapper">
-            <toctree caption="True" entries="(None,\ 'page1') (None,\ 'https://example.com') ('title',\ 'https://example.com')" glob="False" hidden="False" includefiles="page1" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="title" titlesonly="False">
+            <toctree caption="True" entries="(None,\ 'page1') (None,\ 'https://example.com') ('title',\ 'https://example.com')" glob="False" hidden="False" includefiles="page1" includehidden="False" maxdepth="2" numbered="999" parent="index" rawentries="title" titlesonly="False">
         <bullet_list bullet="-">
             <list_item>
                 <paragraph>
