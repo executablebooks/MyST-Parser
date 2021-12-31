@@ -257,13 +257,27 @@ Nested Bullets
 Enumerated List:
 .
 1. *foo*
+
+para
+
+10. starting
+11. enumerator
 .
 <document source="notset">
-    <enumerated_list enumtype="arabic" suffix=".">
+    <enumerated_list enumtype="arabic" prefix="" suffix=".">
         <list_item>
             <paragraph>
                 <emphasis>
                     foo
+    <paragraph>
+        para
+    <enumerated_list enumtype="arabic" prefix="" start="10" suffix=".">
+        <list_item>
+            <paragraph>
+                starting
+        <list_item>
+            <paragraph>
+                enumerator
 .
 
 --------------------------
@@ -274,14 +288,14 @@ Nested Enumrated List:
     1. c
 .
 <document source="notset">
-    <enumerated_list enumtype="arabic" suffix=".">
+    <enumerated_list enumtype="arabic" prefix="" suffix=".">
         <list_item>
             <paragraph>
                 a
         <list_item>
             <paragraph>
                 b
-            <enumerated_list enumtype="arabic" suffix=".">
+            <enumerated_list enumtype="arabic" prefix="" suffix=".">
                 <list_item>
                     <paragraph>
                         c
