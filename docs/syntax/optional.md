@@ -683,7 +683,7 @@ Send a message to a recipient
 Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 :::
 
-(syntax/toclist)=
+(syntax/toclists)=
 ## Table of Contents Lists
 
 By adding `"toclist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),

@@ -69,6 +69,7 @@ List of extensions:
 - "smartquotes": automatically convert standard quotations to their opening/closing variants
 - "substitution": substitute keys, see the [substitutions syntax](syntax/substitutions) for details
 - "tasklist": add check-boxes to the start of list items, see the [tasklist syntax](syntax/tasklists) for details
+- "toclist": specify sphinx `toctree` in a Markdown native manner, see the [toclist syntax](syntax/toclists) for details
 
 Math specific, when `"dollarmath"` activated, see the [Math syntax](syntax/math) for more details:
 
