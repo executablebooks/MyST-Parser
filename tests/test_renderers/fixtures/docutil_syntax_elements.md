@@ -258,6 +258,8 @@ Enumerated List:
 .
 1. *foo*
 
+1) bar
+
 para
 
 10. starting
@@ -269,6 +271,10 @@ para
             <paragraph>
                 <emphasis>
                     foo
+    <enumerated_list enumtype="arabic" prefix="" suffix=")">
+        <list_item>
+            <paragraph>
+                bar
     <paragraph>
         para
     <enumerated_list enumtype="arabic" prefix="" start="10" suffix=".">

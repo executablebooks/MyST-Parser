@@ -377,7 +377,8 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def render_ordered_list(self, token: SyntaxTreeNode) -> None:
-        list_node = nodes.enumerated_list(enumtype="arabic", prefix="", suffix=".")
+        list_node = nodes.enumerated_list(enumtype="arabic", prefix="")
+        list_node["suffix"] = token.markup  # for CommonMark, this should be "." or ")"
         if "start" in token.attrs:  # starting number
             list_node["start"] = token.attrs["start"]
         self.add_line_and_source_path(list_node, token)
