@@ -89,9 +89,9 @@ class MdParserConfig:
             raise TypeError(f"myst_enable_extensions not iterable: {value}")
         diff = set(value).difference(
             [
-                "dollarmath",
                 "amsmath",
                 "deflist",
+                "dollarmath",
                 "fieldlist",
                 "html_admonition",
                 "html_image",
@@ -101,6 +101,7 @@ class MdParserConfig:
                 "linkify",
                 "substitution",
                 "tasklist",
+                "toclist",
             ]
         )
         if diff:
@@ -182,6 +183,18 @@ class MdParserConfig:
 
     sub_delimiters: Tuple[str, str] = attr.ib(
         default=("{", "}"), metadata={"help": "Substitution delimiters"}
+    )
+
+    toclist_maxdepth: Optional[int] = attr.ib(
+        default=None,
+        validator=optional(instance_of(int)),
+        metadata={"help": "Max depth of toctree created from the toclist extension"},
+    )
+
+    toclist_numbered: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Number toctree entries created from the toclist extension"},
     )
 
     words_per_minute: int = attr.ib(
@@ -307,6 +320,8 @@ def create_md_parser(
             "myst_footnote_transition": config.footnote_transition,
             "myst_number_code_blocks": config.number_code_blocks,
             "myst_highlight_code_blocks": config.highlight_code_blocks,
+            "myst_toclist_maxdepth": config.toclist_maxdepth,
+            "myst_toclist_numbered": config.toclist_numbered,
         }
     )
 

@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
+from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
 from sphinx.application import Sphinx, builtin_extensions
@@ -25,7 +26,7 @@ from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_no
 from sphinx.util.nodes import clean_astext
 from sphinx.util.tags import Tags
 
-from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.docutils_renderer import DocutilsRenderer, token_line
 
 LOGGER = logging.getLogger(__name__)
 
@@ -221,6 +222,87 @@ class SphinxRenderer(DocutilsRenderer):
         target = nodes.target("", "", ids=[node_id])
         self.document.note_explicit_target(target)
         return target
+
+    def render_bullet_list(self, token: SyntaxTreeNode) -> None:
+        # override for toclist extension
+        if (
+            "toclist" not in self.config.get("myst_extensions", [])
+            or token.markup != "+"
+        ):
+            return super().render_bullet_list(token)
+        return self.render_toclist(token)
+
+    def render_toclist(self, token: SyntaxTreeNode) -> None:
+        """Render a toclist as a sphinx ``toctree`` item."""
+        # here we expect a list of links to documents/hyperlinks,
+        # with an optional title, e.g.
+        # `+ [discarded](doc.md "title")`
+        # print(token.pretty())
+        # <bullet_list>
+        #   <list_item>
+        #     <paragraph>
+        #       <inline>
+        #         <link href='doc.md' title='title'>
+        #           <text>
+        items = []
+        for child in token.children:
+
+            # get the link
+            malformed_msg = "malformed toclist item, expected single link"
+            line = token_line(child, default=0) or None
+            if child.type != "list_item":
+                self.create_warning(malformed_msg, subtype="toclist", line=line)
+                continue
+            if len(child.children) != 1 or child.children[0].type != "paragraph":
+                self.create_warning(malformed_msg, subtype="toclist", line=line)
+                continue
+            if (
+                len(child.children[0].children) != 1
+                or child.children[0].children[0].type != "inline"
+            ):
+                self.create_warning(malformed_msg, subtype="toclist", line=line)
+                continue
+            if (
+                len(child.children[0].children[0].children) != 1
+                or child.children[0].children[0].children[0].type != "link"
+            ):
+                self.create_warning(malformed_msg, subtype="toclist", line=line)
+                continue
+            link = child.children[0].children[0].children[0]
+
+            # add the toc item
+            href = cast(str, link.attrGet("href") or "")
+            if not href:
+                continue
+            title = link.attrGet("title")
+            # Note: we discard the link children since the toctree cannot use them
+            items.append({"href": href, "title": title})
+
+        if not items:
+            return
+        # we simply create the directive token and let sphinx handle generating the AST
+        content = "\n".join(
+            str(i["href"]) if not i["title"] else f"{i['title']} <{i['href']}>"
+            for i in items
+        )
+        if self.config.get("myst_toclist_maxdepth", None) is not None:
+            content = f":maxdepth: {self.config['myst_toclist_maxdepth']}\n" + content
+        if self.config.get("myst_toclist_numbered", False):
+            content = ":numbered:\n" + content
+        toctree_token = SyntaxTreeNode(
+            tokens=[
+                Token(
+                    "fence",
+                    "",
+                    0,
+                    info="{toctree}",
+                    map=cast(list, token.map),
+                    content=content,
+                )
+            ],
+            create_root=False,
+        )
+        return self.render_directive(toctree_token)
 
 
 def minimal_sphinx_app(
