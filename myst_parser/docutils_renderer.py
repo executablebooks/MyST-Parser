@@ -16,6 +16,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
     cast,
 )
@@ -432,12 +433,13 @@ class DocutilsRenderer(RendererProtocol):
     def create_highlighted_code_block(
         self,
         text: str,
-        lexer_name: str,
+        lexer_name: Optional[str],
         number_lines: bool = False,
         lineno_start: int = 1,
         source: Optional[str] = None,
         line: Optional[int] = None,
-    ) -> nodes.literal_block:
+        node_cls: Type[nodes.Element] = nodes.literal_block,
+    ) -> nodes.Element:
         """Create a literal block with syntax highlighting.
 
         This mimics the behaviour of the `code-block` directive.
@@ -450,19 +452,19 @@ class DocutilsRenderer(RendererProtocol):
         Note, this function does not add the literal block to the document.
         """
         if self.sphinx_env is not None:
-            node = nodes.literal_block(text, text, language=lexer_name)
+            node = node_cls(text, text, language=lexer_name or "none")
             if number_lines:
                 node["linenos"] = True
                 if lineno_start != 1:
                     node["highlight_args"] = {"linenostart": lineno_start}
         else:
-            node = nodes.literal_block(
+            node = node_cls(
                 text, classes=["code"] + ([lexer_name] if lexer_name else [])
             )
             try:
                 lex_tokens = Lexer(
                     text,
-                    lexer_name,
+                    lexer_name or "",
                     "short"
                     if self.config.get("myst_highlight_code_blocks", True)
                     else "none",
@@ -476,7 +478,7 @@ class DocutilsRenderer(RendererProtocol):
                         if value is not None
                     },
                 )
-                lex_tokens = Lexer(text, lexer_name, "none")
+                lex_tokens = Lexer(text, lexer_name or "", "none")
 
             if number_lines:
                 lex_tokens = NumberLines(
@@ -497,10 +499,7 @@ class DocutilsRenderer(RendererProtocol):
         return node
 
     def render_code_block(self, token: SyntaxTreeNode) -> None:
-        # this should never have a language, since it is just indented text, however,
-        # creating a literal_block with no language will raise a warning in sphinx
         lexer = token.info.split()[0] if token.info else None
-        lexer = lexer or "none"
         node = self.create_highlighted_code_block(
             token.content,
             lexer,

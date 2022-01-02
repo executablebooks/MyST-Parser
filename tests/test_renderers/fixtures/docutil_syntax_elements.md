@@ -127,7 +127,7 @@ Block Code:
     foo
 .
 <document source="notset">
-    <literal_block classes="code none" xml:space="preserve">
+    <literal_block classes="code" xml:space="preserve">
         foo
 .
 
