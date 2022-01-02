@@ -304,6 +304,17 @@ class DocutilsRenderer(RendererProtocol):
             pass
         node.source = self.document["source"]
 
+    def add_line_and_source_path_r(
+        self, nodes: List[nodes.Element], token: SyntaxTreeNode
+    ) -> None:
+        """Copy the line number and document source path to the docutils nodes,
+        and recursively to all descendants.
+        """
+        for node in nodes:
+            self.add_line_and_source_path(node, token)
+            for child in node.traverse():
+                self.add_line_and_source_path(child, token)
+
     def is_section_level(self, level, section):
         return self._level_to_elem.get(level, None) == section
 
