@@ -114,14 +114,14 @@ class MockState:
         if option_presets:
             raise MockingError("parse_directive_block: option_presets not implemented")
         # TODO should argument_str always be ""?
-        arguments, options, body_lines = parse_directive_text(
+        arguments, options, body_lines, content_offset = parse_directive_text(
             directive, "", "\n".join(content)
         )
         return (
             arguments,
             options,
             StringList(body_lines, source=content.source),
-            line_offset + len(content) - len(body_lines),
+            line_offset + content_offset,
         )
 
     def nested_parse(

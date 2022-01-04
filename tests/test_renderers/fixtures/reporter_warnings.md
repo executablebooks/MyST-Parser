@@ -136,5 +136,19 @@ header nested in admonition
 # Header
 ```
 .
-<string>:1: (WARNING/2) Header nested in this element can lead to unexpected outcomes
+<string>:2: (WARNING/2) Header nested in this element can lead to unexpected outcomes
+.
+
+nested parse warning
+.
+Paragraph
+
+```{note}
+:class: abc
+:name: xyz
+
+{unknown}`a`
+```
+.
+<string>:7: (ERROR/3) Unknown interpreted text role "unknown".
 .

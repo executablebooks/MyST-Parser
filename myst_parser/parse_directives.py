@@ -36,7 +36,7 @@ This is to allow for separation between the option block and content.
 import datetime
 import re
 from textwrap import dedent
-from typing import Any, Callable, Dict, Type
+from typing import Any, Callable, Dict, List, Tuple, Type
 
 import yaml
 from docutils.parsers.rst import Directive
@@ -54,7 +54,7 @@ def parse_directive_text(
     first_line: str,
     content: str,
     validate_options: bool = True,
-):
+) -> Tuple[List[str], dict, List[str], int]:
     """Parse (and validate) the full directive text.
 
     :param first_line: The text on the same line as the directive name.
@@ -62,17 +62,19 @@ def parse_directive_text(
     :param content: All text after the first line. Can include options.
     :param validate_options: Whether to validate the values of options
 
+    :returns: (arguments, options, body_lines, content_offset)
     """
     if directive_class.option_spec:
         body, options = parse_directive_options(
             content, directive_class, validate=validate_options
         )
+        body_lines = body.splitlines()
+        content_offset = len(content.splitlines()) - len(body_lines)
     else:
         # If there are no possible options, we do not look for a YAML block
         options = {}
-        body = content
-
-    body_lines = body.splitlines()
+        body_lines = content.splitlines()
+        content_offset = 0
 
     if not (
         directive_class.required_arguments
@@ -91,12 +93,13 @@ def parse_directive_text(
     # this is to allow space between the options and the content
     if body_lines and not body_lines[0].strip():
         body_lines = body_lines[1:]
+        content_offset += 1
 
     # check for body content
     if body_lines and not directive_class.has_content:
         raise DirectiveParsingError("No content permitted")
 
-    return arguments, options, body_lines
+    return arguments, options, body_lines, content_offset
 
 
 def parse_directive_options(

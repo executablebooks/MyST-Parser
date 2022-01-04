@@ -6,11 +6,21 @@ from docutils.parsers.rst.directives.body import Rubric
 from myst_parser.parse_directives import DirectiveParsingError, parse_directive_text
 
 
-@pytest.mark.parametrize("klass,arguments,content", [(Note, "", "a"), (Note, "a", "")])
+@pytest.mark.parametrize(
+    "klass,arguments,content",
+    [(Note, "", "a"), (Note, "a", ""), (Note, "", ":class: name\n\na")],
+)
 def test_parsing(klass, arguments, content, data_regression):
-    arguments, options, body_lines = parse_directive_text(klass, arguments, content)
+    arguments, options, body_lines, content_offset = parse_directive_text(
+        klass, arguments, content
+    )
     data_regression.check(
-        {"arguments": arguments, "options": options, "body": body_lines}
+        {
+            "arguments": arguments,
+            "options": options,
+            "body": body_lines,
+            "content_offset": content_offset,
+        }
     )
 
 

@@ -262,9 +262,18 @@ class DocutilsRenderer(RendererProtocol):
             self.document.note_substitution_def(substitution_node, f"wordcount-{key}")
 
     def nested_render_text(self, text: str, lineno: int) -> None:
-        """Render unparsed text."""
+        """Render unparsed text.
+
+        :param text: the text to render
+        :param lineno: the starting line number of the text, within the full source
+        """
 
         tokens = self.md.parse(text + "\n", self.md_env)
+
+        # update the line numbers
+        for token in tokens:
+            if token.map:
+                token.map = [token.map[0] + lineno, token.map[1] + lineno]
 
         # remove front matter
         if tokens and tokens[0].type == "front_matter":
@@ -1139,7 +1148,7 @@ class DocutilsRenderer(RendererProtocol):
             directive_class.option_spec["relative-docs"] = directives.path
 
         try:
-            arguments, options, body_lines = parse_directive_text(
+            arguments, options, body_lines, content_offset = parse_directive_text(
                 directive_class, first_line, content
             )
         except DirectiveParsingError as error:
@@ -1175,7 +1184,7 @@ class DocutilsRenderer(RendererProtocol):
                 # the absolute line number of the first line of the directive
                 lineno=position,
                 # the line offset of the first line of the content
-                content_offset=0,  # TODO get content offset from `parse_directive_text`
+                content_offset=content_offset,
                 # a string containing the entire directive
                 block_text="\n".join(body_lines),
                 state=state,
