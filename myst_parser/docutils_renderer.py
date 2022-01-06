@@ -748,6 +748,9 @@ class DocutilsRenderer(RendererProtocol):
         else:
             data = deepcopy(token.content)
 
+        if data.get("title"):
+            self.nested_render_text(f"# {data.pop('title')}", 0)
+
         substitutions = data.pop("substitutions", {})
         html_meta = data.pop("html_meta", {})
 
