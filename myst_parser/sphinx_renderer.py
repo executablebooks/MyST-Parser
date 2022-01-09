@@ -135,6 +135,11 @@ class SphinxRenderer(DocutilsRenderer):
         The approach is similar to ``sphinx.ext.autosectionlabel``
         """
         super().render_heading(token)
+
+        if not isinstance(self.current_node, nodes.section):
+            return
+
+        # create the slug string
         slug = cast(str, token.attrGet("id"))
         if slug is None:
             return
