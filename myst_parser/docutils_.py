@@ -65,6 +65,8 @@ DOCUTILS_EXCLUDED_ARGS = (
     "ref_domains",
     "update_mathjax",
     "mathjax_classes",
+    "toclist_maxdepth",
+    "toclist_numbered",
 )
 """Names of settings that cannot be set in docutils.conf."""
 

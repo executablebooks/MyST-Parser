@@ -38,6 +38,7 @@ myst_enable_extensions = [
     "smartquotes",
     "substitution",
     "tasklist",
+    "toclist",
 ]
 ```
 
@@ -681,6 +682,42 @@ Send a message to a recipient
 :::{note}
 Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 :::
+
+(syntax/toclists)=
+## Table of Contents Lists
+
+By adding `"toclist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+you will be able to specify [sphinx `toctree`](sphinx:toctree-directive) in a Markdown native manner.
+
+`toclist` are identified by bullet lists that use the `+` character as the marker,
+and each item should be a link to another source file or an external hyperlink:
+
+```markdown
++ [Link text](subsection.md)
++ [Link text](https://example.com "Example external link")
+```
+
+is equivalent to:
+
+````markdown
+```{toctree}
+
+subsection.md
+Example external link <https://example.com>
+```
+````
+
++ [Link text](subsection.md)
++ [Link text](https://example.com "Example external link")
+
+Note that the link text is omitted from the output `toctree`, and the title of the link is taken from either the link title, if present, or the title of the source file.
+
+You can also specify the `maxdepth` and `numbered` options for all toclist in your `conf.py`:
+
+```python
+myst_toclist_maxdepth = 2
+myst_toclist_numbered = True
+```
 
 (syntax/images)=
 

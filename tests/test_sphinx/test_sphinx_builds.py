@@ -532,3 +532,28 @@ def test_fieldlist_extension(
             regress_html=True,
             regress_ext=f".sphinx{sphinx.version_info[0]}.html",
         )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "toclist"),
+    freshenv=True,
+)
+def test_toclist_extension(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+):
+    """test enabling the toclist extension."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+
+    get_sphinx_app_doctree(
+        app,
+        docname="index",
+        regress=True,
+        regress_ext=".xml",
+    )

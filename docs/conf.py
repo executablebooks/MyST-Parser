@@ -87,6 +87,7 @@ myst_enable_extensions = [
     "linkify",
     "substitution",
     "tasklist",
+    "toclist",
 ]
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
