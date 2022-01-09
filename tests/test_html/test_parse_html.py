@@ -1,13 +1,13 @@
 from pathlib import Path
 
-from pytest_param_files import with_parameters
+import pytest
 
 from myst_parser.parse_html import tokenize_html
 
 FIXTURE_PATH = Path(__file__).parent
 
 
-@with_parameters(FIXTURE_PATH / "html_ast.md")
+@pytest.mark.param_file(FIXTURE_PATH / "html_ast.md")
 def test_html_ast(file_params):
     tokens = "\n".join(
         repr(t) for t in tokenize_html(file_params.content).walk(include_self=True)
@@ -15,7 +15,7 @@ def test_html_ast(file_params):
     file_params.assert_expected(tokens, rstrip=True)
 
 
-@with_parameters(FIXTURE_PATH / "html_round_trip.md")
+@pytest.mark.param_file(FIXTURE_PATH / "html_round_trip.md")
 def test_html_round_trip(file_params):
     ast = tokenize_html(file_params.content)
     file_params.assert_expected(str(ast), rstrip=True)

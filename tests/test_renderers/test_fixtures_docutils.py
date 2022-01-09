@@ -5,7 +5,6 @@ Note, the output AST is before any transforms are applied.
 from pathlib import Path
 
 import pytest
-from pytest_param_files import with_parameters
 
 from myst_parser.docutils_renderer import DocutilsRenderer, make_document
 from myst_parser.main import MdParserConfig, create_md_parser
@@ -13,7 +12,7 @@ from myst_parser.main import MdParserConfig, create_md_parser
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
-@with_parameters(FIXTURE_PATH / "docutil_syntax_elements.md")
+@pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_elements.md")
 def test_syntax_elements(file_params):
     parser = create_md_parser(
         MdParserConfig(highlight_code_blocks=False), DocutilsRenderer
@@ -25,7 +24,7 @@ def test_syntax_elements(file_params):
     file_params.assert_expected(outcome, rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "docutil_roles.md")
+@pytest.mark.param_file(FIXTURE_PATH / "docutil_roles.md")
 def test_docutils_roles(file_params):
     """Test output of docutils roles."""
     parser = create_md_parser(MdParserConfig(), DocutilsRenderer)
@@ -34,7 +33,7 @@ def test_docutils_roles(file_params):
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "docutil_directives.md")
+@pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")
 def test_docutils_directives(file_params):
     """Test output of docutils directives."""
     if "SKIP" in file_params.description:  # line-block directive not yet supported

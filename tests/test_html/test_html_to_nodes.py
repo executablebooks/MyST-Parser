@@ -3,7 +3,6 @@ from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
-from pytest_param_files import with_parameters
 
 from myst_parser.html_to_nodes import html_to_nodes
 from myst_parser.main import MdParserConfig
@@ -29,7 +28,7 @@ def mock_renderer():
     )
 
 
-@with_parameters(FIXTURE_PATH / "html_to_nodes.md")
+@pytest.mark.param_file(FIXTURE_PATH / "html_to_nodes.md")
 def test_html_to_nodes(file_params, mock_renderer):
     output = nodes.container()
     output += html_to_nodes(file_params.content, line_number=0, renderer=mock_renderer)

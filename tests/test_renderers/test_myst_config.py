@@ -3,15 +3,15 @@ import shlex
 from io import StringIO
 from pathlib import Path
 
+import pytest
 from docutils.core import Publisher, publish_doctree
-from pytest_param_files import with_parameters
 
 from myst_parser.docutils_ import Parser
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
-@with_parameters(FIXTURE_PATH / "myst-config.txt")
+@pytest.mark.param_file(FIXTURE_PATH / "myst-config.txt")
 def test_cmdline(file_params):
     """The description is parsed as a docutils commandline"""
     pub = Publisher(parser=Parser())
