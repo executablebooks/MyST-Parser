@@ -7,7 +7,6 @@ from pathlib import Path
 
 import pytest
 import sphinx
-from pytest_param_files import with_parameters
 
 from myst_parser.main import MdParserConfig, to_docutils
 from myst_parser.sphinx_renderer import SphinxRenderer, mock_sphinx_env
@@ -20,25 +19,25 @@ def test_minimal_sphinx():
         assert app.config["author"] == "bob geldof"
 
 
-@with_parameters(FIXTURE_PATH / "sphinx_syntax_elements.md")
+@pytest.mark.param_file(FIXTURE_PATH / "sphinx_syntax_elements.md")
 def test_syntax_elements(file_params):
     document = to_docutils(file_params.content, in_sphinx_env=True)
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "tables.md")
+@pytest.mark.param_file(FIXTURE_PATH / "tables.md")
 def test_tables(file_params):
     document = to_docutils(file_params.content, in_sphinx_env=True)
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "directive_options.md")
+@pytest.mark.param_file(FIXTURE_PATH / "directive_options.md")
 def test_directive_options(file_params):
     document = to_docutils(file_params.content)
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "sphinx_directives.md")
+@pytest.mark.param_file(FIXTURE_PATH / "sphinx_directives.md")
 def test_sphinx_directives(file_params):
     # TODO fix skipped directives
     # TODO test domain directives
@@ -52,7 +51,7 @@ def test_sphinx_directives(file_params):
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "sphinx_roles.md")
+@pytest.mark.param_file(FIXTURE_PATH / "sphinx_roles.md")
 def test_sphinx_roles(file_params):
     if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
@@ -65,7 +64,7 @@ def test_sphinx_roles(file_params):
     file_params.assert_expected(actual, rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "amsmath.md")
+@pytest.mark.param_file(FIXTURE_PATH / "amsmath.md")
 def test_amsmath(file_params, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(
@@ -76,7 +75,7 @@ def test_amsmath(file_params, monkeypatch):
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "containers.md")
+@pytest.mark.param_file(FIXTURE_PATH / "containers.md")
 def test_containers(file_params, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     document = to_docutils(
@@ -87,13 +86,13 @@ def test_containers(file_params, monkeypatch):
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "eval_rst.md")
+@pytest.mark.param_file(FIXTURE_PATH / "eval_rst.md")
 def test_evalrst_elements(file_params):
     document = to_docutils(file_params.content, in_sphinx_env=True)
     file_params.assert_expected(document.pformat(), rstrip_lines=True)
 
 
-@with_parameters(FIXTURE_PATH / "definition_lists.md")
+@pytest.mark.param_file(FIXTURE_PATH / "definition_lists.md")
 def test_definition_lists(file_params):
     document = to_docutils(
         file_params.content,

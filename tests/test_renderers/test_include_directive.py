@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pytest
-from pytest_param_files import with_parameters
 
 from myst_parser.docutils_renderer import make_document
 from myst_parser.main import to_docutils
@@ -10,7 +9,7 @@ from myst_parser.main import to_docutils
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
-@with_parameters(FIXTURE_PATH / "mock_include.md")
+@pytest.mark.param_file(FIXTURE_PATH / "mock_include.md")
 def test_render(file_params, tmp_path):
     tmp_path.joinpath("other.md").write_text("a\nb\nc")
     tmp_path.joinpath("fmatter.md").write_text("---\na: 1\n---\nb")
@@ -22,7 +21,7 @@ def test_render(file_params, tmp_path):
     file_params.assert_expected(output, rstrip=True)
 
 
-@with_parameters(FIXTURE_PATH / "mock_include_errors.md")
+@pytest.mark.param_file(FIXTURE_PATH / "mock_include_errors.md")
 def test_errors(file_params, tmp_path):
     if file_params.title.startswith("Non-existent path") and os.name == "nt":
         pytest.skip("tmp_path not converted correctly on Windows")
