@@ -12,7 +12,10 @@ To do so, use the keywords beginning `myst_`.
   - Description
 * - `myst_commonmark_only`
   - `False`
-  - If `True` convert text as strict CommonMark (all options below are then ignored). Note that strict CommonMark is unable to parse any directives, including the `toctree` directive, thus limiting MyST parser to single-page documentations. Use in conjunction with [sphinx-external-toc](https://github.com/executablebooks/sphinx-external-toc) Sphinx extension to counter this limitation.
+  - If `True` convert text as strict [CommonMark](https://spec.commonmark.org/) (all options below are then ignored). Note that strict CommonMark is unable to parse any directives, including the `toctree` directive, thus limiting MyST parser to single-page documentations. Use in conjunction with [sphinx-external-toc](https://github.com/executablebooks/sphinx-external-toc) Sphinx extension to counter this limitation.
+* - `myst_gfm_only`
+  - `False`
+  - If `True` convert text as strict [GitHub-flavored Markdown](https://github.github.com/gfm/) (all options below are then ignored).
 * - `myst_disable_syntax`
   - ()
   - List of markdown syntax elements to disable, see the [markdown-it parser guide](markdown_it:using).

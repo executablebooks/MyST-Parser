@@ -34,3 +34,94 @@ www.example.com
         <reference refuri="http://www.example.com">
             www.example.com
 .
+
+[gfm-disallowed-html] --myst-gfm-only="yes"
+.
+<strong> <title> <style> <em>
+
+<blockquote>
+  <xmp> is disallowed.  <XMP> is also disallowed.
+</blockquote>
+.
+<document source="<string>">
+    <paragraph>
+        <raw format="html" xml:space="preserve">
+            <strong>
+
+        <raw format="html" xml:space="preserve">
+            &lt;title>
+
+        <raw format="html" xml:space="preserve">
+            &lt;style>
+
+        <raw format="html" xml:space="preserve">
+            <em>
+    <raw format="html" xml:space="preserve">
+        <blockquote>
+          &lt;xmp> is disallowed.  &lt;XMP> is also disallowed.
+        </blockquote>
+.
+
+[gfm-autolink] --myst-gfm-only="yes"
+.
+www.commonmark.org
+
+Visit www.commonmark.org/help for more information.
+
+www.google.com/search?q=Markup+(business)
+
+www.google.com/search?q=Markup+(business)))
+
+(www.google.com/search?q=Markup+(business))
+
+(www.google.com/search?q=Markup+(business)
+
+www.google.com/search?q=(business))+ok
+
+www.google.com/search?q=commonmark&hl=en
+
+www.google.com/search?q=commonmark&hl;
+
+www.commonmark.org/he<lp
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="http://www.commonmark.org">
+            www.commonmark.org
+    <paragraph>
+        Visit
+        <reference refuri="http://www.commonmark.org/help">
+            www.commonmark.org/help
+         for more information.
+    <paragraph>
+        <reference refuri="http://www.google.com/search?q=Markup+(business)">
+            www.google.com/search?q=Markup+(business)
+    <paragraph>
+        <reference refuri="http://www.google.com/search?q=Markup+(business)">
+            www.google.com/search?q=Markup+(business)
+        ))
+    <paragraph>
+        (
+        <reference refuri="http://www.google.com/search?q=Markup+(business)">
+            www.google.com/search?q=Markup+(business)
+        )
+    <paragraph>
+        (
+        <reference refuri="http://www.google.com/search?q=Markup+(business)">
+            www.google.com/search?q=Markup+(business)
+    <paragraph>
+        <reference refuri="http://www.google.com/search?q=(business)">
+            www.google.com/search?q=(business)
+        )+ok
+    <paragraph>
+        <reference refuri="http://www.google.com/search?q=commonmark&amp;hl=en">
+            www.google.com/search?q=commonmark&hl=en
+    <paragraph>
+        <reference refuri="http://www.google.com/search?q=commonmark&amp;hl">
+            www.google.com/search?q=commonmark&hl
+        ;
+    <paragraph>
+        <reference refuri="http://www.commonmark.org/he">
+            www.commonmark.org/he
+        <lp
+.

@@ -1,3 +1,5 @@
+"""Convert HTML to docutils nodes."""
+import re
 from typing import TYPE_CHECKING, List
 
 from docutils import nodes
@@ -23,6 +25,12 @@ OPTION_KEYS_IMAGE = {"class", "alt", "height", "width", "align", "name"}
 
 OPTION_KEYS_ADMONITION = {"class", "name"}
 
+# See https://github.com/micromark/micromark-extension-gfm-tagfilter
+RE_FLOW = re.compile(
+    r"<(\/?)(iframe|noembed|noframes|plaintext|script|style|title|textarea|xmp)(?=[\t\n\f\r />])",
+    re.IGNORECASE,
+)
+
 
 def default_html(text: str, source: str, line_number: int) -> List[nodes.Element]:
     raw_html = nodes.raw("", text, format="html")
@@ -35,9 +43,11 @@ def html_to_nodes(
     text: str, line_number: int, renderer: "DocutilsRenderer"
 ) -> List[nodes.Element]:
     """Convert HTML to docutils nodes."""
+    if renderer.md_config.gfm_only:
+        text, _ = RE_FLOW.subn(lambda s: s.group(0).replace("<", "&lt;"), text)
+
     enable_html_img = "html_image" in renderer.md_config.enable_extensions
     enable_html_admonition = "html_admonition" in renderer.md_config.enable_extensions
-
     if not (enable_html_img or enable_html_admonition):
         return default_html(text, renderer.document["source"], line_number)
 

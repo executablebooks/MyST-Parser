@@ -571,27 +571,11 @@ class DocutilsRenderer(RendererProtocol):
         info = token.info.strip() if token.info else token.info
         language = info.split()[0] if info else ""
 
-        if not self.md_config.commonmark_only and language == "{eval-rst}":
-            # copy necessary elements (source, line no, env, reporter)
-            newdoc = make_document()
-            newdoc["source"] = self.document["source"]
-            newdoc.settings = self.document.settings
-            newdoc.reporter = self.reporter
-            # pad the line numbers artificially so they offset with the fence block
-            pseudosource = ("\n" * token_line(token)) + token.content
-            # actually parse the rst into our document
-            MockRSTParser().parse(pseudosource, newdoc)
-            for node in newdoc:
-                if node["names"]:
-                    self.document.note_explicit_target(node, node)
-            self.current_node.extend(newdoc[:])
-            return
-        elif (
-            not self.md_config.commonmark_only
-            and language.startswith("{")
-            and language.endswith("}")
-        ):
-            return self.render_directive(token)
+        if (not self.md_config.commonmark_only) and (not self.md_config.gfm_only):
+            if language == "{eval-rst}":
+                return self.render_restructuredtext(token)
+            if language.startswith("{") and language.endswith("}"):
+                return self.render_directive(token)
 
         if not language and self.sphinx_env is not None:
             # use the current highlight setting, via the ``highlight`` directive,
@@ -680,7 +664,11 @@ class DocutilsRenderer(RendererProtocol):
         if token.info == "auto":  # handles both autolink and linkify
             return self.render_autolink(token)
 
-        if self.md_config.all_links_external:
+        if (
+            self.md_config.commonmark_only
+            or self.md_config.gfm_only
+            or self.md_config.all_links_external
+        ):
             return self.render_external_url(token)
 
         # Check for external URL
@@ -1149,6 +1137,22 @@ class DocutilsRenderer(RendererProtocol):
                     child = children.pop(0)
                     with self.current_node_context(field_body):
                         self.render_children(child)
+
+    def render_restructuredtext(self, token: SyntaxTreeNode) -> None:
+        """Render the content of the token as restructuredtext."""
+        # copy necessary elements (source, line no, env, reporter)
+        newdoc = make_document()
+        newdoc["source"] = self.document["source"]
+        newdoc.settings = self.document.settings
+        newdoc.reporter = self.reporter
+        # pad the line numbers artificially so they offset with the fence block
+        pseudosource = ("\n" * token_line(token)) + token.content
+        # actually parse the rst into our document
+        MockRSTParser().parse(pseudosource, newdoc)
+        for node in newdoc:
+            if node["names"]:
+                self.document.note_explicit_target(node, node)
+        self.current_node.extend(newdoc.children)
 
     def render_directive(self, token: SyntaxTreeNode) -> None:
         """Render special fenced code blocks as directives."""
