@@ -1,10 +1,13 @@
 """MyST specific directives"""
-from typing import List, Tuple
+from copy import copy
+from typing import List, Tuple, cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sphinx.directives import SphinxDirective
 from sphinx.util.docutils import SphinxRole
+
+from myst_parser.mocking import MockState
 
 
 def align(argument):
@@ -61,16 +64,20 @@ class FigureMarkdown(SphinxDirective):
         figclasses = self.options.pop("class", None)
         align = self.options.pop("align", None)
 
-        node = nodes.Element()
-        # TODO test that we are using myst parser
+        if not isinstance(self.state, MockState):
+            return [self.figure_error("Directive is only supported in myst parser")]
+        state = cast(MockState, self.state)
+
         # ensure html image enabled
-        myst_extensions = self.state._renderer.config.get("myst_extensions", set())
+        myst_extensions = copy(state._renderer.md_config.enable_extensions)
+        node = nodes.Element()
         try:
-            self.state._renderer.config.setdefault("myst_extensions", set())
-            self.state._renderer.config["myst_extensions"].add("html_image")
-            self.state.nested_parse(self.content, self.content_offset, node)
+            state._renderer.md_config.enable_extensions = list(
+                state._renderer.md_config.enable_extensions
+            ) + ["html_image"]
+            state.nested_parse(self.content, self.content_offset, node)
         finally:
-            self.state._renderer.config["myst_extensions"] = myst_extensions
+            state._renderer.md_config.enable_extensions = myst_extensions
 
         if not len(node.children) == 2:
             return [

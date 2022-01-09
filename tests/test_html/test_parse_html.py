@@ -1,41 +1,24 @@
 from pathlib import Path
 
-import pytest
-from markdown_it.utils import read_fixture_file
+from pytest_param_files import with_parameters
 
 from myst_parser.parse_html import tokenize_html
 
 FIXTURE_PATH = Path(__file__).parent
 
 
-@pytest.mark.parametrize(
-    "line,title,text,expected",
-    read_fixture_file(FIXTURE_PATH / "html_ast.md"),
-    ids=[f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "html_ast.md")],
-)
-def test_html_ast(line, title, text, expected):
-    tokens = "\n".join(repr(t) for t in tokenize_html(text).walk(include_self=True))
-    try:
-        assert tokens.rstrip() == expected.rstrip()
-    except AssertionError:
-        print(tokens)
-        raise
+@with_parameters(FIXTURE_PATH / "html_ast.md")
+def test_html_ast(file_params):
+    tokens = "\n".join(
+        repr(t) for t in tokenize_html(file_params.content).walk(include_self=True)
+    )
+    file_params.assert_expected(tokens, rstrip=True)
 
 
-@pytest.mark.parametrize(
-    "line,title,text,expected",
-    read_fixture_file(FIXTURE_PATH / "html_round_trip.md"),
-    ids=[
-        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "html_round_trip.md")
-    ],
-)
-def test_html_round_trip(line, title, text, expected):
-    ast = tokenize_html(text)
-    try:
-        assert str(ast).rstrip() == expected.rstrip()
-    except AssertionError:
-        print(str(ast))
-        raise
+@with_parameters(FIXTURE_PATH / "html_round_trip.md")
+def test_html_round_trip(file_params):
+    ast = tokenize_html(file_params.content)
+    file_params.assert_expected(str(ast), rstrip=True)
 
 
 def test_render_overrides():
