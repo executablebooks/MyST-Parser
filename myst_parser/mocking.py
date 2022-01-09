@@ -144,17 +144,13 @@ class MockState:
             since nested heading would break the document structure)
         """
         sm_match_titles = self.state_machine.match_titles
-        render_match_titles = self._renderer.md_env.get("match_titles", None)
-        self.state_machine.match_titles = self._renderer.md_env[
-            "match_titles"
-        ] = match_titles
-
         with self._renderer.current_node_context(node):
             self._renderer.nested_render_text(
-                "\n".join(block), self._lineno + input_offset
+                "\n".join(block),
+                self._lineno + input_offset,
+                allow_headings=match_titles,
             )
         self.state_machine.match_titles = sm_match_titles
-        self._renderer.md_env["match_titles"] = render_match_titles
 
     def parse_target(self, block, block_text, lineno: int):
         """
@@ -174,33 +170,14 @@ class MockState:
     ) -> Tuple[List[nodes.Element], List[nodes.Element]]:
         """Parse text with only inline rules.
 
-        :return: (list of nodes, list of messages)
-
+        :returns: (list of nodes, list of messages)
         """
+        container = nodes.Element()
+        with self._renderer.current_node_context(container):
+            self._renderer.nested_render_text(text, lineno, inline=True)
+
         # TODO return messages?
-        messages: List[nodes.Element] = []
-        paragraph = nodes.paragraph("")
-
-        tokens = self._renderer.md.parseInline(text, self._renderer.md_env)
-        for token in tokens:
-            if token.map:
-                token.map = [token.map[0] + lineno, token.map[1] + lineno]
-
-        # here we instantiate a new renderer,
-        # so that the nested parse does not effect the current renderer,
-        # but we use the same env, so that link references, etc
-        # are added to the global parse.
-        nested_renderer = self._renderer.__class__(self._renderer.md)
-        options = {k: v for k, v in self._renderer.config.items()}
-        options.update(
-            {
-                "document": self.document,
-                "current_node": paragraph,
-                "output_footnotes": False,
-            }
-        )
-        nested_renderer.render(tokens, options, self._renderer.md_env)
-        return paragraph.children, messages
+        return container.children, []
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
@@ -473,7 +450,9 @@ class MockIncludeDirective:
                     source_dir,
                     path.parent,
                 )
-            self.renderer.nested_render_text(file_content, startline + 1)
+            self.renderer.nested_render_text(
+                file_content, startline + 1, allow_headings=True
+            )
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource

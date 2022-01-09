@@ -264,25 +264,36 @@ class DocutilsRenderer(RendererProtocol):
             substitution_node["names"].append(f"wordcount-{key}")
             self.document.note_substitution_def(substitution_node, f"wordcount-{key}")
 
-    def nested_render_text(self, text: str, lineno: int) -> None:
-        """Render unparsed text.
+    def nested_render_text(
+        self, text: str, lineno: int, inline: bool = False, allow_headings: bool = True
+    ) -> None:
+        """Render unparsed text (appending to the current node).
 
         :param text: the text to render
         :param lineno: the starting line number of the text, within the full source
+        :param inline: whether the text is inline or block
+        :param allow_headings: whether to allow headings in the text
         """
+        if inline:
+            tokens = self.md.parseInline(text, self.md_env)
+        else:
+            tokens = self.md.parse(text + "\n", self.md_env)
 
-        tokens = self.md.parse(text + "\n", self.md_env)
+        # remove front matter, if present, e.g. from included documents
+        if tokens and tokens[0].type == "front_matter":
+            tokens.pop(0)
 
         # update the line numbers
         for token in tokens:
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
 
-        # remove front matter
-        if tokens and tokens[0].type == "front_matter":
-            tokens.pop(0)
-
-        self._render_tokens(tokens)
+        current_match_titles = self.md_env.get("match_titles", None)
+        try:
+            self.md_env["match_titles"] = allow_headings
+            self._render_tokens(tokens)
+        finally:
+            self.md_env["match_titles"] = current_match_titles
 
     @contextmanager
     def current_node_context(
@@ -297,6 +308,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node = current_node
 
     def render_children(self, token: SyntaxTreeNode) -> None:
+        """Render the children of a token."""
         for child in token.children or []:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
@@ -845,26 +857,23 @@ class DocutilsRenderer(RendererProtocol):
         field_list.source, field_list.line = self.document["source"], line
 
         bibliofields = get_language(language_code).bibliographic_fields
-        state_machine = MockStateMachine(self, line)
-        state = MockState(self, state_machine, line)
 
         for key, value in data.items():
             if not isinstance(value, (str, int, float, date, datetime)):
                 value = json.dumps(value)
             value = str(value)
+            body = nodes.paragraph()
+            body.source, body.line = self.document["source"], line
             if key in bibliofields:
-                para_nodes, _ = state.inline_text(value, line)
+                with self.current_node_context(body):
+                    self.nested_render_text(value, line, inline=True)
             else:
-                para_nodes = [nodes.literal(value, value)]
-
-            body_children = [nodes.paragraph("", "", *para_nodes)]
-            body_children[0].source = self.document["source"]
-            body_children[0].line = 0
+                body += nodes.literal(value, value)
 
             field_node = nodes.field()
             field_node.source = value
             field_node += nodes.field_name(key, "", nodes.Text(key, key))
-            field_node += nodes.field_body(value, *body_children)
+            field_node += nodes.field_body(value, *[body])
             field_list += field_node
 
         return field_list
@@ -1298,10 +1307,6 @@ class DocutilsRenderer(RendererProtocol):
             self.current_node += [error_msg]
             return
 
-        # parse rendered text
-        state_machine = MockStateMachine(self, position)
-        state = MockState(self, state_machine, position)
-
         # TODO improve error reporting;
         # at present, for a multi-line substitution,
         # an error may point to a line lower than the substitution
@@ -1310,22 +1315,13 @@ class DocutilsRenderer(RendererProtocol):
 
         # we record used references before nested parsing, then remove them after
         self.document.sub_references.update(references)
-
         try:
             if inline and not REGEX_DIRECTIVE_START.match(rendered):
-                sub_nodes, _ = state.inline_text(rendered, position)
+                self.nested_render_text(rendered, position, inline=True)
             else:
-                base_node = nodes.Element()
-                state.nested_parse(
-                    StringList(rendered.splitlines(), self.document["source"]),
-                    0,
-                    base_node,
-                )
-                sub_nodes = base_node.children
+                self.nested_render_text(rendered, position, allow_headings=False)
         finally:
             self.document.sub_references.difference_update(references)
-
-        self.current_node.extend(sub_nodes)
 
 
 def html_meta_to_nodes(
