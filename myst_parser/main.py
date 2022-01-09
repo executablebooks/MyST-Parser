@@ -43,6 +43,11 @@ class MdParserConfig:
         validator=instance_of(bool),
         metadata={"help": "Use strict CommonMark parser"},
     )
+    gfm_only: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Use strict Github Flavoured Markdown parser"},
+    )
     enable_extensions: Sequence[str] = attr.ib(
         factory=lambda: ["dollarmath"], metadata={"help": "Enable extensions"}
     )
@@ -238,10 +243,24 @@ def create_md_parser(
     """Return a Markdown parser with the required MyST configuration."""
 
     if config.commonmark_only:
+        # see https://spec.commonmark.org/
         md = MarkdownIt("commonmark", renderer_cls=renderer).use(
             wordcount_plugin, per_minute=config.words_per_minute
         )
         md.options.update({"myst_config": config})
+        return md
+
+    if config.gfm_only:
+        # see https://github.github.com/gfm/
+        # TODO strikethrough not currently supported in docutils
+        md = (
+            MarkdownIt("commonmark", renderer_cls=renderer)
+            .enable("table")
+            .use(tasklists_plugin)
+            .enable("linkify")
+            .use(wordcount_plugin, per_minute=config.words_per_minute)
+        )
+        md.options.update({"linkify": True, "myst_config": config})
         return md
 
     md = (
