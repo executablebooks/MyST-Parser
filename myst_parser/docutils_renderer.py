@@ -748,9 +748,6 @@ class DocutilsRenderer(RendererProtocol):
         else:
             data = deepcopy(token.content)
 
-        if data.get("title"):
-            self.nested_render_text(f"# {data.pop('title')}", 0)
-
         substitutions = data.pop("substitutions", {})
         html_meta = data.pop("html_meta", {})
 
@@ -787,6 +784,9 @@ class DocutilsRenderer(RendererProtocol):
                 reporter=self.reporter,
             )
         )
+
+        if data.get("title") and self.config.get("myst_title_to_header", False):
+            self.nested_render_text(f"# {data['title']}", 0)
 
     def dict_to_fm_field_list(
         self, data: Dict[str, Any], language_code: str, line: int = 0

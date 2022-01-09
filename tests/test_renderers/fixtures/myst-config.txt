@@ -1,0 +1,26 @@
+[title-to-header] --myst-title-to-header="yes"
+.
+---
+title: "The title *nested syntax*"
+---
+
+# Other header
+.
+<document source="<string>">
+    <docinfo>
+        <field classes="title">
+            <field_name>
+                title
+            <field_body>
+                <paragraph>
+                    <literal>
+                        The title *nested syntax*
+    <section ids="the-title-nested-syntax" names="the\ title\ nested\ syntax">
+        <title>
+            The title
+            <emphasis>
+                nested syntax
+    <section ids="other-header" names="other\ header">
+        <title>
+            Other header
+.
