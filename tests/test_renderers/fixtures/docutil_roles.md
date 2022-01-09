@@ -1,5 +1,5 @@
 --------------------------------
-abbreviation (`docutils.parsers.rst.roles.GenericRole`):
+[abbreviation] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {abbreviation}`a`
 .
@@ -10,7 +10,7 @@ abbreviation (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-acronym (`docutils.parsers.rst.roles.GenericRole`):
+[acronym] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {acronym}`a`
 .
@@ -21,7 +21,7 @@ acronym (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-emphasis (`docutils.parsers.rst.roles.GenericRole`):
+[emphasis] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {emphasis}`a`
 .
@@ -32,7 +32,7 @@ emphasis (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-literal (`docutils.parsers.rst.roles.GenericRole`):
+[literal] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {literal}`a`
 .
@@ -43,7 +43,7 @@ literal (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-strong (`docutils.parsers.rst.roles.GenericRole`):
+[strong] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {strong}`a`
 .
@@ -54,7 +54,7 @@ strong (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-subscript (`docutils.parsers.rst.roles.GenericRole`):
+[subscript] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {subscript}`a`
 .
@@ -65,7 +65,7 @@ subscript (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-superscript (`docutils.parsers.rst.roles.GenericRole`):
+[superscript] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {superscript}`a`
 .
@@ -76,7 +76,7 @@ superscript (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-title-reference (`docutils.parsers.rst.roles.GenericRole`):
+[title-reference] (`docutils.parsers.rst.roles.GenericRole`):
 .
 {title-reference}`t`
 .
@@ -87,7 +87,7 @@ title-reference (`docutils.parsers.rst.roles.GenericRole`):
 .
 
 --------------------------------
-pep-reference (`docutils.parsers.rst.roles.pep_reference_role`):
+[pep-reference] (`docutils.parsers.rst.roles.pep_reference_role`):
 .
 {pep-reference}`0`
 .
@@ -98,7 +98,7 @@ pep-reference (`docutils.parsers.rst.roles.pep_reference_role`):
 .
 
 --------------------------------
-rfc-reference (`docutils.parsers.rst.roles.rfc_reference_role`):
+[rfc-reference] (`docutils.parsers.rst.roles.rfc_reference_role`):
 .
 {rfc-reference}`1`
 .
@@ -109,7 +109,7 @@ rfc-reference (`docutils.parsers.rst.roles.rfc_reference_role`):
 .
 
 --------------------------------
-code (`docutils.parsers.rst.roles.code_role`):
+[code] (`docutils.parsers.rst.roles.code_role`):
 .
 {code}`a`
 .
@@ -120,7 +120,7 @@ code (`docutils.parsers.rst.roles.code_role`):
 .
 
 --------------------------------
-math (`docutils.parsers.rst.roles.math_role`):
+[math] (`docutils.parsers.rst.roles.math_role`):
 .
 {math}`a`
 .

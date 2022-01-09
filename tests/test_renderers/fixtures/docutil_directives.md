@@ -1,5 +1,5 @@
 --------------------------------
-attention (`docutils.parsers.rst.directives.admonitions.Attention`):
+[attention] (`docutils.parsers.rst.directives.admonitions.Attention`):
 .
 ```{attention}
 
@@ -13,7 +13,7 @@ a
 .
 
 --------------------------------
-caution (`docutils.parsers.rst.directives.admonitions.Caution`):
+[caution] (`docutils.parsers.rst.directives.admonitions.Caution`):
 .
 ```{caution}
 
@@ -27,7 +27,7 @@ a
 .
 
 --------------------------------
-danger (`docutils.parsers.rst.directives.admonitions.Danger`):
+[danger] (`docutils.parsers.rst.directives.admonitions.Danger`):
 .
 ```{danger}
 
@@ -41,7 +41,7 @@ a
 .
 
 --------------------------------
-error (`docutils.parsers.rst.directives.admonitions.Error`):
+[error] (`docutils.parsers.rst.directives.admonitions.Error`):
 .
 ```{error}
 
@@ -55,7 +55,7 @@ a
 .
 
 --------------------------------
-important (`docutils.parsers.rst.directives.admonitions.Important`):
+[important] (`docutils.parsers.rst.directives.admonitions.Important`):
 .
 ```{important}
 
@@ -69,7 +69,7 @@ a
 .
 
 --------------------------------
-note (`docutils.parsers.rst.directives.admonitions.Note`):
+[note] (`docutils.parsers.rst.directives.admonitions.Note`):
 .
 ```{note}
 
@@ -83,7 +83,7 @@ a
 .
 
 --------------------------------
-tip (`docutils.parsers.rst.directives.admonitions.Tip`):
+[tip] (`docutils.parsers.rst.directives.admonitions.Tip`):
 .
 ```{tip}
 
@@ -97,7 +97,7 @@ a
 .
 
 --------------------------------
-hint (`docutils.parsers.rst.directives.admonitions.Hint`):
+[hint] (`docutils.parsers.rst.directives.admonitions.Hint`):
 .
 ```{hint}
 
@@ -111,7 +111,7 @@ a
 .
 
 --------------------------------
-warning (`docutils.parsers.rst.directives.admonitions.Warning`):
+[warning] (`docutils.parsers.rst.directives.admonitions.Warning`):
 .
 ```{warning}
 
@@ -125,7 +125,7 @@ a
 .
 
 --------------------------------
-admonition (`docutils.parsers.rst.directives.admonitions.Admonition`):
+[admonition] (`docutils.parsers.rst.directives.admonitions.Admonition`):
 .
 ```{admonition} myclass
 
@@ -141,7 +141,7 @@ a
 .
 
 --------------------------------
-sidebar (`docutils.parsers.rst.directives.body.Sidebar`):
+[sidebar] (`docutils.parsers.rst.directives.body.Sidebar`):
 .
 ```{sidebar} sidebar title
 
@@ -157,7 +157,7 @@ a
 .
 
 --------------------------------
-topic (`docutils.parsers.rst.directives.body.Topic`):
+[topic] (`docutils.parsers.rst.directives.body.Topic`):
 .
 ```{topic} Topic Title
 
@@ -173,8 +173,7 @@ a
 .
 
 --------------------------------
-line-block (`docutils.parsers.rst.directives.body.LineBlock`):
-SKIP: MockingError: MockState has not yet implemented attribute 'nest_line_block_lines'
+[line-block] (`docutils.parsers.rst.directives.body.LineBlock`) SKIP: MockingError: MockState has not yet implemented attribute 'nest_line_block_lines'
 .
 ```{line-block}
 
@@ -185,7 +184,7 @@ SKIP: MockingError: MockState has not yet implemented attribute 'nest_line_block
 .
 
 --------------------------------
-parsed-literal (`docutils.parsers.rst.directives.body.ParsedLiteral`):
+[parsed-literal] (`docutils.parsers.rst.directives.body.ParsedLiteral`):
 .
 ```{parsed-literal}
 
@@ -198,7 +197,7 @@ a
 .
 
 --------------------------------
-rubric (`docutils.parsers.rst.directives.body.Rubric`):
+[rubric] (`docutils.parsers.rst.directives.body.Rubric`):
 .
 ```{rubric} Rubric Title
 ```
@@ -209,7 +208,7 @@ rubric (`docutils.parsers.rst.directives.body.Rubric`):
 .
 
 --------------------------------
-epigraph (`docutils.parsers.rst.directives.body.Epigraph`):
+[epigraph] (`docutils.parsers.rst.directives.body.Epigraph`):
 .
 ```{epigraph}
 
@@ -227,7 +226,7 @@ a
 .
 
 --------------------------------
-highlights (`docutils.parsers.rst.directives.body.Highlights`):
+[highlights] (`docutils.parsers.rst.directives.body.Highlights`):
 .
 ```{highlights}
 
@@ -245,7 +244,7 @@ a
 .
 
 --------------------------------
-pull-quote (`docutils.parsers.rst.directives.body.PullQuote`):
+[pull-quote] (`docutils.parsers.rst.directives.body.PullQuote`):
 .
 ```{pull-quote}
 
@@ -263,7 +262,7 @@ a
 .
 
 --------------------------------
-compound (`docutils.parsers.rst.directives.body.Compound`):
+[compound] (`docutils.parsers.rst.directives.body.Compound`):
 .
 ```{compound}
 
@@ -277,7 +276,7 @@ a
 .
 
 --------------------------------
-container (`docutils.parsers.rst.directives.body.Container`):
+[container] (`docutils.parsers.rst.directives.body.Container`):
 .
 ```{container}
 
@@ -291,7 +290,7 @@ a
 .
 
 --------------------------------
-image (`docutils.parsers.rst.directives.images.Image`):
+[image] (`docutils.parsers.rst.directives.images.Image`):
 .
 ```{image} path/to/image
 :alt: abc
@@ -303,7 +302,7 @@ image (`docutils.parsers.rst.directives.images.Image`):
 .
 
 --------------------------------
-raw (`docutils.parsers.rst.directives.misc.Raw`):
+[raw] (`docutils.parsers.rst.directives.misc.Raw`):
 .
 ```{raw} raw
 
@@ -316,7 +315,7 @@ a
 .
 
 --------------------------------
-class (`docutils.parsers.rst.directives.misc.Class`):
+[class] (`docutils.parsers.rst.directives.misc.Class`):
 .
 ```{class} myclass
 
@@ -329,7 +328,7 @@ a
 .
 
 --------------------------------
-role (`docutils.parsers.rst.directives.misc.Role`) + raw (`docutils.parsers.rst.roles.raw_role`):
+[role] (`docutils.parsers.rst.directives.misc.Role`) + raw (`docutils.parsers.rst.roles.raw_role`):
 .
 ```{role} raw-latex(raw)
 :format: latex
@@ -344,7 +343,7 @@ role (`docutils.parsers.rst.directives.misc.Role`) + raw (`docutils.parsers.rst.
 .
 
 --------------------------------
-title (`docutils.parsers.rst.directives.misc.Title`):
+[title] (`docutils.parsers.rst.directives.misc.Title`):
 .
 ```{title} title
 ```
@@ -353,7 +352,7 @@ title (`docutils.parsers.rst.directives.misc.Title`):
 .
 
 --------------------------------
-restructuredtext-test-directive (`docutils.parsers.rst.directives.misc.TestDirective`):
+[restructuredtext-test-directive] (`docutils.parsers.rst.directives.misc.TestDirective`):
 .
 ```{restructuredtext-test-directive}
 ```
@@ -365,7 +364,7 @@ restructuredtext-test-directive (`docutils.parsers.rst.directives.misc.TestDirec
 .
 
 --------------------------------
-contents (`docutils.parsers.rst.directives.parts.Contents`):
+[contents] (`docutils.parsers.rst.directives.parts.Contents`):
 .
 ```{contents} Contents
 ```
@@ -381,7 +380,7 @@ contents (`docutils.parsers.rst.directives.parts.Contents`):
 .
 
 --------------------------------
-sectnum (`docutils.parsers.rst.directives.parts.Sectnum`):
+[sectnum] (`docutils.parsers.rst.directives.parts.Sectnum`):
 .
 ```{sectnum}
 ```
@@ -394,7 +393,7 @@ sectnum (`docutils.parsers.rst.directives.parts.Sectnum`):
 .
 
 --------------------------------
-header (`docutils.parsers.rst.directives.parts.Header`):
+[header] (`docutils.parsers.rst.directives.parts.Header`):
 .
 ```{header}
 
@@ -409,7 +408,7 @@ a
 .
 
 --------------------------------
-footer (`docutils.parsers.rst.directives.parts.Footer`):
+[footer] (`docutils.parsers.rst.directives.parts.Footer`):
 .
 ```{footer}
 
@@ -424,7 +423,7 @@ a
 .
 
 --------------------------------
-target-notes (`docutils.parsers.rst.directives.references.TargetNotes`):
+[target-notes] (`docutils.parsers.rst.directives.references.TargetNotes`):
 .
 ```{target-notes}
 ```
