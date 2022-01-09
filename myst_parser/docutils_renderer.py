@@ -8,6 +8,7 @@ from copy import deepcopy
 from datetime import date, datetime
 from types import ModuleType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Iterator,
@@ -42,6 +43,7 @@ from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
+from myst_parser.main import MdParserConfig
 from myst_parser.mocking import (
     MockIncludeDirective,
     MockingError,
@@ -53,6 +55,9 @@ from myst_parser.mocking import (
 from .html_to_nodes import html_to_nodes
 from .parse_directives import DirectiveParsingError, parse_directive_text
 from .utils import is_external_url
+
+if TYPE_CHECKING:
+    from sphinx.environment import BuildEnvironment
 
 
 def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
@@ -94,7 +99,8 @@ class DocutilsRenderer(RendererProtocol):
         """Warn when the renderer has not been setup yet."""
         if name in (
             "md_env",
-            "config",
+            "md_config",
+            "md_options",
             "document",
             "current_node",
             "reporter",
@@ -113,11 +119,10 @@ class DocutilsRenderer(RendererProtocol):
     ) -> None:
         """Setup the renderer with per render variables."""
         self.md_env = env
-        self.config: Dict[str, Any] = options
-        self.document: nodes.document = self.config.get("document", make_document())
-        self.current_node: nodes.Element = self.config.get(
-            "current_node", self.document
-        )
+        self.md_options = options
+        self.md_config: MdParserConfig = options["myst_config"]
+        self.document: nodes.document = options.get("document", make_document())
+        self.current_node: nodes.Element = options.get("current_node", self.document)
         self.reporter: Reporter = self.document.reporter
         # note there are actually two possible language modules:
         # one from docutils.languages, and one from docutils.parsers.rst.languages
@@ -130,7 +135,7 @@ class DocutilsRenderer(RendererProtocol):
         }
 
     @property
-    def sphinx_env(self) -> Optional[Any]:
+    def sphinx_env(self) -> Optional["BuildEnvironment"]:
         """Return the sphinx env, if using Sphinx."""
         try:
             return self.document.settings.env
@@ -221,9 +226,6 @@ class DocutilsRenderer(RendererProtocol):
                 append_to=self.document,
             )
 
-        if not self.config.get("output_footnotes", True):
-            return self.document
-
         # we don't use the foot_references stored in the env
         # since references within directives/roles will have been added after
         # those from the initial markdown parse
@@ -233,7 +235,7 @@ class DocutilsRenderer(RendererProtocol):
             if refnode["refname"] not in foot_refs:
                 foot_refs[refnode["refname"]] = True
 
-        if foot_refs and self.config.get("myst_footnote_transition", False):
+        if foot_refs and self.md_config.footnote_transition:
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
             foot_ref_tokens = self.md_env["foot_refs"].get(footref, [])
@@ -522,9 +524,7 @@ class DocutilsRenderer(RendererProtocol):
                 lex_tokens = Lexer(
                     text,
                     lexer_name or "",
-                    "short"
-                    if self.config.get("myst_highlight_code_blocks", True)
-                    else "none",
+                    "short" if self.md_config.highlight_code_blocks else "none",
                 )
             except LexerError as err:
                 self.reporter.warning(
@@ -571,7 +571,7 @@ class DocutilsRenderer(RendererProtocol):
         info = token.info.strip() if token.info else token.info
         language = info.split()[0] if info else ""
 
-        if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
+        if not self.md_config.commonmark_only and language == "{eval-rst}":
             # copy necessary elements (source, line no, env, reporter)
             newdoc = make_document()
             newdoc["source"] = self.document["source"]
@@ -587,7 +587,7 @@ class DocutilsRenderer(RendererProtocol):
             self.current_node.extend(newdoc[:])
             return
         elif (
-            not self.config.get("commonmark_only", False)
+            not self.md_config.commonmark_only
             and language.startswith("{")
             and language.endswith("}")
         ):
@@ -603,7 +603,7 @@ class DocutilsRenderer(RendererProtocol):
         node = self.create_highlighted_code_block(
             text,
             language,
-            number_lines=language in self.config.get("myst_number_code_blocks", ()),
+            number_lines=language in self.md_config.number_code_blocks,
             source=self.document["source"],
             line=token_line(token, 0) or None,
         )
@@ -615,7 +615,7 @@ class DocutilsRenderer(RendererProtocol):
         return (
             self.sphinx_env is not None
             and "myst_update_mathjax" in self.sphinx_env.config
-            and self.sphinx_env.config.myst_update_mathjax
+            and self.md_config.update_mathjax
         )
 
     def render_heading(self, token: SyntaxTreeNode) -> None:
@@ -680,14 +680,14 @@ class DocutilsRenderer(RendererProtocol):
         if token.markup == "autolink":
             return self.render_autolink(token)
 
-        if self.config.get("myst_all_links_external", False):
+        if self.md_config.all_links_external:
             return self.render_external_url(token)
 
         # Check for external URL
         url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
-        allowed_url_schemes = self.config.get("myst_url_schemes", None)
+        allowed_url_schemes = self.md_config.url_schemes
         if (allowed_url_schemes is None and url_scheme) or (
-            url_scheme in allowed_url_schemes
+            allowed_url_schemes is not None and url_scheme in allowed_url_schemes
         ):
             return self.render_external_url(token)
 
@@ -750,14 +750,14 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(img_node, token)
         destination = cast(str, token.attrGet("src") or "")
 
-        if self.config.get("relative-images", None) is not None and not is_external_url(
+        if self.md_env.get("relative-images", None) is not None and not is_external_url(
             destination, None, True
         ):
             # make the path relative to an "including" document
             # this is set when using the `relative-images` option of the MyST `include` directive
             destination = os.path.normpath(
                 os.path.join(
-                    self.config.get("relative-images", ""),
+                    self.md_env.get("relative-images", ""),
                     os.path.normpath(destination),
                 )
             )
@@ -822,7 +822,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.extend(
             html_meta_to_nodes(
                 {
-                    **self.config.get("myst_html_meta", {}),
+                    **self.md_config.html_meta,
                     **html_meta,
                 },
                 document=self.document,
@@ -1287,8 +1287,8 @@ class DocutilsRenderer(RendererProtocol):
         position = token_line(token)
 
         # front-matter substitutions take priority over config ones
-        variable_context = {
-            **self.config.get("myst_substitutions", {}),
+        variable_context: Dict[str, Any] = {
+            **self.md_config.substitutions,
             **getattr(self.document, "fm_substitutions", {}),
         }
         if self.sphinx_env is not None:

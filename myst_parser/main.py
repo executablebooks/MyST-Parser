@@ -40,7 +40,7 @@ class MdParserConfig:
         validator=instance_of(bool),
         metadata={"help": "Use strict CommonMark parser"},
     )
-    enable_extensions: Iterable[str] = attr.ib(
+    enable_extensions: Sequence[str] = attr.ib(
         factory=lambda: ["dollarmath"], metadata={"help": "Enable extensions"}
     )
 
@@ -232,7 +232,7 @@ def create_md_parser(
         md = MarkdownIt("commonmark", renderer_cls=renderer).use(
             wordcount_plugin, per_minute=config.words_per_minute
         )
-        md.options.update({"commonmark_only": True})
+        md.options.update({"myst_config": config})
         return md
 
     md = (
@@ -291,22 +291,9 @@ def create_md_parser(
 
     md.options.update(
         {
-            # standard options
             "typographer": typographer,
             "linkify": "linkify" in config.enable_extensions,
-            # myst options
-            "commonmark_only": False,
-            "myst_extensions": set(
-                list(config.enable_extensions)
-                + (["heading_anchors"] if config.heading_anchors is not None else [])
-            ),
-            "myst_all_links_external": config.all_links_external,
-            "myst_url_schemes": config.url_schemes,
-            "myst_substitutions": config.substitutions,
-            "myst_html_meta": config.html_meta,
-            "myst_footnote_transition": config.footnote_transition,
-            "myst_number_code_blocks": config.number_code_blocks,
-            "myst_highlight_code_blocks": config.highlight_code_blocks,
+            "myst_config": config,
         }
     )
 

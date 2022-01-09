@@ -3,9 +3,10 @@ from unittest.mock import Mock
 
 import pytest
 from docutils import nodes
-from markdown_it.utils import read_fixture_file
+from pytest_param_files import with_parameters
 
 from myst_parser.html_to_nodes import html_to_nodes
+from myst_parser.main import MdParserConfig
 
 FIXTURE_PATH = Path(__file__).parent
 
@@ -18,7 +19,7 @@ def mock_renderer():
         return [node]
 
     return Mock(
-        config={"myst_extensions": ["html_image", "html_admonition"]},
+        md_config=MdParserConfig(enable_extensions=["html_image", "html_admonition"]),
         document={"source": "source"},
         reporter=Mock(
             warning=Mock(return_value=nodes.system_message("warning")),
@@ -28,18 +29,8 @@ def mock_renderer():
     )
 
 
-@pytest.mark.parametrize(
-    "line,title,text,expected",
-    read_fixture_file(FIXTURE_PATH / "html_to_nodes.md"),
-    ids=[
-        f"{i[0]}-{i[1]}" for i in read_fixture_file(FIXTURE_PATH / "html_to_nodes.md")
-    ],
-)
-def test_html_to_nodes(line, title, text, expected, mock_renderer):
+@with_parameters(FIXTURE_PATH / "html_to_nodes.md")
+def test_html_to_nodes(file_params, mock_renderer):
     output = nodes.container()
-    output += html_to_nodes(text, line_number=0, renderer=mock_renderer)
-    try:
-        assert output.pformat().rstrip() == expected.rstrip()
-    except AssertionError:
-        print(output.pformat())
-        raise
+    output += html_to_nodes(file_params.content, line_number=0, renderer=mock_renderer)
+    file_params.assert_expected(output.pformat(), rstrip=True)
