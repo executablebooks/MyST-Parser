@@ -74,7 +74,7 @@ class SphinxRenderer(DocutilsRenderer):
 
         # make the path relative to an "including" document
         # this is set when using the `relative-docs` option of the MyST `include` directive
-        relative_include = self.config.get("relative-docs", None)
+        relative_include = self.md_env.get("relative-docs", None)
         if relative_include is not None and destination.startswith(relative_include[0]):
             source_dir, include_dir = relative_include[1:]
             destination = os.path.relpath(
@@ -135,6 +135,11 @@ class SphinxRenderer(DocutilsRenderer):
         The approach is similar to ``sphinx.ext.autosectionlabel``
         """
         super().render_heading(token)
+
+        if not isinstance(self.current_node, nodes.section):
+            return
+
+        # create the slug string
         slug = cast(str, token.attrGet("id"))
         if slug is None:
             return

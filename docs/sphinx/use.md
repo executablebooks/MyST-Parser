@@ -185,7 +185,7 @@ All myst-parser warnings are prepended by their type, e.g. to suppress:
 ```
 
 ```
-WARNING: Non-consecutive header level increase; 1 to 3 [myst.header]
+WARNING: Non-consecutive header level increase; H1 to H3 [myst.header]
 ```
 
 Add to your `conf.py`:

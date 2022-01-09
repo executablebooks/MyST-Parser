@@ -8,6 +8,7 @@ from copy import deepcopy
 from datetime import date, datetime
 from types import ModuleType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Iterator,
@@ -42,6 +43,7 @@ from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
+from myst_parser.main import MdParserConfig
 from myst_parser.mocking import (
     MockIncludeDirective,
     MockingError,
@@ -53,6 +55,9 @@ from myst_parser.mocking import (
 from .html_to_nodes import html_to_nodes
 from .parse_directives import DirectiveParsingError, parse_directive_text
 from .utils import is_external_url
+
+if TYPE_CHECKING:
+    from sphinx.environment import BuildEnvironment
 
 
 def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
@@ -90,26 +95,47 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
 
+    def __getattr__(self, name: str):
+        """Warn when the renderer has not been setup yet."""
+        if name in (
+            "md_env",
+            "md_config",
+            "md_options",
+            "document",
+            "current_node",
+            "reporter",
+            "language_module_rst",
+            "_level_to_elem",
+        ):
+            raise AttributeError(
+                f"'{name}' attribute is not available until setup_render() is called"
+            )
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+
     def setup_render(
         self, options: Dict[str, Any], env: MutableMapping[str, Any]
     ) -> None:
         """Setup the renderer with per render variables."""
         self.md_env = env
-        self.config: Dict[str, Any] = options
-        self.document: nodes.document = self.config.get("document", make_document())
-        self.current_node: nodes.Element = self.config.get(
-            "current_node", self.document
-        )
+        self.md_options = options
+        self.md_config: MdParserConfig = options["myst_config"]
+        self.document: nodes.document = options.get("document", make_document())
+        self.current_node: nodes.Element = options.get("current_node", self.document)
         self.reporter: Reporter = self.document.reporter
         # note there are actually two possible language modules:
         # one from docutils.languages, and one from docutils.parsers.rst.languages
         self.language_module_rst: ModuleType = get_language_rst(
             self.document.settings.language_code
         )
-        self._level_to_elem: Dict[int, nodes.Element] = {0: self.document}
+        # a mapping of heading levels to its currently associated node
+        self._level_to_elem: Dict[int, Union[nodes.document, nodes.section]] = {
+            0: self.document
+        }
 
     @property
-    def sphinx_env(self) -> Optional[Any]:
+    def sphinx_env(self) -> Optional["BuildEnvironment"]:
         """Return the sphinx env, if using Sphinx."""
         try:
             return self.document.settings.env
@@ -131,7 +157,7 @@ class DocutilsRenderer(RendererProtocol):
         to handle suppressed warning types.
         """
         kwargs = {"line": line} if line is not None else {}
-        msg_node = self.reporter.warning(message, **kwargs)
+        msg_node = self.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
         if append_to is not None:
             append_to.append(msg_node)
         return msg_node
@@ -200,9 +226,6 @@ class DocutilsRenderer(RendererProtocol):
                 append_to=self.document,
             )
 
-        if not self.config.get("output_footnotes", True):
-            return self.document
-
         # we don't use the foot_references stored in the env
         # since references within directives/roles will have been added after
         # those from the initial markdown parse
@@ -212,7 +235,7 @@ class DocutilsRenderer(RendererProtocol):
             if refnode["refname"] not in foot_refs:
                 foot_refs[refnode["refname"]] = True
 
-        if foot_refs and self.config.get("myst_footnote_transition", False):
+        if foot_refs and self.md_config.footnote_transition:
             self.current_node.append(nodes.transition(classes=["footnotes"]))
         for footref in foot_refs:
             foot_ref_tokens = self.md_env["foot_refs"].get(footref, [])
@@ -261,25 +284,36 @@ class DocutilsRenderer(RendererProtocol):
             substitution_node["names"].append(f"wordcount-{key}")
             self.document.note_substitution_def(substitution_node, f"wordcount-{key}")
 
-    def nested_render_text(self, text: str, lineno: int) -> None:
-        """Render unparsed text.
+    def nested_render_text(
+        self, text: str, lineno: int, inline: bool = False, allow_headings: bool = True
+    ) -> None:
+        """Render unparsed text (appending to the current node).
 
         :param text: the text to render
         :param lineno: the starting line number of the text, within the full source
+        :param inline: whether the text is inline or block
+        :param allow_headings: whether to allow headings in the text
         """
+        if inline:
+            tokens = self.md.parseInline(text, self.md_env)
+        else:
+            tokens = self.md.parse(text + "\n", self.md_env)
 
-        tokens = self.md.parse(text + "\n", self.md_env)
+        # remove front matter, if present, e.g. from included documents
+        if tokens and tokens[0].type == "front_matter":
+            tokens.pop(0)
 
         # update the line numbers
         for token in tokens:
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
 
-        # remove front matter
-        if tokens and tokens[0].type == "front_matter":
-            tokens.pop(0)
-
-        self._render_tokens(tokens)
+        current_match_titles = self.md_env.get("match_titles", None)
+        try:
+            self.md_env["match_titles"] = allow_headings
+            self._render_tokens(tokens)
+        finally:
+            self.md_env["match_titles"] = current_match_titles
 
     @contextmanager
     def current_node_context(
@@ -294,6 +328,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node = current_node
 
     def render_children(self, token: SyntaxTreeNode) -> None:
+        """Render the children of a token."""
         for child in token.children or []:
             if f"render_{child.type}" in self.rules:
                 self.rules[f"render_{child.type}"](child)
@@ -324,31 +359,35 @@ class DocutilsRenderer(RendererProtocol):
             for child in node.traverse():
                 self.add_line_and_source_path(child, token)
 
-    def is_section_level(self, level, section):
-        return self._level_to_elem.get(level, None) == section
-
-    def add_section(self, section, level):
+    def update_section_level_state(self, section: nodes.section, level: int) -> None:
+        """Update the section level state, with the new current section and level."""
+        # find the closest parent section
         parent_level = max(
             section_level
             for section_level in self._level_to_elem
             if level > section_level
         )
+        parent = self._level_to_elem[parent_level]
 
+        # if we are jumping up to a non-consecutive level,
+        # then warn about this, since this will not be propagated in the docutils AST
         if (level > parent_level) and (parent_level + 1 != level):
+            msg = f"Non-consecutive header level increase; H{parent_level} to H{level}"
+            if parent_level == 0:
+                msg = f"Document headings start at H{level}, not H1"
             self.create_warning(
-                "Non-consecutive header level increase; {} to {}".format(
-                    parent_level, level
-                ),
+                msg,
                 line=section.line,
                 subtype="header",
                 append_to=self.current_node,
             )
 
-        parent = self._level_to_elem[parent_level]
+        # append the new section to the parent
         parent.append(section)
+        # update the state for this section level
         self._level_to_elem[level] = section
 
-        # Prune level to limit
+        # Remove all descendant sections from the section level state
         self._level_to_elem = {
             section_level: section
             for section_level, section in self._level_to_elem.items()
@@ -485,9 +524,7 @@ class DocutilsRenderer(RendererProtocol):
                 lex_tokens = Lexer(
                     text,
                     lexer_name or "",
-                    "short"
-                    if self.config.get("myst_highlight_code_blocks", True)
-                    else "none",
+                    "short" if self.md_config.highlight_code_blocks else "none",
                 )
             except LexerError as err:
                 self.reporter.warning(
@@ -534,7 +571,7 @@ class DocutilsRenderer(RendererProtocol):
         info = token.info.strip() if token.info else token.info
         language = info.split()[0] if info else ""
 
-        if not self.config.get("commonmark_only", False) and language == "{eval-rst}":
+        if not self.md_config.commonmark_only and language == "{eval-rst}":
             # copy necessary elements (source, line no, env, reporter)
             newdoc = make_document()
             newdoc["source"] = self.document["source"]
@@ -550,7 +587,7 @@ class DocutilsRenderer(RendererProtocol):
             self.current_node.extend(newdoc[:])
             return
         elif (
-            not self.config.get("commonmark_only", False)
+            not self.md_config.commonmark_only
             and language.startswith("{")
             and language.endswith("}")
         ):
@@ -566,7 +603,7 @@ class DocutilsRenderer(RendererProtocol):
         node = self.create_highlighted_code_block(
             text,
             language,
-            number_lines=language in self.config.get("myst_number_code_blocks", ()),
+            number_lines=language in self.md_config.number_code_blocks,
             source=self.document["source"],
             line=token_line(token, 0) or None,
         )
@@ -578,48 +615,57 @@ class DocutilsRenderer(RendererProtocol):
         return (
             self.sphinx_env is not None
             and "myst_update_mathjax" in self.sphinx_env.config
-            and self.sphinx_env.config.myst_update_mathjax
+            and self.md_config.update_mathjax
         )
 
     def render_heading(self, token: SyntaxTreeNode) -> None:
+        """Render a heading, e.g. `# Heading`."""
 
         if self.md_env.get("match_titles", None) is False:
+            # this can occur if a nested parse is performed by a directive
+            # (such as an admonition) which contains a header.
+            # this would break the document structure
             self.create_warning(
-                "Header nested in this element can lead to unexpected outcomes",
+                "Disallowed nested header found, converting to rubric",
                 line=token_line(token, default=0),
                 subtype="nested_header",
                 append_to=self.current_node,
             )
+            rubric = nodes.rubric(token.content, "")
+            self.add_line_and_source_path(rubric, token)
+            with self.current_node_context(rubric, append=True):
+                self.render_children(token)
+            return
 
-        # Test if we're replacing a section level first
         level = int(token.tag[1])
-        if isinstance(self.current_node, nodes.section):
-            if self.is_section_level(level, self.current_node):
-                self.current_node = cast(nodes.Element, self.current_node.parent)
 
-        title_node = nodes.title(token.children[0].content if token.children else "")
-        self.add_line_and_source_path(title_node, token)
-
+        # create the section node
         new_section = nodes.section()
+        self.add_line_and_source_path(new_section, token)
+        # if a top level section,
+        # then add classes to set default mathjax processing to false
+        # we then turn it back on, on a per-node basis
         if level == 1 and self.blocks_mathjax_processing:
             new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
-        self.add_line_and_source_path(new_section, token)
+
+        # update the state of the section levels
+        self.update_section_level_state(new_section, level)
+
+        # create the title for this section
+        title_node = nodes.title(token.children[0].content if token.children else "")
+        self.add_line_and_source_path(title_node, token)
         new_section.append(title_node)
+        # render the heading children into the title
+        with self.current_node_context(title_node):
+            self.render_children(token)
 
-        self.add_section(new_section, level)
+        # create a target reference for the section, based on the heading text
+        name = nodes.fully_normalize_name(title_node.astext())
+        new_section["names"].append(name)
+        self.document.note_implicit_target(new_section, new_section)
 
-        self.current_node = title_node
-        self.render_children(token)
-
-        assert isinstance(self.current_node, nodes.title)
-        text = self.current_node.astext()
-        # if self.translate_section_name:
-        #     text = self.translate_section_name(text)
-        name = nodes.fully_normalize_name(text)
-        section = cast(nodes.section, self.current_node.parent)
-        section["names"].append(name)
-        self.document.note_implicit_target(section, section)
-        self.current_node = section
+        # set the section as the current node for subsequent rendering
+        self.current_node = new_section
 
     def render_link(self, token: SyntaxTreeNode) -> None:
         """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
@@ -634,14 +680,14 @@ class DocutilsRenderer(RendererProtocol):
         if token.markup == "autolink":
             return self.render_autolink(token)
 
-        if self.config.get("myst_all_links_external", False):
+        if self.md_config.all_links_external:
             return self.render_external_url(token)
 
         # Check for external URL
         url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
-        allowed_url_schemes = self.config.get("myst_url_schemes", None)
+        allowed_url_schemes = self.md_config.url_schemes
         if (allowed_url_schemes is None and url_scheme) or (
-            url_scheme in allowed_url_schemes
+            allowed_url_schemes is not None and url_scheme in allowed_url_schemes
         ):
             return self.render_external_url(token)
 
@@ -704,14 +750,14 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(img_node, token)
         destination = cast(str, token.attrGet("src") or "")
 
-        if self.config.get("relative-images", None) is not None and not is_external_url(
+        if self.md_env.get("relative-images", None) is not None and not is_external_url(
             destination, None, True
         ):
             # make the path relative to an "including" document
             # this is set when using the `relative-images` option of the MyST `include` directive
             destination = os.path.normpath(
                 os.path.join(
-                    self.config.get("relative-images", ""),
+                    self.md_env.get("relative-images", ""),
                     os.path.normpath(destination),
                 )
             )
@@ -776,7 +822,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.extend(
             html_meta_to_nodes(
                 {
-                    **self.config.get("myst_html_meta", {}),
+                    **self.md_config.html_meta,
                     **html_meta,
                 },
                 document=self.document,
@@ -832,26 +878,23 @@ class DocutilsRenderer(RendererProtocol):
         field_list.source, field_list.line = self.document["source"], line
 
         bibliofields = get_language(language_code).bibliographic_fields
-        state_machine = MockStateMachine(self, line)
-        state = MockState(self, state_machine, line)
 
         for key, value in data.items():
             if not isinstance(value, (str, int, float, date, datetime)):
                 value = json.dumps(value)
             value = str(value)
+            body = nodes.paragraph()
+            body.source, body.line = self.document["source"], line
             if key in bibliofields:
-                para_nodes, _ = state.inline_text(value, line)
+                with self.current_node_context(body):
+                    self.nested_render_text(value, line, inline=True)
             else:
-                para_nodes = [nodes.literal(value, value)]
-
-            body_children = [nodes.paragraph("", "", *para_nodes)]
-            body_children[0].source = self.document["source"]
-            body_children[0].line = 0
+                body += nodes.literal(value, value)
 
             field_node = nodes.field()
             field_node.source = value
             field_node += nodes.field_name(key, "", nodes.Text(key, key))
-            field_node += nodes.field_body(value, *body_children)
+            field_node += nodes.field_body(value, *[body])
             field_list += field_node
 
         return field_list
@@ -1247,8 +1290,8 @@ class DocutilsRenderer(RendererProtocol):
         position = token_line(token)
 
         # front-matter substitutions take priority over config ones
-        variable_context = {
-            **self.config.get("myst_substitutions", {}),
+        variable_context: Dict[str, Any] = {
+            **self.md_config.substitutions,
             **getattr(self.document, "fm_substitutions", {}),
         }
         if self.sphinx_env is not None:
@@ -1285,10 +1328,6 @@ class DocutilsRenderer(RendererProtocol):
             self.current_node += [error_msg]
             return
 
-        # parse rendered text
-        state_machine = MockStateMachine(self, position)
-        state = MockState(self, state_machine, position)
-
         # TODO improve error reporting;
         # at present, for a multi-line substitution,
         # an error may point to a line lower than the substitution
@@ -1297,22 +1336,13 @@ class DocutilsRenderer(RendererProtocol):
 
         # we record used references before nested parsing, then remove them after
         self.document.sub_references.update(references)
-
         try:
             if inline and not REGEX_DIRECTIVE_START.match(rendered):
-                sub_nodes, _ = state.inline_text(rendered, position)
+                self.nested_render_text(rendered, position, inline=True)
             else:
-                base_node = nodes.Element()
-                state.nested_parse(
-                    StringList(rendered.splitlines(), self.document["source"]),
-                    0,
-                    base_node,
-                )
-                sub_nodes = base_node.children
+                self.nested_render_text(rendered, position, allow_headings=False)
         finally:
             self.document.sub_references.difference_update(references)
-
-        self.current_node.extend(sub_nodes)
 
 
 def html_meta_to_nodes(
