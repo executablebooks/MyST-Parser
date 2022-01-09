@@ -131,7 +131,7 @@ class DocutilsRenderer(RendererProtocol):
         to handle suppressed warning types.
         """
         kwargs = {"line": line} if line is not None else {}
-        msg_node = self.reporter.warning(message, **kwargs)
+        msg_node = self.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
         if append_to is not None:
             append_to.append(msg_node)
         return msg_node

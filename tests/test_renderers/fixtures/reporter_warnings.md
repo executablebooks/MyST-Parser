@@ -3,7 +3,7 @@ Duplicate Reference definitions:
 [a]: b
 [a]: c
 .
-<string>:2: (WARNING/2) Duplicate reference definition: A
+<string>:2: (WARNING/2) Duplicate reference definition: A [myst.ref]
 .
 
 Missing Reference:
@@ -82,7 +82,7 @@ Non-consecutive headings:
 # title 1
 ### title 3
 .
-<string>:2: (WARNING/2) Non-consecutive header level increase; 1 to 3
+<string>:2: (WARNING/2) Non-consecutive header level increase; 1 to 3 [myst.header]
 .
 
 multiple footnote definitions
@@ -92,7 +92,7 @@ multiple footnote definitions
 [^a]: definition 1
 [^a]: definition 2
 .
-<string>:: (WARNING/2) Multiple footnote definitions found for label: 'a'
+<string>:: (WARNING/2) Multiple footnote definitions found for label: 'a' [myst.footnote]
 .
 
 Warnings in eval-rst
@@ -136,7 +136,7 @@ header nested in admonition
 # Header
 ```
 .
-<string>:2: (WARNING/2) Disallowed nested header found, converting to rubric
+<string>:2: (WARNING/2) Disallowed nested header found, converting to rubric [myst.nested_header]
 .
 
 nested parse warning
