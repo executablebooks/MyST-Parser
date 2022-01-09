@@ -90,6 +90,24 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
 
+    def __getattr__(self, name: str):
+        """Warn when the renderer has not been setup yet."""
+        if name in (
+            "md_env",
+            "config",
+            "document",
+            "current_node",
+            "reporter",
+            "language_module_rst",
+            "_level_to_elem",
+        ):
+            raise AttributeError(
+                f"'{name}' attribute is not available until setup_render() is called"
+            )
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+
     def setup_render(
         self, options: Dict[str, Any], env: MutableMapping[str, Any]
     ) -> None:
