@@ -677,7 +677,7 @@ class DocutilsRenderer(RendererProtocol):
             or any scheme if  `myst_url_schemes` is None.
         - Otherwise, forward to `render_internal_link`
         """
-        if token.markup == "autolink":
+        if token.info == "auto":  # handles both autolink and linkify
             return self.render_autolink(token)
 
         if self.md_config.all_links_external:
@@ -733,10 +733,12 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def render_autolink(self, token: SyntaxTreeNode) -> None:
-        refuri = target = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
-        ref_node = nodes.reference(target, target, refuri=refuri)
+        refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
+        ref_node = nodes.reference()
+        ref_node["refuri"] = refuri
         self.add_line_and_source_path(ref_node, token)
-        self.current_node.append(ref_node)
+        with self.current_node_context(ref_node, append=True):
+            self.render_children(token)
 
     def render_html_inline(self, token: SyntaxTreeNode) -> None:
         self.render_html_block(token)

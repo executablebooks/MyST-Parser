@@ -24,3 +24,13 @@ title: "The title *nested syntax*"
         <title>
             Other header
 .
+
+[linkify] --myst-enable-extensions=linkify
+.
+www.example.com
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="http://www.example.com">
+            www.example.com
+.
