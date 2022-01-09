@@ -398,8 +398,26 @@ This is a YAML block at the start of the document, as used for example in
 
 :::{seealso}
 Top-matter is also used for the [substitution syntax extension](syntax/substitutions),
-and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/manual/markdown/)).
+and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/en/latest/manual/markdown/)).
 :::
+
+### Setting a title
+
+If `myst_title_to_header` is set to `True`, and a `title` key is present in the front matter,
+then the title will be used as the document's header (parsed as Markdown.
+For example:
+
+```md
+---
+title: My Title with *emphasis*
+---
+```
+
+would be equivalent to:
+
+```md
+# My Title with *emphasis*
+```
 
 (syntax/html_meta)=
 
