@@ -133,7 +133,16 @@ class MockState:
         state_machine_class=None,
         state_machine_kwargs=None,
     ) -> None:
-        """Perform a nested parse of the input block, with ``node`` as the parent."""
+        """Perform a nested parse of the input block, with ``node`` as the parent.
+
+        :param block: The block of lines to parse.
+        :param input_offset: The offset of the first line of block,
+            to the starting line of the state (i.e. directive).
+        :param node: The parent node to attach the parsed content to.
+        :param match_titles: Whether to to allow the parsing of headings
+            (normally this is false,
+            since nested heading would break the document structure)
+        """
         sm_match_titles = self.state_machine.match_titles
         render_match_titles = self._renderer.md_env.get("match_titles", None)
         self.state_machine.match_titles = self._renderer.md_env[

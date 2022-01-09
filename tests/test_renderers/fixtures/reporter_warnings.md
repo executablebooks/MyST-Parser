@@ -136,7 +136,7 @@ header nested in admonition
 # Header
 ```
 .
-<string>:2: (WARNING/2) Header nested in this element can lead to unexpected outcomes
+<string>:2: (WARNING/2) Disallowed nested header found, converting to rubric
 .
 
 nested parse warning

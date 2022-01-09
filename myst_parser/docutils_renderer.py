@@ -584,12 +584,20 @@ class DocutilsRenderer(RendererProtocol):
     def render_heading(self, token: SyntaxTreeNode) -> None:
 
         if self.md_env.get("match_titles", None) is False:
+            # this can occur if a nested parse is performed by a directive
+            # (such as an admonition) which contains a header.
+            # this would break the document structure
             self.create_warning(
-                "Header nested in this element can lead to unexpected outcomes",
+                "Disallowed nested header found, converting to rubric",
                 line=token_line(token, default=0),
                 subtype="nested_header",
                 append_to=self.current_node,
             )
+            rubric = nodes.rubric(token.content, "")
+            self.add_line_and_source_path(rubric, token)
+            with self.current_node_context(rubric, append=True):
+                self.render_children(token)
+            return
 
         # Test if we're replacing a section level first
         level = int(token.tag[1])
