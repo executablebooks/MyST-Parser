@@ -106,7 +106,10 @@ class DocutilsRenderer(RendererProtocol):
         self.language_module_rst: ModuleType = get_language_rst(
             self.document.settings.language_code
         )
-        self._level_to_elem: Dict[int, nodes.Element] = {0: self.document}
+        # a mapping of heading levels to its currently associated node
+        self._level_to_elem: Dict[int, Union[nodes.document, nodes.section]] = {
+            0: self.document
+        }
 
     @property
     def sphinx_env(self) -> Optional[Any]:
@@ -324,31 +327,35 @@ class DocutilsRenderer(RendererProtocol):
             for child in node.traverse():
                 self.add_line_and_source_path(child, token)
 
-    def is_section_level(self, level, section):
-        return self._level_to_elem.get(level, None) == section
-
-    def add_section(self, section, level):
+    def update_section_level_state(self, section: nodes.section, level: int) -> None:
+        """Update the section level state, with the new current section and level."""
+        # find the closest parent section
         parent_level = max(
             section_level
             for section_level in self._level_to_elem
             if level > section_level
         )
+        parent = self._level_to_elem[parent_level]
 
+        # if we are jumping up to a non-consecutive level,
+        # then warn about this, since this will not be propagated in the docutils AST
         if (level > parent_level) and (parent_level + 1 != level):
+            msg = f"Non-consecutive header level increase; H{parent_level} to H{level}"
+            if parent_level == 0:
+                msg = f"Document headings start at H{level}, not H1"
             self.create_warning(
-                "Non-consecutive header level increase; {} to {}".format(
-                    parent_level, level
-                ),
+                msg,
                 line=section.line,
                 subtype="header",
                 append_to=self.current_node,
             )
 
-        parent = self._level_to_elem[parent_level]
+        # append the new section to the parent
         parent.append(section)
+        # update the state for this section level
         self._level_to_elem[level] = section
 
-        # Prune level to limit
+        # Remove all descendant sections from the section level state
         self._level_to_elem = {
             section_level: section
             for section_level, section in self._level_to_elem.items()
@@ -582,6 +589,7 @@ class DocutilsRenderer(RendererProtocol):
         )
 
     def render_heading(self, token: SyntaxTreeNode) -> None:
+        """Render a heading, e.g. `# Heading`."""
 
         if self.md_env.get("match_titles", None) is False:
             # this can occur if a nested parse is performed by a directive
@@ -599,35 +607,35 @@ class DocutilsRenderer(RendererProtocol):
                 self.render_children(token)
             return
 
-        # Test if we're replacing a section level first
         level = int(token.tag[1])
-        if isinstance(self.current_node, nodes.section):
-            if self.is_section_level(level, self.current_node):
-                self.current_node = cast(nodes.Element, self.current_node.parent)
 
-        title_node = nodes.title(token.children[0].content if token.children else "")
-        self.add_line_and_source_path(title_node, token)
-
+        # create the section node
         new_section = nodes.section()
+        self.add_line_and_source_path(new_section, token)
+        # if a top level section,
+        # then add classes to set default mathjax processing to false
+        # we then turn it back on, on a per-node basis
         if level == 1 and self.blocks_mathjax_processing:
             new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
-        self.add_line_and_source_path(new_section, token)
+
+        # update the state of the section levels
+        self.update_section_level_state(new_section, level)
+
+        # create the title for this section
+        title_node = nodes.title(token.children[0].content if token.children else "")
+        self.add_line_and_source_path(title_node, token)
         new_section.append(title_node)
+        # render the heading children into the title
+        with self.current_node_context(title_node):
+            self.render_children(token)
 
-        self.add_section(new_section, level)
+        # create a target reference for the section, based on the heading text
+        name = nodes.fully_normalize_name(title_node.astext())
+        new_section["names"].append(name)
+        self.document.note_implicit_target(new_section, new_section)
 
-        self.current_node = title_node
-        self.render_children(token)
-
-        assert isinstance(self.current_node, nodes.title)
-        text = self.current_node.astext()
-        # if self.translate_section_name:
-        #     text = self.translate_section_name(text)
-        name = nodes.fully_normalize_name(text)
-        section = cast(nodes.section, self.current_node.parent)
-        section["names"].append(name)
-        self.document.note_implicit_target(section, section)
-        self.current_node = section
+        # set the section as the current node for subsequent rendering
+        self.current_node = new_section
 
     def render_link(self, token: SyntaxTreeNode) -> None:
         """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:

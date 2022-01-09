@@ -77,12 +77,19 @@ x
 <string>:2: (ERROR/3) Invalid context: the "date" directive can only be used within a substitution definition.
 .
 
+Do not start headings at H1:
+.
+## title 1
+.
+<string>:1: (WARNING/2) Document headings start at H2, not H1 [myst.header]
+.
+
 Non-consecutive headings:
 .
 # title 1
 ### title 3
 .
-<string>:2: (WARNING/2) Non-consecutive header level increase; 1 to 3 [myst.header]
+<string>:2: (WARNING/2) Non-consecutive header level increase; H1 to H3 [myst.header]
 .
 
 multiple footnote definitions
