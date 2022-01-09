@@ -32,6 +32,9 @@ To do so, use the keywords beginning `myst_`.
 * - `myst_linkify_fuzzy_links`
   - `True`
   - If `False`, only links that contain a scheme (such as `http`) will be recognised as external links.
+* - `myst_title_to_header`
+  - `False`
+  - If `True`, the `title` key of a document front-matter is converted to a header at the top of the document.
 * - `myst_heading_anchors`
   - `None`
   - Enable auto-generated heading anchors, up to a maximum level, [see here](syntax/header-anchors) for details.

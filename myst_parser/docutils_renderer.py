@@ -831,6 +831,9 @@ class DocutilsRenderer(RendererProtocol):
             )
         )
 
+        if data.get("title") and self.md_config.title_to_header:
+            self.nested_render_text(f"# {data['title']}", 0)
+
     def dict_to_fm_field_list(
         self, data: Dict[str, Any], language_code: str, line: int = 0
     ) -> nodes.field_list:

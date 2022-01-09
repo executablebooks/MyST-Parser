@@ -1,3 +1,6 @@
+"""This module holds the global configuration for the parser ``MdParserConfig``,
+and the ``create_md_parser`` function, which creates a parser from the config.
+"""
 from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union, cast
 
 import attr
@@ -144,6 +147,12 @@ class MdParserConfig:
         default=(),
         validator=deep_iterable(instance_of(str)),
         metadata={"help": "Add line numbers to code blocks with these languages"},
+    )
+
+    title_to_header: bool = attr.ib(
+        default=False,
+        validator=instance_of(bool),
+        metadata={"help": "Convert a `title` field in the top-matter to a H1 header"},
     )
 
     heading_anchors: Optional[int] = attr.ib(
