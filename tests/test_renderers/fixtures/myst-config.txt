@@ -35,6 +35,22 @@ www.example.com
             www.example.com
 .
 
+[gfm-strikethrough] --myst-gfm-only="yes"
+.
+~~strike~~
+.
+<document source="<string>">
+    <paragraph>
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Strikethrough is currently only supported in HTML output [myst.strikethrough]
+        <raw format="html" xml:space="preserve">
+            <s>
+        strike
+        <raw format="html" xml:space="preserve">
+            </s>
+.
+
 [gfm-disallowed-html] --myst-gfm-only="yes"
 .
 <strong> <title> <style> <em>

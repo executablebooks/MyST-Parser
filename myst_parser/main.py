@@ -107,6 +107,7 @@ class MdParserConfig:
                 "smartquotes",
                 "replacements",
                 "linkify",
+                "strikethrough",
                 "substitution",
                 "tasklist",
             ]
@@ -242,6 +243,9 @@ def create_md_parser(
 ) -> MarkdownIt:
     """Return a Markdown parser with the required MyST configuration."""
 
+    # TODO warn if linkify required and linkify-it-py not installed
+    # (currently the parse will unceremoniously except)
+
     if config.commonmark_only:
         # see https://spec.commonmark.org/
         md = MarkdownIt("commonmark", renderer_cls=renderer).use(
@@ -252,9 +256,10 @@ def create_md_parser(
 
     if config.gfm_only:
         # see https://github.github.com/gfm/
-        # TODO strikethrough not currently supported in docutils
         md = (
             MarkdownIt("commonmark", renderer_cls=renderer)
+            # note, strikethrough currently only supported tentatively for HTML
+            .enable("strikethrough")
             .enable("table")
             .use(tasklists_plugin)
             .enable("linkify")
@@ -287,7 +292,8 @@ def create_md_parser(
         md.enable("linkify")
         if md.linkify is not None:
             md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
-
+    if "strikethrough" in config.enable_extensions:
+        md.enable("strikethrough")
     if "dollarmath" in config.enable_extensions:
         md.use(
             dollarmath_plugin,
