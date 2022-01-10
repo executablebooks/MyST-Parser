@@ -85,6 +85,7 @@ myst_enable_extensions = [
     "smartquotes",
     "replacements",
     "linkify",
+    "strikethrough",
     "substitution",
     "tasklist",
 ]
@@ -101,6 +102,8 @@ rediraffe_redirects = {
     "using/syntax-optional.md": "syntax/optional.md",
     "using/reference.md": "syntax/reference.md",
 }
+
+suppress_warnings = ["myst.strikethrough"]
 
 
 def run_apidoc(app):

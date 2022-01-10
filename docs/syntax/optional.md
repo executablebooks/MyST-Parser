@@ -36,6 +36,7 @@ myst_enable_extensions = [
     "linkify",
     "replacements",
     "smartquotes",
+    "strikethrough",
     "substitution",
     "tasklist",
 ]
@@ -72,6 +73,22 @@ text  | converted
 ``,,,`` | ,,,
 ``--`` | --
 ``---`` | ---
+
+(syntax/strikethough)=
+
+## Strikethrough
+
+```{versionadded} 0.17.0
+```
+
+The `strikethrough` extension allows text within `~~` delimiters to have a strikethrough (horizontal line) placed over it.
+For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough with *emphasis*~~.
+
+:::{warning}
+This extension is currently only supported for HTML output,
+and you will neeed to suppress the `myst.strikethrough` warning
+(see [](howto/warnings))
+:::
 
 (syntax/math)=
 ## Math shortcuts
@@ -594,6 +611,9 @@ and are applied to markdown list items starting with `[ ]` or `[x]`:
 
 (syntax/fieldlists)=
 ## Field Lists
+
+```{versionadded} 0.16.0
+```
 
 Field lists are mappings from field names to field bodies,
 based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists).

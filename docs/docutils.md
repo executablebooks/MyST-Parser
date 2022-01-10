@@ -2,6 +2,9 @@
 
 # MyST with Docutils
 
+```{versionadded} 0.16.0
+```
+
 Sphinx, and thus MyST-Parser, is built on top of the [Docutils](https://docutils.sourceforge.io/docs/) package.
 MyST-Parser offers a renderer, parser and CLI-interface for working directly with Docutils, independent of Sphinx, as described below.
 
