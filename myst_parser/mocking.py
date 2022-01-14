@@ -64,9 +64,15 @@ class MockInliner:
         # note the only place this is normally called,
         # is by `RSTState.inline_text`, or in directives: `self.state.inline_text`,
         # and there the state parses its own parent
-        container = nodes.Element()
-        with self._renderer.current_node_context(container):
-            self._renderer.nested_render_text(text, lineno, inline=True)
+        # self.reporter = memo.reporter
+        # self.document = memo.document
+        # self.language = memo.language
+        with self._renderer.current_node_context(parent):
+            # the parent is never actually appended to though,
+            # so we make a temporary parent to parse into
+            container = nodes.Element()
+            with self._renderer.current_node_context(container):
+                self._renderer.nested_render_text(text, lineno, inline=True)
 
         return container.children, []
 
@@ -188,12 +194,7 @@ class MockState:
 
         :returns: (list of nodes, list of messages)
         """
-        # in docutils this actually calls ``self.inliner.parse``
-        container = nodes.Element()
-        with self._renderer.current_node_context(container):
-            self._renderer.nested_render_text(text, lineno, inline=True)
-
-        return container.children, []
+        return self.inliner.parse(text, lineno, self.memo, self._renderer.current_node)
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
