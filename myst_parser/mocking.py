@@ -5,7 +5,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Type
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, DirectiveError
@@ -31,28 +31,44 @@ class MockInliner:
     This is parsed to role functions.
     """
 
-    def __init__(self, renderer: "DocutilsRenderer", lineno: int):
+    def __init__(self, renderer: "DocutilsRenderer"):
+        """Initialize the mock inliner."""
         self._renderer = renderer
+        # here we mock that the `parse` method has already been called
+        # which is where these attributes are set (via the RST state Memo)
         self.document = renderer.document
         self.reporter = renderer.document.reporter
-        if not hasattr(self.reporter, "get_source_and_line"):
-            # TODO this is called by some roles,
-            # but I can't see how that would work in RST?
-            self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
-        self.parent = renderer.current_node
         self.language = renderer.language_module_rst
+        self.parent = renderer.current_node
+
+        if not hasattr(self.reporter, "get_source_and_line"):
+            # In docutils this is set by `RSTState.runtime_init`
+            self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
+
         self.rfc_url = "rfc%d.html"
 
     def problematic(
         self, text: str, rawsource: str, message: nodes.system_message
     ) -> nodes.problematic:
+        """Record a system message from parsing."""
         msgid = self.document.set_id(message, self.parent)
-        problematic = nodes.problematic(rawsource, rawsource, refid=msgid)
+        problematic = nodes.problematic(rawsource, text, refid=msgid)
         prbid = self.document.set_id(problematic)
         message.add_backref(prbid)
         return problematic
 
-    # TODO add parse method
+    def parse(
+        self, text: str, lineno: int, memo: Any, parent: nodes.Node
+    ) -> Tuple[List[nodes.Node], List[nodes.system_message]]:
+        """Parse the text and return a list of nodes."""
+        # note the only place this is normally called,
+        # is by `RSTState.inline_text`, or in directives: `self.state.inline_text`,
+        # and there the state parses its own parent
+        container = nodes.Element()
+        with self._renderer.current_node_context(container):
+            self._renderer.nested_render_text(text, lineno, inline=True)
+
+        return container.children, []
 
     def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
@@ -87,7 +103,7 @@ class MockState:
         self.document = renderer.document
         self.reporter = renderer.document.reporter
         self.state_machine = state_machine
-        self.inliner = MockInliner(renderer, lineno)
+        self.inliner = MockInliner(renderer)
 
         class Struct:
             document = self.document
@@ -172,11 +188,11 @@ class MockState:
 
         :returns: (list of nodes, list of messages)
         """
+        # in docutils this actually calls ``self.inliner.parse``
         container = nodes.Element()
         with self._renderer.current_node_context(container):
             self._renderer.nested_render_text(text, lineno, inline=True)
 
-        # TODO return messages?
         return container.children, []
 
     # U+2014 is an em-dash:
