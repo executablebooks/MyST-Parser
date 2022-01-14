@@ -1046,7 +1046,7 @@ class DocutilsRenderer(RendererProtocol):
         role_func, messages = roles.role(
             name, self.language_module_rst, lineno, self.reporter
         )
-        inliner = MockInliner(self, lineno)
+        inliner = MockInliner(self)
         if role_func:
             nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
             # return nodes, messages + messages2

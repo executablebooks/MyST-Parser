@@ -161,6 +161,7 @@ nitpick_ignore = [
     ("py:class", "docutils.nodes.document"),
     ("py:class", "docutils.nodes.docinfo"),
     ("py:class", "docutils.nodes.Element"),
+    ("py:class", "docutils.nodes.Node"),
     ("py:class", "docutils.nodes.field_list"),
     ("py:class", "docutils.nodes.problematic"),
     ("py:class", "docutils.nodes.pending"),
