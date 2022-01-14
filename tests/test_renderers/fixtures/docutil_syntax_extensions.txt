@@ -103,16 +103,6 @@ content
         © © ® ® ™ ™ § § ± …
 .
 
-[linkify] --myst-enable-extensions=linkify
-.
-www.google.com
-.
-<document source="<string>">
-    <paragraph>
-        <reference refuri="http://www.google.com">
-            www.google.com
-.
-
 [strikethrough] --myst-enable-extensions=strikethrough
 .
 ~~foo~~
