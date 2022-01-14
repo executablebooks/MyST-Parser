@@ -595,10 +595,12 @@ class DocutilsRenderer(RendererProtocol):
 
     @property
     def blocks_mathjax_processing(self) -> bool:
-        """Only add mathjax ignore classes if using sphinx and myst_update_mathjax is True."""
+        """Only add mathjax ignore classes if using sphinx,
+        and using the ``dollarmath`` extension, and ``myst_update_mathjax=True``.
+        """
         return (
             self.sphinx_env is not None
-            and "myst_update_mathjax" in self.sphinx_env.config
+            and "dollarmath" in self.md_config.enable_extensions
             and self.md_config.update_mathjax
         )
 
@@ -982,6 +984,17 @@ class DocutilsRenderer(RendererProtocol):
     def render_math_block(self, token: SyntaxTreeNode) -> None:
         content = token.content
         node = nodes.math_block(content, content, nowrap=False, number=None)
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
+    def render_amsmath(self, token: SyntaxTreeNode) -> None:
+        # note docutils does not currently support the nowrap attribute
+        # or equation numbering, so this is overridden in the sphinx renderer
+        node = nodes.math_block(
+            token.content, token.content, nowrap=True, classes=["amsmath"]
+        )
+        if token.meta["numbered"] != "*":
+            node["numbered"] = True
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 

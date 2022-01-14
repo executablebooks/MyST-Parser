@@ -1,5 +1,5 @@
 <document source="index.md">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="bold-text-1" names="bold\ text\ 1 texte\ 1\ en\ gras">
+    <section ids="bold-text-1" names="bold\ text\ 1 texte\ 1\ en\ gras">
         <title>
             texte 1 en 
             <strong>

@@ -91,7 +91,7 @@ Nested syntax:
 .
 | *a* | __*b*__  |
 | --- | -------- |
-|$1$  | {sub}`x` |
+|c  | {sub}`x` |
 .
 <document source="notset">
     <table classes="colwidths-auto">
@@ -113,8 +113,7 @@ Nested syntax:
                 <row>
                     <entry>
                         <paragraph>
-                            <math>
-                                1
+                            c
                     <entry>
                         <paragraph>
                             <subscript>

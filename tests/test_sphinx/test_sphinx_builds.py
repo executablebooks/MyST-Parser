@@ -18,7 +18,10 @@ SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs
 
 
 @pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "basic"), freshenv=True
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "basic"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
 def test_basic(
     app,
@@ -75,6 +78,7 @@ def test_basic(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "references"),
     freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
 def test_references(
     app,
@@ -483,7 +487,10 @@ def test_gettext_additional_targets(
 
 
 @pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "mathjax"), freshenv=True
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
 def test_mathjax_warning(
     app,

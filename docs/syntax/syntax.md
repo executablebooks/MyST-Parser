@@ -368,9 +368,6 @@ header-rows: 1
 * - Type
   - MyST
   - reStructuredText
-* - Math shortcuts
-  - `$x^2$`
-  - N/A
 * - Front matter
   - ```md
     ---

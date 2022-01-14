@@ -2,7 +2,7 @@
     <section ids="title" names="title">
         <title>
             Title
-        <section classes="tex2jax_ignore mathjax_ignore" ids="markdown" names="markdown">
+        <section ids="markdown" names="markdown">
             <title>
                 Markdown
             <paragraph>

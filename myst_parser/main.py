@@ -49,7 +49,7 @@ class MdParserConfig:
         metadata={"help": "Use strict Github Flavoured Markdown parser"},
     )
     enable_extensions: Sequence[str] = attr.ib(
-        factory=lambda: ["dollarmath"], metadata={"help": "Enable extensions"}
+        factory=list, metadata={"help": "Enable extensions"}
     )
 
     linkify_fuzzy_links: bool = attr.ib(

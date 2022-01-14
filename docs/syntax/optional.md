@@ -95,8 +95,8 @@ and you will neeed to suppress the `myst.strikethrough` warning
 
 Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
 
-- `"dollarmath"` (added by default) for parsing of dollar `$` and `$$` encapsulated math.
-- `"amsmath"` (off by default) for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
+- `"dollarmath"` for parsing of dollar `$` and `$$` encapsulated math.
+- `"amsmath"` for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
 These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
 
@@ -106,7 +106,7 @@ These options enable their respective Markdown parser plugins, as detailed in th
 
 ### Dollar delimited math
 
-Enabling dollar math will parse the following syntax:
+Enabling `dollarmath` will parse the following syntax:
 
 - Inline math: `$...$`
 - Display (block) math: `$$...$$`
@@ -235,7 +235,7 @@ See [the extended syntax option](syntax/amsmath).
 ### Mathjax and math parsing
 
 When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
-Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
+If `dollarmath` is enabled, Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
 MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
 
