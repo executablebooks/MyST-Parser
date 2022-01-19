@@ -531,6 +531,14 @@ def test_fieldlist_extension(
             docname="index",
             regress=True,
             regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
+            # changed in:
+            # https://www.sphinx-doc.org/en/master/changes.html#release-4-4-0-released-jan-17-2022
+            replace={
+                (
+                    '<literal_strong py:class="True" '
+                    'py:module="True" refspecific="True">'
+                ): "<literal_strong>"
+            },
         )
     finally:
         get_sphinx_app_output(

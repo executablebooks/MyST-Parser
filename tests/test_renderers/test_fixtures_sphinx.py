@@ -47,8 +47,10 @@ def test_sphinx_directives(file_params):
         pytest.skip(file_params.title)
     elif file_params.title.startswith("SPHINX4") and sphinx.version_info[0] < 4:
         pytest.skip(file_params.title)
-    document = to_docutils(file_params.content, in_sphinx_env=True)
-    file_params.assert_expected(document.pformat(), rstrip_lines=True)
+    document = to_docutils(file_params.content, in_sphinx_env=True).pformat()
+    # see https://github.com/sphinx-doc/sphinx/issues/9827
+    document = document.replace('<glossary sorted="False">', "<glossary>")
+    file_params.assert_expected(document, rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_roles.md")
