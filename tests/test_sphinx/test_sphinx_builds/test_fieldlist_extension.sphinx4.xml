@@ -37,7 +37,7 @@
                             <bullet_list>
                                 <list_item>
                                     <paragraph>
-                                        <literal_strong py:class="True" py:module="True" refspecific="True">
+                                        <literal_strong>
                                             sender
                                          (
                                         <pending_xref py:class="True" py:module="True" refdomain="py" refexplicit="False" refspecific="True" reftarget="str" reftype="class">
@@ -48,7 +48,7 @@
                                         The person sending the message
                                 <list_item>
                                     <paragraph>
-                                        <literal_strong py:class="True" py:module="True" refspecific="True">
+                                        <literal_strong>
                                             priority
                                          (
                                         <pending_xref py:class="True" py:module="True" refdomain="py" refexplicit="False" refspecific="True" reftarget="int" reftype="class">
