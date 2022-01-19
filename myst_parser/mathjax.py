@@ -51,6 +51,8 @@ def override_mathjax(app: Sphinx):
             None,
         )
 
+    if "dollarmath" not in app.config["myst_enable_extensions"]:
+        return
     if not app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
         return
 

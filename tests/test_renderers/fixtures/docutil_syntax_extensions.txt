@@ -1,0 +1,139 @@
+[dollarmath] --myst-enable-extensions=dollarmath
+.
+$foo$
+
+a $foo
+bar$ b
+
+$$foo$$
+
+$$
+a = 1
+$$
+.
+<document source="<string>">
+    <paragraph>
+        <math>
+            foo
+    <paragraph>
+        a
+        <math>
+            foo
+            bar
+         b
+    <math_block nowrap="False" number="True" xml:space="preserve">
+        foo
+    <math_block nowrap="False" number="True" xml:space="preserve">
+
+        a = 1
+.
+
+[amsmath] --myst-enable-extensions=amsmath
+.
+\begin{equation} a \end{equation}
+
+\begin{equation}
+a
+\end{equation}
+
+\begin{equation*}
+a
+\end{equation*}
+.
+<document source="<string>">
+    <math_block classes="amsmath" nowrap="True" numbered="True" xml:space="preserve">
+        \begin{equation} a \end{equation}
+    <math_block classes="amsmath" nowrap="True" numbered="True" xml:space="preserve">
+        \begin{equation}
+        a
+        \end{equation}
+    <math_block classes="amsmath" nowrap="True" xml:space="preserve">
+        \begin{equation*}
+        a
+        \end{equation*}
+.
+
+[deflist] --myst-enable-extensions=deflist
+.
+term
+: definition
+.
+<document source="<string>">
+    <definition_list classes="simple myst">
+        <definition_list_item>
+            <term>
+                term
+            <definition>
+                <paragraph>
+                    definition
+.
+
+[fieldlist] --myst-enable-extensions=fieldlist
+.
+:name: value
+.
+<document source="<string>">
+    <docinfo>
+        <field classes="name">
+            <field_name>
+                name
+            <field_body>
+                <paragraph>
+                    value
+.
+
+[colon_fence] --myst-enable-extensions=colon_fence
+.
+:::{note}
+content
+:::
+.
+<document source="<string>">
+    <note>
+        <paragraph>
+            content
+.
+
+[replacements] --myst-enable-extensions=replacements
+.
+(c) (C) (r) (R) (tm) (TM) (p) (P) +- ...
+.
+<document source="<string>">
+    <paragraph>
+        © © ® ® ™ ™ § § ± …
+.
+
+[strikethrough] --myst-enable-extensions=strikethrough
+.
+~~foo~~
+.
+<document source="<string>">
+    <paragraph>
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Strikethrough is currently only supported in HTML output [myst.strikethrough]
+        <raw format="html" xml:space="preserve">
+            <s>
+        foo
+        <raw format="html" xml:space="preserve">
+            </s>
+.
+
+[tasklist] --myst-enable-extensions=tasklist
+.
+- [ ] foo
+- [x] bar
+.
+<document source="<string>">
+    <bullet_list bullet="-" classes="contains-task-list">
+        <list_item classes="task-list-item">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox" disabled="disabled" type="checkbox">
+                 foo
+        <list_item classes="task-list-item">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">
+                 bar
+.

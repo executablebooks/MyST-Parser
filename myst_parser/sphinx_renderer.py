@@ -186,6 +186,7 @@ class SphinxRenderer(DocutilsRenderer):
         return str(uuid4())
 
     def render_amsmath(self, token: SyntaxTreeNode) -> None:
+        """Renderer for the amsmath extension."""
         # environment = token.meta["environment"]
         content = token.content
 

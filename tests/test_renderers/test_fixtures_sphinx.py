@@ -64,6 +64,16 @@ def test_sphinx_roles(file_params):
     file_params.assert_expected(actual, rstrip_lines=True)
 
 
+@pytest.mark.param_file(FIXTURE_PATH / "dollarmath.md")
+def test_dollarmath(file_params, monkeypatch):
+    document = to_docutils(
+        file_params.content,
+        MdParserConfig(enable_extensions=["dollarmath"]),
+        in_sphinx_env=True,
+    )
+    file_params.assert_expected(document.pformat(), rstrip_lines=True)
+
+
 @pytest.mark.param_file(FIXTURE_PATH / "amsmath.md")
 def test_amsmath(file_params, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")

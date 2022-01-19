@@ -308,56 +308,6 @@ Nested Enumrated List:
 .
 
 --------------------------
-Inline Math:
-.
-$foo$
-.
-<document source="notset">
-    <paragraph>
-        <math>
-            foo
-.
-
---------------------------
-Inline Math, multi-line:
-.
-a $foo
-bar$ b
-.
-<document source="notset">
-    <paragraph>
-        a
-        <math>
-            foo
-            bar
-         b
-.
-
---------------------------
-Inline Math, multi-line with line break (invalid):
-.
-a $foo
-
-bar$ b
-.
-<document source="notset">
-    <paragraph>
-        a $foo
-    <paragraph>
-        bar$ b
-.
-
---------------------------
-Math Block:
-.
-$$foo$$
-.
-<document source="notset">
-    <math_block nowrap="False" number="True" xml:space="preserve">
-        foo
-.
-
---------------------------
 Sphinx Role containing backtick:
 .
 {code}``a=1{`}``
