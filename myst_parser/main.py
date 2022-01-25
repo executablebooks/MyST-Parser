@@ -89,9 +89,10 @@ class MdParserConfig:
             raise TypeError(f"myst_enable_extensions not iterable: {value}")
         diff = set(value).difference(
             [
-                "dollarmath",
                 "amsmath",
+                "bibliography",
                 "deflist",
+                "dollarmath",
                 "fieldlist",
                 "html_admonition",
                 "html_image",
@@ -278,6 +279,10 @@ def create_md_parser(
         md.use(colon_fence_plugin)
     if "amsmath" in config.enable_extensions:
         md.use(amsmath_plugin)
+    if "bibliography" in config.enable_extensions:
+        from myst_parser.bibliography import bibliography_plugin
+
+        md.use(bibliography_plugin)
     if "deflist" in config.enable_extensions:
         md.use(deflist_plugin)
     if "fieldlist" in config.enable_extensions:

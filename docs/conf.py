@@ -75,8 +75,9 @@ ogp_custom_meta_tags = [
 html_static_path = ["_static"]
 
 myst_enable_extensions = [
-    "dollarmath",
     "amsmath",
+    "bibliography",
+    "dollarmath",
     "deflist",
     "fieldlist",
     "html_admonition",

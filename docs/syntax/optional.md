@@ -682,6 +682,14 @@ Send a message to a recipient
 Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 :::
 
+(syntax/bibliography)=
+
+## Bibliography referencing
+
+...
+
+[@x]
+
 (syntax/images)=
 
 ## Images

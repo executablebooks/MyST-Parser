@@ -620,11 +620,6 @@ class DocutilsRenderer(RendererProtocol):
 
         href = cast(str, token.attrGet("href") or "")
 
-        # TODO better to parse this as a separate token in markdown-it,
-        # e.g. like footnotes `[@id]`
-        if href.startswith("@"):  # TODO config to enable/disable
-            return self.render_citation_link(token)
-
         # Check for external URL
         url_scheme = urlparse(href).scheme
         allowed_url_schemes = self.config.get("myst_url_schemes", None)
@@ -634,20 +629,6 @@ class DocutilsRenderer(RendererProtocol):
             return self.render_external_url(token)
 
         return self.render_internal_link(token)
-
-    def render_citation_link(self, token: SyntaxTreeNode) -> None:
-        """Parse `()[@citation]` syntax to docutils AST"""
-        href = cast(str, token.attrGet("href") or "")
-        citation_key = href[1:]  # remove leading `@`
-        # TODO how to allow for multiple citations? for example `@citation1;@citation2`
-        # could just have a transform merge adjacent citations in some way
-        citation_ref = nodes.citation_reference(
-            citation_key, refname=citation_key, classes=["myst-citation-ref"]
-        )
-        self.add_line_and_source_path(citation_ref, token)
-        self.document.note_citation_ref(citation_ref)
-        self.current_node.append(citation_ref)
-        # TODO ignoring children
 
     def render_external_url(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
@@ -983,6 +964,15 @@ class DocutilsRenderer(RendererProtocol):
         self.document.note_explicit_target(footnote, footnote)
         with self.current_node_context(footnote, append=True):
             self.render_children(token)
+
+    def render_bibliography_ref(self, token: SyntaxTreeNode) -> None:
+        """Parse `[@key format]` syntax to docutils AST"""
+        key = token.meta["key"]
+        fmt = token.meta["format"]
+        # the refname will be added in a transform phase
+        refnode = nodes.reference(classes=["myst-bib-ref"], key=key, format=fmt)
+        self.add_line_and_source_path(refnode, token)
+        self.current_node.append(refnode)
 
     def render_myst_block_break(self, token: SyntaxTreeNode) -> None:
         block_break = nodes.comment(token.content, token.content)

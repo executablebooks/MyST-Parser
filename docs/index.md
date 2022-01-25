@@ -1,7 +1,5 @@
 # MyST - Markedly Structured Text <img src="_static/logo-square.svg" width=40 />
 
-[](@x) [](@y) [](@y)
-
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
 
