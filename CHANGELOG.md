@@ -1,5 +1,95 @@
 # Changelog
 
+## 0.17.0 - 2021-02-11
+
+This release contains a number of breaking improvements.
+
+Full Changelog: [v0.16.1...v0.17.0](https://github.com/executablebooks/MyST-Parser/compare/v0.16.1...v0.17.0)
+
+### ‼️ Markdown link resolution improvements
+
+Markdown links are of the format `[text](link)`.
+MyST-Parser looks to smartly resolve such links, by identifying if they are:
+
+1. A link to an external resource, e.g. `[text](http://example.com)`
+2. A link to another source document, e.g. `[text](file.md)`
+   - If `header-anchors` are enabled, anchor links are also supported, e.g. `[text](file.md#anchor)`
+3. A link to an internal sphinx cross-reference, e.g. `[text](my-reference)`
+
+an additional situation is now supported:
+
+4. A link to a source file, which is not a document, e.g. `[text](file.js)`. This behaves similarly to the sphinx `download` role.
+
+In addition, configuration to more finely tune this behaviour has been added.
+
+- `myst_all_links_external=True`, will make all links be treated as (1)
+- `myst_url_schemes=("http", "https")`, sets what URL schemes are treated as (1)
+- `myst_ref_domains=("std", "py")`, sets what Sphinx reference domains are checked, when handling (3)
+
+See [Markdown Links and Referencing](docs/syntax/syntax.md#markdown-links-and-referencing) for more information.
+
+### ‼️ Dollarmath is now disabled by default
+
+The default configuration is now `myst_enable_extensions=()`, instead of `myst_enable_extensions=("dollarmath",)`.
+If you are using math enclosed in `$` or `$$` in your documents, you should enable `dollarmath` explicitly.
+
+See [Dollar delimited math](docs/syntax/optional.md#math-shortcuts) for more information.
+
+### ⬆️ Drop Python 3.6 support
+
+MyST-Parser now supports, and is tested against, Python 3.7 to 3.10.
+
+### ✨ Add the `strikethrough` extension and `myst_gfm_only` configuration
+
+The `strikethrough` extension allows text within `~~` delimiters to have a strike-through (horizontal line) placed over it.
+For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough with *emphasis*~~.
+
+**Important**: This extension is currently only supported for HTML output.
+
+See [Strikethrough](docs/syntax/optional.md#strikethrough) for more information.
+
+The `myst_gfm_only=True` configuration sets up specific configuration, to enable compliance only with [GitHub-flavored Markdown](https://github.github.com/gfm/), including enabling the `strikethrough`, `tasklist` and `linkify` extensions, but disabling support for roles and directives.
+
+### ✨ Add `myst_title_to_header` configuration
+
+Setting `myst_title_to_header=True`, allows for a `title` key in the frontmatter to be used as the document title.
+for example:
+
+```md
+---
+title: My Title with *emphasis*
+---
+```
+
+would be equivalent to:
+
+```md
+# My Title with *emphasis*
+```
+
+See [Front matter](docs/syntax/syntax.md#front-matter) for more information.
+
+### 👌 Internal improvements
+
+👌 IMPROVE: Convert nested headings to rubrics.
+Headings within directives are not directly supported by sphinx, since they break the structure of the document. Previously myst-parser would emit a `myst.nested_header` warning, but still generate the heading, leading to unexpected outcomes.
+Now the warning is still emitted, but also the heading is rendered as a [rubric](https://docutils.sourceforge.io/docs/ref/rst/directives.html#rubric) non-structural heading (i.e. it will not show in the ToC).
+
+Other internal improvements primarily focussed in improving support for the for "docutils-only" use, introduced in `v0.16`:
+
+- ♻️ REFACTOR: `default_parser` -> `create_md_parser` in [#474](https://github.com/executablebooks/MyST-Parser/pull/474)
+- 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in [#465](https://github.com/executablebooks/MyST-Parser/pull/465)
+- 👌 IMPROVE: Use correct renderer for `state.inline_text` in [#466](https://github.com/executablebooks/MyST-Parser/pull/466)
+- 👌 IMPROVE: Docutils parser settings in [#476](https://github.com/executablebooks/MyST-Parser/pull/476)
+- 🐛 FIX: front-matter rendering with docutils in [#477](https://github.com/executablebooks/MyST-Parser/pull/477)
+- 👌 IMPROVE: Code block highlighting in [#478](https://github.com/executablebooks/MyST-Parser/pull/478)
+- 👌 IMPROVE: `note_refname` for docutils internal links in [#481](https://github.com/executablebooks/MyST-Parser/pull/481)
+- 🐛 FIX: Ordered list starting number in [#483](https://github.com/executablebooks/MyST-Parser/pull/483)
+- 👌 IMPROVE: Propagate enumerated list suffix in [#484](https://github.com/executablebooks/MyST-Parser/pull/484)
+- 👌 IMPROVE: `DocutilsRenderer.create_highlighted_code_block` in [#488](https://github.com/executablebooks/MyST-Parser/pull/488)
+- 🐛 FIX: Source line reporting for nested parsing in [#490](https://github.com/executablebooks/MyST-Parser/pull/490)
+- 🔧 MAINTAIN: Implement `MockInliner.parse` in [#504](https://github.com/executablebooks/MyST-Parser/pull/504)
+
 ## 0.16.1 - 2021-12-16
 
 ✨ NEW: Add `myst_linkify_fuzzy_links` option.
