@@ -76,13 +76,8 @@ def parse_directive_text(
         body_lines = content.splitlines()
         content_offset = 0
 
-    if not (
-        directive_class.required_arguments
-        or directive_class.optional_arguments
-        or options
-    ):
-        # If there are no possible arguments and no option block,
-        # then the body starts on the argument line
+    if not (directive_class.required_arguments or directive_class.optional_arguments):
+        # If there are no possible arguments, then the body starts on the argument line
         if first_line:
             body_lines.insert(0, first_line)
         arguments = []
