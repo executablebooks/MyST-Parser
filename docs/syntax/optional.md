@@ -496,7 +496,7 @@ To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, wh
 For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
 
 ```python
-`myst_heading_anchors = 3
+myst_heading_anchors = 3
 ```
 
 You can then insert markdown links directly to anchors that are generated from your header titles in your documentation.
