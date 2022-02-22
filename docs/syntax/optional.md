@@ -489,12 +489,36 @@ Also see [](syntax/html-admonition).
 
 ## Auto-generated header anchors
 
-A common, extended Markdown syntax is to use header bookmark links, locally; `[](#header-anchor)`, or cross-file `[](path/to/file.md#header-anchor)`.
-To achieve this, section headings must be assigned anchors, which can be achieved in `myst-parser`,
-by setting `myst_heading_anchors = 2` in your `conf.py`.
-This configures heading anchors to be assigned to both `h1` and `h2` level headings.
-The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger); lower-case text, removing punctuation, replacing spaces with `-`, uniqueness *via* suffix enumeration `-1`.
-To change the slug function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
+The MyST Parser can automatically generate label "slugs" for header anchors so that you can reference them from markdown links.
+For example, you can use header bookmark links, locally; `[](#header-anchor)`, or cross-file `[](path/to/file.md#header-anchor)`.
+To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, where `DEPTH` is the depth of header levels for which you wish to generate links.
+
+For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
+
+```python
+myst_heading_anchors = 3
+```
+
+You can then insert markdown links directly to anchors that are generated from your header titles in your documentation.
+For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
+
+The paths to other files should be relative to the current file, for example
+`[**link text**](./syntax.md#the-myst-syntax-guide)`: [**link text**](./syntax.md#the-myst-syntax-guide).
+
+
+### Anchor slug structure
+
+The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger):
+
+- lower-case text
+- remove punctuation
+- replace spaces with `-`
+- enforce uniqueness *via* suffix enumeration `-1`
+
+To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
+
+### Inspect the links that will be created
+
 You can inspect the links that will be created using the command-line tool:
 
 ```console
@@ -507,11 +531,6 @@ $ myst-anchors -l 2 docs/syntax/optional.md
 <h2 id="markdown-figures"></h2>
 <h2 id="direct-latex-math"></h2>
 ```
-
-For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
-
-The paths to other files should be relative to the current file, for example
-`[**link text**](./syntax.md#the-myst-syntax-guide)`: [**link text**](./syntax.md#the-myst-syntax-guide).
 
 (syntax/definition-lists)=
 
