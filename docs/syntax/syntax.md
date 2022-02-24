@@ -404,7 +404,7 @@ and can be used to store information for blog posting (see [ablog's myst-parser 
 ```
 
 If `myst_title_to_header` is set to `True`, and a `title` key is present in the front matter,
-then the title will be used as the document's header (parsed as Markdown.
+then the title will be used as the document's header (parsed as Markdown).
 For example:
 
 ```md
