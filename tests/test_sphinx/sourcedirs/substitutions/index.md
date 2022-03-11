@@ -16,7 +16,7 @@ substitutions:
     ```{note}
     Inline note
     ```
-  override: Overriden by front matter
+  override: Overridden by front matter
 
 ---
 

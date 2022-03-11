@@ -33,7 +33,7 @@
     <paragraph>
         This was from the conf
     <paragraph>
-        Overriden by front matter
+        Overridden by front matter
     <paragraph>
         This will process the substitution
     <literal_block xml:space="preserve">

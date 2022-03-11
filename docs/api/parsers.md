@@ -247,7 +247,7 @@ Here's some *text*
 ```
 <!-- #endregion -->
 
-Note that these tokens are **flat**, although some of the tokens refere to one another (for example, Tokens with `_open` and `_close` represent the start/end of blocks).
+Note that these tokens are **flat**, although some of the tokens refer to one another (for example, Tokens with `_open` and `_close` represent the start/end of blocks).
 
 Tokens of type `inline` will have a `children` attribute that contains a list of the Tokens that they contain.
 For example:

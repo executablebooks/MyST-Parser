@@ -44,7 +44,7 @@ Optionally you can run `black` and `flake8` separately:
 
 Editors like VS Code also have automatic code reformat utilities, which can adhere to this standard.
 
-All functions and class methods should be annotated with types and include a docstring. The prefered docstring format is outlined in `MyST-Parser/docstring.fmt.mustache` and can be used automatically with the
+All functions and class methods should be annotated with types and include a docstring. The preferred docstring format is outlined in `MyST-Parser/docstring.fmt.mustache` and can be used automatically with the
 [autodocstring](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring) VS Code extension.
 
 ## Testing
