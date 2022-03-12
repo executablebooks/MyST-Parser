@@ -79,7 +79,7 @@ See [Front matter](docs/syntax/syntax.md#front-matter) for more information.
 Headings within directives are not directly supported by sphinx, since they break the structure of the document. Previously myst-parser would emit a `myst.nested_header` warning, but still generate the heading, leading to unexpected outcomes.
 Now the warning is still emitted, but also the heading is rendered as a [rubric](https://docutils.sourceforge.io/docs/ref/rst/directives.html#rubric) non-structural heading (i.e. it will not show in the ToC).
 
-Other internal improvements primarily focussed in improving support for the for "docutils-only" use, introduced in `v0.16`:
+Other internal improvements primarily focused in improving support for the for "docutils-only" use, introduced in `v0.16`:
 
 - ♻️ REFACTOR: `default_parser` -> `create_md_parser` in [#474](https://github.com/executablebooks/MyST-Parser/pull/474)
 - 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in [#465](https://github.com/executablebooks/MyST-Parser/pull/465)

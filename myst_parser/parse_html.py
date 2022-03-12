@@ -1,4 +1,4 @@
-"""A simple but complete HTML to Abstact Syntax Tree (AST) parser.
+"""A simple but complete HTML to Abstract Syntax Tree (AST) parser.
 
 The AST can also reproduce the HTML text.
 

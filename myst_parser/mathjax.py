@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def log_override_warning(app: Sphinx, version: int, current: str, new: str) -> None:
-    """Log a warning if MathJax configuration being overriden."""
+    """Log a warning if MathJax configuration being overridden."""
     if logging.is_suppressed_warning("myst", "mathjax", app.config.suppress_warnings):
         return
     config_name = (
