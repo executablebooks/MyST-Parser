@@ -78,6 +78,12 @@ def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
+def create_literal_block(rawsource='', text='', *children, **attributes):
+    if text.endswith("\n"):
+        text = text[:-1]
+    return nodes.literal_block(rawsource, text, *children, **attributes)
+
+
 class DocutilsRenderer(RendererProtocol):
     """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
@@ -510,15 +516,18 @@ class DocutilsRenderer(RendererProtocol):
 
         Note, this function does not add the literal block to the document.
         """
+        rawsource = text
+        if text.endswith("\n"):
+            rawsource, text = text, text[:-1]
         if self.sphinx_env is not None:
-            node = node_cls(text, text, language=lexer_name or "none")
+            node = node_cls(rawsource, text, language=lexer_name or "none")
             if number_lines:
                 node["linenos"] = True
                 if lineno_start != 1:
                     node["highlight_args"] = {"linenostart": lineno_start}
         else:
             node = node_cls(
-                text, classes=["code"] + ([lexer_name] if lexer_name else [])
+                rawsource, classes=["code"] + ([lexer_name] if lexer_name else [])
             )
             try:
                 lex_tokens = Lexer(
@@ -780,7 +789,7 @@ class DocutilsRenderer(RendererProtocol):
                 msg_node = self.reporter.error(
                     "Front matter block:\n" + str(error), line=position
                 )
-                msg_node += nodes.literal_block(token.content, token.content)
+                msg_node += create_literal_block(token.content, token.content)
                 self.current_node.append(msg_node)
                 return
         else:
@@ -801,14 +810,14 @@ class DocutilsRenderer(RendererProtocol):
             msg_node = self.reporter.error(
                 "Front-matter 'substitutions' is not a dict", line=position
             )
-            msg_node += nodes.literal_block(token.content, token.content)
+            msg_node += create_literal_block(token.content, token.content)
             self.current_node.append(msg_node)
 
         if not isinstance(html_meta, dict):
             msg_node = self.reporter.error(
                 "Front-matter 'html_meta' is not a dict", line=position
             )
-            msg_node += nodes.literal_block(token.content, token.content)
+            msg_node += create_literal_block(token.content, token.content)
             self.current_node.append(msg_node)
 
         self.current_node.extend(
@@ -1108,7 +1117,7 @@ class DocutilsRenderer(RendererProtocol):
                                 "Found a definition in a definition list, "
                                 "with no preceding term"
                             ),
-                            # nodes.literal_block(content, content),
+                            # create_literal_block(content, content),
                             line=token_line(child),
                         )
                         self.current_node += [error]
@@ -1123,7 +1132,7 @@ class DocutilsRenderer(RendererProtocol):
                             "Expected a term/definition as a child of a definition list"
                             f", but found a: {child.type}"
                         ),
-                        # nodes.literal_block(content, content),
+                        # create_literal_block(content, content),
                         line=token_line(child),
                     )
                     self.current_node += [error_msg]
@@ -1143,7 +1152,7 @@ class DocutilsRenderer(RendererProtocol):
                             "Expected a fieldlist_name as a child of a field_list"
                             f", but found a: {child.type}"
                         ),
-                        # nodes.literal_block(content, content),
+                        # create_literal_block(content, content),
                         line=token_line(child),
                     )
                     self.current_node += [error_msg]
@@ -1214,7 +1223,7 @@ class DocutilsRenderer(RendererProtocol):
         if not directive_class:
             error = self.reporter.error(
                 'Unknown directive type "{}".\n'.format(name),
-                # nodes.literal_block(content, content),
+                # create_literal_block(content, content),
                 line=position,
             )
             return [error] + messages
@@ -1232,7 +1241,7 @@ class DocutilsRenderer(RendererProtocol):
         except DirectiveParsingError as error:
             error = self.reporter.error(
                 "Directive '{}': {}".format(name, error),
-                nodes.literal_block(content, content),
+                create_literal_block(content, content),
                 line=position,
             )
             return [error]
@@ -1276,14 +1285,14 @@ class DocutilsRenderer(RendererProtocol):
             msg_node = self.reporter.system_message(
                 error.level, error.msg, line=position
             )
-            msg_node += nodes.literal_block(content, content)
+            msg_node += create_literal_block(content, content)
             result = [msg_node]
         except MockingError as exc:
             error_msg = self.reporter.error(
                 "Directive '{}' cannot be mocked: {}: {}".format(
                     name, exc.__class__.__name__, exc
                 ),
-                nodes.literal_block(content, content),
+                create_literal_block(content, content),
                 line=position,
             )
             return [error_msg]
