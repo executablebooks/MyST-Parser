@@ -514,7 +514,7 @@ pep (`sphinx.roles.PEP`):
     <paragraph>
         <index entries="('single',\ 'Python\ Enhancement\ Proposals;\ PEP\ 1',\ 'index-0',\ '',\ None)">
         <target ids="index-0">
-        <reference classes="pep" internal="False" refuri="http://www.python.org/dev/peps/pep-0001">
+        <reference classes="pep" internal="False" refuri="http://www.python.org/dev/peps/pep-0001/">
             <strong>
                 PEP 1
 .
