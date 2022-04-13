@@ -78,7 +78,7 @@ def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
-def create_literal_block(rawsource='', text='', *children, **attributes):
+def create_literal_block(rawsource="", text="", *children, **attributes):
     if text.endswith("\n"):
         text = text[:-1]
     return nodes.literal_block(rawsource, text, *children, **attributes)
