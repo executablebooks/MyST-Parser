@@ -3,6 +3,7 @@
 Note, the output AST is before any transforms are applied.
 """
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -50,6 +51,9 @@ def test_sphinx_directives(file_params):
     document = to_docutils(file_params.content, in_sphinx_env=True).pformat()
     # see https://github.com/sphinx-doc/sphinx/issues/9827
     document = document.replace('<glossary sorted="False">', "<glossary>")
+    # see https://github.com/executablebooks/MyST-Parser/issues/522
+    if sys.maxsize == 2147483647:
+        document = document.replace('"2147483647"', '"9223372036854775807"')
     file_params.assert_expected(document, rstrip_lines=True)
 
 
@@ -63,6 +67,12 @@ def test_sphinx_roles(file_params):
     actual = document.pformat()
     # sphinx 3 adds a parent key
     actual = re.sub('cpp:parent_key="[^"]*"', 'cpp:parent_key=""', actual)
+    # sphinx >= 4.5.0 adds a trailing slash to PEP URLs,
+    # see https://github.com/sphinx-doc/sphinx/commit/658689433eacc9eb
+    actual = actual.replace(
+        ' refuri="http://www.python.org/dev/peps/pep-0001">',
+        ' refuri="http://www.python.org/dev/peps/pep-0001/">',
+    )
     file_params.assert_expected(actual, rstrip_lines=True)
 
 
