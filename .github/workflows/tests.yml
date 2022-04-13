@@ -23,14 +23,16 @@ jobs:
   tests:
 
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
         sphinx: [">=4,<5"]
         os: [ubuntu-latest]
         include:
-          - os: ubuntu-latest
-            python-version: "3.8"
-            sphinx: ">=3,<4"
+          # fails because of: https://github.com/sphinx-doc/sphinx/issues/10291
+          # - os: ubuntu-latest
+          #   python-version: "3.8"
+          #   sphinx: ">=3,<4"
           - os: windows-latest
             python-version: "3.8"
             sphinx: ">=4,<5"
