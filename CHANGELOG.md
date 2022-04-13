@@ -1,12 +1,14 @@
 # Changelog
 
-## 0.17.0 - 2021-02-11
+## 0.17.0 - 2022-02-11
 
 This release contains a number of breaking improvements.
 
 Full Changelog: [v0.16.1...v0.17.0](https://github.com/executablebooks/MyST-Parser/compare/v0.16.1...v0.17.0)
 
 ### ‼️ Markdown link resolution improvements
+
+**WARNING: This is a breaking change for links that rely on auto-generated anchor links**. You should now [manually enable auto-generated anchor links](https://myst-parser.readthedocs.io/en/latest/syntax/optional.html?highlight=anchor#auto-generated-header-anchors) if you see errors like `WARNING reference target not found`.
 
 Markdown links are of the format `[text](link)`.
 MyST-Parser looks to smartly resolve such links, by identifying if they are:
@@ -29,6 +31,8 @@ In addition, configuration to more finely tune this behaviour has been added.
 See [Markdown Links and Referencing](docs/syntax/syntax.md#markdown-links-and-referencing) for more information.
 
 ### ‼️ Dollarmath is now disabled by default
+
+**WARNING: This is a breaking change for dollar math**. You should now manually enable dollar math (see below).
 
 The default configuration is now `myst_enable_extensions=()`, instead of `myst_enable_extensions=("dollarmath",)`.
 If you are using math enclosed in `$` or `$$` in your documents, you should enable `dollarmath` explicitly.
@@ -75,7 +79,7 @@ See [Front matter](docs/syntax/syntax.md#front-matter) for more information.
 Headings within directives are not directly supported by sphinx, since they break the structure of the document. Previously myst-parser would emit a `myst.nested_header` warning, but still generate the heading, leading to unexpected outcomes.
 Now the warning is still emitted, but also the heading is rendered as a [rubric](https://docutils.sourceforge.io/docs/ref/rst/directives.html#rubric) non-structural heading (i.e. it will not show in the ToC).
 
-Other internal improvements primarily focussed in improving support for the for "docutils-only" use, introduced in `v0.16`:
+Other internal improvements primarily focused in improving support for the for "docutils-only" use, introduced in `v0.16`:
 
 - ♻️ REFACTOR: `default_parser` -> `create_md_parser` in [#474](https://github.com/executablebooks/MyST-Parser/pull/474)
 - 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in [#465](https://github.com/executablebooks/MyST-Parser/pull/465)

@@ -164,9 +164,7 @@ class SphinxRenderer(DocutilsRenderer):
             clean_astext(section[0]),
         )
 
-        # for debugging
-        if not hasattr(self.doc_env, "myst_anchors"):
-            self.doc_env.myst_anchors = True  # type: ignore[attr-defined]
+        self.doc_env.metadata[self.doc_env.docname]["myst_anchors"] = True
         section["myst-anchor"] = doc_slug
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:

@@ -2,7 +2,7 @@
 
 # MyST with Sphinx
 
-The MyST Parser comes bundled with a Sphinx extension that allows you to use write Sphinx documentation entirely in MyST (or, in a combination of rST and MyST).
+The MyST Parser comes bundled with a Sphinx extension that allows you to write Sphinx documentation entirely in MyST (or, in a combination of rST and MyST).
 The following sections cover some major functionality of the Sphinx extension.
 
 :::{seealso}

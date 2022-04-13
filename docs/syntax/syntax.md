@@ -404,7 +404,7 @@ and can be used to store information for blog posting (see [ablog's myst-parser 
 ```
 
 If `myst_title_to_header` is set to `True`, and a `title` key is present in the front matter,
-then the title will be used as the document's header (parsed as Markdown.
+then the title will be used as the document's header (parsed as Markdown).
 For example:
 
 ```md
@@ -750,7 +750,7 @@ See the [extended image syntax guide](syntax/images).
 ## Footnotes
 
 Footnotes use the [pandoc specification](https://pandoc.org/MANUAL.html#footnotes).
-Their labels **start with `^`** and can then be any alpha-numeric string (no spaces), which is case-insensitive.
+Their labels **start with `^`** and can then be any alphanumeric string (no spaces), which is case-insensitive.
 
 - If the label is an integer, then it will always use that integer for the rendered label (i.e. they are manually numbered).
 - For any other labels, they will be auto-numbered in the order which they are referenced, skipping any manually numbered labels.

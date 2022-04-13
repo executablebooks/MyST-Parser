@@ -72,7 +72,7 @@ class MystReferenceResolver(ReferencesResolver):
                     if newnode is None:
                         node["refdomain"] = ""
                         # TODO ideally we would override the warning message here,
-                        # to show the [ref.myst] for supressing warning
+                        # to show the [ref.myst] for suppressing warning
                         self.warn_missing_reference(
                             refdoc, node["reftype"], target, node, domain
                         )
@@ -202,8 +202,11 @@ class MystReferenceResolver(ReferencesResolver):
         self, node: pending_xref, fromdocname: str
     ) -> Optional[Element]:
         """Resolve doc with anchor."""
+        if self.env.config.myst_heading_anchors is None:
+            # no target anchors will have been created, so we don't look for them
+            return None
         target = node["reftarget"]  # type: str
-        if not ("#" in target and hasattr(self.env, "myst_anchors")):
+        if "#" not in target:
             return None
         # the link may be a heading anchor; we need to first get the relative path
         rel_path, anchor = target.rsplit("#", 1)
