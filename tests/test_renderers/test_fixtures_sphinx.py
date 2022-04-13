@@ -67,7 +67,7 @@ def test_sphinx_roles(file_params):
     # see https://github.com/sphinx-doc/sphinx/commit/658689433eacc9eb
     actual = actual.replace(
         ' refuri="http://www.python.org/dev/peps/pep-0001">',
-        ' refuri="http://www.python.org/dev/peps/pep-0001/">'
+        ' refuri="http://www.python.org/dev/peps/pep-0001/">',
     )
     file_params.assert_expected(actual, rstrip_lines=True)
 
