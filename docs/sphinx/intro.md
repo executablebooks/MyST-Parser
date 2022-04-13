@@ -212,14 +212,6 @@ And some more content.
 ````
 
 Because your new section has a label (`section-two`), you can reference it with the `ref` role.
-Add it to your markdown file like so:
-
-
-```md
-(label-name)=
-## Some header
-```
-
 Add this to your markdown file from above, like so:
 
 ````md
