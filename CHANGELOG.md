@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.17.0 - 2021-02-11
+## 0.17.0 - 2022-02-11
 
 This release contains a number of breaking improvements.
 
