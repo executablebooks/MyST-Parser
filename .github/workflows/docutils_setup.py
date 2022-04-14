@@ -8,9 +8,11 @@ import tomlkit
 def modify_toml(content: str) -> str:
     """Modify `pyproject.toml`."""
     doc = tomlkit.parse(content)
+
     # change name of package
     doc["project"]["name"] = "myst-docutils"
-    doc["tool"]["flit"]["module"] = "myst_docutils"
+    doc["tool"]["flit"]["module"]["name"] = "myst_docutils"
+
     # move dependency on docutils and sphinx to extra
     dependencies = []
     sphinx_extra = []
