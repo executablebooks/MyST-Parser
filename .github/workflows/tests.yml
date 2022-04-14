@@ -85,7 +85,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install tomlkit
     - name: Modify setup
-      run: python .github/workflows/docutils_setup.py setup.cfg README.md
+      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
     - name: Install dependencies
       run: |
         pip install .
