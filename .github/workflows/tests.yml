@@ -80,11 +80,14 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: "3.8"
+    - name: Install setup
+      run: |
+        python -m pip install --upgrade pip
+        pip install tomlkit
     - name: Modify setup
       run: python .github/workflows/docutils_setup.py setup.cfg README.md
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install .
         pip install pytest~=6.2 pytest-param-files~=0.3.3 docutils==${{ matrix.docutils-version }}
     - name: ensure sphinx is not installed
@@ -139,7 +142,7 @@ jobs:
         python-version: "3.8"
     - name: install flit and tomlkit
       run: |
-        pip install flit~=3.4 tomlkit~0.10.1
+        pip install flit~=3.4 tomlkit
     - name: Modify setup
       run: python .github/workflows/docutils_setup.py pyproject.toml README.md
     - name: Build and publish
