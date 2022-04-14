@@ -1,6 +1,92 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "myst-parser"
+dynamic = ["version", "description"]
+authors = [{name = "Chris Sewell", email = "chrisj_sewell@hotmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Sphinx :: Extension",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+]
+keywords = [
+    "markdown",
+    "lexer",
+    "parser",
+    "development",
+    "docutils",
+    "sphinx",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "docutils>=0.15,<0.18",
+    "jinja2", # required for substitutions, but let sphinx choose version
+    "markdown-it-py>=1.0.0,<3.0.0",
+    "mdit-py-plugins~=0.3.0",
+    "pyyaml",
+    "sphinx>=3.1,<5",
+    "typing-extensions",
+]
+
+[project.urls]
+Homepage = "https://github.com/executablebooks/MyST-Parser"
+Documentation = "https://myst-parser.readthedocs.io"
+
+[project.optional-dependencies]
+code_style = ["pre-commit~=2.12"]
+# for use with "linkify" extension
+linkify = ["linkify-it-py~=1.0"]
+# Note: This is only required for internal use
+rtd = [
+    "ipython",
+    "sphinx-book-theme",
+    "sphinx-panels",
+    "sphinxcontrib-bibtex~=2.4",
+    "sphinxext-rediraffe~=0.2.7",
+    "sphinxcontrib.mermaid~=0.7.1",
+    "sphinxext-opengraph~=0.6.3",
+]
+testing = [
+    "beautifulsoup4",
+    "coverage",
+    "docutils~=0.17.0", # this version changes some HTML tags
+    "pytest>=6,<7",
+    "pytest-cov",
+    "pytest-regressions",
+    "pytest-param-files~=0.3.4",
+]
+
+[project.scripts]
+myst-anchors = "myst_parser.cli:print_anchors"
+myst-docutils-html = "myst_parser.docutils_:cli_html"
+myst-docutils-html5 = "myst_parser.docutils_:cli_html5"
+myst-docutils-latex = "myst_parser.docutils_:cli_latex"
+myst-docutils-xml = "myst_parser.docutils_:cli_xml"
+myst-docutils-pseudoxml = "myst_parser.docutils_:cli_pseudoxml"
+
+[tool.flit.module]
+name = "myst_parser"
+
+[tool.flit.sdist]
+exclude = [
+    "docs/",
+    "tests/",
+]
 
 [tool.isort]
 profile = "black"
@@ -8,3 +94,14 @@ known_first_party = ["myst_parser", "tests"]
 known_third_party = ["docutils", "markdown_it", "sphinx"]
 # Group first party and local folder imports together
 no_lines_before = "LOCALFOLDER"
+
+[tool.mypy]
+show_error_codes = true
+check_untyped_defs = true
+strict_equality = true
+no_implicit_optional = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["docutils.*", "yaml.*"]
+ignore_missing_imports = true
