@@ -11,7 +11,6 @@ def modify_toml(content: str) -> str:
 
     # change name of package
     doc["project"]["name"] = "myst-docutils"
-    doc["tool"]["flit"]["module"]["name"] = "myst_docutils"
 
     # move dependency on docutils and sphinx to extra
     dependencies = []
