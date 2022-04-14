@@ -1,32 +1,28 @@
 #!/usr/bin/env python3
 """Script to convert package setup to myst-docutils."""
-import configparser
-import io
 import sys
 
+import tomlkit
 
-def modify_setup_cfg(content: str) -> str:
-    """Modify setup.cfg."""
-    cfg = configparser.ConfigParser()
-    cfg.read_string(content)
+
+def modify_toml(content: str) -> str:
+    """Modify `pyproject.toml`."""
+    doc = tomlkit.parse(content)
     # change name of package
-    cfg.set("metadata", "name", "myst-docutils")
+    doc["project"]["name"] = "myst-docutils"
+    doc["tool"]["flit"]["module"] = "myst_docutils"
     # move dependency on docutils and sphinx to extra
-    install_requires = []
-    sphinx_extra = [""]
-    for line in cfg.get("options", "install_requires").splitlines():
-        if line.startswith("docutils"):
-            sphinx_extra.append(line)
-        elif line.startswith("sphinx"):
-            sphinx_extra.append(line)
+    dependencies = []
+    sphinx_extra = []
+    for dep in doc["project"]["dependencies"]:
+        if dep.startswith("docutils") or dep.startswith("sphinx"):
+            sphinx_extra.append(dep)
         else:
-            install_requires.append(line)
-    cfg.set("options", "install_requires", "\n".join(install_requires))
-    cfg.set("options.extras_require", "sphinx", "\n".join(sphinx_extra))
+            dependencies.append(dep)
+    doc["project"]["dependencies"] = dependencies
+    doc["project"]["optional-dependencies"]["sphinx"] = sphinx_extra
 
-    stream = io.StringIO()
-    cfg.write(stream)
-    return stream.getvalue()
+    return tomlkit.dumps(doc)
 
 
 def modify_readme(content: str) -> str:
@@ -45,12 +41,12 @@ def modify_readme(content: str) -> str:
 
 
 if __name__ == "__main__":
-    setup_path = sys.argv[1]
+    project_path = sys.argv[1]
     readme_path = sys.argv[2]
-    with open(setup_path, "r") as f:
+    with open(project_path, "r") as f:
         content = f.read()
-    content = modify_setup_cfg(content)
-    with open(setup_path, "w") as f:
+    content = modify_toml(content)
+    with open(project_path, "w") as f:
         f.write(content)
     with open(readme_path, "r") as f:
         content = f.read()
