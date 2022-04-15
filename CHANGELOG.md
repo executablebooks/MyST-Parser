@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.17.1 - 2022-04-15
+
+Full Changelog: [v0.17.0...v0.17.1](https://github.com/executablebooks/MyST-Parser/compare/v0.17.0...v0.17.1)
+
+- 🐛 FIX: Heading anchor resolution for parallel builds (#525)
+- 🔧 MAINTAIN: Move packaging from setuptools to flit (#553)
+- 🔧 MAINTAIN: Directly specify attrs dependency (#555)
+
 ## 0.17.0 - 2022-02-11
 
 This release contains a number of breaking improvements.
