@@ -150,4 +150,4 @@ jobs:
         flit publish
       env:
         FLIT_USERNAME: __token__
-        FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
+        FLIT_PASSWORD: ${{ secrets.PYPI_KEY_DOCUTILS }}
