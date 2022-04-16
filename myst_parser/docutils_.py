@@ -3,9 +3,9 @@
    .. include:: path/to/file.md
       :parser: myst_parser.docutils_
 """
+from dataclasses import Field
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from attr import Attribute
 from docutils import frontend, nodes
 from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
@@ -69,8 +69,8 @@ DOCUTILS_EXCLUDED_ARGS = (
 """Names of settings that cannot be set in docutils.conf."""
 
 
-def _attr_to_optparse_option(at: Attribute, default: Any) -> Tuple[dict, str]:
-    """Convert an ``attrs.Attribute`` into a Docutils optparse options dict."""
+def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
+    """Convert a field into a Docutils optparse options dict."""
     if at.type is int:
         return {"metavar": "<int>", "validator": _validate_int}, f"(default: {default})"
     if at.type is bool:
@@ -118,7 +118,7 @@ def _attr_to_optparse_option(at: Attribute, default: Any) -> Tuple[dict, str]:
 
 
 def attr_to_optparse_option(
-    attribute: Attribute, default: Any, prefix: str = "myst_"
+    attribute: Field, default: Any, prefix: str = "myst_"
 ) -> Tuple[str, List[str], Dict[str, Any]]:
     """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple.
 

@@ -1,7 +1,7 @@
 import io
+from dataclasses import dataclass, field, fields
 from textwrap import dedent
 
-import attr
 import pytest
 from docutils import VersionInfo, __version_info__
 from typing_extensions import Literal
@@ -19,11 +19,11 @@ from myst_parser.docutils_renderer import make_document
 
 
 def test_attr_to_optparse_option():
-    @attr.s
+    @dataclass
     class Config:
-        name: Literal["a"] = attr.ib(default="default")
+        name: Literal["a"] = field(default="default")
 
-    output = attr_to_optparse_option(attr.fields(Config).name, "default")
+    output = attr_to_optparse_option(fields(Config)[0], "default")
     assert len(output) == 3
 
 

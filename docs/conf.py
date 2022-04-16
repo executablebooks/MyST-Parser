@@ -156,7 +156,7 @@ intersphinx_mapping = {
 #     # 'inherited-members': True
 # }
 autodoc_member_order = "bysource"
-
+nitpicky = True
 nitpick_ignore = [
     ("py:class", "docutils.nodes.document"),
     ("py:class", "docutils.nodes.docinfo"),

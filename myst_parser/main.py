@@ -1,17 +1,9 @@
 """This module holds the global configuration for the parser ``MdParserConfig``,
 and the ``create_md_parser`` function, which creates a parser from the config.
 """
+import dataclasses as dc
 from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union, cast
 
-import attr
-from attr.validators import (
-    deep_iterable,
-    deep_mapping,
-    in_,
-    instance_of,
-    is_callable,
-    optional,
-)
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML, RendererProtocol
 from mdit_py_plugins.amsmath import amsmath_plugin
@@ -29,205 +21,265 @@ from mdit_py_plugins.tasklists import tasklists_plugin
 from mdit_py_plugins.wordcount import wordcount_plugin
 
 from . import __version__  # noqa: F401
+from .dc_validators import (
+    deep_iterable,
+    deep_mapping,
+    in_,
+    instance_of,
+    is_callable,
+    optional,
+    validate_fields,
+)
 
 
-@attr.s()
+def check_extensions(_, __, value):
+    if not isinstance(value, Iterable):
+        raise TypeError(f"myst_enable_extensions not iterable: {value}")
+    diff = set(value).difference(
+        [
+            "dollarmath",
+            "amsmath",
+            "deflist",
+            "fieldlist",
+            "html_admonition",
+            "html_image",
+            "colon_fence",
+            "smartquotes",
+            "replacements",
+            "linkify",
+            "strikethrough",
+            "substitution",
+            "tasklist",
+        ]
+    )
+    if diff:
+        raise ValueError(f"myst_enable_extensions not recognised: {diff}")
+
+
+def check_sub_delimiters(_, __, value):
+    if (not isinstance(value, (tuple, list))) or len(value) != 2:
+        raise TypeError(f"myst_sub_delimiters is not a tuple of length 2: {value}")
+    for delim in value:
+        if (not isinstance(delim, str)) or len(delim) != 1:
+            raise TypeError(
+                f"myst_sub_delimiters does not contain strings of length 1: {value}"
+            )
+
+
+@dc.dataclass()
 class MdParserConfig:
     """Configuration options for the Markdown Parser.
 
     Note in the sphinx configuration these option names are prepended with ``myst_``
     """
 
-    commonmark_only: bool = attr.ib(
+    commonmark_only: bool = dc.field(
         default=False,
-        validator=instance_of(bool),
-        metadata={"help": "Use strict CommonMark parser"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Use strict CommonMark parser",
+        },
     )
-    gfm_only: bool = attr.ib(
+    gfm_only: bool = dc.field(
         default=False,
-        validator=instance_of(bool),
-        metadata={"help": "Use strict Github Flavoured Markdown parser"},
-    )
-    enable_extensions: Sequence[str] = attr.ib(
-        factory=list, metadata={"help": "Enable extensions"}
-    )
-
-    linkify_fuzzy_links: bool = attr.ib(
-        default=True,
-        validator=instance_of(bool),
-        metadata={"help": "linkify: recognise URLs without schema prefixes"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Use strict Github Flavoured Markdown parser",
+        },
     )
 
-    dmath_allow_labels: bool = attr.ib(
-        default=True,
-        validator=instance_of(bool),
-        metadata={"help": "Parse `$$...$$ (label)`"},
+    enable_extensions: Sequence[str] = dc.field(
+        default_factory=list,
+        metadata={"validator": check_extensions, "help": "Enable extensions"},
     )
-    dmath_allow_space: bool = attr.ib(
+
+    linkify_fuzzy_links: bool = dc.field(
         default=True,
-        validator=instance_of(bool),
-        metadata={"help": "dollarmath: allow initial/final spaces in `$ ... $`"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "linkify: recognise URLs without schema prefixes",
+        },
     )
-    dmath_allow_digits: bool = attr.ib(
+
+    dmath_allow_labels: bool = dc.field(
         default=True,
-        validator=instance_of(bool),
-        metadata={"help": "dollarmath: allow initial/final digits `1$ ...$2`"},
+        metadata={"validator": instance_of(bool), "help": "Parse `$$...$$ (label)`"},
     )
-    dmath_double_inline: bool = attr.ib(
+    dmath_allow_space: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "dollarmath: allow initial/final spaces in `$ ... $`",
+        },
+    )
+    dmath_allow_digits: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "dollarmath: allow initial/final digits `1$ ...$2`",
+        },
+    )
+    dmath_double_inline: bool = dc.field(
         default=False,
-        validator=instance_of(bool),
-        metadata={"help": "dollarmath: parse inline `$$ ... $$`"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "dollarmath: parse inline `$$ ... $$`",
+        },
     )
 
-    update_mathjax: bool = attr.ib(
+    update_mathjax: bool = dc.field(
         default=True,
-        validator=instance_of(bool),
-        metadata={"help": "Update sphinx.ext.mathjax configuration"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Update sphinx.ext.mathjax configuration",
+        },
     )
 
-    mathjax_classes: str = attr.ib(
+    mathjax_classes: str = dc.field(
         default="tex2jax_process|mathjax_process|math|output_area",
-        validator=instance_of(str),
-        metadata={"help": "MathJax classes to add to math HTML"},
+        metadata={
+            "validator": instance_of(str),
+            "help": "MathJax classes to add to math HTML",
+        },
     )
 
-    @enable_extensions.validator
-    def check_extensions(self, attribute, value):
-        if not isinstance(value, Iterable):
-            raise TypeError(f"myst_enable_extensions not iterable: {value}")
-        diff = set(value).difference(
-            [
-                "dollarmath",
-                "amsmath",
-                "deflist",
-                "fieldlist",
-                "html_admonition",
-                "html_image",
-                "colon_fence",
-                "smartquotes",
-                "replacements",
-                "linkify",
-                "strikethrough",
-                "substitution",
-                "tasklist",
-            ]
-        )
-        if diff:
-            raise ValueError(f"myst_enable_extensions not recognised: {diff}")
-
-    disable_syntax: Iterable[str] = attr.ib(
-        factory=list,
-        validator=deep_iterable(instance_of(str), instance_of((list, tuple))),
-        metadata={"help": "Disable syntax elements"},
+    disable_syntax: Iterable[str] = dc.field(
+        default_factory=list,
+        metadata={
+            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
+            "help": "Disable syntax elements",
+        },
     )
 
-    all_links_external: bool = attr.ib(
+    all_links_external: bool = dc.field(
         default=False,
-        validator=instance_of(bool),
-        metadata={"help": "Parse all links as simple hyperlinks"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Parse all links as simple hyperlinks",
+        },
     )
 
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
-    url_schemes: Optional[Iterable[str]] = attr.ib(
+    url_schemes: Optional[Iterable[str]] = dc.field(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
-        validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
-        metadata={"help": "URL scheme prefixes identified as external links"},
-    )
-
-    ref_domains: Optional[Iterable[str]] = attr.ib(
-        default=None,
-        validator=optional(deep_iterable(instance_of(str), instance_of((list, tuple)))),
-        metadata={"help": "Sphinx domain names to search in for references"},
-    )
-
-    highlight_code_blocks: bool = attr.ib(
-        default=True,
-        validator=instance_of(bool),
         metadata={
+            "validator": optional(
+                deep_iterable(instance_of(str), instance_of((list, tuple)))
+            ),
+            "help": "URL scheme prefixes identified as external links",
+        },
+    )
+
+    ref_domains: Optional[Iterable[str]] = dc.field(
+        default=None,
+        metadata={
+            "validator": optional(
+                deep_iterable(instance_of(str), instance_of((list, tuple)))
+            ),
+            "help": "Sphinx domain names to search in for references",
+        },
+    )
+
+    highlight_code_blocks: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
             "help": "Syntax highlight code blocks with pygments",
             "docutils_only": True,
         },
     )
 
-    number_code_blocks: Sequence[str] = attr.ib(
-        default=(),
-        validator=deep_iterable(instance_of(str)),
-        metadata={"help": "Add line numbers to code blocks with these languages"},
+    number_code_blocks: Sequence[str] = dc.field(
+        default_factory=list,
+        metadata={
+            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
+            "help": "Add line numbers to code blocks with these languages",
+        },
     )
 
-    title_to_header: bool = attr.ib(
+    title_to_header: bool = dc.field(
         default=False,
-        validator=instance_of(bool),
-        metadata={"help": "Convert a `title` field in the top-matter to a H1 header"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Convert a `title` field in the top-matter to a H1 header",
+        },
     )
 
-    heading_anchors: Optional[int] = attr.ib(
+    heading_anchors: Optional[int] = dc.field(
         default=None,
-        validator=optional(in_([1, 2, 3, 4, 5, 6, 7])),
-        metadata={"help": "Heading level depth to assign HTML anchors"},
+        metadata={
+            "validator": optional(in_([1, 2, 3, 4, 5, 6, 7])),
+            "help": "Heading level depth to assign HTML anchors",
+        },
     )
 
-    heading_slug_func: Optional[Callable[[str], str]] = attr.ib(
+    heading_slug_func: Optional[Callable[[str], str]] = dc.field(
         default=None,
-        validator=optional(is_callable()),
-        metadata={"help": "Function for creating heading anchors"},
+        metadata={
+            "validator": optional(is_callable),
+            "help": "Function for creating heading anchors",
+        },
     )
 
-    html_meta: Dict[str, str] = attr.ib(
-        factory=dict,
-        validator=deep_mapping(instance_of(str), instance_of(str), instance_of(dict)),
-        repr=lambda v: str(list(v)),
-        metadata={"help": "HTML meta tags"},
+    html_meta: Dict[str, str] = dc.field(
+        default_factory=dict,
+        repr=False,
+        metadata={
+            "validator": deep_mapping(
+                instance_of(str), instance_of(str), instance_of(dict)
+            ),
+            "help": "HTML meta tags",
+        },
     )
 
-    footnote_transition: bool = attr.ib(
+    footnote_transition: bool = dc.field(
         default=True,
-        validator=instance_of(bool),
-        metadata={"help": "Place a transition before any footnotes"},
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Place a transition before any footnotes",
+        },
     )
 
-    substitutions: Dict[str, Union[str, int, float]] = attr.ib(
-        factory=dict,
-        validator=deep_mapping(
-            instance_of(str), instance_of((str, int, float)), instance_of(dict)
-        ),
-        repr=lambda v: str(list(v)),
-        metadata={"help": "Substitutions"},
+    substitutions: Dict[str, Union[str, int, float]] = dc.field(
+        default_factory=dict,
+        repr=False,
+        metadata={
+            "validator": deep_mapping(
+                instance_of(str), instance_of((str, int, float)), instance_of(dict)
+            ),
+            "help": "Substitutions",
+        },
     )
 
-    sub_delimiters: Tuple[str, str] = attr.ib(
-        default=("{", "}"), metadata={"help": "Substitution delimiters"}
+    sub_delimiters: Tuple[str, str] = dc.field(
+        default=("{", "}"),
+        metadata={"validator": check_sub_delimiters, "help": "Substitution delimiters"},
     )
 
-    words_per_minute: int = attr.ib(
+    words_per_minute: int = dc.field(
         default=200,
-        validator=instance_of(int),
-        metadata={"help": "For reading speed calculations"},
+        metadata={
+            "validator": instance_of(int),
+            "help": "For reading speed calculations",
+        },
     )
 
-    @sub_delimiters.validator
-    def check_sub_delimiters(self, attribute, value):
-        if (not isinstance(value, (tuple, list))) or len(value) != 2:
-            raise TypeError(f"myst_sub_delimiters is not a tuple of length 2: {value}")
-        for delim in value:
-            if (not isinstance(delim, str)) or len(delim) != 1:
-                raise TypeError(
-                    f"myst_sub_delimiters does not contain strings of length 1: {value}"
-                )
+    def __post_init__(self):
+        validate_fields(self)
 
     @classmethod
-    def get_fields(cls) -> Tuple[attr.Attribute, ...]:
+    def get_fields(cls) -> Tuple[dc.Field, ...]:
         """Return all attribute fields in this class."""
-        return attr.fields(cls)
+        return dc.fields(cls)
 
     def as_dict(self, dict_factory=dict) -> dict:
         """Return a dictionary of field name -> value."""
-        return attr.asdict(self, dict_factory=dict_factory)
+        return dc.asdict(self, dict_factory=dict_factory)
 
-    def as_triple(self) -> Iterable[Tuple[str, Any, attr.Attribute]]:
+    def as_triple(self) -> Iterable[Tuple[str, Any, dc.Field]]:
         """Yield triples of (name, value, field)."""
-        fields = attr.fields_dict(self.__class__)
-        for name, value in attr.asdict(self).items():
+        fields = {f.name: f for f in dc.fields(self.__class__)}
+        for name, value in dc.asdict(self).items():
             yield name, value, fields[name]
 
 
