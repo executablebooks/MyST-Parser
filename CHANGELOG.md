@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.2 - 2022-04-17
+
+Full Changelog: [v0.17.1...v0.17.2](https://github.com/executablebooks/MyST-Parser/compare/v0.17.1...v0.17.2)
+
+- ♻️ REFACTOR: Replace `attrs` by `dataclasses` for configuration (#557)
+
 ## 0.17.1 - 2022-04-15
 
 Full Changelog: [v0.17.0...v0.17.1](https://github.com/executablebooks/MyST-Parser/compare/v0.17.0...v0.17.1)

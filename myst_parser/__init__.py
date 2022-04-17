@@ -1,7 +1,7 @@
 """An extended commonmark compliant parser, with bridges to docutils & sphinx."""
 from typing import TYPE_CHECKING
 
-__version__ = "0.17.1"
+__version__ = "0.17.2"
 
 
 if TYPE_CHECKING:
