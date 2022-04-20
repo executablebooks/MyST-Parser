@@ -1,5 +1,5 @@
 """An extended commonmark compliant parser, with bridges to docutils & sphinx."""
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 __version__ = "0.17.2"
 
@@ -37,7 +37,7 @@ def setup_sphinx(app: "Sphinx"):
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):
             # TODO add types?
-            app.add_config_value(f"myst_{name}", default, "env")
+            app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
