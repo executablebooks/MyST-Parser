@@ -1,397 +1,58 @@
-(example_syntax)=
+(syntax/core)=
 
-# The MyST Syntax Guide
+# Core Syntax
 
-> {sub-ref}`today` | {sub-ref}`wordcount-minutes` min read
+## Introduction
 
-As a base, MyST adheres to the [CommonMark specification](https://spec.commonmark.org/).
-For this, it uses the [markdown-it-py](https://github.com/executablebooks/markdown-it-py) parser,
-which is a well-structured markdown parser for Python that is CommonMark-compliant
-and also extensible.
+MyST is a strict superset of the [CommonMark syntax specification](https://spec.commonmark.org/).
+It adds features focussed on scientific and technical documentation authoring, as detailed below.
 
-MyST adds several new syntax options to CommonMark in order to be used
-with Sphinx, the documentation generation engine used extensively in the Python
-ecosystem.
-
-Below is a summary of the syntax 'tokens' parsed,
-and further details of a few major extensions from the CommonMark flavor of markdown.
+In addition, the roles and directives syntax provide inline/block-level extension points for plugins. This is detailed further in the [Roles and Directives](roles-directives) section.
 
 :::{seealso}
-- For an introduction to writing Directives and Roles with MyST markdown, see {ref}`intro/writing`.
-- Check out the [MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight), for MyST extended syntax highlighting.
+The [syntax token reference tables](syntax-tokens)
 :::
 
-MyST builds on the tokens defined by markdown-it, to extend the syntax
-described in the [CommonMark Spec](https://spec.commonmark.org/0.29/), which the parser is tested against.
+(syntax/commonmark)=
+
+## CommonMark
+
+The [CommonMark syntax specification](https://spec.commonmark.org/) details the full set of syntax rules.
+Here we provide a summary of most features:
+
+Element         | Syntax
+--------------- | -------------------------------------------
+Heading         | `# H1` to `###### H6`
+Bold            | `**bold**`
+Italic          | `*italic*`
+Inline Code     | `` `code` ``
+Autolink        | `<https://www.example.com>`
+URL Link        | `[title](https://www.example.com)`
+Image           | `![alt](https://www.example.com/image.png)`
+Reference Link  | `[title][link]`
+Link Definition | `[link]: https://www.example.com`
+Thematic break  | `---`
+Blockquote      | `> quote`
+Ordered List    | `1. item`
+Unordered List  | `- item`
+Code Fence      | opening ```` ```lang ```` to closing ```` ``` ````
 
-% TODO link to markdown-it documentation
-
-(syntax/directives)=
-
-## Directives - a block-level extension point
-
-Directives syntax is defined with triple-backticks and curly-brackets. It
-is effectively a code block with curly brackets around the language, and
-a directive name in place of a language name. It is similar to how RMarkdown
-defines "runnable cells". Here is the basic structure:
-
-`````{list-table}
----
-header-rows: 1
----
-* - MyST
-  - reStructuredText
-* - ````md
-    ```{directivename} arguments
-    ---
-    key1: val1
-    key2: val2
-    ---
-    This is
-    directive content
-    ```
-    ````
-  - ```rst
-    .. directivename:: arguments
-       :key1: val1
-       :key2: val2
-
-       This is
-       directive content
-    ```
-`````
-
-For example, the following code:
-
-````md
-```{admonition} This is my admonition
-This is my note
-```
-````
-
-Will generate this admonition:
-
-```{admonition} This is my admonition
-This is my note
-```
-
-### Parameterizing directives
-
-For directives that take parameters as input, there are two ways to parameterize them.
-In each case, the options themselves are given as `key: value` pairs. An example of
-each is shown below:
-
-**Using YAML frontmatter**. A block of YAML front-matter just after the
-first line of the directive will be parsed as options for the directive. This needs to be
-surrounded by `---` lines. Everything in between will be parsed by YAML and
-passed as keyword arguments to your directive. For example:
-
-````md
-```{code-block} python
----
-lineno-start: 10
-emphasize-lines: 1, 3
-caption: |
-    This is my
-    multi-line caption. It is *pretty nifty* ;-)
----
-a = 2
-print('my 1st line')
-print(f'my {a}nd line')
-```
-````
-
-```{code-block} python
----
-lineno-start: 10
-emphasize-lines: 1, 3
-caption: |
-    This is my
-    multi-line caption. It is *pretty nifty* ;-)
----
-a = 2
-print('my 1st line')
-print(f'my {a}nd line')
-```
-
-**Short-hand options with `:` characters**. If you only need one or two options for your
-directive and wish to save lines, you may also specify directive options as a collection
-of lines just after the first line of the directive, each preceding with `:`. Then the
-leading `:` is removed from each line, and the rest is parsed as YAML.
-
-For example:
-
-````md
-```{code-block} python
-:lineno-start: 10
-:emphasize-lines: 1, 3
-
-a = 2
-print('my 1st line')
-print(f'my {a}nd line')
-```
-````
-
-(syntax/directives/parsing)=
-### How directives parse content
-
-Some directives parse the content that is in their content block.
-MyST parses this content **as Markdown**.
-
-This means that MyST markdown can be written in the content areas of any directives written in MyST markdown. For example:
-
-````md
-```{admonition} My markdown link
-Here is [markdown link syntax](https://jupyter.org)
-```
-````
-
-```{admonition} My markdown link
-Here is [markdown link syntax](https://jupyter.org)
-```
-
-As a short-hand for directives that require no arguments, and when no parameter options are used (see below),
-you may start the content directly after the directive name.
-
-````md
-```{note} Notes require **no** arguments, so content can start here.
-```
-````
-
-```{note} Notes require **no** arguments, so content can start here.
-```
-
-For special cases, MySt also offers the `eval-rst` directive.
-This will parse the content **as ReStructuredText**:
-
-````md
-```{eval-rst}
-.. figure:: img/fun-fish.png
-  :width: 100px
-  :name: rst-fun-fish
-
-  Party time!
-
-A reference from inside: :ref:`rst-fun-fish`
-
-A reference from outside: :ref:`syntax/directives/parsing`
-```
-````
-
-```{eval-rst}
-.. figure:: img/fun-fish.png
-  :width: 100px
-  :name: rst-fun-fish
-
-  Party time!
-
-A reference from inside: :ref:`rst-fun-fish`
-
-A reference from outside: :ref:`syntax/directives/parsing`
-```
-
-Note how the text is integrated into the rest of the document, so we can also reference [party fish](rst-fun-fish) anywhere else in the documentation.
-
-### Nesting directives
-
-You can nest directives by ensuring that the tick-lines corresponding to the
-outermost directive are longer than the tick-lines for the inner directives.
-For example, nest a warning inside a note block like so:
-
-`````md
-````{note}
-The next info should be nested
-```{warning}
-Here's my warning
-```
-````
-`````
-
-Here's how it looks rendered:
-
-````{note}
-The next info should be nested
-```{warning}
-Here's my warning
-```
-````
-
-You can indent inner-code fences, so long as they aren't indented by more than 3 spaces.
-Otherwise, they will be rendered as "raw code" blocks:
-
-`````md
-````{note}
-The warning block will be properly-parsed
-
-   ```{warning}
-   Here's my warning
-   ```
-
-But the next block will be parsed as raw text
-
-    ```{warning}
-    Here's my raw text warning that isn't parsed...
-    ```
-````
-`````
-
-````{note}
-The warning block will be properly-parsed
-
-   ```{warning}
-   Here's my warning
-   ```
-
-But the next block will be parsed as raw text
-
-    ```{warning}
-    Here's my raw text warning that isn't parsed...
-    ```
-````
-
-This can really be abused if you'd like ;-)
-
-``````{note}
-The next info should be nested
-`````{warning}
-Here's my warning
-````{admonition} Yep another admonition
-```python
-# All this fuss was about this boring python?!
-print('yep!')
-```
-````
-`````
-``````
-
-### Markdown-friendly directives
-
-Want to use syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](syntax/colon_fence).
-
-```md
-:::{note}
-This text is **standard** _Markdown_
-:::
-```
-
-:::{note}
-This text is **standard** _Markdown_
-:::
-
-(syntax/roles)=
-
-## Roles - an in-line extension point
-
-Roles are similar to directives - they allow you to define arbitrary new
-functionality, but they are used *in-line*. To define an in-line
-role, use the following form:
-
-````{list-table}
----
-header-rows: 1
----
-* - MyST
-  - reStructuredText
-* - ````md
-    {role-name}`role content`
-    ````
-  - ```rst
-    :role-name:`role content`
-    ```
-````
-
-For example, the following code:
-
-```md
-Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`
-```
-
-Becomes:
-
-Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`
-
-You can use roles to do things like reference equations and other items in
-your book. For example:
-
-````md
-```{math} e^{i\pi} + 1 = 0
----
-label: euler
----
-```
-
-Euler's identity, equation {math:numref}`euler`, was elected one of the
-most beautiful mathematical formulas.
-````
-
-Becomes:
-
-```{math} e^{i\pi} + 1 = 0
----
-label: euler
----
-```
-
-Euler's identity, equation {math:numref}`euler`, was elected one of the
-most beautiful mathematical formulas.
-
-### How roles parse content
-
-The content of roles is parsed differently depending on the role that you've used.
-Some roles expect inputs that will be used to change functionality. For example,
-the `ref` role will assume that input content is a reference to some other part of the
-site. However, other roles may use the MyST parser to parse the input as content.
-
-Some roles also **extend their functionality** depending on the content that you pass.
-For example, following the `ref` example above, if you pass a string like this:
-`Content to display <myref>`, then the `ref` will display `Content to display` and use
-`myref` as the reference to look up.
-
-How roles parse this content depends on the author that created the role.
-
-(syntax/roles/special)=
-
-(extra-markdown-syntax)=
-## Extra markdown syntax
-
-In addition to roles and directives, MyST supports extra markdown syntax that doesn't
-exist in CommonMark. In most cases, these are syntactic short-cuts to calling
-roles and directives. We'll cover some common ones below.
-
-This table describes the rST and MyST equivalents:
-
-````{list-table}
----
-header-rows: 1
----
-* - Type
-  - MyST
-  - reStructuredText
-* - Front matter
-  - ```md
-    ---
-    key: val
-    ---
-    ```
-  - ```md
-    :key: val
-    ```
-* - Comments
-  - `% comment`
-  - `.. comment`
-* - Targets
-  - `(mytarget)=`
-  - `.. _mytarget:`
-````
 
 (syntax/frontmatter)=
 
 ## Front Matter
 
-This is a YAML block at the start of the document, as used for example in
-[jekyll](https://jekyllrb.com/docs/front-matter/).
+This is a [YAML](https://en.wikipedia.org/wiki/YAML) block at the start of the document, as used for example in [jekyll](https://jekyllrb.com/docs/front-matter/).
+The document should start with three or more `---` markers, and YAML is parsed until a closing `---` marker is found:
 
+```yaml
+---
+key1: value
+key2: [value1, value2]
+key3:
+  subkey1: value
+---
+```
 
 :::{seealso}
 Top-matter is also used for the [substitution syntax extension](syntax/substitutions),
@@ -429,7 +90,8 @@ This is equivalent to using the [RST `meta` directive](https://www.sphinx-doc.or
 HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
 For each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
 
-:::{tabbed} Sphinx Configuration
+::::{tab-set}
+:::{tab-item} Sphinx Configuration
 
 ```python
 language = "en"
@@ -443,21 +105,22 @@ myst_html_meta = {
 
 :::
 
-:::{tabbed} MyST Front-Matter
+:::{tab-item} MyST Front-Matter
 
 ```yaml
 ---
-html_meta:
-  "description lang=en": "metadata description"
-  "description lang=fr": "description des métadonnées"
-  "keywords": "Sphinx, MyST"
-  "property=og:locale": "en_US"
+myst:
+  html_meta:
+    "description lang=en": "metadata description"
+    "description lang=fr": "description des métadonnées"
+    "keywords": "Sphinx, MyST"
+    "property=og:locale": "en_US"
 ---
 ```
 
 :::
 
-:::{tabbed} RestructuredText
+:::{tab-item} RestructuredText
 
 ```restructuredtext
 .. meta::
@@ -469,7 +132,7 @@ html_meta:
 
 :::
 
-:::{tabbed} HTML Output
+:::{tab-item} HTML Output
 
 ```html
 <html lang="en">
@@ -481,7 +144,7 @@ html_meta:
 ```
 
 :::
-
+::::
 
 (syntax/comments)=
 
@@ -515,6 +178,10 @@ a line
 % a comment
 another line
 ````
+
+:::{tip}
+Comments are equivalent to the RST syntax: `.. my comment`.
+:::
 
 (syntax/blockbreaks)=
 
@@ -602,8 +269,7 @@ By default, the reference will use the text of the target (such as the section t
 {ref}`my text <header_target>`
 ```
 
-For example, see this ref: {ref}`syntax/targets`, and here's a ref back to the top of
-this page: {ref}`my text <example_syntax>`.
+For example, see this ref: {ref}`syntax/targets`, and here's a ref back to the top of this page: {ref}`my text <syntax/core>`.
 
 Alternatively using the markdown syntax:
 
@@ -620,7 +286,7 @@ is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/maste
 but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `syntax/syntax` or `syntax/syntax.md`)
 
 Using the same example, see this ref: [](syntax/targets), here is a reference back to the top of
-this page: [my text with **nested** $\alpha$ syntax](example_syntax), and here is a reference to another page (`[](../sphinx/intro.md)`): [](../sphinx/intro.md).
+this page: [my text with **nested** $\alpha$ syntax](syntax/core), and here is a reference to another page (`[](../intro.md)`): [](../intro.md).
 
 ```{note}
 If you wish to have the target's title inserted into your text, you can
@@ -629,7 +295,7 @@ markdown: `[](syntax.md)` will result in: [](syntax.md).
 ```
 
 (syntax/code-blocks)=
-## Code blocks
+## Code syntax highlighting
 
 Code blocks contain a language identifier, which is used to determine the language of the code.
 This language is used to determine the syntax highlighting, using an available [pygments lexer](https://pygments.org/docs/lexers/).

@@ -17,11 +17,13 @@ Note: optional tags are not accounted for
 (see https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
 
 """
+from __future__ import annotations
+
 import inspect
 import itertools
 from collections import abc, deque
 from html.parser import HTMLParser
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Type, Union
+from typing import Any, Callable, Iterable, Iterator
 
 
 class Attribute(dict):
@@ -32,7 +34,7 @@ class Attribute(dict):
         return self.get(key, "")
 
     @property
-    def classes(self) -> List[str]:
+    def classes(self) -> list[str]:
         """Return 'class' attribute as list."""
         return self["class"].split()
 
@@ -47,24 +49,24 @@ class Element(abc.MutableSequence):
     All xml/html entities inherit from this class.
     """
 
-    def __init__(self, name: str = "", attr: Optional[dict] = None) -> None:
+    def __init__(self, name: str = "", attr: dict | None = None) -> None:
         """Initialise the element."""
         self.name = name
         self.attrs: Attribute = Attribute(attr or {})
-        self._parent: Optional[Element] = None
-        self._children: List[Element] = []
+        self._parent: Element | None = None
+        self._children: list[Element] = []
 
     @property
-    def parent(self) -> Optional["Element"]:
+    def parent(self) -> Element | None:
         """Return parent."""
         return self._parent
 
     @property
-    def children(self) -> List["Element"]:
+    def children(self) -> list[Element]:
         """Return copy of children."""
         return self._children[:]
 
-    def reset_children(self, children: List["Element"], deepcopy: bool = False):
+    def reset_children(self, children: list[Element], deepcopy: bool = False):
         new_children = []
         for i, item in enumerate(children):
             assert isinstance(item, Element)
@@ -77,10 +79,10 @@ class Element(abc.MutableSequence):
             new_children.append(item)
         self._children = new_children
 
-    def __getitem__(self, index: int) -> "Element":  # type: ignore[override]
+    def __getitem__(self, index: int) -> Element:  # type: ignore[override]
         return self._children[index]
 
-    def __setitem__(self, index: int, item: "Element"):  # type: ignore[override]
+    def __setitem__(self, index: int, item: Element):  # type: ignore[override]
         assert isinstance(item, Element)
         if item._parent is not None and item._parent != self:
             raise AssertionError(f"different parent already set for: {item!r}")
@@ -93,18 +95,17 @@ class Element(abc.MutableSequence):
     def __len__(self) -> int:
         return self._children.__len__()
 
-    def __iter__(self) -> Iterator["Element"]:
-        for child in self._children:
-            yield child
+    def __iter__(self) -> Iterator[Element]:
+        yield from self._children
 
-    def insert(self, index: int, item: "Element"):
+    def insert(self, index: int, item: Element):
         assert isinstance(item, Element)
         if item._parent is not None and item._parent != self:
             raise AssertionError(f"different parent already set for: {item!r}")
         item._parent = self
         return self._children.insert(index, item)
 
-    def deepcopy(self) -> "Element":
+    def deepcopy(self) -> Element:
         """Recursively copy and remove parent."""
         _copy = self.__class__(self.name, self.attrs)
         for child in self:
@@ -121,7 +122,7 @@ class Element(abc.MutableSequence):
 
     def render(
         self,
-        tag_overrides: Optional[Dict[str, Callable[["Element", dict], str]]] = None,
+        tag_overrides: dict[str, Callable[[Element, dict], str]] | None = None,
         **kwargs,
     ) -> str:
         """Returns a HTML string representation of the element.
@@ -138,16 +139,15 @@ class Element(abc.MutableSequence):
     def __eq__(self, item: Any) -> bool:
         return item is self
 
-    def walk(self, include_self: bool = False) -> Iterator["Element"]:
+    def walk(self, include_self: bool = False) -> Iterator[Element]:
         """Walk through the xml/html AST."""
         if include_self:
             yield self
         for child in self:
             yield child
-            for ancestor in child.walk():
-                yield ancestor
+            yield from child.walk()
 
-    def strip(self, inplace: bool = False, recurse: bool = False) -> "Element":
+    def strip(self, inplace: bool = False, recurse: bool = False) -> Element:
         """Return copy with all `Data` tokens
         that only contain whitespace / newlines removed.
         """
@@ -168,12 +168,12 @@ class Element(abc.MutableSequence):
 
     def find(
         self,
-        identifier: Union[str, Type["Element"]],
-        attrs: Optional[dict] = None,
-        classes: Optional[Iterable[str]] = None,
+        identifier: str | type[Element],
+        attrs: dict | None = None,
+        classes: Iterable[str] | None = None,
         include_self: bool = False,
         recurse: bool = True,
-    ) -> Iterator["Element"]:
+    ) -> Iterator[Element]:
         """Find all elements that match name and specific attributes."""
         iterator = self.walk() if recurse else self
         if include_self:
@@ -207,7 +207,7 @@ class Tag(Element):
 
     def render(
         self,
-        tag_overrides: Optional[Dict[str, Callable[[Element, dict], str]]] = None,
+        tag_overrides: dict[str, Callable[[Element, dict], str]] | None = None,
         **kwargs,
     ) -> str:
         if tag_overrides and self.name in tag_overrides:
@@ -226,7 +226,7 @@ class XTag(Element):
 
     def render(
         self,
-        tag_overrides: Optional[Dict[str, Callable[[Element, dict], str]]] = None,
+        tag_overrides: dict[str, Callable[[Element, dict], str]] | None = None,
         **kwargs,
     ) -> str:
         if tag_overrides is not None and self.name in tag_overrides:
@@ -252,7 +252,7 @@ class TerminalElement(Element):
             text = text[:17] + "..."
         return f"{self.__class__.__name__}({text!r})"
 
-    def deepcopy(self) -> "TerminalElement":
+    def deepcopy(self) -> TerminalElement:
         """Copy and remove parent."""
         _copy = self.__class__(self.data)
         return _copy
@@ -300,7 +300,7 @@ class Entity(TerminalElement):
         return f"&{self.data};"
 
 
-class Tree(object):
+class Tree:
     """The engine class to generate the AST tree."""
 
     def __init__(self, name: str = ""):
@@ -342,7 +342,7 @@ class Tree(object):
         item = VoidTag(name, attrs)
         top.append(item)
 
-    def nest_terminal(self, klass: Type[TerminalElement], data: str):
+    def nest_terminal(self, klass: type[TerminalElement], data: str):
         """Nest the data onto the tree."""
         top = self.last()
         item = klass(data)

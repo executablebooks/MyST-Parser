@@ -1,20 +1,18 @@
----------------------------
 Raw
 .
 foo
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         foo
 .
 
----------------------------
 Hard-break
 .
 foo\
 bar
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         foo
         <raw format="html" xml:space="preserve">
@@ -24,44 +22,40 @@ bar
         bar
 .
 
----------------------------
 Strong:
 .
 **foo**
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <strong>
             foo
 .
 
----------------------------
 Emphasis
 .
 *foo*
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <emphasis>
             foo
 .
 
----------------------------
 Escaped Emphasis:
 .
 \*foo*
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         *foo*
 .
 
---------------------------
 Mixed Inline
 .
 a *b* **c** `abc` \\*
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         a
         <emphasis>
@@ -75,29 +69,26 @@ a *b* **c** `abc` \\*
          \*
 .
 
---------------------------
 Inline Code:
 .
 `foo`
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <literal>
             foo
 .
 
---------------------------
 Heading:
 .
 # foo
 .
-<document source="notset">
+<document source="<src>/index.md">
     <section ids="foo" names="foo">
         <title>
             foo
 .
 
---------------------------
 Heading Levels:
 .
 # a
@@ -105,7 +96,7 @@ Heading Levels:
 ### c
 # d
 .
-<document source="notset">
+<document source="<src>/index.md">
     <section ids="a" names="a">
         <title>
             a
@@ -120,102 +111,92 @@ Heading Levels:
             d
 .
 
-
---------------------------
 Block Code:
 .
     foo
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block language="none" xml:space="preserve">
         foo
 .
 
---------------------------
 Fenced Code:
 .
 ```sh
 foo
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block language="sh" xml:space="preserve">
         foo
 .
 
---------------------------
 Fenced Code no language:
 .
 ```
 foo
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block language="default" xml:space="preserve">
         foo
 .
 
---------------------------
 Fenced Code no language with trailing whitespace:
 .
 ```  
 foo
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block language="default" xml:space="preserve">
         foo
 .
 
---------------------------
 Image empty:
 .
 ![]()
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <image alt="" uri="">
 .
 
---------------------------
 Image with alt and title:
 .
 ![alt](src "title")
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <image alt="alt" title="title" uri="src">
 .
 
---------------------------
 Image with escapable html:
 .
 ![alt](http://www.google<>.com)
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <image alt="alt" uri="http://www.google%3C%3E.com">
 .
 
---------------------------
 Block Quote:
 .
 > *foo*
 .
-<document source="notset">
+<document source="<src>/index.md">
     <block_quote>
         <paragraph>
             <emphasis>
                 foo
 .
 
---------------------------
 Bullet List:
 .
 - *foo*
 * bar
 .
-<document source="notset">
+<document source="<src>/index.md">
     <bullet_list bullet="-">
         <list_item>
             <paragraph>
@@ -227,7 +208,6 @@ Bullet List:
                 bar
 .
 
---------------------------
 Nested Bullets
 .
 - a
@@ -235,7 +215,7 @@ Nested Bullets
     - c
   - d
 .
-<document source="notset">
+<document source="<src>/index.md">
     <bullet_list bullet="-">
         <list_item>
             <paragraph>
@@ -253,7 +233,6 @@ Nested Bullets
                         d
 .
 
---------------------------
 Enumerated List:
 .
 1. *foo*
@@ -265,7 +244,7 @@ para
 10. starting
 11. enumerator
 .
-<document source="notset">
+<document source="<src>/index.md">
     <enumerated_list enumtype="arabic" prefix="" suffix=".">
         <list_item>
             <paragraph>
@@ -286,14 +265,13 @@ para
                 enumerator
 .
 
---------------------------
 Nested Enumrated List:
 .
 1. a
 2. b
     1. c
 .
-<document source="notset">
+<document source="<src>/index.md">
     <enumerated_list enumtype="arabic" prefix="" suffix=".">
         <list_item>
             <paragraph>
@@ -307,36 +285,32 @@ Nested Enumrated List:
                         c
 .
 
---------------------------
 Sphinx Role containing backtick:
 .
 {code}``a=1{`}``
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <literal classes="code">
             a=1{`}
 .
 
---------------------------
 Target:
 .
 (target)=
 .
-<document source="notset">
+<document source="<src>/index.md">
     <target ids="target" names="target">
 .
 
---------------------------
 Target with whitespace:
 .
 (target with space)=
 .
-<document source="notset">
+<document source="<src>/index.md">
     <target ids="target-with-space" names="target\ with\ space">
 .
 
---------------------------
 Referencing:
 .
 (target)=
@@ -352,35 +326,34 @@ Title
 
 [alt3](#target3)
 .
-<document source="notset">
+<document source="<src>/index.md">
     <target ids="target" names="target">
     <section ids="title" names="title">
         <title>
             Title
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     alt1
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="#target3" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="#target3" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     alt3
 .
 
---------------------------
 Comments:
 .
 line 1
 % a comment
 line 2
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         line 1
     <comment xml:space="preserve">
@@ -389,43 +362,39 @@ line 2
         line 2
 .
 
---------------------------
 Block Break:
 .
 +++ string
 .
-<document source="notset">
+<document source="<src>/index.md">
     <comment classes="block_break" xml:space="preserve">
         string
 .
 
---------------------------
 Link Reference:
 .
 [name][key]
 
 [key]: https://www.google.com "a title"
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <reference refuri="https://www.google.com" title="a title">
             name
 .
 
---------------------------
 Link Reference short version:
 .
 [name]
 
 [name]: https://www.google.com "a title"
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <reference refuri="https://www.google.com" title="a title">
             name
 .
 
---------------------------
 Block Quotes:
 .
 ```{epigraph}
@@ -434,7 +403,7 @@ a b*c*
 -- a**b**
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <block_quote classes="epigraph">
         <paragraph>
             a b
@@ -446,7 +415,6 @@ a b*c*
                 b
 .
 
---------------------------
 Link Definition in directive:
 .
 ```{note}
@@ -455,15 +423,14 @@ Link Definition in directive:
 
 [a]: link
 .
-<document source="notset">
+<document source="<src>/index.md">
     <note>
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     a
 .
 
---------------------------
 Link Definition in nested directives:
 .
 ```{note}
@@ -479,11 +446,11 @@ Link Definition in nested directives:
 [ref2]: link
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <note>
     <note>
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     ref1
 
@@ -491,14 +458,13 @@ Link Definition in nested directives:
     <note>
 .
 
---------------------------
 Footnotes:
 .
 [^a]
 
 [^a]: footnote*text*
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <footnote_reference auto="1" ids="id1" refname="a">
     <transition classes="footnotes">
@@ -509,7 +475,6 @@ Footnotes:
                 text
 .
 
---------------------------
 Footnotes nested blocks:
 .
 [^a]
@@ -527,7 +492,7 @@ xyz
 
 finish
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <footnote_reference auto="1" ids="id1" refname="a">
     <paragraph>
@@ -553,7 +518,6 @@ finish
             c
 .
 
---------------------------
 Front Matter:
 .
 ---
@@ -563,7 +527,7 @@ c:
     d: 2
 ---
 .
-<document source="notset">
+<document source="<src>/index.md">
     <field_list>
         <field>
             <field_name>
@@ -588,7 +552,6 @@ c:
                         {"d": 2}
 .
 
---------------------------
 Front Matter Biblio:
 .
 ---
@@ -612,7 +575,7 @@ abstract:
 other: Something else
 ---
 .
-<document source="notset">
+<document source="<src>/index.md">
     <field_list>
         <field>
             <field_name>
@@ -638,11 +601,11 @@ other: Something else
             <field_body>
                 <paragraph>
                     1 Cedar Park Close
-                    
+
                     Thundersley
-                    
+
                     Essex
-                    
+
         <field>
             <field_name>
                 contact
@@ -685,16 +648,16 @@ other: Something else
                 dedication
             <field_body>
                 <paragraph>
-                    To my 
+                    To my
                     <emphasis>
                         homies
-                    
+
         <field>
             <field_name>
                 abstract
             <field_body>
                 <paragraph>
-                    Something something 
+                    Something something
                     <strong>
                         dark
                      side
@@ -707,37 +670,30 @@ other: Something else
                         Something else
 .
 
---------------------------
 Front Matter Bad Yaml:
 .
 ---
 a: {
 ---
 .
-<document source="notset">
-    <system_message level="3" line="1" source="notset" type="ERROR">
+<document source="<src>/index.md">
+    <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
         <paragraph>
-            Front matter block:
-            while parsing a flow node
-            expected the node content, but found '<stream end>'
-              in "<unicode string>", line 1, column 5:
-                a: {
-                    ^
-        <literal_block xml:space="preserve">
-            a: {
+            Malformed YAML [myst.topmatter]
 .
 
 Front Matter HTML Meta
 .
 ---
-html_meta:
-    keywords: Sphinx, documentation, builder
-    description lang=en: An amusing story
-    description lang=fr: Un histoire amusant
-    http-equiv=Content-Type: text/html; charset=ISO-8859-1
+myst:
+    html_meta:
+        keywords: Sphinx, documentation, builder
+        description lang=en: An amusing story
+        description lang=fr: Un histoire amusant
+        http-equiv=Content-Type: text/html; charset=ISO-8859-1
 ---
 .
-<document source="notset">
+<document source="<src>/index.md">
     <pending>
         .. internal attributes:
              .transform: docutils.transforms.components.Filter
@@ -772,7 +728,6 @@ html_meta:
                  <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
 .
 
---------------------------
 Full Test:
 .
 ---
@@ -799,7 +754,7 @@ a = 1
 
 [](target)
 .
-<document source="notset">
+<document source="<src>/index.md">
     <field_list>
         <field>
             <field_name>
@@ -840,6 +795,6 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdoc="mock_docname" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
 .

@@ -1,4 +1,3 @@
---------------------------
 Simple:
 .
 Term **1**
@@ -18,7 +17,7 @@ Term 3
 
   : other
 .
-<document source="notset">
+<document source="<src>/index.md">
     <definition_list classes="simple myst">
         <definition_list_item>
             <term>

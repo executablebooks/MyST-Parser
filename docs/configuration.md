@@ -1,8 +1,21 @@
 (sphinx/config-options)=
-# Sphinx configuration options
+# Configuration
 
-You can control the behaviour of the MyST parser in Sphinx by modifying your `conf.py` file.
-To do so, use the keywords beginning `myst_`.
+MyST parsing can be configured at both the global and individual document level,
+with the most specific configuration taking precedence.
+
+## Global configuration
+
+Overriding the default configuration at the global level is achieved by specifying variables in the Sphinx `conf.py` file.
+All `myst_parser` configuration variables are prefixed with `myst_`, e.g.
+
+```python
+myst_enable_extensions = ["deflist"]
+```
+
+```{myst-config}
+:sphinx:
+```
 
 `````{list-table}
 :header-rows: 1

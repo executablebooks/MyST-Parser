@@ -1,29 +1,49 @@
-=============
-API Reference
-=============
+.. _api/main:
 
-.. _api/directive:
+==========
+Python API
+==========
 
-Directive Parsing Reference
----------------------------
+Source text parsers
+-------------------
 
-.. automodule:: myst_parser.parse_directives
-    :members:
+.. _api/docutils_parser:
 
-MyST Renderers
---------------
+Docutils
+........
 
+.. autoclass:: myst_parser.docutils_.Parser
+    :members: parse
+    :undoc-members:
+    :member-order: bysource
+    :show-inheritance:
+
+.. _api/sphinx_parser:
+
+Sphinx
+......
+
+.. autoclass:: myst_parser.parsers.sphinx_.MystParser
+    :members: supported, parse
+    :undoc-members:
+    :member-order: bysource
+    :show-inheritance:
+    :exclude-members: __init__
+
+.. _api/renderers:
+
+Markdown-it to docutils
+-----------------------
 
 These renderers take the markdown-it parsed token stream and convert it to
 the docutils AST. The sphinx renderer is a subclass of the docutils one,
-with some additional methods only available *via* sphinx
-.e.g. multi-document cross-referencing.
+with some additional methods only available *via* sphinx e.g. multi-document cross-referencing.
 
 
 Docutils
 ........
 
-.. autoclass:: myst_parser.docutils_renderer.DocutilsRenderer
+.. autoclass:: myst_parser.mdit_to_docutils.base.DocutilsRenderer
     :special-members: __output__, __init__
     :members: render, nested_render_text, add_line_and_source_path, current_node_context
     :undoc-members:
@@ -34,15 +54,22 @@ Docutils
 Sphinx
 ......
 
-.. autoclass:: myst_parser.sphinx_renderer.SphinxRenderer
+.. autoclass:: myst_parser.mdit_to_docutils.sphinx_.SphinxRenderer
     :special-members: __output__
     :members: render_internal_link, render_math_block_label
     :undoc-members:
     :member-order: alphabetical
     :show-inheritance:
 
-Mocking
-.......
+.. _api/directive:
+
+Directive and role processing
+-----------------------------
+
+This module processes the content of a directive:
+
+.. automodule:: myst_parser.parsers.directives
+    :members:
 
 These classes are parsed to sphinx roles and directives,
 to mimic the original docutls rST specific parser elements,
@@ -67,44 +94,3 @@ but instead run nested parsing with the markdown parser.
     :members:
     :undoc-members:
     :show-inheritance:
-
-
-Additional Methods
-..................
-
-.. autofunction:: myst_parser.docutils_renderer.make_document
-
-.. autofunction:: myst_parser.docutils_renderer.html_meta_to_nodes
-
-.. autofunction:: myst_parser.sphinx_renderer.minimal_sphinx_app
-
-.. autofunction:: myst_parser.sphinx_renderer.mock_sphinx_env
-
-
-.. _api/docutils_parser:
-
-Docutils Parser Reference
--------------------------
-
-.. autoclass:: myst_parser.docutils_.Parser
-    :members: parse
-    :undoc-members:
-    :member-order: bysource
-    :show-inheritance:
-
-.. _api/sphinx_parser:
-
-Sphinx Parser Reference
------------------------
-
-This class builds on the :py:class:`~myst_parser.sphinx_renderer.SphinxRenderer`
-to generate a parser for Sphinx, using the :ref:`Sphinx parser API <sphinx:parser-api>`:
-
-.. autoclass:: myst_parser.sphinx_parser.MystParser
-    :members: supported, parse
-    :undoc-members:
-    :member-order: bysource
-    :show-inheritance:
-    :exclude-members: __init__
-
-.. _api/renderers:

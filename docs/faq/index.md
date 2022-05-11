@@ -1,13 +1,13 @@
-# Sphinx extension usage guide
+(myst-sphinx)=
+
+# Troubleshooting
+
+## How-tos
 
 These sections describe some common scenarios and use-cases for writing MyST with Sphinx.
 
-:::{seealso}
-For an introduction to using MyST with Sphinx, see [](intro.md).
-:::
-
 (howto/include-rst)=
-## Include rST files into a Markdown file
+### Include rST files into a Markdown file
 
 As explained in [this section](syntax/directives/parsing), all MyST directives will parse their content as Markdown.
 Therefore, using the conventional `include` directive, will parse the file contents as Markdown:
@@ -33,7 +33,7 @@ To include rST, we must first "wrap" the directive in the [eval-rst directive](s
 ```
 
 (howto/include-md)=
-## Include Markdown files into an rST file
+### Include Markdown files into an rST file
 
 To include a MyST file within a ReStructuredText file, we can use the `parser` option of the `include` directive:
 
@@ -46,12 +46,12 @@ To include a MyST file within a ReStructuredText file, we can use the `parser` o
 The `parser` option requires `docutils>=0.17`
 ```
 
-## Use MyST in Jupyter Notebooks
+### Use MyST in Jupyter Notebooks
 
 The [MyST-NB](https://myst-nb.readthedocs.io) tool provides a Sphinx extension for parsing **Jupyter Notebooks written with MyST Markdown**. It includes features like automatically executing notebooks during documentation builds, storing notebook cell outputs in order to insert them elsewhere in your documentation, and more. See the [MyST-NB documentation](https://myst-nb.readthedocs.io) for more information.
 
 (howto/include-readme)=
-## Include a file from outside the docs folder (like README.md)
+### Include a file from outside the docs folder (like README.md)
 
 You can include a file, including one from outside the project using e.g.:
 
@@ -100,7 +100,7 @@ If you encounter any issues with this feature, please don't hesitate to report i
 :::
 
 (howto/autodoc)=
-## Use `sphinx.ext.autodoc` in Markdown files
+### Use `sphinx.ext.autodoc` in Markdown files
 
 The [Sphinx extension `autodoc`](sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
 It is therefore incompatible with MyST's Markdown parser.
@@ -131,7 +131,7 @@ We hope to support Markdown in the future, see [GitHub issue #228](https://githu
 ```
 
 (howto/autosectionlabel)=
-## Automatically create targets for section headers
+### Automatically create targets for section headers
 
 :::{important}
 
@@ -173,7 +173,7 @@ like so:
 ```
 
 (howto/warnings)=
-## Suppress warnings
+### Suppress warnings
 
 In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.
 However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-suppress_warnings) configuration option.
@@ -195,7 +195,7 @@ suppress_warnings = ["myst.header"]
 ```
 
 
-## Sphinx-specific page front matter
+### Sphinx-specific page front matter
 
 Sphinx intercepts front matter and stores them within the global environment
 (as discussed [in the deflists documentation](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
@@ -225,6 +225,23 @@ orphan: true
 This is an orphan document, not specified in any toctrees.
 ```
 
-## Migrate pre-existing rST into MyST
+### Migrate pre-existing rST into MyST
 
 If you've already got some reStructuredText files that you'd like to convert into MyST Markdown, try the [`rst-to-myst`](https://github.com/executablebooks/rst-to-myst) tool, which allows you to convert single rST files to MyST markdown documents.
+
+## Common errors and questions
+
+These are common issues and gotchas that people may experience when using the MyST Sphinx extension.
+
+### What markup language should I use inside directives?
+
+If you need to parse content *inside* of another block of content (for example, the
+content inside a **note directive**), note that the MyST parser will be used for this
+nested parsing as well.
+
+### Why doesn't my role/directive recognize markdown link syntax?
+
+There are some roles/directives that _hard-code_ syntax into
+their behavior. For example, many roles allow you to supply titles for links like so:
+`` {role}`My title <myref>` ``. While this looks like reStructuredText, the role may
+be explicitly expecting the `My title <myref>` structure, and so MyST will behave the same way.

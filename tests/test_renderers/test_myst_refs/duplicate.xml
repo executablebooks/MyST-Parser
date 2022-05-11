@@ -1,7 +1,9 @@
-<document ids="title index" names="title index" source="root/index.md" title="Title">
-    <title>
-        Title
+<document source="root/index.md">
     <target refid="index">
-    <paragraph>
-        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="index" reftype="myst" refwarn="True">
-            <inline classes="xref myst">
+    <section ids="title index" names="title index">
+        <title>
+            Title
+        <paragraph>
+            <reference internal="True" refid="index">
+                <inline classes="std std-ref">
+                    Title

@@ -4,7 +4,7 @@ eval-rst link
 `MyST Parser <https://myst-parser.readthedocs.io/>`_
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <reference name="MyST Parser" refuri="https://myst-parser.readthedocs.io/">
             MyST Parser
@@ -16,7 +16,7 @@ eval-rst bold
 ```{eval-rst}
 **bold**
 .
-<document source="notset">
+<document source="<src>/index.md">
     <paragraph>
         <strong>
             bold

@@ -1,22 +1,23 @@
 ---
-substitutions:
-  text: "- text"
-  text_with_nest: >
-    output
-    with *Markdown*
-    {{ nested }}
-  nested: nested substitution
-  admonition: |
-    prefix
+myst:
+  substitutions:
+    text: "- text"
+    text_with_nest: >
+      output
+      with *Markdown*
+      {{ nested }}
+    nested: nested substitution
+    admonition: |
+      prefix
 
-    ```{note}
-    A note {{ nested }}
-    ```
-  inline_admonition: |
-    ```{note}
-    Inline note
-    ```
-  override: Overridden by front matter
+      ```{note}
+      A note {{ nested }}
+      ```
+    inline_admonition: |
+      ```{note}
+      Inline note
+      ```
+    override: Overridden by front matter
 
 ---
 

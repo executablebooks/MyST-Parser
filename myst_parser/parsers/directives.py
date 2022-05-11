@@ -33,10 +33,12 @@ from the content.
 This is to allow for separation between the option block and content.
 
 """
+from __future__ import annotations
+
 import datetime
 import re
 from textwrap import dedent
-from typing import Any, Callable, Dict, List, Tuple, Type
+from typing import Any, Callable
 
 import yaml
 from docutils.parsers.rst import Directive
@@ -50,11 +52,11 @@ class DirectiveParsingError(Exception):
 
 
 def parse_directive_text(
-    directive_class: Type[Directive],
+    directive_class: type[Directive],
     first_line: str,
     content: str,
     validate_options: bool = True,
-) -> Tuple[List[str], dict, List[str], int]:
+) -> tuple[list[str], dict, list[str], int]:
     """Parse (and validate) the full directive text.
 
     :param first_line: The text on the same line as the directive name.
@@ -103,10 +105,10 @@ def parse_directive_text(
 
 
 def parse_directive_options(
-    content: str, directive_class: Type[Directive], validate: bool = True
+    content: str, directive_class: type[Directive], validate: bool = True
 ):
     """Parse (and validate) the directive option section."""
-    options: Dict[str, Any] = {}
+    options: dict[str, Any] = {}
     if content.startswith("---"):
         content = "\n".join(content.splitlines()[1:])
         match = re.search(r"^-{3,}", content, re.MULTILINE)
@@ -143,7 +145,7 @@ def parse_directive_options(
         return content, options
 
     # check options against spec
-    options_spec = directive_class.option_spec  # type: Dict[str, Callable]
+    options_spec: dict[str, Callable] = directive_class.option_spec
     for name, value in list(options.items()):
         try:
             convertor = options_spec[name]
@@ -179,7 +181,7 @@ def parse_directive_arguments(directive, arg_text):
     arguments = arg_text.split()
     if len(arguments) < required:
         raise DirectiveParsingError(
-            "{} argument(s) required, {} supplied".format(required, len(arguments))
+            f"{required} argument(s) required, {len(arguments)} supplied"
         )
     elif len(arguments) > required + optional:
         if directive.final_argument_whitespace:

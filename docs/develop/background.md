@@ -1,4 +1,4 @@
-# Background and explanation
+# Background
 
 These sections discuss high-level questions about the MyST ecosystem, and explain a few decisions made in the project.
 

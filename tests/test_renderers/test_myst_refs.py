@@ -1,12 +1,5 @@
-import os
-
 import pytest
-from sphinx.application import Sphinx
-from sphinx.errors import SphinxWarning
-
-from myst_parser.main import MdParserConfig
-from myst_parser.sphinx_parser import parse
-from myst_parser.sphinx_renderer import mock_sphinx_env
+from sphinx_pytest.plugin import CreateDoctree
 
 
 @pytest.mark.parametrize(
@@ -23,24 +16,23 @@ from myst_parser.sphinx_renderer import mock_sphinx_env
         ("ref_colon", "(ref:colon)=\n# Title\n[](ref:colon)", False),
     ],
 )
-def test_parse(test_name, text, should_warn, file_regression):
+def test_parse(
+    test_name: str,
+    text: str,
+    should_warn: bool,
+    sphinx_doctree: CreateDoctree,
+    file_regression,
+):
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(text, "index.md")
+    assert not result.warnings
 
-    with mock_sphinx_env(
-        conf={"extensions": ["myst_parser"]},
-        srcdir="root",
-        with_builder=True,
-        raise_on_warning=True,
-    ) as app:  # type: Sphinx
-        app.env.myst_config = MdParserConfig()
-        document = parse(app, text, docname="index")
-        if should_warn:
-            with pytest.raises(SphinxWarning):
-                app.env.apply_post_transforms(document, "index")
-        else:
-            app.env.apply_post_transforms(document, "index")
+    doctree = result.get_resolved_doctree("index")
 
-    content = document.pformat()
-    # windows fix
-    content = content.replace("root" + os.sep + "index.md", "root/index.md")
+    if should_warn:
+        assert result.warnings
+    else:
+        assert not result.warnings
 
-    file_regression.check(content, basename=test_name, extension=".xml")
+    doctree["source"] = "root/index.md"
+    file_regression.check(doctree.pformat(), basename=test_name, extension=".xml")

@@ -37,24 +37,43 @@ Bad Front Matter:
 a: {
 ---
 .
-<string>:1: (ERROR/3) Front matter block:
-while parsing a flow node
-expected the node content, but found '<stream end>'
-  in "<unicode string>", line 1, column 5:
-    a: {
-        ^
+<string>:1: (WARNING/2) Malformed YAML [myst.topmatter]
+.
+
+Unknown Front Matter myst key:
+.
+---
+myst:
+  unknown: true
+---
+.
+<string>:1: (WARNING/2) Unknown field: unknown [myst.topmatter]
+.
+
+Invalid Front Matter myst key:
+.
+---
+myst:
+  title_to_header: 1
+  url_schemes: [1]
+  substitutions:
+    key: []
+---
+.
+<string>:1: (WARNING/2) 'title_to_header' must be of type <class 'bool'> (got 1 that is a <class 'int'>). [myst.topmatter]
+<string>:1: (WARNING/2) 'url_schemes[0]' must be of type <class 'str'> (got 1 that is a <class 'int'>). [myst.topmatter]
+<string>:1: (WARNING/2) 'substitutions['key']' must be of type (<class 'str'>, <class 'int'>, <class 'float'>) (got [] that is a <class 'list'>). [myst.topmatter]
 .
 
 Bad HTML Meta
 .
 ---
-html_meta:
-  empty:
-  name noequals: value
+myst:
+  html_meta:
+    name noequals: value
 
 ---
 .
-<string>:: (ERROR/3) Error parsing meta tag attribute "empty": No content.
 <string>:: (ERROR/3) Error parsing meta tag attribute "name noequals": no '=' in noequals.
 .
 

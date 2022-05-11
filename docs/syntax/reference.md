@@ -1,4 +1,5 @@
-# MyST Syntax Reference
+(syntax-tokens)=
+# Syntax tokens
 
 This page serves as a reference for the syntax that makes of MyST Markdown.
 

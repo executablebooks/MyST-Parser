@@ -117,6 +117,8 @@ class MystReferenceResolver(ReferencesResolver):
         # get allowed domains for referencing
         ref_domains = self.env.config.myst_ref_domains
 
+        assert self.app.builder
+
         # next resolve for any other standard reference objects
         if ref_domains is None or "std" in ref_domains:
             stddomain = cast(StandardDomain, self.env.get_domain("std"))
@@ -246,6 +248,7 @@ class MystReferenceResolver(ReferencesResolver):
         if not docname:
             return None
 
+        assert self.app.builder
         return make_refnode(self.app.builder, fromdocname, docname, labelid, innernode)
 
     def _resolve_doc_nested(
@@ -277,4 +280,5 @@ class MystReferenceResolver(ReferencesResolver):
             caption = clean_astext(self.env.titles[docname])
             innernode = nodes.inline(caption, caption, classes=["doc"])
 
+        assert self.app.builder
         return make_refnode(self.app.builder, fromdocname, docname, "", innernode)

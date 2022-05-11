@@ -19,6 +19,12 @@ repos:
     - id: end-of-file-fixer
     - id: trailing-whitespace
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.0
+    hooks:
+    - id: pyupgrade
+      args: [--py37-plus]
+
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
@@ -44,7 +50,7 @@ repos:
     - id: mypy
       args: [--config-file=pyproject.toml]
       additional_dependencies:
-      - sphinx~=3.3
+      - sphinx~=4.1
       - markdown-it-py>=1.0.0,<3.0.0
       - mdit-py-plugins~=0.3.0
       files: >

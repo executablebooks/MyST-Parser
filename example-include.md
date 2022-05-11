@@ -1,2 +1,2 @@
-[Used in how-to](docs/sphinx/use.md)
+[Used in how-to](docs/faq/index.md)
 ![alt](docs/_static/logo-wide.svg)

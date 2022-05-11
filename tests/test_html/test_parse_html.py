@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from myst_parser.parse_html import tokenize_html
+from myst_parser.parsers.parse_html import tokenize_html
 
 FIXTURE_PATH = Path(__file__).parent
 

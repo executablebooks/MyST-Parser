@@ -3,7 +3,7 @@ import pytest
 from docutils.parsers.rst.directives.admonitions import Note
 from docutils.parsers.rst.directives.body import Rubric
 
-from myst_parser.parse_directives import DirectiveParsingError, parse_directive_text
+from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
 
 
 @pytest.mark.parametrize(

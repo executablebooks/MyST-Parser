@@ -1,26 +1,18 @@
-"""This module holds the global configuration for the parser ``MdParserConfig``,
-and the ``create_md_parser`` function, which creates a parser from the config.
-"""
+"""The configuration for the myst parser."""
 import dataclasses as dc
-from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple, Union, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
-from markdown_it import MarkdownIt
-from markdown_it.renderer import RendererHTML, RendererProtocol
-from mdit_py_plugins.amsmath import amsmath_plugin
-from mdit_py_plugins.anchors import anchors_plugin
-from mdit_py_plugins.colon_fence import colon_fence_plugin
-from mdit_py_plugins.deflist import deflist_plugin
-from mdit_py_plugins.dollarmath import dollarmath_plugin
-from mdit_py_plugins.field_list import fieldlist_plugin
-from mdit_py_plugins.footnote import footnote_plugin
-from mdit_py_plugins.front_matter import front_matter_plugin
-from mdit_py_plugins.myst_blocks import myst_block_plugin
-from mdit_py_plugins.myst_role import myst_role_plugin
-from mdit_py_plugins.substitution import substitution_plugin
-from mdit_py_plugins.tasklists import tasklists_plugin
-from mdit_py_plugins.wordcount import wordcount_plugin
-
-from . import __version__  # noqa: F401
 from .dc_validators import (
     deep_iterable,
     deep_mapping,
@@ -28,13 +20,14 @@ from .dc_validators import (
     instance_of,
     is_callable,
     optional,
+    validate_field,
     validate_fields,
 )
 
 
 def check_extensions(_, __, value):
     if not isinstance(value, Iterable):
-        raise TypeError(f"myst_enable_extensions not iterable: {value}")
+        raise TypeError(f"'enable_extensions' not iterable: {value}")
     diff = set(value).difference(
         [
             "dollarmath",
@@ -53,7 +46,7 @@ def check_extensions(_, __, value):
         ]
     )
     if diff:
-        raise ValueError(f"myst_enable_extensions not recognised: {diff}")
+        raise ValueError(f"'enable_extensions' items not recognised: {diff}")
 
 
 def check_sub_delimiters(_, __, value):
@@ -72,6 +65,8 @@ class MdParserConfig:
 
     Note in the sphinx configuration these option names are prepended with ``myst_``
     """
+
+    # TODO replace commonmark_only, gfm_only with a single option
 
     commonmark_only: bool = dc.field(
         default=False,
@@ -228,6 +223,7 @@ class MdParserConfig:
             "validator": deep_mapping(
                 instance_of(str), instance_of(str), instance_of(dict)
             ),
+            "merge_topmatter": True,
             "help": "HTML meta tags",
         },
     )
@@ -247,6 +243,7 @@ class MdParserConfig:
             "validator": deep_mapping(
                 instance_of(str), instance_of((str, int, float)), instance_of(dict)
             ),
+            "merge_topmatter": True,
             "help": "Substitutions",
         },
     )
@@ -267,6 +264,13 @@ class MdParserConfig:
     def __post_init__(self):
         validate_fields(self)
 
+    def copy(self, **kwargs: Any) -> "MdParserConfig":
+        """Return a new object replacing specified fields with new values.
+
+        Note: initiating the copy will also validate the new fields.
+        """
+        return dc.replace(self, **kwargs)
+
     @classmethod
     def get_fields(cls) -> Tuple[dc.Field, ...]:
         """Return all attribute fields in this class."""
@@ -283,160 +287,102 @@ class MdParserConfig:
             yield name, value, fields[name]
 
 
-def default_parser(config: MdParserConfig):
-    raise NotImplementedError(
-        "default_parser has been deprecated and replaced by create_md_parser."
-        "You must also supply the renderer class directly to create_md_parser."
-    )
+def merge_file_level(
+    config: MdParserConfig,
+    topmatter: Dict[str, Any],
+    warning: Callable[[str, str], None],
+) -> MdParserConfig:
+    """Merge the file-level topmatter with the global config.
 
-
-def create_md_parser(
-    config: MdParserConfig, renderer: Callable[[MarkdownIt], RendererProtocol]
-) -> MarkdownIt:
-    """Return a Markdown parser with the required MyST configuration."""
-
-    # TODO warn if linkify required and linkify-it-py not installed
-    # (currently the parse will unceremoniously except)
-
-    if config.commonmark_only:
-        # see https://spec.commonmark.org/
-        md = MarkdownIt("commonmark", renderer_cls=renderer).use(
-            wordcount_plugin, per_minute=config.words_per_minute
-        )
-        md.options.update({"myst_config": config})
-        return md
-
-    if config.gfm_only:
-        # see https://github.github.com/gfm/
-        md = (
-            MarkdownIt("commonmark", renderer_cls=renderer)
-            # note, strikethrough currently only supported tentatively for HTML
-            .enable("strikethrough")
-            .enable("table")
-            .use(tasklists_plugin)
-            .enable("linkify")
-            .use(wordcount_plugin, per_minute=config.words_per_minute)
-        )
-        md.options.update({"linkify": True, "myst_config": config})
-        return md
-
-    md = (
-        MarkdownIt("commonmark", renderer_cls=renderer)
-        .enable("table")
-        .use(front_matter_plugin)
-        .use(myst_block_plugin)
-        .use(myst_role_plugin)
-        .use(footnote_plugin)
-        .use(wordcount_plugin, per_minute=config.words_per_minute)
-        .disable("footnote_inline")
-        # disable this for now, because it need a new implementation in the renderer
-        .disable("footnote_tail")
-    )
-
-    typographer = False
-    if "smartquotes" in config.enable_extensions:
-        md.enable("smartquotes")
-        typographer = True
-    if "replacements" in config.enable_extensions:
-        md.enable("replacements")
-        typographer = True
-    if "linkify" in config.enable_extensions:
-        md.enable("linkify")
-        if md.linkify is not None:
-            md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
-    if "strikethrough" in config.enable_extensions:
-        md.enable("strikethrough")
-    if "dollarmath" in config.enable_extensions:
-        md.use(
-            dollarmath_plugin,
-            allow_labels=config.dmath_allow_labels,
-            allow_space=config.dmath_allow_space,
-            allow_digits=config.dmath_allow_digits,
-            double_inline=config.dmath_double_inline,
-        )
-    if "colon_fence" in config.enable_extensions:
-        md.use(colon_fence_plugin)
-    if "amsmath" in config.enable_extensions:
-        md.use(amsmath_plugin)
-    if "deflist" in config.enable_extensions:
-        md.use(deflist_plugin)
-    if "fieldlist" in config.enable_extensions:
-        md.use(fieldlist_plugin)
-    if "tasklist" in config.enable_extensions:
-        md.use(tasklists_plugin)
-    if "substitution" in config.enable_extensions:
-        md.use(substitution_plugin, *config.sub_delimiters)
-    if config.heading_anchors is not None:
-        md.use(
-            anchors_plugin,
-            max_level=config.heading_anchors,
-            slug_func=config.heading_slug_func,
-        )
-    for name in config.disable_syntax:
-        md.disable(name, True)
-
-    md.options.update(
-        {
-            "typographer": typographer,
-            "linkify": "linkify" in config.enable_extensions,
-            "myst_config": config,
-        }
-    )
-
-    return md
-
-
-def to_docutils(
-    text: str,
-    parser_config: Optional[MdParserConfig] = None,
-    *,
-    options=None,
-    env=None,
-    document=None,
-    in_sphinx_env: bool = False,
-    conf=None,
-    srcdir=None,
-):
-    """Render text to the docutils AST (before transforms)
-
-    :param text: the text to render
-    :param options: options to update the parser with
-    :param env: The sandbox environment for the parse
-        (will contain e.g. reference definitions)
-    :param document: the docutils root node to use (otherwise a new one will be created)
-    :param in_sphinx_env: initialise a minimal sphinx environment (useful for testing)
-    :param conf: the sphinx conf.py as a dictionary
-    :param srcdir: to parse to the mock sphinx env
-
-    :returns: docutils document
+    :param config: Global config.
+    :param topmatter: Topmatter from the file.
+    :param warning: Function to call with a warning (type, message).
+    :returns: A new config object
     """
-    from myst_parser.docutils_renderer import make_document
-    from myst_parser.sphinx_renderer import SphinxRenderer
-
-    md = create_md_parser(parser_config or MdParserConfig(), SphinxRenderer)
-    if options:
-        md.options.update(options)
-    md.options["document"] = document or make_document()
-    if in_sphinx_env:
-        from myst_parser.sphinx_renderer import mock_sphinx_env
-
-        with mock_sphinx_env(conf=conf, srcdir=srcdir, document=md.options["document"]):
-            return md.render(text, env)
+    # get updates
+    updates: Dict[str, Any] = {}
+    myst = topmatter.get("myst", {})
+    if not isinstance(myst, dict):
+        warning("topmatter", f"'myst' key not a dict: {type(myst)}")
     else:
-        return md.render(text, env)
+        updates = myst
+
+    # allow html_meta and substitutions at top-level for back-compatibility
+    if "html_meta" in topmatter:
+        warning(
+            "topmatter",
+            "top-level 'html_meta' key is deprecated, "
+            "place under 'myst' key instead",
+        )
+        updates["html_meta"] = topmatter["html_meta"]
+    if "substitutions" in topmatter:
+        warning(
+            "topmatter",
+            "top-level 'substitutions' key is deprecated, "
+            "place under 'myst' key instead",
+        )
+        updates["substitutions"] = topmatter["substitutions"]
+
+    new = config.copy()
+
+    # validate each update
+    fields = {name: (value, field) for name, value, field in config.as_triple()}
+    for name, value in updates.items():
+
+        if name not in fields:
+            warning("topmatter", f"Unknown field: {name}")
+            continue
+
+        old_value, field = fields[name]
+
+        try:
+            validate_field(new, field, value)
+        except Exception as exc:
+            warning("topmatter", str(exc))
+            continue
+
+        if field.metadata.get("merge_topmatter"):
+            value = {**old_value, **value}
+
+        setattr(new, name, value)
+
+    return new
 
 
-def to_html(text: str, env=None, config: Optional[MdParserConfig] = None):
-    """Render text to HTML directly using markdown-it-py.
+class TopmatterReadError(Exception):
+    """Topmatter parsing error."""
 
-    This is mainly for test purposes only.
+
+def read_topmatter(text: Union[str, Iterator[str]]) -> Optional[Dict[str, Any]]:
+    """Read the (optional) YAML topmatter from a source string.
+
+    This is identified by the first line starting with `---`,
+    then read up to a terminating line of `---`, or `...`.
+
+    :param source: The source string to read from
+    :return: The topmatter
     """
-    config = config or MdParserConfig()
-    md = create_md_parser(config, RendererHTML)
-    return md.render(text, env)
+    import yaml
 
-
-def to_tokens(text: str, env=None, config: Optional[MdParserConfig] = None):
-    config = config or MdParserConfig()
-    md = create_md_parser(config, RendererHTML)
-    return md.parse(text, env)
+    if isinstance(text, str):
+        if not text.startswith("---"):  # skip creating the line list in memory
+            return None
+        text = (line for line in text.splitlines())
+    try:
+        if not next(text).startswith("---"):
+            return None
+    except StopIteration:
+        return None
+    top_matter = []
+    for line in text:
+        if line.startswith("---") or line.startswith("..."):
+            break
+        top_matter.append(line.rstrip() + "\n")
+    try:
+        metadata = yaml.safe_load("".join(top_matter))
+        assert isinstance(metadata, dict)
+    except (yaml.parser.ParserError, yaml.scanner.ScannerError) as err:
+        raise TopmatterReadError("Malformed YAML") from err
+    if not isinstance(metadata, dict):
+        raise TopmatterReadError(f"YAML is not a dict: {type(metadata)}")
+    return metadata

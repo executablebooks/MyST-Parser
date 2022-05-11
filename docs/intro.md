@@ -1,29 +1,23 @@
 (intro/get-started)=
-# Get started with MyST in Sphinx
+# Get Started
 
 This page describes how to get started with the MyST parser, with a focus on enabling it in the Sphinx documentation engine.
 
-## Install the MyST Parser
+## Installation
 
 [![PyPI][pypi-badge]][pypi-link]
 [![Conda][conda-badge]][conda-link]
 
-Installing the MyST parser provides access to two tools:
-
-* A Python library that can parse MyST markdown, and render it to a number of output formats (in particular, `docutils` format for use with Sphinx).
-* A Sphinx extension that that utilizes the above tool in order to parse MyST Markdown in your documentation.
-
-To install the MyST parser, run the following in a
-[Conda environment](https://docs.conda.io) (recommended):
-
-```bash
-conda install -c conda-forge myst-parser
-```
-
-or
+To install use [pip](https://pip.pypa.io):
 
 ```bash
 pip install myst-parser
+```
+
+or [Conda](https://docs.conda.io):
+
+```bash
+conda install -c conda-forge myst-parser
 ```
 
 [pypi-badge]: https://img.shields.io/pypi/v/myst-parser.svg
@@ -31,7 +25,7 @@ pip install myst-parser
 [conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
 [conda-link]: https://anaconda.org/conda-forge/myst-parser
 
-(parse-with-sphinx)=
+(intro/sphinx)=
 ## Enable MyST in Sphinx
 
 Sphinx is a documentation generator for building a website or book from multiple source documents and assets. To get started with Sphinx, see their [Quickstart Guide](https://www.sphinx-doc.org/en/master/usage/quickstart.html). This guide assumes that you've already got a pre-existing Sphinx site that builds properly.
@@ -420,4 +414,4 @@ sequenceDiagram
 
 In this tutorial we've covered some of the basics of MyST Markdown, how to enable and use it with Sphinx, and how to extend it for new use-cases.
 There is much more functionality in MyST (and in the Sphinx ecosystem) that we haven't covered here.
-For more information, see the [documentation on MyST Syntax](../syntax/syntax.md) and the [documentation about using MyST with Sphinx](../sphinx/index.md).
+For more information, see the [documentation on MyST Syntax](../syntax/syntax.md).

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from docutils.core import publish_doctree
 
-from myst_parser.docutils_ import Parser
+from myst_parser.parsers.docutils_ import Parser
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 

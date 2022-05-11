@@ -29,7 +29,7 @@ class SubstitutionReferenceRole(SphinxRole):
 
     def run(self) -> Tuple[List[nodes.Node], List[nodes.system_message]]:
         subref_node = nodes.substitution_reference(self.rawtext, self.text)
-        self.set_source_info(subref_node, self.lineno)  # type: ignore[arg-type]
+        self.set_source_info(subref_node, self.lineno)
         subref_node["refname"] = nodes.fully_normalize_name(self.text)
         return [subref_node], []
 
