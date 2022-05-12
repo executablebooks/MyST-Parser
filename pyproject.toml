@@ -62,7 +62,7 @@ rtd = [
 ]
 testing = [
     "beautifulsoup4",
-    "coverage",
+    "coverage[toml]",
     "docutils~=0.17.0", # this version changes some HTML tags
     "pytest>=6,<7",
     "pytest-cov",
@@ -105,3 +105,6 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = ["docutils.*", "yaml.*"]
 ignore_missing_imports = true
+
+[tool.coverage.run]
+omit = ["*/_docs.py"]

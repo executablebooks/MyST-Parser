@@ -89,7 +89,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .
-        pip install pytest~=6.2 pytest-param-files~=0.3.3 docutils==${{ matrix.docutils-version }}
+        pip install pytest~=6.2 pytest-param-files~=0.3.3 pygments docutils==${{ matrix.docutils-version }}
     - name: ensure sphinx is not installed
       run: |
         python -c "\
