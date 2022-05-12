@@ -15,14 +15,16 @@ h3::before {
     content: counter(subsection) "." counter(subsubsection) ". ";
 }
 
-.bg-myst-one {
-    background-color: #52d16f3b;
+/** Hide the scroll bar unless active (sphinx-book-theme specific) */
+#site-navigation .bd-sidebar__content {
+    overflow-y: hidden;
 }
-
-.bg-myst-two {
-    background-color: #e7dd7b73;
+#site-navigation .bd-sidebar__content:hover {
+    overflow-y: auto;
 }
-
-.bg-myst-three {
-    background-color: #e7b07b96;
+#site-navigation .bd-sidebar__content:focus {
+    overflow-y: auto;
+}
+#site-navigation .bd-sidebar__content:active {
+    overflow-y: auto;
 }

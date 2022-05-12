@@ -13,6 +13,10 @@ All `myst_parser` global configuration variables are prefixed with `myst_`, e.g.
 myst_enable_extensions = ["deflist"]
 ```
 
+:::{seealso}
+Configuration in Docutils, in the [](docutils.md) section.
+:::
+
 ```{myst-config}
 :sphinx:
 :scope: global
@@ -29,6 +33,9 @@ Configuration specific to syntax extensions:
 ```
 
 ## Local configuration
+
+```{versionadded} 0.18
+```
 
 The following configuration variables are available at the document level.
 These can be set in the document [front matter](syntax/frontmatter), under the `myst` key, e.g.
