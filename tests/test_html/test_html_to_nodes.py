@@ -4,8 +4,8 @@ from unittest.mock import Mock
 import pytest
 from docutils import nodes
 
-from myst_parser.html_to_nodes import html_to_nodes
-from myst_parser.main import MdParserConfig
+from myst_parser.config.main import MdParserConfig
+from myst_parser.mdit_to_docutils.html_to_nodes import html_to_nodes
 
 FIXTURE_PATH = Path(__file__).parent
 

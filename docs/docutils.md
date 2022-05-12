@@ -1,6 +1,6 @@
 (myst-docutils)=
 
-# MyST with Docutils
+# Single Page Builds
 
 ```{versionadded} 0.16.0
 ```

@@ -1,4 +1,5 @@
-# MyST Syntax Reference
+(syntax-tokens)=
+# Syntax tokens
 
 This page serves as a reference for the syntax that makes of MyST Markdown.
 
@@ -12,8 +13,6 @@ Block tokens span multiple lines of content. They are broken down into two secti
 
 - {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
 - {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
-
-In addition to these summaries of block-level syntax, see {ref}`extra-markdown-syntax`.
 
 :::{note}
 Because MyST markdown was inspired by functionality that exists in reStructuredText,
@@ -163,8 +162,6 @@ sections below:
 
 - {ref}`extended-span-tokens` contains *extra* tokens that are not in CommonMark.
 - {ref}`commonmark-span-tokens` contains CommonMark tokens that also work, for reference.
-
-In addition to these summaries of inline syntax, see {ref}`extra-markdown-syntax`.
 
 (extended-span-tokens)=
 ### Extended inline tokens

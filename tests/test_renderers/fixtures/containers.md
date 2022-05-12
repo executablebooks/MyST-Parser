@@ -1,18 +1,16 @@
---------------------------------
 Basic note:
 .
 ::: {note}
 *hallo*
 :::
 .
-<document source="notset">
+<document source="<src>/index.md">
     <note>
         <paragraph>
             <emphasis>
                 hallo
 .
 
---------------------------------
 Admonition with options:
 .
 ::: {admonition} A **title**
@@ -21,10 +19,10 @@ Admonition with options:
 *hallo*
 :::
 .
-<document source="notset">
+<document source="<src>/index.md">
     <admonition classes="other">
         <title>
-            A 
+            A
             <strong>
                 title
         <paragraph>

@@ -1,26 +1,15 @@
+"""Convert Markdown-it tokens to docutils nodes."""
+from __future__ import annotations
+
 import inspect
 import json
 import os
 import re
 from collections import OrderedDict
 from contextlib import contextmanager
-from copy import deepcopy
 from datetime import date, datetime
 from types import ModuleType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Iterator, MutableMapping, Sequence, cast
 from urllib.parse import urlparse
 
 import jinja2
@@ -43,7 +32,7 @@ from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
-from myst_parser.main import MdParserConfig
+from myst_parser.config.main import MdParserConfig
 from myst_parser.mocking import (
     MockIncludeDirective,
     MockingError,
@@ -52,8 +41,8 @@ from myst_parser.mocking import (
     MockState,
     MockStateMachine,
 )
+from ..parsers.directives import DirectiveParsingError, parse_directive_text
 from .html_to_nodes import html_to_nodes
-from .parse_directives import DirectiveParsingError, parse_directive_text
 from .utils import is_external_url
 
 if TYPE_CHECKING:
@@ -69,13 +58,34 @@ def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
-def token_line(token: SyntaxTreeNode, default: Optional[int] = None) -> int:
+def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
     """Retrieve the initial line of a token."""
     if not getattr(token, "map", None):
         if default is not None:
             return default
         raise ValueError(f"token map not set: {token}")
     return token.map[0]  # type: ignore[index]
+
+
+def create_warning(
+    document: nodes.document,
+    message: str,
+    *,
+    line: int | None = None,
+    append_to: nodes.Element | None = None,
+    wtype: str = "myst",
+    subtype: str = "other",
+) -> nodes.system_message | None:
+    """Generate a warning, logging if it is necessary.
+
+    Note this is overridden in the ``SphinxRenderer``,
+    to handle suppressed warning types.
+    """
+    kwargs = {"line": line} if line is not None else {}
+    msg_node = document.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
+    if append_to is not None:
+        append_to.append(msg_node)
+    return msg_node
 
 
 class DocutilsRenderer(RendererProtocol):
@@ -115,7 +125,7 @@ class DocutilsRenderer(RendererProtocol):
         )
 
     def setup_render(
-        self, options: Dict[str, Any], env: MutableMapping[str, Any]
+        self, options: dict[str, Any], env: MutableMapping[str, Any]
     ) -> None:
         """Setup the renderer with per render variables."""
         self.md_env = env
@@ -130,12 +140,12 @@ class DocutilsRenderer(RendererProtocol):
             self.document.settings.language_code
         )
         # a mapping of heading levels to its currently associated node
-        self._level_to_elem: Dict[int, Union[nodes.document, nodes.section]] = {
+        self._level_to_elem: dict[int, nodes.document | nodes.section] = {
             0: self.document
         }
 
     @property
-    def sphinx_env(self) -> Optional["BuildEnvironment"]:
+    def sphinx_env(self) -> BuildEnvironment | None:
         """Return the sphinx env, if using Sphinx."""
         try:
             return self.document.settings.env
@@ -146,23 +156,26 @@ class DocutilsRenderer(RendererProtocol):
         self,
         message: str,
         *,
-        line: Optional[int] = None,
-        append_to: Optional[nodes.Element] = None,
+        line: int | None = None,
+        append_to: nodes.Element | None = None,
         wtype: str = "myst",
         subtype: str = "other",
-    ) -> Optional[nodes.system_message]:
+    ) -> nodes.system_message | None:
         """Generate a warning, logging if it is necessary.
 
         Note this is overridden in the ``SphinxRenderer``,
         to handle suppressed warning types.
         """
-        kwargs = {"line": line} if line is not None else {}
-        msg_node = self.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
-        if append_to is not None:
-            append_to.append(msg_node)
-        return msg_node
+        return create_warning(
+            self.document,
+            message,
+            line=line,
+            append_to=append_to,
+            wtype=wtype,
+            subtype=subtype,
+        )
 
-    def _render_tokens(self, tokens: List[Token]) -> None:
+    def _render_tokens(self, tokens: list[Token]) -> None:
         """Render the tokens."""
         # propagate line number down to inline elements
         for token in tokens:
@@ -213,8 +226,24 @@ class DocutilsRenderer(RendererProtocol):
             containing additional metadata like reference info
         """
         self.setup_render(options, md_env)
-
+        self._render_initialise()
         self._render_tokens(list(tokens))
+        self._render_finalise()
+        return self.document
+
+    def _render_initialise(self) -> None:
+        """Initialise the render of the document."""
+        self.current_node.extend(
+            html_meta_to_nodes(
+                self.md_config.html_meta,
+                document=self.document,
+                line=0,
+                reporter=self.reporter,
+            )
+        )
+
+    def _render_finalise(self) -> None:
+        """Finalise the render of the document."""
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -255,34 +284,29 @@ class DocutilsRenderer(RendererProtocol):
             else:
                 self.render_footnote_reference(foot_ref_tokens[0])
 
-        self.add_document_wordcount()
-
-        return self.document
-
-    def add_document_wordcount(self) -> None:
-        """Add the wordcount, generated by the ``mdit_py_plugins.wordcount_plugin``."""
-
+        # Add the wordcount, generated by the ``mdit_py_plugins.wordcount_plugin``.
         wordcount_metadata = self.md_env.get("wordcount", {})
-        if not wordcount_metadata:
-            return
+        if wordcount_metadata:
 
-        # save the wordcount to the sphinx BuildEnvironment metadata
-        if self.sphinx_env is not None:
-            meta = self.sphinx_env.metadata.setdefault(self.sphinx_env.docname, {})
-            meta["wordcount"] = wordcount_metadata
+            # save the wordcount to the sphinx BuildEnvironment metadata
+            if self.sphinx_env is not None:
+                meta = self.sphinx_env.metadata.setdefault(self.sphinx_env.docname, {})
+                meta["wordcount"] = wordcount_metadata
 
-        # now add the wordcount as substitution definitions,
-        # so we can reference them in the document
-        for key in ("words", "minutes"):
-            value = wordcount_metadata.get(key, None)
-            if value is None:
-                continue
-            substitution_node = nodes.substitution_definition(
-                str(value), nodes.Text(str(value))
-            )
-            substitution_node.source = self.document["source"]
-            substitution_node["names"].append(f"wordcount-{key}")
-            self.document.note_substitution_def(substitution_node, f"wordcount-{key}")
+            # now add the wordcount as substitution definitions,
+            # so we can reference them in the document
+            for key in ("words", "minutes"):
+                value = wordcount_metadata.get(key, None)
+                if value is None:
+                    continue
+                substitution_node = nodes.substitution_definition(
+                    str(value), nodes.Text(str(value))
+                )
+                substitution_node.source = self.document["source"]
+                substitution_node["names"].append(f"wordcount-{key}")
+                self.document.note_substitution_def(
+                    substitution_node, f"wordcount-{key}"
+                )
 
     def nested_render_text(
         self, text: str, lineno: int, inline: bool = False, allow_headings: bool = True
@@ -349,7 +373,7 @@ class DocutilsRenderer(RendererProtocol):
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
-        self, nodes: List[nodes.Element], token: SyntaxTreeNode
+        self, nodes: list[nodes.Element], token: SyntaxTreeNode
     ) -> None:
         """Copy the line number and document source path to the docutils nodes,
         and recursively to all descendants.
@@ -394,7 +418,7 @@ class DocutilsRenderer(RendererProtocol):
             if section_level <= level
         }
 
-    def renderInlineAsText(self, tokens: List[SyntaxTreeNode]) -> str:
+    def renderInlineAsText(self, tokens: list[SyntaxTreeNode]) -> str:
         """Special kludge for image `alt` attributes to conform CommonMark spec.
 
         Don't try to use it! Spec requires to show `alt` content with stripped markup,
@@ -492,12 +516,12 @@ class DocutilsRenderer(RendererProtocol):
     def create_highlighted_code_block(
         self,
         text: str,
-        lexer_name: Optional[str],
+        lexer_name: str | None,
         number_lines: bool = False,
         lineno_start: int = 1,
-        source: Optional[str] = None,
-        line: Optional[int] = None,
-        node_cls: Type[nodes.Element] = nodes.literal_block,
+        source: str | None = None,
+        line: int | None = None,
+        node_cls: type[nodes.Element] = nodes.literal_block,
     ) -> nodes.Element:
         """Create a literal block with syntax highlighting.
 
@@ -768,66 +792,45 @@ class DocutilsRenderer(RendererProtocol):
         """Pass document front matter data."""
         position = token_line(token, default=0)
 
-        if not isinstance(token.content, dict):
+        if isinstance(token.content, str):
             try:
                 data = yaml.safe_load(token.content)
-                assert isinstance(data, dict), "not dict"
-            except (
-                AssertionError,
-                yaml.parser.ParserError,
-                yaml.scanner.ScannerError,
-            ) as error:
-                msg_node = self.reporter.error(
-                    "Front matter block:\n" + str(error), line=position
+            except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+                self.create_warning(
+                    "Malformed YAML",
+                    line=position,
+                    append_to=self.current_node,
+                    subtype="topmatter",
                 )
-                msg_node += nodes.literal_block(token.content, token.content)
-                self.current_node.append(msg_node)
                 return
         else:
-            data = deepcopy(token.content)
+            data = token.content
 
-        substitutions = data.pop("substitutions", {})
-        html_meta = data.pop("html_meta", {})
+        if not isinstance(data, dict):
+            self.create_warning(
+                f"YAML is not a dict: {type(data)}",
+                line=position,
+                append_to=self.current_node,
+                subtype="topmatter",
+            )
+            return
 
-        if data:
+        fields = {
+            k: v
+            for k, v in data.items()
+            if k not in ("myst", "mystnb", "substitutions", "html_meta")
+        }
+        if fields:
             field_list = self.dict_to_fm_field_list(
-                data, language_code=self.document.settings.language_code
+                fields, language_code=self.document.settings.language_code
             )
             self.current_node.append(field_list)
-
-        if isinstance(substitutions, dict):
-            self.document.fm_substitutions = substitutions
-        else:
-            msg_node = self.reporter.error(
-                "Front-matter 'substitutions' is not a dict", line=position
-            )
-            msg_node += nodes.literal_block(token.content, token.content)
-            self.current_node.append(msg_node)
-
-        if not isinstance(html_meta, dict):
-            msg_node = self.reporter.error(
-                "Front-matter 'html_meta' is not a dict", line=position
-            )
-            msg_node += nodes.literal_block(token.content, token.content)
-            self.current_node.append(msg_node)
-
-        self.current_node.extend(
-            html_meta_to_nodes(
-                {
-                    **self.md_config.html_meta,
-                    **html_meta,
-                },
-                document=self.document,
-                line=position,
-                reporter=self.reporter,
-            )
-        )
 
         if data.get("title") and self.md_config.title_to_header:
             self.nested_render_text(f"# {data['title']}", 0)
 
     def dict_to_fm_field_list(
-        self, data: Dict[str, Any], language_code: str, line: int = 0
+        self, data: dict[str, Any], language_code: str, line: int = 0
     ) -> nodes.field_list:
         """Render each key/val pair as a docutils ``field_node``.
 
@@ -1004,7 +1007,7 @@ class DocutilsRenderer(RendererProtocol):
         """
         target = token.meta["label"]
 
-        refnode = nodes.footnote_reference("[^{}]".format(target))
+        refnode = nodes.footnote_reference(f"[^{target}]")
         self.add_line_and_source_path(refnode, token)
         if not target.isdigit():
             refnode["auto"] = 1
@@ -1066,7 +1069,7 @@ class DocutilsRenderer(RendererProtocol):
             self.current_node += nodes
         else:
             message = self.reporter.error(
-                'Unknown interpreted text role "{}".'.format(name), line=lineno
+                f'Unknown interpreted text role "{name}".', line=lineno
             )
             problematic = inliner.problematic(text, rawsource, message)
             self.current_node += problematic
@@ -1192,7 +1195,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def run_directive(
         self, name: str, first_line: str, content: str, position: int
-    ) -> List[nodes.Element]:
+    ) -> list[nodes.Element]:
         """Run a directive and return the generated nodes.
 
         :param name: the name of the directive
@@ -1207,13 +1210,13 @@ class DocutilsRenderer(RendererProtocol):
         self.document.current_line = position
 
         # get directive class
-        output: Tuple[Directive, list] = directives.directive(
+        output: tuple[Directive, list] = directives.directive(
             name, self.language_module_rst, self.document
         )
         directive_class, messages = output
         if not directive_class:
             error = self.reporter.error(
-                'Unknown directive type "{}".\n'.format(name),
+                f'Unknown directive type "{name}".\n',
                 # nodes.literal_block(content, content),
                 line=position,
             )
@@ -1231,7 +1234,7 @@ class DocutilsRenderer(RendererProtocol):
             )
         except DirectiveParsingError as error:
             error = self.reporter.error(
-                "Directive '{}': {}".format(name, error),
+                f"Directive '{name}': {error}",
                 nodes.literal_block(content, content),
                 line=position,
             )
@@ -1290,7 +1293,7 @@ class DocutilsRenderer(RendererProtocol):
 
         assert isinstance(
             result, list
-        ), 'Directive "{}" must return a list of nodes.'.format(name)
+        ), f'Directive "{name}" must return a list of nodes.'
         for i in range(len(result)):
             assert isinstance(
                 result[i], nodes.Node
@@ -1322,10 +1325,7 @@ class DocutilsRenderer(RendererProtocol):
         position = token_line(token)
 
         # front-matter substitutions take priority over config ones
-        variable_context: Dict[str, Any] = {
-            **self.md_config.substitutions,
-            **getattr(self.document, "fm_substitutions", {}),
-        }
+        variable_context: dict[str, Any] = {**self.md_config.substitutions}
         if self.sphinx_env is not None:
             variable_context["env"] = self.sphinx_env
 
@@ -1378,8 +1378,8 @@ class DocutilsRenderer(RendererProtocol):
 
 
 def html_meta_to_nodes(
-    data: Dict[str, Any], document: nodes.document, line: int, reporter: Reporter
-) -> List[Union[nodes.pending, nodes.system_message]]:
+    data: dict[str, Any], document: nodes.document, line: int, reporter: Reporter
+) -> list[nodes.pending | nodes.system_message]:
     """Replicate the `meta` directive,
     by converting a dictionary to a list of pending meta nodes
 

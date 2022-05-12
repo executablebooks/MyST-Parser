@@ -5,8 +5,10 @@ import json
 import os
 
 import pytest
+from markdown_it.renderer import RendererHTML
 
-from myst_parser.main import to_html
+from myst_parser.config.main import MdParserConfig
+from myst_parser.parsers.mdit import create_md_parser
 
 with open(
     os.path.join(os.path.dirname(__file__), "commonmark.json"), encoding="utf8"
@@ -27,7 +29,8 @@ def test_commonmark(entry):
             "Thematic breaks on the first line conflict with front matter syntax"
         )
     test_case = entry["markdown"]
-    output = to_html(test_case)
+    md = create_md_parser(MdParserConfig(), RendererHTML)
+    output = md.render(test_case)
 
     if entry["example"] == 593:
         # this doesn't have any bearing on the output

@@ -1,28 +1,25 @@
---------------------------------
 default-role (`sphinx.directives.DefaultRole`):
 .
 ```{default-role}
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
 .
 
---------------------------------
 default-domain (`sphinx.directives.DefaultDomain`):
 .
 ```{default-domain} mydomain
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
 .
 
---------------------------------
 SPHINX4 object (`sphinx.directives.ObjectDescription`):
 .
 ```{object} something
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <index entries="">
     <desc classes="object" desctype="object" domain="" noindex="False" objtype="object">
         <desc_signature classes="sig sig-object">
@@ -31,17 +28,15 @@ SPHINX4 object (`sphinx.directives.ObjectDescription`):
         <desc_content>
 .
 
---------------------------------
 highlight (`sphinx.directives.code.Highlight`):
 .
 ```{highlight} something
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <highlightlang force="False" lang="something" linenothreshold="9223372036854775807">
 .
 
---------------------------------
 code-block (`sphinx.directives.code.CodeBlock`):
 .
 ```{code-block}
@@ -50,23 +45,20 @@ code-block (`sphinx.directives.code.CodeBlock`):
     a=1
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block force="False" highlight_args="{}" language="default" xml:space="preserve">
         a=1
 .
 
---------------------------------
 sourcecode (`sphinx.directives.code.CodeBlock`):
 .
 ```{sourcecode}
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block force="False" highlight_args="{}" language="default" xml:space="preserve">
 .
 
---------------------------------
-literalinclude (`sphinx.directives.code.LiteralInclude`):
 SKIP: Tested in sphinx builds
 .
 ```{literalinclude} /path/to/file
@@ -78,56 +70,50 @@ SKIP: Tested in sphinx builds
             Include file '/srcdir/path/to/file' not found or reading it failed
 .
 
---------------------------------
 toctree (`sphinx.directives.other.TocTree`):
 .
 ```{toctree}
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <compound classes="toctree-wrapper">
-        <toctree caption="True" entries="" glob="False" hidden="False" includefiles="" includehidden="False" maxdepth="-1" numbered="0" parent="mock_docname" titlesonly="False">
+        <toctree caption="True" entries="" glob="False" hidden="False" includefiles="" includehidden="False" maxdepth="-1" numbered="0" parent="index" titlesonly="False">
 .
 
---------------------------------
 sectionauthor (`sphinx.directives.other.Author`):
 .
 ```{sectionauthor} bob geldof
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
 .
 
---------------------------------
 moduleauthor (`sphinx.directives.other.Author`):
 .
 ```{moduleauthor} ringo starr
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
 .
 
---------------------------------
 codeauthor (`sphinx.directives.other.Author`):
 .
 ```{codeauthor} paul mcartney
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
 .
 
---------------------------------
 index (`sphinx.directives.other.Index`):
 .
 ```{index} something
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <index entries="('single',\ 'something',\ 'index-0',\ '',\ None)" inline="False">
     <target ids="index-0">
 .
 
---------------------------------
 seealso (`sphinx.directives.other.SeeAlso`):
 .
 ```{seealso}
@@ -135,34 +121,31 @@ seealso (`sphinx.directives.other.SeeAlso`):
 a
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <seealso>
         <paragraph>
             a
 .
 
---------------------------------
 tabularcolumns (`sphinx.directives.other.TabularColumns`):
 .
 ```{tabularcolumns} spec
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <tabular_col_spec spec="spec">
 .
 
---------------------------------
 centered (`sphinx.directives.other.Centered`):
 .
 ```{centered} text
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <centered>
         text
 .
 
---------------------------------
 acks (`sphinx.directives.other.Acks`):
 .
 ```{acks}
@@ -170,7 +153,7 @@ acks (`sphinx.directives.other.Acks`):
 - name
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <acks>
         <bullet_list bullet="-">
             <list_item>
@@ -178,7 +161,6 @@ acks (`sphinx.directives.other.Acks`):
                     name
 .
 
---------------------------------
 SPHINX4 hlist (`sphinx.directives.other.HList`):
 .
 ```{hlist}
@@ -186,7 +168,7 @@ SPHINX4 hlist (`sphinx.directives.other.HList`):
 - item
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <hlist ncolumns="2">
         <hlistcol>
             <bullet_list>
@@ -197,18 +179,15 @@ SPHINX4 hlist (`sphinx.directives.other.HList`):
             <bullet_list>
 .
 
---------------------------------
 only (`sphinx.directives.other.Only`):
 .
 ```{only} expr
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <only expr="expr">
 .
 
---------------------------------
-include (`sphinx.directives.other.Include`):
 SKIP: Tested in sphinx builds
 .
 ```{include} path/to/include
@@ -217,7 +196,6 @@ SKIP: Tested in sphinx builds
 <document source="notset">
 .
 
---------------------------------
 figure (`sphinx.directives.patches.Figure`):
 .
 ```{figure} path/to/figure
@@ -227,7 +205,7 @@ figure (`sphinx.directives.patches.Figure`):
 legend
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <figure>
         <image uri="path/to/figure">
         <caption>
@@ -238,8 +216,6 @@ legend
                 legend
 .
 
---------------------------------
-meta (`sphinx.directives.patches.Meta`):
 SKIP: MockingError: MockState has not yet implemented attribute 'nested_list_parse'
 .
 ```{meta}
@@ -249,7 +225,6 @@ foo
 <document source="notset">
 .
 
---------------------------------
 table (`sphinx.directives.patches.RSTTable`):
 .
 ```{table} *title*
@@ -260,7 +235,7 @@ table (`sphinx.directives.patches.RSTTable`):
 | 1 | 2 |
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <table classes="colwidths-auto" ids="name" names="name">
         <title>
             <emphasis>
@@ -286,7 +261,6 @@ table (`sphinx.directives.patches.RSTTable`):
                             2
 .
 
---------------------------------
 csv-table (`sphinx.directives.patches.CSVTable`):
 .
 ```{csv-table}
@@ -294,7 +268,7 @@ csv-table (`sphinx.directives.patches.CSVTable`):
 "Albatross", 2.99, "On a stick!"
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <table>
         <tgroup cols="3">
             <colspec colwidth="33">
@@ -313,7 +287,6 @@ csv-table (`sphinx.directives.patches.CSVTable`):
                             On a stick!
 .
 
---------------------------------
 list-table (`sphinx.directives.patches.ListTable`):
 .
 ```{list-table}
@@ -321,7 +294,7 @@ list-table (`sphinx.directives.patches.ListTable`):
 * - item
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <table>
         <tgroup cols="1">
             <colspec colwidth="100">
@@ -332,7 +305,6 @@ list-table (`sphinx.directives.patches.ListTable`):
                             item
 .
 
---------------------------------
 code (`sphinx.directives.patches.Code`):
 .
 ```{code} python
@@ -340,60 +312,56 @@ code (`sphinx.directives.patches.Code`):
 a
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <literal_block force="False" highlight_args="{}" language="python" xml:space="preserve">
         a
 .
 
---------------------------------
 math (`sphinx.directives.patches.MathDirective`):
 .
 ```{math}
 ```
 .
-<document source="notset">
-    <math_block docname="mock_docname" label="True" nowrap="False" number="True" xml:space="preserve">
+<document source="<src>/index.md">
+    <math_block docname="index" label="True" nowrap="False" number="True" xml:space="preserve">
 .
 
---------------------------------
 deprecated (`sphinx.domains.changeset.VersionChange`):
 .
 ```{deprecated} 0.3
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <versionmodified type="deprecated" version="0.3">
         <paragraph translatable="False">
             <inline classes="versionmodified deprecated">
                 Deprecated since version 0.3.
 .
 
---------------------------------
 versionadded (`sphinx.domains.changeset.VersionChange`):
 .
 ```{versionadded} 0.2
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <versionmodified type="versionadded" version="0.2">
         <paragraph translatable="False">
             <inline classes="versionmodified added">
                 New in version 0.2.
 .
 
---------------------------------
 versionchanged (`sphinx.domains.changeset.VersionChange`):
 .
 ```{versionchanged} 0.1
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <versionmodified type="versionchanged" version="0.1">
         <paragraph translatable="False">
             <inline classes="versionmodified changed">
                 Changed in version 0.1.
 .
---------------------------------
+
 glossary (`sphinx.domains.std.Glossary`):
 .
 ```{glossary}
@@ -403,7 +371,7 @@ term 2 : B
     Definition of both terms.
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <glossary>
         <definition_list classes="glossary">
             <definition_list_item>
@@ -418,25 +386,23 @@ term 2 : B
                         Definition of both terms.
 .
 
---------------------------------
 SPHINX3 productionlist (`sphinx.domains.std.ProductionList`):
 .
 ```{productionlist} try_stmt: try1_stmt | try2_stmt
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <productionlist>
         <production ids="grammar-token-try_stmt grammar-token-try-stmt" tokenname="try_stmt" xml:space="preserve">
              try1_stmt | try2_stmt
 .
 
---------------------------------
 SPHINX4 cmdoption (`sphinx.domains.std.Cmdoption`):
 .
 ```{cmdoption} a
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <index entries="('pair',\ 'command\ line\ option;\ a',\ 'cmdoption-arg-a',\ '',\ None)">
     <desc classes="std cmdoption" desctype="cmdoption" domain="std" noindex="False" objtype="cmdoption">
         <desc_signature allnames="a" classes="sig sig-object" ids="cmdoption-arg-a">
@@ -446,13 +412,12 @@ SPHINX4 cmdoption (`sphinx.domains.std.Cmdoption`):
         <desc_content>
 .
 
---------------------------------
 SPHINX4 rst:directive (`sphinx.domains.rst.ReSTDirective`):
 .
 ```{rst:directive} a
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <index entries="('single',\ 'a\ (directive)',\ 'directive-a',\ '',\ None)">
     <desc classes="rst directive" desctype="directive" domain="rst" noindex="False" objtype="directive">
         <desc_signature classes="sig sig-object" ids="directive-a">
@@ -461,13 +426,12 @@ SPHINX4 rst:directive (`sphinx.domains.rst.ReSTDirective`):
         <desc_content>
 .
 
---------------------------------
 SPHINX4 rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 .
 ```{rst:directive:option} a
 ```
 .
-<document source="notset">
+<document source="<src>/index.md">
     <index entries="('single',\ ':a:\ (directive\ option)',\ 'directive-option-a',\ '',\ 'A')">
     <desc classes="rst directive:option" desctype="directive:option" domain="rst" noindex="False" objtype="directive:option">
         <desc_signature classes="sig sig-object" ids="directive-option-a directive:option--a">

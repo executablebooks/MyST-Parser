@@ -1,33 +1,53 @@
-import copy
+"""Convert Markdown-it tokens to docutils nodes, including sphinx specific elements."""
+from __future__ import annotations
+
 import os
-import tempfile
-from contextlib import contextmanager
-from io import StringIO
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 from urllib.parse import unquote
 from uuid import uuid4
 
 from docutils import nodes
-from docutils.parsers.rst import directives, roles
 from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
-from sphinx.application import Sphinx, builtin_extensions
-from sphinx.config import Config
 from sphinx.domains.math import MathDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
-from sphinx.events import EventManager
-from sphinx.project import Project
-from sphinx.registry import SphinxComponentRegistry
 from sphinx.util import logging
-from sphinx.util.docutils import additional_nodes, sphinx_domains, unregister_node
 from sphinx.util.nodes import clean_astext
-from sphinx.util.tags import Tags
 
-from myst_parser.docutils_renderer import DocutilsRenderer
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 
 LOGGER = logging.getLogger(__name__)
+
+
+def create_warning(
+    document: nodes.document,
+    message: str,
+    *,
+    line: int | None = None,
+    append_to: nodes.Element | None = None,
+    wtype: str = "myst",
+    subtype: str = "other",
+) -> nodes.system_message | None:
+    """Generate a warning, logging it if necessary.
+
+    If the warning type is listed in the ``suppress_warnings`` configuration,
+    then ``None`` will be returned and no warning logged.
+    """
+    message = f"{message} [{wtype}.{subtype}]"
+    kwargs = {"line": line} if line is not None else {}
+
+    if logging.is_suppressed_warning(
+        wtype, subtype, document.settings.env.app.config.suppress_warnings
+    ):
+        return None
+
+    msg_node = document.reporter.warning(message, **kwargs)
+    if append_to is not None:
+        append_to.append(msg_node)
+
+    return None
 
 
 class SphinxRenderer(DocutilsRenderer):
@@ -45,26 +65,24 @@ class SphinxRenderer(DocutilsRenderer):
         self,
         message: str,
         *,
-        line: Optional[int] = None,
-        append_to: Optional[nodes.Element] = None,
+        line: int | None = None,
+        append_to: nodes.Element | None = None,
         wtype: str = "myst",
         subtype: str = "other",
-    ) -> Optional[nodes.system_message]:
+    ) -> nodes.system_message | None:
         """Generate a warning, logging it if necessary.
 
         If the warning type is listed in the ``suppress_warnings`` configuration,
         then ``None`` will be returned and no warning logged.
         """
-        message = f"{message} [{wtype}.{subtype}]"
-        kwargs = {"line": line} if line is not None else {}
-
-        if not logging.is_suppressed_warning(
-            wtype, subtype, self.doc_env.app.config.suppress_warnings
-        ):
-            msg_node = self.reporter.warning(message, **kwargs)
-            if append_to is not None:
-                append_to.append(msg_node)
-        return None
+        return create_warning(
+            self.document,
+            message,
+            line=line,
+            append_to=append_to,
+            wtype=wtype,
+            subtype=subtype,
+        )
 
     def render_internal_link(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
@@ -225,114 +243,3 @@ class SphinxRenderer(DocutilsRenderer):
         target = nodes.target("", "", ids=[node_id])
         self.document.note_explicit_target(target)
         return target
-
-
-def minimal_sphinx_app(
-    configuration=None, sourcedir=None, with_builder=False, raise_on_warning=False
-):
-    """Create a minimal Sphinx environment; loading sphinx roles, directives, etc."""
-
-    class MockSphinx(Sphinx):
-        """Minimal sphinx init to load roles and directives."""
-
-        def __init__(self, confoverrides=None, srcdir=None, raise_on_warning=False):
-            self.extensions = {}
-            self.registry = SphinxComponentRegistry()
-            try:
-                self.html_themes = {}
-            except AttributeError:
-                # changed to property in sphinx 4.1
-                pass
-            self.events = EventManager(self)
-
-            # logging
-            self.verbosity = 0
-            self._warncount = 0
-            self.warningiserror = raise_on_warning
-            self._status = StringIO()
-            self._warning = StringIO()
-            logging.setup(self, self._status, self._warning)
-
-            self.tags = Tags([])
-            self.config = Config({}, confoverrides or {})
-            self.config.pre_init_values()
-            self._init_i18n()
-            for extension in builtin_extensions:
-                self.registry.load_extension(self, extension)
-            # fresh env
-            self.doctreedir = ""
-            self.srcdir = srcdir
-            self.confdir = None
-            self.outdir = ""
-            self.project = Project(srcdir=srcdir, source_suffix={".md": "markdown"})
-            self.project.docnames = {"mock_docname"}
-            self.env = BuildEnvironment(self)
-            self.env.setup(self)
-            self.env.temp_data["docname"] = "mock_docname"
-            # Ignore type checkers because we disrespect superclass typing here
-            self.builder = None  # type: ignore[assignment]
-
-            if not with_builder:
-                return
-
-            # this code is only required for more complex parsing with extensions
-            for extension in self.config.extensions:
-                self.setup_extension(extension)
-            buildername = "dummy"
-            self.preload_builder(buildername)
-            self.config.init_values()
-            self.events.emit("config-inited", self.config)
-
-            with tempfile.TemporaryDirectory() as tempdir:
-                # creating a builder attempts to make the doctreedir
-                self.doctreedir = tempdir
-                self.builder = self.create_builder(buildername)
-            self.doctreedir = ""
-
-    app = MockSphinx(
-        confoverrides=configuration, srcdir=sourcedir, raise_on_warning=raise_on_warning
-    )
-    return app
-
-
-@contextmanager
-def mock_sphinx_env(
-    conf=None, srcdir=None, document=None, with_builder=False, raise_on_warning=False
-):
-    """Set up an environment, to parse sphinx roles/directives,
-    outside of a `sphinx-build`.
-
-    :param conf: a dictionary representation of the sphinx `conf.py`
-    :param srcdir: a path to a source directory
-        (for example, can be used for `include` statements)
-
-    This primarily copies the code in `sphinx.util.docutils.docutils_namespace`
-    and `sphinx.util.docutils.sphinx_domains`.
-    """
-    # store currently loaded roles/directives, so we can revert on exit
-    _directives = copy.copy(directives._directives)
-    _roles = copy.copy(roles._roles)
-    # Monkey-patch directive and role dispatch,
-    # so that sphinx domain-specific markup takes precedence.
-    app = minimal_sphinx_app(
-        configuration=conf,
-        sourcedir=srcdir,
-        with_builder=with_builder,
-        raise_on_warning=raise_on_warning,
-    )
-    _sphinx_domains = sphinx_domains(app.env)
-    _sphinx_domains.enable()
-    if document is not None:
-        document.settings.env = app.env
-    try:
-        yield app
-    finally:
-        # revert loaded roles/directives
-        directives._directives = _directives
-        roles._roles = _roles
-        # TODO unregister nodes (see `sphinx.util.docutils.docutils_namespace`)
-        for node in list(additional_nodes):
-            unregister_node(node)
-            additional_nodes.discard(node)
-        # revert directive/role function (see `sphinx.util.docutils.sphinx_domains`)
-        _sphinx_domains.disable()

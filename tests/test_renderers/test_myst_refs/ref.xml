@@ -1,8 +1,9 @@
-<document ids="title ref" names="title ref" source="root/index.md" title="Title">
-    <title>
-        Title
+<document source="root/index.md">
     <target refid="ref">
-    <paragraph>
-        <reference internal="True" refid="ref">
-            <inline classes="std std-ref">
-                Title
+    <section ids="title ref" names="title ref">
+        <title>
+            Title
+        <paragraph>
+            <reference internal="True" refid="ref">
+                <inline classes="std std-ref">
+                    Title

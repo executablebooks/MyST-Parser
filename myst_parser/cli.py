@@ -3,7 +3,8 @@ import sys
 
 from markdown_it.renderer import RendererHTML
 
-from myst_parser.main import MdParserConfig, create_md_parser
+from myst_parser.config.main import MdParserConfig
+from myst_parser.parsers.mdit import create_md_parser
 
 
 def print_anchors(args=None):

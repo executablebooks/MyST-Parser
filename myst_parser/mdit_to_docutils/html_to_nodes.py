@@ -1,13 +1,15 @@
 """Convert HTML to docutils nodes."""
+from __future__ import annotations
+
 import re
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from docutils import nodes
 
-from .parse_html import Data, tokenize_html
+from myst_parser.parsers.parse_html import Data, tokenize_html
 
 if TYPE_CHECKING:
-    from .docutils_renderer import DocutilsRenderer
+    from .base import DocutilsRenderer
 
 
 def make_error(
@@ -32,7 +34,7 @@ RE_FLOW = re.compile(
 )
 
 
-def default_html(text: str, source: str, line_number: int) -> List[nodes.Element]:
+def default_html(text: str, source: str, line_number: int) -> list[nodes.Element]:
     raw_html = nodes.raw("", text, format="html")
     raw_html.source = source
     raw_html.line = line_number
@@ -40,8 +42,8 @@ def default_html(text: str, source: str, line_number: int) -> List[nodes.Element
 
 
 def html_to_nodes(
-    text: str, line_number: int, renderer: "DocutilsRenderer"
-) -> List[nodes.Element]:
+    text: str, line_number: int, renderer: DocutilsRenderer
+) -> list[nodes.Element]:
     """Convert HTML to docutils nodes."""
     if renderer.md_config.gfm_only:
         text, _ = RE_FLOW.subn(lambda s: s.group(0).replace("<", "&lt;"), text)

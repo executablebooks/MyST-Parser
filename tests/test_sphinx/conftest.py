@@ -66,7 +66,7 @@ def get_sphinx_app_output(file_regression):
 
         outpath = path(os.path.join(str(app.srcdir), "_build", buildername, filename))
         if not outpath.exists():
-            raise IOError("no output file exists: {}".format(outpath))
+            raise OSError(f"no output file exists: {outpath}")
 
         try:
             # introduced in sphinx 3.0

@@ -44,12 +44,12 @@ def modify_readme(content: str) -> str:
 if __name__ == "__main__":
     project_path = sys.argv[1]
     readme_path = sys.argv[2]
-    with open(project_path, "r") as f:
+    with open(project_path) as f:
         content = f.read()
     content = modify_toml(content)
     with open(project_path, "w") as f:
         f.write(content)
-    with open(readme_path, "r") as f:
+    with open(readme_path) as f:
         content = f.read()
     content = modify_readme(content)
     with open(readme_path, "w") as f:

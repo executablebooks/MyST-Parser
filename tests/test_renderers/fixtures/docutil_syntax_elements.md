@@ -1,4 +1,3 @@
----------------------------
 Raw
 .
 foo
@@ -8,7 +7,6 @@ foo
         foo
 .
 
----------------------------
 Hard-break
 .
 foo\
@@ -24,7 +22,6 @@ bar
         bar
 .
 
----------------------------
 Strong:
 .
 **foo**
@@ -35,7 +32,6 @@ Strong:
             foo
 .
 
----------------------------
 Emphasis
 .
 *foo*
@@ -46,7 +42,6 @@ Emphasis
             foo
 .
 
----------------------------
 Escaped Emphasis:
 .
 \*foo*
@@ -56,7 +51,6 @@ Escaped Emphasis:
         *foo*
 .
 
---------------------------
 Mixed Inline
 .
 a *b* **c** `abc` \\*
@@ -75,7 +69,6 @@ a *b* **c** `abc` \\*
          \*
 .
 
---------------------------
 Inline Code:
 .
 `foo`
@@ -86,7 +79,6 @@ Inline Code:
             foo
 .
 
---------------------------
 Heading:
 .
 # foo
@@ -97,7 +89,6 @@ Heading:
             foo
 .
 
---------------------------
 Heading Levels:
 .
 # a
@@ -120,8 +111,6 @@ Heading Levels:
             d
 .
 
-
---------------------------
 Block Code:
 .
     foo
@@ -131,7 +120,6 @@ Block Code:
         foo
 .
 
---------------------------
 Fenced Code:
 .
 ```sh
@@ -143,7 +131,6 @@ foo
         foo
 .
 
---------------------------
 Fenced Code no language:
 .
 ```
@@ -155,7 +142,6 @@ foo
         foo
 .
 
---------------------------
 Fenced Code no language with trailing whitespace:
 .
 ```  
@@ -167,7 +153,6 @@ foo
         foo
 .
 
---------------------------
 Image empty:
 .
 ![]()
@@ -177,7 +162,6 @@ Image empty:
         <image alt="" uri="">
 .
 
---------------------------
 Image with alt and title:
 .
 ![alt](src "title")
@@ -187,7 +171,6 @@ Image with alt and title:
         <image alt="alt" title="title" uri="src">
 .
 
---------------------------
 Image with escapable html:
 .
 ![alt](http://www.google<>.com)
@@ -197,7 +180,6 @@ Image with escapable html:
         <image alt="alt" uri="http://www.google%3C%3E.com">
 .
 
---------------------------
 Block Quote:
 .
 > *foo*
@@ -209,7 +191,6 @@ Block Quote:
                 foo
 .
 
---------------------------
 Bullet List:
 .
 - *foo*
@@ -227,7 +208,6 @@ Bullet List:
                 bar
 .
 
---------------------------
 Nested Bullets
 .
 - a
@@ -253,7 +233,6 @@ Nested Bullets
                         d
 .
 
---------------------------
 Enumerated List:
 .
 1. *foo*
@@ -286,7 +265,6 @@ para
                 enumerator
 .
 
---------------------------
 Nested Enumrated List:
 .
 1. a
@@ -307,7 +285,6 @@ Nested Enumrated List:
                         c
 .
 
---------------------------
 Sphinx Role containing backtick:
 .
 {code}``a=1{`}``
@@ -318,7 +295,6 @@ Sphinx Role containing backtick:
             a=1{`}
 .
 
---------------------------
 Target:
 .
 (target)=
@@ -327,7 +303,6 @@ Target:
     <target ids="target" names="target">
 .
 
---------------------------
 Target with whitespace:
 .
 (target with space)=
@@ -336,7 +311,6 @@ Target with whitespace:
     <target ids="target-with-space" names="target\ with\ space">
 .
 
---------------------------
 Referencing:
 .
 (target)=
@@ -370,7 +344,6 @@ Title
                 alt3
 .
 
---------------------------
 Comments:
 .
 line 1
@@ -386,7 +359,6 @@ line 2
         line 2
 .
 
---------------------------
 Block Break:
 .
 +++ string
@@ -396,7 +368,6 @@ Block Break:
         string
 .
 
---------------------------
 Link Reference:
 .
 [name][key]
@@ -409,7 +380,6 @@ Link Reference:
             name
 .
 
---------------------------
 Link Reference short version:
 .
 [name]
@@ -422,7 +392,6 @@ Link Reference short version:
             name
 .
 
---------------------------
 Block Quotes:
 .
 ```{epigraph}
@@ -443,7 +412,6 @@ a b*c*
                 b
 .
 
---------------------------
 Link Definition in directive:
 .
 ```{note}
@@ -459,7 +427,6 @@ Link Definition in directive:
                 a
 .
 
---------------------------
 Link Definition in nested directives:
 .
 ```{note}
@@ -486,7 +453,6 @@ Link Definition in nested directives:
     <note>
 .
 
---------------------------
 Footnotes:
 .
 [^a]
@@ -504,7 +470,6 @@ Footnotes:
                 text
 .
 
---------------------------
 Footnotes nested blocks:
 .
 [^a]
@@ -548,7 +513,6 @@ finish
             c
 .
 
---------------------------
 Front Matter:
 .
 ---
@@ -583,7 +547,6 @@ c:
                         {"d": 2}
 .
 
---------------------------
 Front Matter Biblio:
 .
 ---
@@ -702,7 +665,6 @@ other: Something else
                         Something else
 .
 
---------------------------
 Front Matter Bad Yaml:
 .
 ---
@@ -710,26 +672,20 @@ a: {
 ---
 .
 <document source="notset">
-    <system_message level="3" line="1" source="notset" type="ERROR">
+    <system_message level="2" line="1" source="notset" type="WARNING">
         <paragraph>
-            Front matter block:
-            while parsing a flow node
-            expected the node content, but found '<stream end>'
-              in "<unicode string>", line 1, column 5:
-                a: {
-                    ^
-        <literal_block xml:space="preserve">
-            a: {
+            Malformed YAML [myst.topmatter]
 .
 
 Front Matter HTML Meta
 .
 ---
-html_meta:
-    keywords: Sphinx, documentation, builder
-    description lang=en: An amusing story
-    description lang=fr: Un histoire amusant
-    http-equiv=Content-Type: text/html; charset=ISO-8859-1
+myst:
+    html_meta:
+        keywords: Sphinx, documentation, builder
+        description lang=en: An amusing story
+        description lang=fr: Un histoire amusant
+        http-equiv=Content-Type: text/html; charset=ISO-8859-1
 ---
 .
 <document source="notset">
@@ -767,7 +723,6 @@ html_meta:
                  <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
 .
 
---------------------------
 Full Test:
 .
 ---

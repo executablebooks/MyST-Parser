@@ -1,22 +1,23 @@
 ---
-substitutions:
-  key1: I'm a **substitution**
-  key2: |
-    ```{note}
-    {{ key1 }}
-    ```
-  key3a: <img src="img/fun-fish.png" alt="fishy" width="200px">
-  key3: |
-    ```{image} img/fun-fish.png
-    :alt: fishy
-    :width: 200px
-    ```
-  key4: example
+myst:
+  substitutions:
+    key1: I'm a **substitution**
+    key2: |
+      ```{note}
+      {{ key1 }}
+      ```
+    key3a: <img src="img/fun-fish.png" alt="fishy" width="200px">
+    key3: |
+      ```{image} img/fun-fish.png
+      :alt: fishy
+      :width: 200px
+      ```
+    key4: example
 ---
 
-(syntax/optional)=
+(syntax/extensions)=
 
-# Optional MyST Syntaxes
+# Syntax Extensions
 
 MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](markdown_it:index) parser.
 The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](sphinx/config-options)).
@@ -74,7 +75,7 @@ text  | converted
 ``--`` | --
 ``---`` | ---
 
-(syntax/strikethough)=
+(syntax/strikethrough)=
 
 ## Strikethrough
 
@@ -283,18 +284,19 @@ or at the top of the file, in the front-matter section (see [this section](synta
 
 ````yaml
 ---
-substitutions:
-  key1: "I'm a **substitution**"
-  key2: |
-    ```{note}
-    {{ key1 }}
-    ```
-  key3: |
-    ```{image} img/fun-fish.png
-    :alt: fishy
-    :width: 200px
-    ```
-  key4: example
+myst:
+  substitutions:
+    key1: "I'm a **substitution**"
+    key2: |
+      ```{note}
+      {{ key1 }}
+      ```
+    key3: |
+      ```{image} img/fun-fish.png
+      :alt: fishy
+      :width: 200px
+      ```
+    key4: example
 ---
 ````
 
@@ -304,7 +306,8 @@ Keys in the front-matter will override ones in the `conf.py`.
 
 You can use these substitutions inline or as blocks, and you can even nest substitutions in other substitutions (but circular references are prohibited):
 
-:::{tabbed} Markdown Input
+::::{tab-set}
+:::{tab-item} Markdown Input
 
 ```md
 Inline: {{ key1 }}
@@ -321,7 +324,7 @@ Block level:
 
 :::
 
-:::{tabbed} Rendered Output
+:::{tab-item} Rendered Output
 Inline: {{ key1 }}
 
 Block level:
@@ -333,6 +336,7 @@ Block level:
 | {{key2}} | {{key3}} |
 
 :::
+::::
 
 :::{important}
 
@@ -407,7 +411,8 @@ you can also use `:::` delimiters to denote code fences, instead of ```` ``` ```
 Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
 It is ideal for admonition type directives (as documented in [Directives](syntax/directives)) or tables with titles, for example:
 
-````{tabbed} Markdown Input
+::::::{tab-set}
+:::::{tab-item} Markdown Input
 ```md
 :::{note}
 This text is **standard** _Markdown_
@@ -423,9 +428,9 @@ abc | mnp | xyz
 :::
 ```
 
-````
+:::::
 
-````{tabbed} Rendered Output
+:::::{tab-item} Rendered Output
 
 :::{note}
 This text is **standard** _Markdown_
@@ -440,7 +445,8 @@ abc | mnp | xyz
 123 | 456 | 789
 :::
 
-````
+:::::
+::::::
 
 Similar to normal directives, these directives can also be nested:
 
@@ -503,7 +509,7 @@ You can then insert markdown links directly to anchors that are generated from y
 For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
 
 The paths to other files should be relative to the current file, for example
-`[**link text**](./syntax.md#the-myst-syntax-guide)`: [**link text**](./syntax.md#the-myst-syntax-guide).
+`[**link text**](./syntax.md#core-syntax)`: [**link text**](./syntax.md#core-syntax).
 
 
 ### Anchor slug structure

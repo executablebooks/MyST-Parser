@@ -55,29 +55,29 @@ linkify = ["linkify-it-py~=1.0"]
 rtd = [
     "ipython",
     "sphinx-book-theme",
-    "sphinx-panels",
-    "sphinxcontrib-bibtex~=2.4",
+    "sphinx-design",
     "sphinxext-rediraffe~=0.2.7",
     "sphinxcontrib.mermaid~=0.7.1",
     "sphinxext-opengraph~=0.6.3",
 ]
 testing = [
     "beautifulsoup4",
-    "coverage",
+    "coverage[toml]",
     "docutils~=0.17.0", # this version changes some HTML tags
     "pytest>=6,<7",
     "pytest-cov",
     "pytest-regressions",
     "pytest-param-files~=0.3.4",
+    "sphinx-pytest",
 ]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
-myst-docutils-html = "myst_parser.docutils_:cli_html"
-myst-docutils-html5 = "myst_parser.docutils_:cli_html5"
-myst-docutils-latex = "myst_parser.docutils_:cli_latex"
-myst-docutils-xml = "myst_parser.docutils_:cli_xml"
-myst-docutils-pseudoxml = "myst_parser.docutils_:cli_pseudoxml"
+myst-docutils-html = "myst_parser.parsers.docutils_:cli_html"
+myst-docutils-html5 = "myst_parser.parsers.docutils_:cli_html5"
+myst-docutils-latex = "myst_parser.parsers.docutils_:cli_latex"
+myst-docutils-xml = "myst_parser.parsers.docutils_:cli_xml"
+myst-docutils-pseudoxml = "myst_parser.parsers.docutils_:cli_pseudoxml"
 
 [tool.flit.module]
 name = "myst_parser"
@@ -105,3 +105,6 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = ["docutils.*", "yaml.*"]
 ignore_missing_imports = true
+
+[tool.coverage.run]
+omit = ["*/_docs.py"]

@@ -1,11 +1,24 @@
-.bg-myst-one {
-    background-color: #52d16f3b;
+/** Add a counter before subsections **/
+h1 {
+    counter-reset: subsection;
+    text-decoration: underline;
+}
+h2 {
+    counter-reset: subsubsection;
+}
+h2::before {
+    counter-increment: subsection;
+    content: counter(subsection) ". ";
+}
+h3::before {
+    counter-increment: subsubsection;
+    content: counter(subsection) "." counter(subsubsection) ". ";
 }
 
-.bg-myst-two {
-    background-color: #e7dd7b73;
+/** No icon for admonitions with no-icon class */
+.admonition > .admonition-title, div.admonition.no-icon > .admonition-title::before {
+    content: "";
 }
-
-.bg-myst-three {
-    background-color: #e7b07b96;
+.admonition > .admonition-title, div.admonition.no-icon > .admonition-title {
+    padding-left: .6rem;
 }

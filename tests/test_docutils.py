@@ -6,7 +6,8 @@ import pytest
 from docutils import VersionInfo, __version_info__
 from typing_extensions import Literal
 
-from myst_parser.docutils_ import (
+from myst_parser.mdit_to_docutils.base import make_document
+from myst_parser.parsers.docutils_ import (
     Parser,
     attr_to_optparse_option,
     cli_html,
@@ -15,7 +16,6 @@ from myst_parser.docutils_ import (
     cli_pseudoxml,
     cli_xml,
 )
-from myst_parser.docutils_renderer import make_document
 
 
 def test_attr_to_optparse_option():

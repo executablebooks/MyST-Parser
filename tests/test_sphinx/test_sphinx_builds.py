@@ -203,7 +203,7 @@ def test_extended_syntaxes(
     monkeypatch,
 ):
     """test setting addition configuration values."""
-    from myst_parser.sphinx_renderer import SphinxRenderer
+    from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
 
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     app.build()

@@ -1,122 +1,144 @@
-# MyST - Markedly Structured Text <img src="_static/logo-square.svg" width=40 />
-
-[![PyPI][pypi-badge]][pypi-link]
-[![Conda][conda-badge]][conda-link]
-
-**MyST is a rich and extensible flavor of Markdown meant for technical documentation and publishing**.
-
-MyST is a flavor of markdown that is designed for simplicity, flexibility, and extensibility. Here are a few major features
-
-:::{panels}
-:container: +full-width text-center
-:column: col-lg-4 px-2 py-2
-:card:
-
-**[CommonMark compliant](commonmark-block-tokens)** ✔
-^^^
-MyST is a superset of [CommonMark Markdown][commonmark]. Any CommonMark document is also MyST-compliant.
+---
+sd_hide_title: true
 ---
 
-**[Extra syntax for authoring](extended-block-tokens)** ✍
-^^^
-MyST extends CommonMark with [syntax meant for scholarly writing and technical documentation](extended-block-tokens).
+# Overview
 
----
-**[Extendable syntax](syntax/directives)** 🚀
-^^^
-MyST provides [roles](syntax/roles) and [directives](syntax/directives), allowing you to extend MyST's functionality.
+::::{grid}
+:reverse:
+:gutter: 3 4 4 4
+:margin: 1 2 1 2
 
----
-**[Compatible with Sphinx](sphinx/index.md)** 📄
-^^^
-MyST is inspired by Sphinx, and comes with [its own Sphinx parser](sphinx/index.md).
-[Write your Sphinx docs in Markdown](sphinx:usage/quickstart), or convert existing [RST to Markdown][rst-to-myst]
-from the CLI or [using an interactive web interface][mystyc]!
+:::{grid-item}
+:columns: 12 4 4 4
 
----
-**[Hackable with Python](api/index.md)** 🐍
-^^^
-This MyST parser is built on top of the [`markdown-it-py` package][markdown-it-py], an pluggable Python parser for Markdown.
+```{image} _static/logo-square.svg
+:width: 200px
+:class: sd-m-auto
+```
 
----
-**[Hackable with Javascript][markdown-it-myst]** 🌍
-^^^
-The [Javascript parser][markdown-it-myst] builds on [markdown-it][markdown-it], and allows you to parse MyST in websites.
 :::
 
-## Find the right documentation resources
+:::{grid-item}
+:columns: 12 8 8 8
+:child-align: justify
+:class: sd-fs-5
 
-This documentation is organized into a few major sections. **Tutorials** are step-by-step introductory guides to MyST Markdown. **Topic Guides** cover specific areas in more depth, and are organized as discrete "how-to" sections. **Reference** sections describe the API/syntax/etc of the MyST Parser in detail.
+```{rubric} MyST - Markedly Structured Text - Parser
+```
 
-In addition, here are a few pointers to help you get started.
+A Sphinx and Docutils extension to parse MyST,
+a rich and extensible flavour of Markdown for authoring technical and scientific documentation.
 
-:::{panels}
-:container: full-width
-:column: col-lg-4 p-2
----
-:header: bg-myst-one
-**Get started with MyST**
-^^^
-**[](sphinx/intro.md)**: a step-by-step tutorial.
+```{button-ref} intro
+:ref-type: doc
+:color: primary
+:class: sd-rounded-pill
 
-**[](syntax/syntax.md)**: discusses major MyST syntax components.
+Get Started
+```
 
-**[The Sphinx guide](sphinx/index.md)**: how to use MyST with your Sphinx documentation.
----
-:header: bg-myst-two
-
-**Learn more about MyST**
-^^^
-**[](syntax/optional.md)**: additional syntax you can enable for extra features.
-
-**[The Python API guide](api/index.md)**: parsing and rendering MyST with Python.
-
-**[](explain/index.md)**: background understanding and discussions of MyST markdown.
----
-:header: bg-myst-three
-
-**Get inspired**
-^^^
-**[Jupyter Book](https://jupyterbook.org)**: An open source project for building beautiful, publication-quality books and documents from computational material, built on top of the MyST Parser.
-
-**[The Jupyter Book gallery](https://gallery.jupyterbook.org)**: examples of documents built with MyST.
 :::
+
+::::
+
+---
+
+::::{grid} 1 2 2 3
+:gutter: 1 1 1 2
+
+:::{grid-item-card} {octicon}`markdown;1.5em;sd-mr-1` CommonMark-plus
+:link: syntax/core
+:link-type: ref
+
+MyST extends the CommonMark syntax specification, to support technical authoring features such as tables and footnotes.
+
++++
+[Learn more »](syntax/core)
+:::
+
+:::{grid-item-card} {octicon}`plug;1.5em;sd-mr-1` Sphinx compatible
+:link: roles-directives
+:link-type: ref
+
+Use the MyST role and directive syntax to harness the full capability of Sphinx, such as admonitions and figures, and all existing Sphinx extensions.
+
++++
+[Learn more »](roles-directives)
+:::
+
+:::{grid-item-card} {octicon}`tools;1.5em;sd-mr-1` Highly configurable
+:link: configuration
+:link-type: doc
+
+MyST-parser can be configured at both the global and individual document level,
+to modify parsing behaviour and access extended syntax features.
+
++++
+[Learn more »](configuration)
+:::
+
+::::
+
+---
+
+```{rubric} Additional resources
+```
+
+[MyST-Markdown VS Code extension](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight)
+: For MyST extended syntax highlighting and authoring tools.
+
+[Convert existing ReStructuredText files to Markdown][rst-to-myst]
+: Use the [rst-to-myst] CLI or [the MySTyc interactive web interface](https://mystyc.herokuapp.com)
+
+[MyST-NB](https://myst-nb.readthedocs.io)
+: A Sphinx and Docutils extension for compiling Jupyter Notebooks into high quality documentation formats, built on top of the MyST-Parser.
+
+[Jupyter Book](https://jupyterbook.org)
+: An open source project for building beautiful, publication-quality books and documents from computational material, built on top of the MyST-Parser and MyST-NB.
+
+[The Jupyter Book gallery](https://gallery.jupyterbook.org)
+: Examples of documents built with MyST.
+
+[Javascript MyST parser][mystjs]
+: The [mystjs] Javascript parser, allows you to parse MyST in websites.
+
+[markdown-it-py]
+: A CommonMark-compliant and extensible Markdown parser, used by MyST-Parser to parse source text to tokens.
+
+```{rubric} Acknowledgements
+```
+
+The MyST markdown language and MyST parser are both supported by the open community,
+[The Executable Book Project](https://executablebooks.org).
 
 ```{toctree}
 :hidden:
-sphinx/intro.md
+intro.md
 ```
 
 ```{toctree}
-:caption: MyST Syntax
 :hidden:
+:caption: Guides
+
 syntax/syntax
 syntax/optional
-syntax/reference
-```
-
-```{toctree}
-:hidden:
-:caption: Topic Guides
-explain/index.md
-sphinx/index.md
+syntax/roles-and-directives.md
+configuration.md
 docutils.md
-api/index.md
+faq/index.md
 develop/index.md
 ```
 
 ```{toctree}
 :hidden:
-:caption: About the project
-examples/index.md
+:caption: Reference
+
 develop/_changelog.md
-GitHub repo <https://github.com/executablebooks/myst-parser>
+syntax/reference
+develop/background.md
+api/reference.rst
 ```
-
-## Acknowledgements
-
-The MyST markdown language and MyST parser are both supported by the open community,
-[The Executable Book Project](https://executablebooks.org).
 
 [commonmark]: https://commonmark.org/
 [github-ci]: https://github.com/executablebooks/MyST-Parser/workflows/continuous-integration/badge.svg?branch=master
@@ -133,7 +155,6 @@ The MyST markdown language and MyST parser are both supported by the open commun
 [black-link]: https://github.com/ambv/black
 [github-badge]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=github
 [markdown-it-py]: https://markdown-it-py.readthedocs.io/
-[markdown-it-myst]: https://github.com/executablebooks/markdown-it-myst
 [markdown-it]: https://markdown-it.github.io/
 [rst-to-myst]: https://rst-to-myst.readthedocs.io
-[mystyc]: https://mystyc.herokuapp.com
+[mystjs]: https://github.com/executablebooks/mystjs
