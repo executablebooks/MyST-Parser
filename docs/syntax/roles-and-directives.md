@@ -2,10 +2,10 @@
 
 # Roles and Directives
 
-Roles and directives provide a way to extend the syntax of MyST,
+Roles and directives provide a way to extend the syntax of MyST in an unbound manner,
 by interpreting a chuck of text as a specific type of markup, according to its name.
 
-Any [docutils role](https://docutils.sourceforge.io/docs/ref/rst/roles.html), [docutils directive](https://docutils.sourceforge.io/docs/ref/rst/directives.html), [sphinx role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html), or [sphinx directive](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html) can be used in MyST.
+Mostly all [docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html), [docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html), [sphinx roles](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html), or [sphinx directives](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html) can be used in MyST.
 
 ## Syntax
 
@@ -334,7 +334,65 @@ How roles parse this content depends on the author that created the role.
 
 ## Common roles and directives
 
-Under construction...
+:::{admonition} {material-regular}`engineering;1.5rem;sd-mr-1` Currently Under Construction
+:class: no-icon
+Check back for more...
+:::
+
+### ToC Trees
+
+```{doc-directive} contents
+Insert a table of contents tree of the documents headings.
+```
+
+```{doc-directive} toctree
+Inserts a Sphinx "Table of Contents" tree, containing a list of (relative) child document paths.
+```
+
+### Admonitions
+
+```{doc-directive} admonition
+Create a generic "callout" box, containing the content.
+```
+
+```{doc-directive} note
+Create a "callout" box, specific to notes, containing the content.
+```
+
+Other admonitions (same structure as `note`): `attention`, `caution`, `danger`, `error`, `hint`, `important`, `tip`, `warning`.
+
+Sphinx only: `deprecated`, `versionadded`, `versionchanged`.
+
+### Images and Figures
+
+```{doc-directive} image
+Insert an image, from a (relative) path or URL.
+```
+
+```{doc-directive} figure
+Insert an image, from a (relative) path or URL,
+with a caption (first paragraph), and optional legend (subsequent content).
+```
+
+```{doc-directive} table
+Insert a (MyST) table with a caption.
+```
+
+### Tables
+
+```{doc-directive} list-table
+Create a table from data in a uniform two-level bullet list.
+```
+
+```{doc-directive} csv-table
+Create a table from CSV (comma-separated values) data.
+```
+
+### Code
+
+```{doc-directive} code-block
+Syntax highlight a block of code, according to the language.
+```
 
 (syntax/roles/special)=
 

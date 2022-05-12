@@ -7,7 +7,8 @@
 MyST is a strict superset of the [CommonMark syntax specification](https://spec.commonmark.org/).
 It adds features focussed on scientific and technical documentation authoring, as detailed below.
 
-In addition, the roles and directives syntax provide inline/block-level extension points for plugins. This is detailed further in the [Roles and Directives](roles-directives) section.
+In addition, the roles and directives syntax provide inline/block-level extension points for plugins.
+This is detailed further in the [Roles and Directives](roles-directives) section.
 
 :::{seealso}
 The [syntax token reference tables](syntax-tokens)
@@ -36,7 +37,6 @@ Blockquote      | `> quote`
 Ordered List    | `1. item`
 Unordered List  | `- item`
 Code Fence      | opening ```` ```lang ```` to closing ```` ``` ````
-
 
 (syntax/frontmatter)=
 

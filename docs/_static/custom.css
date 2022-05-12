@@ -14,3 +14,11 @@ h3::before {
     counter-increment: subsubsection;
     content: counter(subsection) "." counter(subsubsection) ". ";
 }
+
+/** No icon for admonitions with no-icon class */
+.admonition > .admonition-title, div.admonition.no-icon > .admonition-title::before {
+    content: "";
+}
+.admonition > .admonition-title, div.admonition.no-icon > .admonition-title {
+    padding-left: .6rem;
+}
