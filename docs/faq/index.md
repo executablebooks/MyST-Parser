@@ -1,6 +1,6 @@
 (myst-sphinx)=
 
-# Troubleshooting
+# FAQ
 
 ## How-tos
 
@@ -228,6 +228,26 @@ This is an orphan document, not specified in any toctrees.
 ### Migrate pre-existing rST into MyST
 
 If you've already got some reStructuredText files that you'd like to convert into MyST Markdown, try the [`rst-to-myst`](https://github.com/executablebooks/rst-to-myst) tool, which allows you to convert single rST files to MyST markdown documents.
+
+## Disable Markdown syntax for the parser
+
+If you'd like to either enable or disable custom markdown syntax, use `myst_disable_syntax`.
+Anything in this list will no longer be parsed by the MyST parser.
+
+For example, to disable the `emphasis` in-line syntax, use this configuration:
+
+```python
+myst_disable_syntax = ["emphasis"]
+```
+
+emphasis syntax will now be disabled. For example, the following will be rendered
+*without* any italics:
+
+```md
+*emphasis is now disabled*
+```
+
+For a list of all the syntax elements you can disable, see the [markdown-it parser guide](markdown_it:using).
 
 ## Common errors and questions
 

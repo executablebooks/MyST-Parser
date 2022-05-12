@@ -30,16 +30,16 @@ def check_extensions(_, __, value):
         raise TypeError(f"'enable_extensions' not iterable: {value}")
     diff = set(value).difference(
         [
-            "dollarmath",
             "amsmath",
+            "colon_fence",
             "deflist",
+            "dollarmath",
             "fieldlist",
             "html_admonition",
             "html_image",
-            "colon_fence",
-            "smartquotes",
-            "replacements",
             "linkify",
+            "replacements",
+            "smartquotes",
             "strikethrough",
             "substitution",
             "tasklist",
@@ -85,64 +85,14 @@ class MdParserConfig:
 
     enable_extensions: Sequence[str] = dc.field(
         default_factory=list,
-        metadata={"validator": check_extensions, "help": "Enable extensions"},
-    )
-
-    linkify_fuzzy_links: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "linkify: recognise URLs without schema prefixes",
-        },
-    )
-
-    dmath_allow_labels: bool = dc.field(
-        default=True,
-        metadata={"validator": instance_of(bool), "help": "Parse `$$...$$ (label)`"},
-    )
-    dmath_allow_space: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "dollarmath: allow initial/final spaces in `$ ... $`",
-        },
-    )
-    dmath_allow_digits: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "dollarmath: allow initial/final digits `1$ ...$2`",
-        },
-    )
-    dmath_double_inline: bool = dc.field(
-        default=False,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "dollarmath: parse inline `$$ ... $$`",
-        },
-    )
-
-    update_mathjax: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "Update sphinx.ext.mathjax configuration",
-        },
-    )
-
-    mathjax_classes: str = dc.field(
-        default="tex2jax_process|mathjax_process|math|output_area",
-        metadata={
-            "validator": instance_of(str),
-            "help": "MathJax classes to add to math HTML",
-        },
+        metadata={"validator": check_extensions, "help": "Enable syntax extensions"},
     )
 
     disable_syntax: Iterable[str] = dc.field(
         default_factory=list,
         metadata={
             "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
-            "help": "Disable syntax elements",
+            "help": "Disable Commonmark syntax elements",
         },
     )
 
@@ -171,7 +121,7 @@ class MdParserConfig:
             "validator": optional(
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
-            "help": "Sphinx domain names to search in for references",
+            "help": "Sphinx domain names to search in for link references",
         },
     )
 
@@ -213,6 +163,7 @@ class MdParserConfig:
         metadata={
             "validator": optional(is_callable),
             "help": "Function for creating heading anchors",
+            "global_only": True,
         },
     )
 
@@ -236,6 +187,16 @@ class MdParserConfig:
         },
     )
 
+    words_per_minute: int = dc.field(
+        default=200,
+        metadata={
+            "validator": instance_of(int),
+            "help": "For reading speed calculations",
+        },
+    )
+
+    # Extension specific
+
     substitutions: Dict[str, Union[str, int, float]] = dc.field(
         default_factory=dict,
         repr=False,
@@ -244,20 +205,79 @@ class MdParserConfig:
                 instance_of(str), instance_of((str, int, float)), instance_of(dict)
             ),
             "merge_topmatter": True,
-            "help": "Substitutions",
+            "help": "Substitutions mapping",
+            "extension": "substitutions",
         },
     )
 
     sub_delimiters: Tuple[str, str] = dc.field(
         default=("{", "}"),
-        metadata={"validator": check_sub_delimiters, "help": "Substitution delimiters"},
+        metadata={
+            "validator": check_sub_delimiters,
+            "help": "Substitution delimiters",
+            "extension": "substitutions",
+        },
     )
 
-    words_per_minute: int = dc.field(
-        default=200,
+    linkify_fuzzy_links: bool = dc.field(
+        default=True,
         metadata={
-            "validator": instance_of(int),
-            "help": "For reading speed calculations",
+            "validator": instance_of(bool),
+            "help": "Recognise URLs without schema prefixes",
+            "extension": "linkify",
+        },
+    )
+
+    dmath_allow_labels: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Parse `$$...$$ (label)`",
+            "extension": "dollarmath",
+        },
+    )
+    dmath_allow_space: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Allow initial/final spaces in `$ ... $`",
+            "extension": "dollarmath",
+        },
+    )
+    dmath_allow_digits: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Allow initial/final digits `1$ ...$2`",
+            "extension": "dollarmath",
+        },
+    )
+    dmath_double_inline: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Parse inline `$$ ... $$`",
+            "extension": "dollarmath",
+        },
+    )
+
+    update_mathjax: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Update sphinx.ext.mathjax configuration to ignore `$` delimiters",
+            "extension": "dollarmath",
+            "global_only": True,
+        },
+    )
+
+    mathjax_classes: str = dc.field(
+        default="tex2jax_process|mathjax_process|math|output_area",
+        metadata={
+            "validator": instance_of(str),
+            "help": "MathJax classes to add to math HTML",
+            "extension": "dollarmath",
+            "global_only": True,
         },
     )
 

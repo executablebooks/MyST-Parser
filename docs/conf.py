@@ -156,10 +156,7 @@ nitpick_ignore = [
 
 def setup(app: Sphinx):
     """Add functions to the Sphinx setup."""
-    from myst_parser.config._directives import (
-        DocutilsCliHelpDirective,
-        MystConfigDirective,
-    )
+    from myst_parser._docs import DocutilsCliHelpDirective, MystConfigDirective
 
     app.add_css_file("custom.css")
     app.add_directive("myst-config", MystConfigDirective)

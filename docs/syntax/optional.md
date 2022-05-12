@@ -15,7 +15,7 @@ myst:
     key4: example
 ---
 
-(syntax/optional)=
+(syntax/extensions)=
 
 # Optional Syntaxes
 
@@ -75,7 +75,7 @@ text  | converted
 ``--`` | --
 ``---`` | ---
 
-(syntax/strikethough)=
+(syntax/strikethrough)=
 
 ## Strikethrough
 

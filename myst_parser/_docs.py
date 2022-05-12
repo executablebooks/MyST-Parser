@@ -1,4 +1,4 @@
-"""Directives for use internally, to document the configuration."""
+"""Code to use internally, for documentation."""
 from __future__ import annotations
 
 from typing import Sequence, Union
@@ -8,11 +8,11 @@ from docutils.parsers.rst import directives
 from sphinx.util.docutils import SphinxDirective
 from typing_extensions import get_args, get_origin
 
-from .main import MdParserConfig
+from .config.main import MdParserConfig
 
 
 class _ConfigBase(SphinxDirective):
-    """Directive to automate printing of the configuration."""
+    """Directive to automate rendering of the configuration."""
 
     @staticmethod
     def table_header():
@@ -29,8 +29,6 @@ class _ConfigBase(SphinxDirective):
     @staticmethod
     def field_default(value):
         default = " ".join(f"{value!r}".splitlines())
-        # if len(default) > 20:
-        #     default = default[:20] + "..."
         return default
 
     @staticmethod
@@ -56,6 +54,8 @@ class MystConfigDirective(_ConfigBase):
 
     option_spec = {
         "sphinx": directives.flag,
+        "extensions": directives.flag,
+        "scope": lambda x: directives.choice(x, ["global", "local"]),
     }
 
     def run(self):
@@ -69,8 +69,23 @@ class MystConfigDirective(_ConfigBase):
             if "sphinx" in self.options and field.metadata.get("sphinx_exclude"):
                 continue
 
-            name = f"myst_{name}"
+            if "extensions" in self.options:
+                if not field.metadata.get("extension"):
+                    continue
+            else:
+                if field.metadata.get("extension"):
+                    continue
+
+            if self.options.get("scope") == "local":
+                if field.metadata.get("global_only"):
+                    continue
+
+            if self.options.get("scope") == "global":
+                name = f"myst_{name}"
+
             description = " ".join(field.metadata.get("help", "").splitlines())
+            if field.metadata.get("extension"):
+                description = f"{field.metadata.get('extension')}: {description}"
             default = self.field_default(value)
             ctype = self.field_type(field)
             text.extend(
