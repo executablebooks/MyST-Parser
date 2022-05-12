@@ -14,17 +14,3 @@ h3::before {
     counter-increment: subsubsection;
     content: counter(subsection) "." counter(subsubsection) ". ";
 }
-
-/** Hide the scroll bar unless active (sphinx-book-theme specific) */
-#site-navigation .bd-sidebar__content {
-    overflow-y: hidden;
-}
-#site-navigation .bd-sidebar__content:hover {
-    overflow-y: auto;
-}
-#site-navigation .bd-sidebar__content:focus {
-    overflow-y: auto;
-}
-#site-navigation .bd-sidebar__content:active {
-    overflow-y: auto;
-}
