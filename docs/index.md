@@ -47,7 +47,7 @@ Get Started
 ::::{grid} 1 2 2 3
 :gutter: 1 1 1 2
 
-:::{grid-item-card} {octicon}`markdown;1.5em` CommonMark-plus
+:::{grid-item-card} {octicon}`markdown;1.5em;sd-mr-1` CommonMark-plus
 :link: syntax/core
 :link-type: ref
 
@@ -57,7 +57,7 @@ MyST extends the CommonMark syntax specification, to support technical authoring
 [Learn more »](syntax/core)
 :::
 
-:::{grid-item-card} {octicon}`plug;1.5em` Sphinx compatible
+:::{grid-item-card} {octicon}`plug;1.5em;sd-mr-1` Sphinx compatible
 :link: roles-directives
 :link-type: ref
 
@@ -67,7 +67,7 @@ Use the MyST role and directive syntax to harness the full capability of Sphinx,
 [Learn more »](roles-directives)
 :::
 
-:::{grid-item-card} {octicon}`tools;1.5em` Highly configurable
+:::{grid-item-card} {octicon}`tools;1.5em;sd-mr-1` Highly configurable
 :link: configuration
 :link-type: doc
 
