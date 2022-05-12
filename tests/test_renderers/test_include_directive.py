@@ -20,7 +20,7 @@ def test_render(file_params, tmp_path, monkeypatch):
     doctree = publish_doctree(
         file_params.content,
         parser=Parser(),
-        settings_overrides={},
+        settings_overrides={"myst_highlight_code_blocks": False},
     )
 
     doctree["source"] = "tmpdir/test.md"
