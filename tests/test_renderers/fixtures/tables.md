@@ -7,8 +7,8 @@ a|b
 <document source="<src>/index.md">
     <table classes="colwidths-auto">
         <tgroup cols="2">
-            <colspec colwidth="50.0">
-            <colspec colwidth="50.0">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
             <thead>
                 <row>
                     <entry>
@@ -35,8 +35,8 @@ Header only:
 <document source="<src>/index.md">
     <table classes="colwidths-auto">
         <tgroup cols="2">
-            <colspec colwidth="50.0">
-            <colspec colwidth="50.0">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
             <thead>
                 <row>
                     <entry>
@@ -56,9 +56,9 @@ a | b | c
 <document source="<src>/index.md">
     <table classes="colwidths-auto">
         <tgroup cols="3">
-            <colspec colwidth="33.33">
-            <colspec colwidth="33.33">
-            <colspec colwidth="33.33">
+            <colspec colwidth="33">
+            <colspec colwidth="33">
+            <colspec colwidth="33">
             <thead>
                 <row>
                     <entry classes="text-left">
@@ -92,8 +92,8 @@ Nested syntax:
 <document source="<src>/index.md">
     <table classes="colwidths-auto">
         <tgroup cols="2">
-            <colspec colwidth="50.0">
-            <colspec colwidth="50.0">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
             <thead>
                 <row>
                     <entry>
@@ -125,8 +125,8 @@ a|b
 <document source="<src>/index.md">
     <table classes="colwidths-auto">
         <tgroup cols="2">
-            <colspec colwidth="50.0">
-            <colspec colwidth="50.0">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
             <thead>
                 <row>
                     <entry>

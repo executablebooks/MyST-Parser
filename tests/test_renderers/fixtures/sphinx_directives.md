@@ -241,8 +241,8 @@ table (`sphinx.directives.patches.RSTTable`):
             <emphasis>
                 title
         <tgroup cols="2">
-            <colspec colwidth="50.0">
-            <colspec colwidth="50.0">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
             <thead>
                 <row>
                     <entry>

@@ -76,8 +76,8 @@
                 a=1{`}
         <table classes="colwidths-auto">
             <tgroup cols="2">
-                <colspec colwidth="50.0">
-                <colspec colwidth="50.0">
+                <colspec colwidth="50">
+                <colspec colwidth="50">
                 <thead>
                     <row>
                         <entry>
