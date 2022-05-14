@@ -548,6 +548,7 @@ def test_fieldlist_extension(
             regress_ext=f".sphinx{sphinx.version_info[0]}.html",
         )
 
+
 @pytest.mark.sphinx(
     buildername="texinfo",
     srcdir=os.path.join(SOURCE_DIR, "texi_table"),
