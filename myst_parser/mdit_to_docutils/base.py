@@ -912,7 +912,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # column settings element
         maxcols = len(header_row.children)
-        colwidths = [round(100 / maxcols, 2)] * maxcols
+        colwidths = [100 // maxcols] * maxcols
         tgroup = nodes.tgroup(cols=len(colwidths))
         table += tgroup
         for colwidth in colwidths:

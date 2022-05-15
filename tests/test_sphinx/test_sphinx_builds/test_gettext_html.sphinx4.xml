@@ -43,7 +43,7 @@
                             gras
         <table classes="colwidths-auto">
             <tgroup cols="1">
-                <colspec colwidth="100.0">
+                <colspec colwidth="100">
                 <thead>
                     <row>
                         <entry>
