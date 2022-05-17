@@ -39,7 +39,7 @@ dependencies = [
     "markdown-it-py>=1.0.0,<3.0.0",
     "mdit-py-plugins~=0.3.0",
     "pyyaml",
-    "sphinx>=3.1,<5",
+    "sphinx>=3.1,<6",
     "typing-extensions",
 ]
 
