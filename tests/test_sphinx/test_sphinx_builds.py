@@ -37,19 +37,19 @@ def test_basic(
     warnings = warning.getvalue().strip()
     assert warnings == ""
 
-    get_sphinx_app_doctree(
-        app,
-        docname="content",
-        regress=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
-    )
-    get_sphinx_app_doctree(
-        app,
-        docname="content",
-        resolve=True,
-        regress=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
-    )
+    try:
+        get_sphinx_app_doctree(
+            app,
+            docname="content",
+            regress=True,
+        )
+    finally:
+        get_sphinx_app_doctree(
+            app,
+            docname="content",
+            resolve=True,
+            regress=True,
+        )
     get_sphinx_app_output(
         app,
         filename="content.html",
@@ -104,7 +104,7 @@ def test_references(
                 app,
                 filename="index.html",
                 regress_html=True,
-                regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+                replace={"Permalink to this headline": "Permalink to this heading"},
             )
 
 
@@ -154,7 +154,7 @@ def test_references_singlehtml(
         filename="index.html",
         buildername="singlehtml",
         regress_html=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        replace={"Permalink to this headline": "Permalink to this heading"},
     )
 
 
@@ -185,7 +185,7 @@ def test_heading_slug_func(
         app,
         filename="index.html",
         regress_html=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        replace={"Permalink to this headline": "Permalink to this heading"},
     )
 
 
@@ -216,14 +216,13 @@ def test_extended_syntaxes(
             app,
             docname="index",
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
         )
     finally:
         get_sphinx_app_output(
             app,
             filename="index.html",
             regress_html=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+            replace={"Permalink to this headline": "Permalink to this heading"},
         )
 
 
@@ -249,7 +248,6 @@ def test_includes(
             app,
             docname="index",
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
             # fix for Windows CI
             replace={
                 r"subfolder\example2.jpg": "subfolder/example2.jpg",
@@ -262,8 +260,8 @@ def test_includes(
             app,
             filename="index.html",
             regress_html=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
             replace={
+                "Permalink to this headline": "Permalink to this heading",
                 r"'subfolder\\example2'": "'subfolder/example2'",
                 r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
                 "_images/example21.jpg": "_images/example2.jpg",
@@ -354,7 +352,7 @@ def test_commonmark_only(
             app,
             filename="index.html",
             regress_html=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+            replace={"Permalink to this headline": "Permalink to this heading"},
         )
 
 
@@ -407,7 +405,7 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    file_regression.check(output, extension=f".sphinx{sphinx.version_info[0]}.pot")
+    file_regression.check(output, extension=".pot")
 
 
 @pytest.mark.sphinx(
@@ -434,7 +432,6 @@ def test_gettext_html(
             app,
             docname="index",
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
         )
     finally:
         get_sphinx_app_doctree(
@@ -442,7 +439,6 @@ def test_gettext_html(
             docname="index",
             resolve=True,
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
         )
     get_sphinx_app_output(
         app,
@@ -483,7 +479,7 @@ def test_gettext_additional_targets(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    file_regression.check(output, extension=f".sphinx{sphinx.version_info[0]}.pot")
+    file_regression.check(output, extension=".pot")
 
 
 @pytest.mark.sphinx(
@@ -530,7 +526,6 @@ def test_fieldlist_extension(
             app,
             docname="index",
             regress=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.xml",
             # changed in:
             # https://www.sphinx-doc.org/en/master/changes.html#release-4-4-0-released-jan-17-2022
             replace={

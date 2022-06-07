@@ -34,12 +34,12 @@ keywords = [
 ]
 requires-python = ">=3.7"
 dependencies = [
-    "docutils>=0.15,<0.18",
+    "docutils>=0.15,<0.19",
     "jinja2", # required for substitutions, but let sphinx choose version
     "markdown-it-py>=1.0.0,<3.0.0",
     "mdit-py-plugins~=0.3.0",
     "pyyaml",
-    "sphinx>=3.1,<5",
+    "sphinx>=4,<6",
     "typing-extensions",
 ]
 
@@ -63,7 +63,6 @@ rtd = [
 testing = [
     "beautifulsoup4",
     "coverage[toml]",
-    "docutils~=0.17.0", # this version changes some HTML tags
     "pytest>=6,<7",
     "pytest-cov",
     "pytest-regressions",

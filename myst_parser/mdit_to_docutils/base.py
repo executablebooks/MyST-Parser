@@ -447,7 +447,7 @@ class DocutilsRenderer(RendererProtocol):
         self.render_children(token)
 
     def render_text(self, token: SyntaxTreeNode) -> None:
-        self.current_node.append(nodes.Text(token.content, token.content))
+        self.current_node.append(nodes.Text(token.content))
 
     def render_bullet_list(self, token: SyntaxTreeNode) -> None:
         list_node = nodes.bullet_list()
@@ -888,7 +888,7 @@ class DocutilsRenderer(RendererProtocol):
 
             field_node = nodes.field()
             field_node.source = value
-            field_node += nodes.field_name(key, "", nodes.Text(key, key))
+            field_node += nodes.field_name(key, "", nodes.Text(key))
             field_node += nodes.field_body(value, *[body])
             field_list += field_node
 
