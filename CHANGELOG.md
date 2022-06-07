@@ -1,5 +1,53 @@
 # Changelog
 
+## 0.18.0 - 2022-06-07
+
+Full Changelog: [v0.17.2...v0.18.0](https://github.com/executablebooks/MyST-Parser/compare/v0.17.2...v0.18.0)
+
+This release adds support for Sphinx v5 (dropping v3), restructures the code base into modules, and also restructures the documentation, to make it easier for developers/users to follow.
+
+It also introduces **document-level configuration**  *via* the Markdown top-matter, under the `myst` key.
+See the [Local configuration](docs/configuration.md) section for more information.
+
+### Breaking changes
+
+This should not be breaking, for general users of the sphinx extension (with `sphinx>3`),
+but will be for anyone directly using the Python API, mainly just requiring changes in import module paths.
+
+The `to_docutils`, `to_html`, `to_tokens` (from `myst_parser/main.py`) and `mock_sphinx_env`/`parse` (from `myst_parser.sphinx_renderer.py`) functions have been removed, since these were primarily for internal testing.
+Instead, for single page builds, users should use the docutils parser API/CLI (see [](docs/docutils.md)),
+and for testing, functionality has been moved to <https://github.com/chrisjsewell/sphinx-pytest>.
+
+The top-level `html_meta` and `substitutions` top-matter keys have also been deprecated (i.e. they will still work but will emit a warning), as they now form part of the `myst` config, e.g.
+
+```yaml
+---
+html_meta:
+  "description lang=en": "metadata description"
+substitutions:
+  key1: I'm a **substitution**
+---
+```
+
+is replaced by:
+
+```yaml
+---
+myst:
+  html_meta:
+    "description lang=en": "metadata description"
+  substitutions:
+    key1: I'm a **substitution**
+---
+```
+
+### Key PRs
+
+- ♻️📚 Restructure code base and documentation (#566)
+- ⬆️ Drop Sphinx 3 and add Sphinx 5 support (#579)
+- 🐛 FIX: `parse_directive_text` when body followed by options (#580)
+- 🐛 FIX: floor table column widths to integers (#568), thanks to @Jean-Abou-Samra!
+
 ## 0.17.2 - 2022-04-17
 
 Full Changelog: [v0.17.1...v0.17.2](https://github.com/executablebooks/MyST-Parser/compare/v0.17.1...v0.17.2)
