@@ -32,6 +32,7 @@ from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
+from myst_parser._compat import findall
 from myst_parser.config.main import MdParserConfig
 from myst_parser.mocking import (
     MockIncludeDirective,
@@ -41,7 +42,7 @@ from myst_parser.mocking import (
     MockState,
     MockStateMachine,
 )
-from ..parsers.directives import DirectiveParsingError, parse_directive_text
+from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
 from .html_to_nodes import html_to_nodes
 from .utils import is_external_url
 
@@ -260,7 +261,7 @@ class DocutilsRenderer(RendererProtocol):
         # those from the initial markdown parse
         # instead we gather them from a walk of the created document
         foot_refs = OrderedDict()
-        for refnode in self.document.traverse(nodes.footnote_reference):
+        for refnode in findall(self.document)(nodes.footnote_reference):
             if refnode["refname"] not in foot_refs:
                 foot_refs[refnode["refname"]] = True
 

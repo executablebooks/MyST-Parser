@@ -16,6 +16,8 @@ from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
 
+from myst_parser._compat import findall
+
 try:
     from sphinx.errors import NoUri
 except ImportError:
@@ -35,7 +37,7 @@ class MystReferenceResolver(ReferencesResolver):
 
     def run(self, **kwargs: Any) -> None:
         self.document: document
-        for node in self.document.traverse(addnodes.pending_xref):
+        for node in findall(self.document)(addnodes.pending_xref):
             if node["reftype"] != "myst":
                 continue
 

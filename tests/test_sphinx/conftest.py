@@ -39,6 +39,8 @@ import pytest
 from bs4 import BeautifulSoup
 from sphinx.testing.path import path
 
+from myst_parser._compat import findall
+
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
 
@@ -109,7 +111,7 @@ def get_sphinx_app_doctree(file_regression):
             extension = regress_ext
 
         # convert absolute filenames
-        for node in doctree.traverse(
+        for node in findall(doctree)(
             lambda n: "source" in n and not isinstance(n, str)
         ):
             node["source"] = pathlib.Path(node["source"]).name

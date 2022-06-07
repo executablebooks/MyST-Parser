@@ -50,7 +50,7 @@ repos:
     - id: mypy
       args: [--config-file=pyproject.toml]
       additional_dependencies:
-      - sphinx~=4.1
+      - sphinx~=5.0
       - markdown-it-py>=1.0.0,<3.0.0
       - mdit-py-plugins~=0.3.0
       files: >
