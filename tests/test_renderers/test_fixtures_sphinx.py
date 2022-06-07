@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 
 import pytest
-import sphinx
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
@@ -42,11 +41,9 @@ def test_directive_options(file_params, sphinx_doctree_no_tr: CreateDoctree):
 def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
     # TODO fix skipped directives
     # TODO test domain directives
-    if file_params.title.startswith("SKIP"):
-        pytest.skip(file_params.title)
-    elif file_params.title.startswith("SPHINX3") and sphinx.version_info[0] < 3:
-        pytest.skip(file_params.title)
-    elif file_params.title.startswith("SPHINX4") and sphinx.version_info[0] < 4:
+    if file_params.title.startswith("SKIP") or file_params.title.startswith(
+        "SPHINX4-SKIP"
+    ):
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
@@ -62,8 +59,6 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_roles.md")
 def test_sphinx_roles(file_params, sphinx_doctree_no_tr: CreateDoctree):
     if file_params.title.startswith("SKIP"):
-        pytest.skip(file_params.title)
-    elif file_params.title.startswith("SPHINX4") and sphinx.version_info[0] < 4:
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})

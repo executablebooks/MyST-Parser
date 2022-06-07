@@ -14,7 +14,7 @@ default-domain (`sphinx.directives.DefaultDomain`):
 <document source="<src>/index.md">
 .
 
-SPHINX4 object (`sphinx.directives.ObjectDescription`):
+object (`sphinx.directives.ObjectDescription`):
 .
 ```{object} something
 ```
@@ -161,7 +161,7 @@ acks (`sphinx.directives.other.Acks`):
                     name
 .
 
-SPHINX4 hlist (`sphinx.directives.other.HList`):
+hlist (`sphinx.directives.other.HList`):
 .
 ```{hlist}
 
@@ -386,18 +386,18 @@ term 2 : B
                         Definition of both terms.
 .
 
-SPHINX3 productionlist (`sphinx.domains.std.ProductionList`):
+SPHINX4-SKIP productionlist (`sphinx.domains.std.ProductionList`):
 .
 ```{productionlist} try_stmt: try1_stmt | try2_stmt
 ```
 .
 <document source="<src>/index.md">
     <productionlist>
-        <production ids="grammar-token-try_stmt grammar-token-try-stmt" tokenname="try_stmt" xml:space="preserve">
+        <production ids="grammar-token-try_stmt" tokenname="try_stmt" xml:space="preserve">
              try1_stmt | try2_stmt
 .
 
-SPHINX4 cmdoption (`sphinx.domains.std.Cmdoption`):
+cmdoption (`sphinx.domains.std.Cmdoption`):
 .
 ```{cmdoption} a
 ```
@@ -412,7 +412,7 @@ SPHINX4 cmdoption (`sphinx.domains.std.Cmdoption`):
         <desc_content>
 .
 
-SPHINX4 rst:directive (`sphinx.domains.rst.ReSTDirective`):
+rst:directive (`sphinx.domains.rst.ReSTDirective`):
 .
 ```{rst:directive} a
 ```
@@ -426,7 +426,7 @@ SPHINX4 rst:directive (`sphinx.domains.rst.ReSTDirective`):
         <desc_content>
 .
 
-SPHINX4 rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
+SPHINX4-SKIP rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 .
 ```{rst:directive:option} a
 ```
@@ -434,7 +434,7 @@ SPHINX4 rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 <document source="<src>/index.md">
     <index entries="('single',\ ':a:\ (directive\ option)',\ 'directive-option-a',\ '',\ 'A')">
     <desc classes="rst directive:option" desctype="directive:option" domain="rst" noindex="False" objtype="directive:option">
-        <desc_signature classes="sig sig-object" ids="directive-option-a directive:option--a">
+        <desc_signature classes="sig sig-object" ids="directive-option-a">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 :a:
         <desc_content>
