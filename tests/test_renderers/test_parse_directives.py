@@ -38,24 +38,6 @@ def test_parsing(file_params):
     file_params.assert_expected(outcome, rstrip_lines=True)
 
 
-# @pytest.mark.parametrize(
-#     "klass,arguments,content",
-#     [(Note, "", "a"), (Note, "a", ""), (Note, "", ":class: name\n\na")],
-# )
-# def test_parsing(klass, arguments, content, data_regression):
-#     arguments, options, body_lines, content_offset = parse_directive_text(
-#         klass, arguments, content
-#     )
-#     data_regression.check(
-#         {
-#             "arguments": arguments,
-#             "options": options,
-#             "body": body_lines,
-#             "content_offset": content_offset,
-#         }
-#     )
-
-
 @pytest.mark.parametrize(
     "descript,klass,arguments,content", [("no content", Rubric, "", "a")]
 )
