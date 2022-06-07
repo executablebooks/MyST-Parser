@@ -1,0 +1,141 @@
+note: content in first line only
+.
+```{note} a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 0
+options: {}
+.
+
+note: content in body only
+.
+```{note}
+a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 0
+options: {}
+.
+
+note: content after option
+.
+```{note}
+:class: name
+a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 1
+options:
+  class:
+  - name
+.
+
+note: content after option with new line
+.
+```{note}
+:class: name
+
+a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 2
+options:
+  class:
+  - name
+.
+
+note: content after yaml option
+.
+```{note}
+---
+class: name
+---
+a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 3
+options:
+  class:
+  - name
+.
+
+note: content in first line and body
+.
+```{note} first line
+:class: tip
+
+body line
+```
+.
+arguments: []
+body:
+- first line
+- ''
+- body line
+content_offset: 1
+options:
+  class:
+  - tip
+.
+
+admonition: no options, no new line
+.
+```{admonition} first line
+body line
+```
+.
+arguments:
+- first line
+body:
+- body line
+content_offset: 0
+options: {}
+.
+
+admonition: no options, new line
+.
+```{admonition} first line
+
+body line
+```
+.
+arguments:
+- first line
+body:
+- body line
+content_offset: 1
+options: {}
+.
+
+admonition: with options
+.
+```{admonition} first line
+:class: tip
+
+body line
+```
+.
+arguments:
+- first line
+body:
+- body line
+content_offset: 2
+options:
+  class:
+  - tip
+.
