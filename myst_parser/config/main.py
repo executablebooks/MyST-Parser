@@ -75,11 +75,20 @@ class MdParserConfig:
             "help": "Use strict CommonMark parser",
         },
     )
+
     gfm_only: bool = dc.field(
         default=False,
         metadata={
             "validator": instance_of(bool),
             "help": "Use strict Github Flavoured Markdown parser",
+        },
+    )
+
+    hard_wrap: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Support hard wrap",
         },
     )
 

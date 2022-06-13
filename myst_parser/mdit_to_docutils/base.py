@@ -486,7 +486,12 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def render_softbreak(self, token: SyntaxTreeNode) -> None:
-        self.current_node.append(nodes.Text("\n"))
+        # Insert HTML `<br>` tags inside on paragraphs
+        # where the origin Markdown document had newlines
+        if self.md_config.hard_wrap is True:
+            self.current_node.append(nodes.raw("", "<br />\n", format="html"))
+        else:
+            self.current_node.append(nodes.Text("\n"))
 
     def render_hardbreak(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.raw("", "<br />\n", format="html"))
