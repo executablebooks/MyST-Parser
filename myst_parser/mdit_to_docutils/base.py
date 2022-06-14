@@ -381,7 +381,7 @@ class DocutilsRenderer(RendererProtocol):
         """
         for node in nodes:
             self.add_line_and_source_path(node, token)
-            for child in node.traverse():
+            for child in findall(node)():
                 self.add_line_and_source_path(child, token)
 
     def update_section_level_state(self, section: nodes.section, level: int) -> None:
