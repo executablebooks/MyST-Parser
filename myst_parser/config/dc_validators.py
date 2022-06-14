@@ -159,25 +159,3 @@ def deep_mapping(
             value_validator(inst, field, value[key], suffix=f"{suffix}[{key!r}]")
 
     return _validator
-
-
-def has_items(*validators) -> ValidatorType:
-    """
-    A validator that performs validation per item of a sequence.
-
-    :param validators: Validator to apply per item
-    """
-
-    def _validator(inst, field: dc.Field, value, suffix=""):
-        if not isinstance(value, Sequence):
-            raise TypeError(f"{suffix}{field.name} must be a sequence: {value}")
-        if len(value) != len(validators):
-            raise TypeError(
-                f"{suffix}{field.name!r} must be a sequence of length "
-                f"{len(validators)}: {value}"
-            )
-
-        for idx, (validator, member) in enumerate(zip(validators, value)):
-            validator(inst, field, member, suffix=f"{suffix}[{idx}]")
-
-    return _validator
