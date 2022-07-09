@@ -464,14 +464,14 @@ A longer footnote definition.[^mylongdef]
 
     - even other block elements
 
-    Plus any preceding unindented lines,
+    Plus any subsequent unindented lines,
 that are not separated by a blank line
 
 This is not part of the footnote.
 
 ````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
-it it recommended that footnote definitions are not set within directives,
+it is recommended that footnote definitions are not set within directives,
 unless they will only be referenced within that same directive:
 
 ```md
