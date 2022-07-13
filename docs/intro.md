@@ -171,7 +171,7 @@ myst:
 
 The other way to extend MyST in Sphinx is to install Sphinx extensions that define new roles, directives, etc.
 
-For example, let's install the `sphinxcontib.mermaid` extension,
+For example, let's install the `sphinxcontrib.mermaid` extension,
 which will allow us to generate [Mermaid diagrams](https://mermaid-js.github.io/mermaid/#/) with MyST.
 
 First, install `sphinxcontrib.mermaid`:
