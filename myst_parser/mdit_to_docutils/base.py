@@ -1391,11 +1391,16 @@ def html_meta_to_nodes(
         return []
 
     try:
+        # if sphinx available
         from sphinx.addnodes import meta as meta_cls
     except ImportError:
-        from docutils.parsers.rst.directives.html import MetaBody
+        try:
+            # docutils >= 0.19
+            meta_cls = nodes.meta  # type: ignore
+        except AttributeError:
+            from docutils.parsers.rst.directives.html import MetaBody
 
-        meta_cls = MetaBody.meta  # type: ignore
+            meta_cls = MetaBody.meta  # type: ignore
 
     output = []
 
