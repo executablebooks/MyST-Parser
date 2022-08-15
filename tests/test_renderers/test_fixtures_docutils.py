@@ -50,7 +50,18 @@ def test_docutils_roles(file_params, monkeypatch):
         parser=Parser(),
     )
 
-    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+    ptree = doctree.pformat()
+    # docutils >=0.19 changes:
+    ptree = ptree.replace(
+        'refuri="http://tools.ietf.org/html/rfc1.html"',
+        'refuri="https://tools.ietf.org/html/rfc1.html"',
+    )
+    ptree = ptree.replace(
+        'refuri="http://www.python.org/dev/peps/pep-0000"',
+        'refuri="https://peps.python.org/pep-0000"',
+    )
+
+    file_params.assert_expected(ptree, rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")

@@ -299,6 +299,10 @@ def test_include_from_rst(
     )
 
 
+@pytest.mark.skipif(
+    __version_info__ < VersionInfo(0, 19, 0, "final", 0, True),
+    reason="Footnote HTML changed in docutils 0.19",
+)
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
 )
