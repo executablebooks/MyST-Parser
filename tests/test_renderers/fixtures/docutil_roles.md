@@ -93,7 +93,7 @@
 .
 <document source="notset">
     <paragraph>
-        <reference refuri="http://www.python.org/dev/peps/pep-0000">
+        <reference refuri="https://peps.python.org/pep-0000">
             PEP 0
 .
 
@@ -104,7 +104,7 @@
 .
 <document source="notset">
     <paragraph>
-        <reference refuri="http://tools.ietf.org/html/rfc1.html">
+        <reference refuri="https://tools.ietf.org/html/rfc1.html">
             RFC 1
 .
 
