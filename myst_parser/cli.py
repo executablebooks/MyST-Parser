@@ -13,14 +13,14 @@ def print_anchors(args=None):
     arg_parser.add_argument(
         "input",
         nargs="?",
-        type=argparse.FileType("r"),
+        type=argparse.FileType("r", encoding="utf8"),
         default=sys.stdin,
         help="Input file (default stdin)",
     )
     arg_parser.add_argument(
         "-o",
         "--output",
-        type=argparse.FileType("w"),
+        type=argparse.FileType("w", encoding="utf8"),
         default=sys.stdout,
         help="Output file (default stdout)",
     )
