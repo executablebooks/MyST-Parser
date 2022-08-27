@@ -218,7 +218,7 @@ class Parser(RstParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document, msg, line=1, append_to=document, subtype=wtype
+                    document, config, msg, line=1, append_to=document, subtype=wtype
                 )
                 config = merge_file_level(config, topmatter, warning)
 

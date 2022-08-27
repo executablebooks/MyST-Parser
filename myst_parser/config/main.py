@@ -188,6 +188,15 @@ class MdParserConfig:
         },
     )
 
+    suppress_warnings: Sequence[str] = dc.field(
+        default_factory=list,
+        metadata={
+            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
+            "help": "A list of warning types to suppress warning messages",
+            "docutils_only": True,
+        },
+    )
+
     words_per_minute: int = dc.field(
         default=200,
         metadata={

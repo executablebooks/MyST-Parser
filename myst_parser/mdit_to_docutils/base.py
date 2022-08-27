@@ -68,8 +68,34 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
+def is_suppressed_warning(
+    type: str, subtype: str, suppress_warnings: Sequence[str]
+) -> bool:
+    """Check whether the warning is suppressed or not.
+
+    Mirrors:
+    https://github.com/sphinx-doc/sphinx/blob/47d9035bca9e83d6db30a0726a02dc9265bd66b1/sphinx/util/logging.py
+    """
+    if type is None:
+        return False
+
+    subtarget: str | None
+
+    for warning_type in suppress_warnings:
+        if "." in warning_type:
+            target, subtarget = warning_type.split(".", 1)
+        else:
+            target, subtarget = warning_type, None
+
+        if target == type and subtarget in (None, subtype, "*"):
+            return True
+
+    return False
+
+
 def create_warning(
     document: nodes.document,
+    config: MdParserConfig,
     message: str,
     *,
     line: int | None = None,
@@ -82,6 +108,8 @@ def create_warning(
     Note this is overridden in the ``SphinxRenderer``,
     to handle suppressed warning types.
     """
+    if is_suppressed_warning(wtype, subtype, config.suppress_warnings):
+        return None
     kwargs = {"line": line} if line is not None else {}
     msg_node = document.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
     if append_to is not None:
@@ -169,6 +197,7 @@ class DocutilsRenderer(RendererProtocol):
         """
         return create_warning(
             self.document,
+            self.md_config,
             message,
             line=line,
             append_to=append_to,
