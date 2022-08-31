@@ -1,53 +1,37 @@
 """Convert Markdown-it tokens to docutils nodes, including sphinx specific elements."""
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import cast
-from urllib.parse import unquote
 from uuid import uuid4
 
 from docutils import nodes
 from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
 from sphinx.domains.math import MathDomain
-from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.util import logging
-from sphinx.util.nodes import clean_astext
 
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer, token_line
+from myst_parser.warnings import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
 
 
-def create_warning(
-    document: nodes.document,
-    message: str,
-    *,
-    line: int | None = None,
-    append_to: nodes.Element | None = None,
-    wtype: str = "myst",
-    subtype: str = "other",
-) -> nodes.system_message | None:
-    """Generate a warning, logging it if necessary.
-
-    If the warning type is listed in the ``suppress_warnings`` configuration,
-    then ``None`` will be returned and no warning logged.
-    """
-    message = f"{message} [{wtype}.{subtype}]"
-    kwargs = {"line": line} if line is not None else {}
-
-    if logging.is_suppressed_warning(
-        wtype, subtype, document.settings.env.app.config.suppress_warnings
-    ):
-        return None
-
-    msg_node = document.reporter.warning(message, **kwargs)
-    if append_to is not None:
-        append_to.append(msg_node)
-
-    return None
+def split_myst_uri(uri: str) -> tuple[str, str, dict[str, bool | str]]:
+    """Split `type?key1=value&key2=value#target` to type, target, query."""
+    front, *_fragment = uri.split("#", 1)
+    reftarget = _fragment[0] if _fragment else ""
+    reftype, *_query = front.split("?", 1)
+    refquery: dict[str, bool | str] = {}
+    if _query:
+        for comp in _query[0].split("&"):
+            if "=" in comp:
+                key, val = comp.split("=", 1)
+                refquery[key] = val
+            else:
+                refquery[comp] = True
+    return reftype, reftarget, refquery
 
 
 class SphinxRenderer(DocutilsRenderer):
@@ -58,132 +42,102 @@ class SphinxRenderer(DocutilsRenderer):
     """
 
     @property
-    def doc_env(self) -> BuildEnvironment:
+    def sphinx_env(self) -> BuildEnvironment:
         return self.document.settings.env
 
-    def create_warning(
-        self,
-        message: str,
-        *,
-        line: int | None = None,
-        append_to: nodes.Element | None = None,
-        wtype: str = "myst",
-        subtype: str = "other",
-    ) -> nodes.system_message | None:
-        """Generate a warning, logging it if necessary.
+    def add_myst_ref(self, token: SyntaxTreeNode, reference: str) -> None:
+        """Render link token `[text](myst:any#ref "title")`"""
+        reftype, reftarget, refquery = split_myst_uri(reference)
 
-        If the warning type is listed in the ``suppress_warnings`` configuration,
-        then ``None`` will be returned and no warning logged.
-        """
-        return create_warning(
-            self.document,
-            message,
-            line=line,
-            append_to=append_to,
-            wtype=wtype,
-            subtype=subtype,
+        for value, key in ((reftype, "type"), (reftarget, "target")):
+            if not value:
+                self.create_warning(
+                    f"No myst reference {key} given in 'myst:{reference}'",
+                    MystWarnings.MD_LINK_URI,
+                    line=token_line(token, default=0),
+                    append_to=self.current_node,
+                )
+                return self.render_children(token)
+
+        wrap_node = addnodes.pending_xref(
+            refdoc=self.sphinx_env.docname,
+            refdomain="myst",
+            reftype=reftype,
+            reftarget=reftarget,
+            refexplicit=len(token.children or []) > 0,
+            refquery=refquery,
         )
-
-    def render_internal_link(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has not been identified as an external URL.
-        """
-        destination = unquote(cast(str, token.attrGet("href") or ""))
-
-        # make the path relative to an "including" document
-        # this is set when using the `relative-docs` option of the MyST `include` directive
-        relative_include = self.md_env.get("relative-docs", None)
-        if relative_include is not None and destination.startswith(relative_include[0]):
-            source_dir, include_dir = relative_include[1:]
-            destination = os.path.relpath(
-                os.path.join(include_dir, os.path.normpath(destination)), source_dir
-            )
-
-        potential_path = (
-            Path(self.doc_env.doc2path(self.doc_env.docname)).parent / destination
-            if self.doc_env.srcdir  # not set in some test situations
-            else None
-        )
-        if (
-            potential_path
-            and potential_path.is_file()
-            and not any(
-                destination.endswith(suffix)
-                for suffix in self.doc_env.config.source_suffix
-            )
-        ):
-            wrap_node = addnodes.download_reference(
-                refdoc=self.doc_env.docname,
-                reftarget=destination,
-                reftype="myst",
-                refdomain=None,  # Added to enable cross-linking
-                refexplicit=len(token.children or []) > 0,
-                refwarn=False,
-            )
-            classes = ["xref", "download", "myst"]
-            text = destination if not token.children else ""
-        else:
-            wrap_node = addnodes.pending_xref(
-                refdoc=self.doc_env.docname,
-                reftarget=destination,
-                reftype="myst",
-                refdomain=None,  # Added to enable cross-linking
-                refexplicit=len(token.children or []) > 0,
-                refwarn=True,
-            )
-            classes = ["xref", "myst"]
-            text = ""
-
-        self.add_line_and_source_path(wrap_node, token)
         title = token.attrGet("title")
         if title:
             wrap_node["title"] = title
+        self.add_line_and_source_path(wrap_node, token)
         self.current_node.append(wrap_node)
 
-        inner_node = nodes.inline("", text, classes=classes)
+        inner_node = nodes.inline("", "", classes=["xref", f"myst-{reftype}"])
+        self.add_line_and_source_path(inner_node, token)
         wrap_node.append(inner_node)
         with self.current_node_context(inner_node):
             self.render_children(token)
 
-    def render_heading(self, token: SyntaxTreeNode) -> None:
-        """This extends the docutils method, to allow for the addition of heading ids.
-        These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
-        as "slugs" which are unique to a document.
+    def add_local_file_ref(
+        self, token: SyntaxTreeNode, rel_path: str, abs_path: Path, fragment: None | str
+    ) -> None:
+        """Render link token `[text](path/to/file.ext#fragment "title")`"""
+        docname = self.sphinx_env.path2doc(str(abs_path))
 
-        The approach is similar to ``sphinx.ext.autosectionlabel``
-        """
-        super().render_heading(token)
+        if not docname:
+            return self.add_local_download_ref(token, rel_path, abs_path, fragment)
 
-        if not isinstance(self.current_node, nodes.section):
-            return
-
-        # create the slug string
-        slug = cast(str, token.attrGet("id"))
-        if slug is None:
-            return
-
-        section = self.current_node
-        doc_slug = self.doc_env.doc2path(self.doc_env.docname, base=False) + "#" + slug
-
-        # save the reference in the standard domain, so that it can be handled properly
-        domain = cast(StandardDomain, self.doc_env.get_domain("std"))
-        if doc_slug in domain.labels:
-            other_doc = self.doc_env.doc2path(domain.labels[doc_slug][0])
-            self.create_warning(
-                f"duplicate label {doc_slug}, other instance in {other_doc}",
-                line=section.line,
-                subtype="anchor",
-            )
-        labelid = section["ids"][0]
-        domain.anonlabels[doc_slug] = self.doc_env.docname, labelid
-        domain.labels[doc_slug] = (
-            self.doc_env.docname,
-            labelid,
-            clean_astext(section[0]),
+        wrap_node = addnodes.pending_xref(
+            refdoc=self.sphinx_env.docname,
+            refdomain="myst",
+            reftype="doc",
+            reftarget="/" + docname,  # add `/` to denote an absolute name
+            refname=fragment,
+            refexplicit=len(token.children or []) > 0,
         )
+        title = token.attrGet("title")
+        if title:
+            wrap_node["title"] = title
+        self.add_line_and_source_path(wrap_node, token)
+        self.current_node.append(wrap_node)
 
-        self.doc_env.metadata[self.doc_env.docname]["myst_anchors"] = True
-        section["myst-anchor"] = doc_slug
+        inner_node = nodes.inline("", "", classes=["std", "std-doc"])
+        self.add_line_and_source_path(inner_node, token)
+        wrap_node.append(inner_node)
+        with self.current_node_context(inner_node):
+            self.render_children(token)
+
+    def add_local_download_ref(
+        self, token: SyntaxTreeNode, rel_path: str, abs_path: Path, fragment: None | str
+    ) -> None:
+        """Render link token `[text](path/to/file.ext#fragment "title")`,
+        which is not a project document.
+        """
+        # TODO what if fragment?
+        wrap_node = addnodes.download_reference(
+            refdoc=self.sphinx_env.docname,
+            reftarget=str(rel_path),
+            classes=["myst"],
+        )
+        title = token.attrGet("title")
+        if title:
+            wrap_node["title"] = title
+        self.add_line_and_source_path(wrap_node, token)
+        self.current_node.append(wrap_node)
+        if token.children:
+            inner_node = nodes.inline("", "", classes=["xref", "download"])
+            self.add_line_and_source_path(inner_node, token)
+            wrap_node.append(inner_node)
+            with self.current_node_context(inner_node):
+                self.render_children(token)
+        else:
+            # using literal mimics the default `download` role behaviour
+            inner_node = nodes.literal(
+                str(rel_path), str(rel_path), classes=["xref", "download"]
+            )
+            self.add_line_and_source_path(inner_node, token)
+            wrap_node.append(inner_node)
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
@@ -233,10 +187,10 @@ class SphinxRenderer(DocutilsRenderer):
         # Code mainly copied from sphinx.directives.patches.MathDirective
 
         # register label to domain
-        domain = cast(MathDomain, self.doc_env.get_domain("math"))
-        domain.note_equation(self.doc_env.docname, node["label"], location=node)
+        domain = cast(MathDomain, self.sphinx_env.get_domain("math"))
+        domain.note_equation(self.sphinx_env.docname, node["label"], location=node)
         node["number"] = domain.get_equation_number_for(node["label"])
-        node["docname"] = self.doc_env.docname
+        node["docname"] = self.sphinx_env.docname
 
         # create target node
         node_id = nodes.make_id("equation-%s" % node["label"])

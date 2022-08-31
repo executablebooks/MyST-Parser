@@ -35,8 +35,8 @@
         <admonition classes="admonition-title-with-link-target2">
             <title>
                 Title with 
-                <pending_xref refdoc="content" refdomain="True" refexplicit="True" reftarget="target2" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
+                <reference internal="True" refid="target2">
+                    <inline classes="std std-ref">
                         link
             <paragraph>
                 Content
@@ -53,7 +53,7 @@
                 https://www.google.com
         <paragraph>
             <strong>
-                <literal classes="code">
+                <superscript>
                      a=1{`} 
         <paragraph>
             <math>

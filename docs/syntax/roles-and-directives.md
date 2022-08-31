@@ -173,7 +173,7 @@ A reference from inside: :ref:`rst-fun-fish`
 A reference from outside: :ref:`syntax/directives/parsing`
 ```
 
-Note how the text is integrated into the rest of the document, so we can also reference [party fish](rst-fun-fish) anywhere else in the documentation.
+Note how the text is integrated into the rest of the document, so we can also reference [party fish](#rst-fun-fish) anywhere else in the documentation.
 
 #### Nesting directives
 
@@ -250,7 +250,7 @@ print('yep!')
 #### Markdown-friendly directives
 
 Want to use syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](syntax/colon_fence).
+See [the extended syntax option](myst:any#syntax/colon_fence).
 
 ```md
 :::{note}
@@ -418,4 +418,4 @@ For example:
 
 `today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
 
-The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](sphinx/config-options)).
+The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](myst:any#sphinx/config-options)).

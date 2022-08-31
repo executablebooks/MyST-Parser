@@ -13,6 +13,7 @@ from typing import (
     cast,
 )
 
+from myst_parser.warnings import MystWarnings
 from .dc_validators import (
     deep_iterable,
     deep_mapping,
@@ -116,6 +117,7 @@ class MdParserConfig:
         },
     )
 
+    # TODO deprecate this method
     ref_domains: Optional[Iterable[str]] = dc.field(
         default=None,
         metadata={
@@ -320,7 +322,7 @@ class MdParserConfig:
 def merge_file_level(
     config: MdParserConfig,
     topmatter: Dict[str, Any],
-    warning: Callable[[str, str], None],
+    warning: Callable[[MystWarnings, str], None],
 ) -> MdParserConfig:
     """Merge the file-level topmatter with the global config.
 
@@ -333,21 +335,21 @@ def merge_file_level(
     updates: Dict[str, Any] = {}
     myst = topmatter.get("myst", {})
     if not isinstance(myst, dict):
-        warning("topmatter", f"'myst' key not a dict: {type(myst)}")
+        warning(MystWarnings.MD_TOPMATTER, f"'myst' key not a dict: {type(myst)}")
     else:
         updates = myst
 
     # allow html_meta and substitutions at top-level for back-compatibility
     if "html_meta" in topmatter:
         warning(
-            "topmatter",
+            MystWarnings.MD_TOPMATTER,
             "top-level 'html_meta' key is deprecated, "
             "place under 'myst' key instead",
         )
         updates["html_meta"] = topmatter["html_meta"]
     if "substitutions" in topmatter:
         warning(
-            "topmatter",
+            MystWarnings.MD_TOPMATTER,
             "top-level 'substitutions' key is deprecated, "
             "place under 'myst' key instead",
         )
@@ -360,7 +362,7 @@ def merge_file_level(
     for name, value in updates.items():
 
         if name not in fields:
-            warning("topmatter", f"Unknown field: {name}")
+            warning(MystWarnings.MD_TOPMATTER, f"Unknown field: {name}")
             continue
 
         old_value, field = fields[name]
@@ -368,7 +370,7 @@ def merge_file_level(
         try:
             validate_field(new, field, value)
         except Exception as exc:
-            warning("topmatter", str(exc))
+            warning(MystWarnings.MD_TOPMATTER, str(exc))
             continue
 
         if field.metadata.get("merge_topmatter"):

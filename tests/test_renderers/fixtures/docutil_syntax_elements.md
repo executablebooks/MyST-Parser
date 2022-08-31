@@ -285,13 +285,13 @@ Nested Enumrated List:
                         c
 .
 
-Sphinx Role containing backtick:
+Role containing backtick:
 .
-{code}``a=1{`}``
+{sup}``a=1{`}``
 .
 <document source="notset">
     <paragraph>
-        <literal classes="code">
+        <superscript>
             a=1{`}
 .
 
@@ -318,9 +318,9 @@ Referencing:
 Title
 =====
 
-[alt1](target)
+[alt1](#target)
 
-[](target2)
+[](#target2)
 
 [alt2](https://www.google.com)
 
@@ -332,15 +332,15 @@ Title
         <title>
             Title
         <paragraph>
-            <reference refname="target">
+            <MystLocalLink refname="target">
                 alt1
         <paragraph>
-            <reference refname="target2">
+            <MystLocalLink refname="target2">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <reference refname="#target3">
+            <MystLocalLink refname="target3">
                 alt3
 .
 
@@ -418,19 +418,19 @@ Link Definition in directive:
 [a]
 ```
 
-[a]: link
+[a]: #link
 .
 <document source="notset">
     <note>
         <paragraph>
-            <reference refname="link">
+            <MystLocalLink refname="link">
                 a
 .
 
 Link Definition in nested directives:
 .
 ```{note}
-[ref1]: link
+[ref1]: #link
 ```
 
 ```{note}
@@ -439,16 +439,16 @@ Link Definition in nested directives:
 ```
 
 ```{note}
-[ref2]: link
+[ref2]: #link
 ```
 .
 <document source="notset">
     <note>
     <note>
         <paragraph>
-            <reference refname="link">
+            <MystLocalLink refname="link">
                 ref1
-            
+
             [ref2]
     <note>
 .
@@ -747,7 +747,7 @@ x y [a](http://www.xyz.com) z
 a = 1
 ```
 
-[](target)
+[](#target)
 .
 <document source="notset">
     <field_list>
@@ -766,20 +766,20 @@ a = 1
             <title>
                 sub header 1
             <paragraph>
-                a 
+                a
                 <emphasis>
                     b
-                 
+
                 <strong>
                     c
-                 
+
                 <literal>
                     abc
         <section ids="sub-header-2" names="sub\ header\ 2">
             <title>
                 sub header 2
             <paragraph>
-                x y 
+                x y
                 <reference refuri="http://www.xyz.com">
                     a
                  z
@@ -790,5 +790,5 @@ a = 1
         <literal_block classes="code ::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <reference refname="target">
+            <MystLocalLink refname="target">
 .

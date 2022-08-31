@@ -3,6 +3,8 @@ from typing import Any
 
 from sphinx.application import Sphinx
 
+from myst_parser.transforms.local_links import MdDocumentLinks
+
 
 def setup_sphinx(app: Sphinx, load_parser=False):
     """Initialize all settings and transforms in Sphinx."""
@@ -15,7 +17,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
         SubstitutionReferenceRole,
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
-    from myst_parser.sphinx_ext.myst_refs import MystReferenceResolver
+    from myst_parser.sphinx_ext.myst_refs import MystRefDomain
 
     if load_parser:
         app.add_source_suffix(".md", "markdown")
@@ -24,7 +26,8 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_role("sub-ref", SubstitutionReferenceRole())
     app.add_directive("figure-md", FigureMarkdown)
 
-    app.add_post_transform(MystReferenceResolver)
+    app.add_transform(MdDocumentLinks)
+    app.add_domain(MystRefDomain)
 
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):

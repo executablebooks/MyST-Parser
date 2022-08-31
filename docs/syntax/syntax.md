@@ -8,10 +8,10 @@ MyST is a strict superset of the [CommonMark syntax specification](https://spec.
 It adds features focussed on scientific and technical documentation authoring, as detailed below.
 
 In addition, the roles and directives syntax provide inline/block-level extension points for plugins.
-This is detailed further in the [Roles and Directives](roles-directives) section.
+This is detailed further in the [Roles and Directives](myst:any#roles-directives) section.
 
 :::{seealso}
-The [syntax token reference tables](syntax-tokens)
+The [syntax token reference tables](myst:any#syntax-tokens)
 :::
 
 (syntax/commonmark)=
@@ -55,7 +55,7 @@ key3:
 ```
 
 :::{seealso}
-Top-matter is also used for the [substitution syntax extension](syntax/substitutions),
+Top-matter is also used for the [substitution syntax extension](myst:any#syntax/substitutions),
 and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/en/latest/manual/markdown/)).
 :::
 
@@ -221,19 +221,19 @@ For example, `[example.com](https://example.com)` becomes [example.com](https://
 The `text` will be parsed as nested Markdown, for example `[here's some *emphasised text*](https://example.com)` will be parsed as [here's some *emphasised text*](https://example.com).
 :::
 
-For "internal" links, myst-parser in Sphinx will attempt to resolve the reference to either a relative document path, or a cross-reference to a target (see [](syntax/targets)):
+For "internal" links, myst-parser in Sphinx will attempt to resolve the reference to either a relative document path, or a cross-reference to a target (see [](myst:any#syntax/targets)):
 
 - `[this doc](syntax.md)` will link to a rendered source document: [this doc](syntax.md)
   - This is similar to `` {doc}`this doc <syntax>` ``; {doc}`this doc <syntax>`, but allows for document extensions, and parses nested Markdown text.
-- `[example text](example.txt)` will link to a non-source (downloadable) file: [example text](example.txt)
+- `[example text](example.txt)` will link to a non-source (downloadable) file: [*example* text](example.txt)
   - The linked document itself will be copied to the build directory.
-  - This is similar to `` {download}`example text <example.txt>` ``; {download}`example text <example.txt>`, but parses nested Markdown text.
-- `[reference](syntax/referencing)` will link to an internal cross-reference: [reference](syntax/referencing)
+  - This is similar to `` {download}`*example* text <example.txt>` ``; {download}`*example* text <example.txt>`, but parses nested Markdown text.
+- `[reference](myst:any#syntax/referencing)` will link to an internal cross-reference: [reference](myst:any#syntax/referencing)
   - This is similar to `` {any}`reference <syntax/referencing>` ``; {any}`reference <syntax/referencing>`, but parses nested Markdown text.
-  - You can limit the scope of the cross-reference to specific [sphinx domains](sphinx:domain), by using the `myst_ref_domains` configuration.
+  - You can limit the scope of the cross-reference to specific [sphinx domains](myst:any#sphinx:domain), by using the `myst_ref_domains` configuration.
     For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
 
-Additionally, only if [](syntax/header-anchors) are enabled, then internal links to document headers can be used.
+Additionally, only if [](myst:any#syntax/header-anchors) are enabled, then internal links to document headers can be used.
 For example `[a header](syntax.md#markdown-links-and-referencing)` will link to a header anchor: [a header](syntax.md#markdown-links-and-referencing).
 
 (syntax/targets)=
@@ -247,7 +247,7 @@ to them.
 :::{tip}
 
 If you'd like to *automatically* generate targets for each of your section headers,
-check out the [](syntax/header-anchors) section of extended syntaxes.
+check out the [](myst:any#syntax/header-anchors) section of extended syntaxes.
 
 :::
 
@@ -285,8 +285,8 @@ is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/maste
 
 but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `syntax/syntax` or `syntax/syntax.md`)
 
-Using the same example, see this ref: [](syntax/targets), here is a reference back to the top of
-this page: [my text with **nested** $\alpha$ syntax](syntax/core), and here is a reference to another page (`[](../intro.md)`): [](../intro.md).
+Using the same example, see this ref: [](myst:any#syntax/targets), here is a reference back to the top of
+this page: [my text with **nested** $\alpha$ syntax](myst:any#syntax/core), and here is a reference to another page (`[](../intro.md)`): [](../intro.md).
 
 ```{note}
 If you wish to have the target's title inserted into your text, you can
@@ -313,7 +313,7 @@ c = "string"
 ```
 
 You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
-or within a sphinx extension, with the [`app.add_lexer` method](sphinx:sphinx.application.Sphinx.add_lexer).
+or within a sphinx extension, with the [`app.add_lexer` method](myst:any#sphinx:sphinx.application.Sphinx.add_lexer).
 
 Using the `myst_number_code_blocks` configuration option, you can also control whether code blocks are numbered by line.
 For example, using `myst_number_code_blocks = ["typescript"]`:
@@ -410,7 +410,7 @@ The standard Markdown syntax is:
 ![fishy](img/fun-fish.png)
 
 But you can also enable extended image syntaxes, to control attributes like width and captions.
-See the [extended image syntax guide](syntax/images).
+See the [extended image syntax guide](myst:any#syntax/images).
 
 (syntax/footnotes)=
 ## Footnotes

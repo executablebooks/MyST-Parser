@@ -285,13 +285,13 @@ Nested Enumrated List:
                         c
 .
 
-Sphinx Role containing backtick:
+Role containing backtick:
 .
-{code}``a=1{`}``
+{sup}``a=1{`}``
 .
 <document source="<src>/index.md">
     <paragraph>
-        <literal classes="code">
+        <superscript>
             a=1{`}
 .
 
@@ -318,9 +318,9 @@ Referencing:
 Title
 =====
 
-[alt1](target)
+[alt1](#target)
 
-[](target2)
+[](#target2)
 
 [alt2](https://www.google.com)
 
@@ -332,19 +332,16 @@ Title
         <title>
             Title
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    alt1
+            <MystLocalLink refname="target">
+                alt1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
+            <MystLocalLink refname="target2">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="#target3" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    alt3
+            <MystLocalLink refname="target3">
+                alt3
 .
 
 Comments:
@@ -421,20 +418,19 @@ Link Definition in directive:
 [a]
 ```
 
-[a]: link
+[a]: #link
 .
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    a
+            <MystLocalLink refname="link">
+                a
 .
 
 Link Definition in nested directives:
 .
 ```{note}
-[ref1]: link
+[ref1]: #link
 ```
 
 ```{note}
@@ -443,16 +439,15 @@ Link Definition in nested directives:
 ```
 
 ```{note}
-[ref2]: link
+[ref2]: #link
 ```
 .
 <document source="<src>/index.md">
     <note>
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    ref1
+            <MystLocalLink refname="link">
+                ref1
 
             [ref2]
     <note>
@@ -752,7 +747,7 @@ x y [a](http://www.xyz.com) z
 a = 1
 ```
 
-[](target)
+[](#target)
 .
 <document source="<src>/index.md">
     <field_list>
@@ -795,6 +790,5 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
+            <MystLocalLink refname="target">
 .

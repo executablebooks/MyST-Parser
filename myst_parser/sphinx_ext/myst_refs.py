@@ -3,140 +3,305 @@
 This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
-import os
-from typing import Any, List, Optional, Tuple, cast
+from __future__ import annotations
+
+from contextlib import contextmanager, suppress
+from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
-from docutils.nodes import Element, document
-from sphinx import addnodes, version_info
+from docutils.nodes import Element
 from sphinx.addnodes import pending_xref
+from sphinx.domains import Domain
 from sphinx.domains.std import StandardDomain
-from sphinx.locale import __
-from sphinx.transforms.post_transforms import ReferencesResolver
+from sphinx.errors import NoUri
 from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
 
-from myst_parser._compat import findall
+from myst_parser.transforms.local_links import MystLocalTarget
+from myst_parser.warnings import MystWarnings
 
-try:
-    from sphinx.errors import NoUri
-except ImportError:
-    # sphinx < 2.1
-    from sphinx.environment import NoUri  # type: ignore
+if TYPE_CHECKING:
+    from sphinx.builders import Builder
+    from sphinx.environment import BuildEnvironment
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-class MystReferenceResolver(ReferencesResolver):
-    """Resolves cross-references on doctrees.
+def log_warning(
+    msg: str, subtype: MystWarnings, location: None | Element, once: None | bool = None
+) -> None:
+    """Log a warning message."""
+    optional = {}
+    if location is not None:
+        optional["location"] = location
+    if once is not None:
+        optional["once"] = once
+    LOGGER.warning(
+        f"{msg} [myst.{subtype.value}]",
+        type="myst",
+        subtype=subtype.value,
+        **optional,
+    )
 
-    Overrides default sphinx implementation, to allow for nested syntax
-    """
 
-    default_priority = 9  # higher priority than ReferencesResolver (10)
+@contextmanager
+def tmp_node_attrs(node: Element, **attrs: dict):
+    """Temporarily set node attributes."""
+    old_attrs = {key: node[key] for key in attrs if key in node}
+    for key, val in attrs.items():
+        node[key] = val
+    yield
+    for key in attrs:
+        if key in old_attrs:
+            node[key] = old_attrs[key]
+        elif key in node:
+            del node[key]
 
-    def run(self, **kwargs: Any) -> None:
-        self.document: document
-        for node in findall(self.document)(addnodes.pending_xref):
-            if node["reftype"] != "myst":
-                continue
 
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
-            newnode = None
+class MystRefDomain(Domain):
+    name = "myst"
+    label = "MyST references"
 
-            target = node["reftarget"]
-            refdoc = node.get("refdoc", self.env.docname)
-            domain = None
+    def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
+        # mut be implemented
+        pass
 
-            try:
-                newnode = self.resolve_myst_ref(refdoc, node, contnode)
-                if newnode is None:
-                    # no new node found? try the missing-reference event
-                    # but first we change the the reftype to 'any'
-                    # this means it is picked up by extensions like intersphinx
-                    node["reftype"] = "any"
-                    try:
-                        newnode = self.app.emit_firstresult(
-                            "missing-reference",
-                            self.env,
-                            node,
-                            contnode,
-                            **(
-                                {"allowed_exceptions": (NoUri,)}
-                                if version_info[0] > 2
-                                else {}
-                            ),
-                        )
-                    finally:
-                        node["reftype"] = "myst"
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
-                    if newnode is None:
-                        node["refdomain"] = ""
-                        # TODO ideally we would override the warning message here,
-                        # to show the [ref.myst] for suppressing warning
-                        self.warn_missing_reference(
-                            refdoc, node["reftype"], target, node, domain
-                        )
-            except NoUri:
-                newnode = contnode
+    def resolve_any_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> list[tuple[str, Element]]:
+        # must be implemented
+        return []
 
-            node.replace_self(newnode or contnode)
-
-    def resolve_myst_ref(
-        self, refdoc: str, node: pending_xref, contnode: Element
-    ) -> Element:
-        """Resolve reference generated by the "myst" role; ``[text](reference)``.
-
-        This builds on the sphinx ``any`` role to also resolve:
-
-        - Document references with extensions; ``[text](./doc.md)``
-        - Document references with anchors with anchors; ``[text](./doc.md#target)``
-        - Nested syntax for explicit text with std:doc and std:ref;
-          ``[**nested**](reference)``
-
-        """
-        target = node["reftarget"]  # type: str
-        results = []  # type: List[Tuple[str, Element]]
-
-        res_anchor = self._resolve_anchor(node, refdoc)
-        if res_anchor:
-            results.append(("std:doc", res_anchor))
+    def resolve_xref(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        typ: str,
+        target: str,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
+        newnode: Element | None = None
+        if typ == "any":
+            newnode = self._resolve_xref_any(env, fromdocname, builder, node, contnode)
+        elif typ == "doc":
+            newnode = self._resolve_xref_doc(env, fromdocname, builder, node, contnode)
+        elif typ == "project":
+            newnode = self._resolve_xref_project(
+                env, fromdocname, builder, node, contnode
+            )
+        elif typ == "external":
+            newnode = self._resolve_xref_external(
+                env, fromdocname, builder, node, contnode
+            )
         else:
-            # if we've already found an anchored doc,
-            # don't search in the std:ref/std:doc (leads to duplication)
+            log_warning(
+                f"Unknown reference type {typ!r}",
+                location=node,
+                subtype=MystWarnings.REF_TYPE,
+            )
+        # always return a node, so that sphinx does not emit its own warnings
+        return newnode or contnode
 
-            # resolve standard references
-            res = self._resolve_ref_nested(node, refdoc)
-            if res:
-                results.append(("std:ref", res))
+    def _resolve_xref_project(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
+        """Resolve a cross-reference within this project.
 
-            # resolve doc names
-            res = self._resolve_doc_nested(node, refdoc)
-            if res:
-                results.append(("std:doc", res))
+        This is similar to use of the `std:ref` role,
+        but also allows for nested parsing of text.
+        """
+        target = node["reftarget"]
+        stddomain = cast(StandardDomain, self.env.get_domain("std"))
+        newnode = stddomain._resolve_ref_xref(
+            env, fromdocname, builder, "ref", target, node, contnode
+        )
+        if newnode is None:
+            log_warning(
+                f"Unknown project reference {target!r}",
+                location=node,
+                subtype=MystWarnings.REF_MISSING,
+            )
+            return None
+        if node["refexplicit"]:
+            # replace children of the new node with those of the contnode
+            # and make classes similar to those produced by `std:ref` role
+            with suppress(ValueError):
+                contnode["classes"].remove("xref")
+            contnode["classes"].extend(["std", "std-ref"])
+            newnode.children = [contnode]
 
+        if newnode and node.get("title"):
+            newnode["reftitle"] = node["title"]
+
+        return newnode
+
+    def _resolve_xref_external(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
+        """Resolve a cross-reference to an external project."""
+        from sphinx.ext.intersphinx import (
+            inventory_exists,
+            resolve_reference_any_inventory,
+            resolve_reference_in_inventory,
+        )
+
+        refquery = node.get("refquery", {})
+        inv_name = refquery.get("inv")
+        if not inventory_exists(env, inv_name):
+            log_warning(
+                f"Unknown external reference inventory {inv_name!r}",
+                location=node,
+                subtype=MystWarnings.REF_MISSING,
+            )
+            return None
+        with tmp_node_attrs(
+            node,
+            reftype=refquery.get("type", "any"),
+            refdomain=refquery.get("domain", "std"),
+        ):
+            if inv_name is not None:
+                newnode = resolve_reference_in_inventory(env, inv_name, node, contnode)
+            else:
+                newnode = resolve_reference_any_inventory(env, False, node, contnode)
+        if not newnode:
+            loc = [
+                inv_name or "any",
+                refquery.get("domain", "-"),
+                refquery.get("type", "any"),
+            ]
+            log_warning(
+                f"Unknown external reference {node['reftarget']!r} in '{':'.join(loc)}'",
+                location=node,
+                subtype=MystWarnings.REF_MISSING,
+            )
+            return None
+        if newnode and node.get("title"):
+            newnode["reftitle"] = node["title"]
+        # TODO
+        # if not node["refexplicit"] and not newnode.astext():
+        #     newnode.insert(0, nodes.Text(" "))
+        return newnode
+
+    def _resolve_xref_doc(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
+        """Resolve a cross-reference to another document within the project,
+        and possibly a target within it.
+        """
+        docname: str = docname_join(fromdocname, node["reftarget"])
+        refname: str | None = node.get("refname", None)
+
+        # check that the docname can be found
+        if docname not in env.all_docs:
+            log_warning(
+                f"Unknown reference docname {docname!r}",
+                location=node,
+                subtype=MystWarnings.REF_MISSING,
+            )
+            return None
+
+        # find the the id for the a fragment, if given
+        refid = ""
+        reftext: str | None = None
+        if refname:
+            myst_refs: dict[str, dict] = env.metadata[docname].get(
+                "myst_local_targets", {}
+            )
+            if refname not in myst_refs:
+                log_warning(
+                    f"Unknown local ref {refname!r} in doc {docname!r}",
+                    location=node,
+                    subtype=MystWarnings.REF_MISSING,
+                )
+            else:
+                ref = MystLocalTarget(**myst_refs[refname])
+                refid = ref.id
+                reftext = ref.text
+
+        # if the reference has no child content, try to replace with the relevant text
+        if not contnode.children:
+            if refname and refid:
+                text = reftext or ""
+                if not text:
+                    log_warning(
+                        "empty link text",
+                        location=node,
+                        subtype=MystWarnings.REF_EMPTY,
+                    )
+            else:
+                text = clean_astext(env.titles[docname])
+            contnode = nodes.inline(text, text, classes=contnode["classes"])
+
+        # make classes similar to those produced by `doc` role
+        with suppress(ValueError):
+            contnode["classes"].remove("xref")
+        if "doc" not in contnode["classes"]:
+            contnode["classes"].append("doc")
+
+        return make_refnode(
+            builder, fromdocname, docname, refid, contnode, node.get("title")
+        )
+
+    def _resolve_xref_any(
+        self,
+        env: BuildEnvironment,
+        fromdocname: str,
+        builder: Builder,
+        node: pending_xref,
+        contnode: Element,
+    ) -> Element | None:
+        """Resolve a cross-reference to anything available.
+
+        This is similar to the use of the `any` role,
+        """
+        target: str = node["reftarget"]
+        refdoc = node.get("refdoc")
+        refquery = node.get("refquery", {})
         # get allowed domains for referencing
-        ref_domains = self.env.config.myst_ref_domains
+        # ref_domains = self.env.config.myst_ref_domains
+        ref_domains = [refquery["domain"]] if "domain" in refquery else None
 
-        assert self.app.builder
+        results: list[tuple[str, Element]] = []
 
-        # next resolve for any other standard reference objects
+        # we make the `std` domain a priority
         if ref_domains is None or "std" in ref_domains:
             stddomain = cast(StandardDomain, self.env.get_domain("std"))
-            for objtype in stddomain.object_types:
-                key = (objtype, target)
-                if objtype == "term":
-                    key = (objtype, target.lower())
-                if key in stddomain.objects:
-                    docname, labelid = stddomain.objects[key]
-                    domain_role = "std:" + stddomain.role_for_objtype(objtype)
-                    ref_node = make_refnode(
-                        self.app.builder, refdoc, docname, labelid, contnode
-                    )
-                    results.append((domain_role, ref_node))
 
-        # finally resolve for any other type of allowed reference domain
+            results.extend(
+                stddomain.resolve_any_xref(
+                    self.env, refdoc, builder, target, node, contnode
+                )
+            )
+            # also try resolving as a docname
+            doc_ref = stddomain.resolve_xref(
+                self.env, refdoc, builder, "doc", target, node, contnode
+            )
+            if doc_ref:
+                results.append(("doc", doc_ref))
+
         for domain in self.env.domains.values():
             if domain.name == "std":
                 continue  # we did this one already
@@ -145,30 +310,21 @@ class MystReferenceResolver(ReferencesResolver):
             try:
                 results.extend(
                     domain.resolve_any_xref(
-                        self.env, refdoc, self.app.builder, target, node, contnode
+                        self.env, refdoc, builder, target, node, contnode
                     )
                 )
             except NotImplementedError:
-                # the domain doesn't yet support the new interface
-                # we have to manually collect possible references (SLOW)
                 if not (getattr(domain, "__module__", "").startswith("sphinx.")):
-                    logger.warning(
+                    # the domain doesn't yet support the new interface
+                    log_warning(
                         f"Domain '{domain.__module__}::{domain.name}' has not "
-                        "implemented a `resolve_any_xref` method [myst.domains]",
-                        type="myst",
-                        subtype="domains",
+                        "implemented a `resolve_any_xref` method",
+                        subtype=MystWarnings.LEGACY_DOMAIN,
+                        location=None,
                         once=True,
                     )
-                for role in domain.roles:
-                    res = domain.resolve_xref(
-                        self.env, refdoc, self.app.builder, role, target, node, contnode
-                    )
-                    if res and len(res) and isinstance(res[0], nodes.Element):
-                        results.append((f"{domain.name}:{role}", res))
 
-        # now, see how many matches we got...
-        if not results:
-            return None
+        # warn if we have more than one result
         if len(results) > 1:
 
             def stringify(name, node):
@@ -176,107 +332,60 @@ class MystReferenceResolver(ReferencesResolver):
                 return f":{name}:`{reftitle}`"
 
             candidates = " or ".join(stringify(name, role) for name, role in results)
-            logger.warning(
-                __(
-                    f"more than one target found for 'myst' cross-reference {target}: "
-                    f"could be {candidates} [myst.ref]"
-                ),
+            log_warning(
+                f"more than one target found for {target!r}: could be {candidates}",
                 location=node,
-                type="myst",
-                subtype="ref",
+                subtype=MystWarnings.REF_DUPLICATE,
             )
 
-        res_role, newnode = results[0]
-        # Override "myst" class with the actual role type to get the styling
-        # approximately correct.
-        res_domain = res_role.split(":")[0]
-        if len(newnode) > 0 and isinstance(newnode[0], nodes.Element):
-            newnode[0]["classes"] = newnode[0].get("classes", []) + [
-                res_domain,
-                res_role.replace(":", "-"),
-            ]
+        newnode: None | Element = None
+        res_role: None | str = None
+        if results:
+            res_role, newnode = results[0]
+
+        if newnode is None and ref_domains is None:
+            newnode = env.app.emit_firstresult(
+                "missing-reference",
+                env,
+                node,
+                contnode,
+                allowed_exceptions=(NoUri,),
+            )
+
+        # replace node children with the original nodes, if they were explicitly set
+        if newnode and node["refexplicit"]:
+            newnode.children = [contnode]
+
+        if newnode and node.get("title"):
+            newnode["reftitle"] = node["title"]
+
+        if newnode and res_role:
+            # Add classes to the node's first child, for styling
+            res_domain = res_role.split(":")[0]
+            if len(newnode) > 0 and isinstance(newnode[0], nodes.Element):
+                _classes = newnode[0].get("classes", [])
+                with suppress(ValueError):
+                    _classes.remove("xref")
+                if res_domain not in _classes:
+                    _classes.append(res_domain)
+                if res_role.replace(":", "-") not in _classes:
+                    _classes.append(res_role.replace(":", "-"))
+                newnode[0]["classes"] = _classes
+
+        # create warnings
+        if newnode is None:
+            log_warning(
+                f"no target found for {target!r}"
+                + ("" if ref_domains is None else f" in domains {ref_domains}"),
+                location=node,
+                subtype=MystWarnings.REF_MISSING,
+            )
+        elif not newnode.astext():
+            log_warning(
+                f"empty link text for target {target!r}"
+                + (f" ({res_role})" if res_role else ""),
+                location=node,
+                subtype=MystWarnings.REF_EMPTY,
+            )
 
         return newnode
-
-    def _resolve_anchor(
-        self, node: pending_xref, fromdocname: str
-    ) -> Optional[Element]:
-        """Resolve doc with anchor."""
-        if self.env.config.myst_heading_anchors is None:
-            # no target anchors will have been created, so we don't look for them
-            return None
-        target = node["reftarget"]  # type: str
-        if "#" not in target:
-            return None
-        # the link may be a heading anchor; we need to first get the relative path
-        rel_path, anchor = target.rsplit("#", 1)
-        rel_path = os.path.normpath(rel_path)
-        if rel_path == ".":
-            # anchor in the same doc as the node
-            doc_path = self.env.doc2path(node.get("refdoc", fromdocname), base=False)
-        else:
-            # anchor in a different doc from the node
-            doc_path = os.path.normpath(
-                os.path.join(node.get("refdoc", fromdocname), "..", rel_path)
-            )
-        return self._resolve_ref_nested(node, fromdocname, doc_path + "#" + anchor)
-
-    def _resolve_ref_nested(
-        self, node: pending_xref, fromdocname: str, target=None
-    ) -> Optional[Element]:
-        """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
-        but allows for nested syntax, rather than converting the inner node to raw text.
-        """
-        stddomain = cast(StandardDomain, self.env.get_domain("std"))
-        target = target or node["reftarget"].lower()
-
-        if node["refexplicit"]:
-            # reference to anonymous label; the reference uses
-            # the supplied link caption
-            docname, labelid = stddomain.anonlabels.get(target, ("", ""))
-            sectname = node.astext()
-            innernode = nodes.inline(sectname, "")
-            innernode.extend(node[0].children)
-        else:
-            # reference to named label; the final node will
-            # contain the section name after the label
-            docname, labelid, sectname = stddomain.labels.get(target, ("", "", ""))
-            innernode = nodes.inline(sectname, sectname)
-
-        if not docname:
-            return None
-
-        assert self.app.builder
-        return make_refnode(self.app.builder, fromdocname, docname, labelid, innernode)
-
-    def _resolve_doc_nested(
-        self, node: pending_xref, fromdocname: str
-    ) -> Optional[Element]:
-        """This is the same as ``sphinx.domains.std._resolve_doc_xref``,
-        but allows for nested syntax, rather than converting the inner node to raw text.
-
-        It also allows for extensions on document names.
-        """
-        # directly reference to document by source name; can be absolute or relative
-        refdoc = node.get("refdoc", fromdocname)
-        docname = docname_join(refdoc, node["reftarget"])
-
-        if docname not in self.env.all_docs:
-            # try stripping known extensions from doc name
-            if os.path.splitext(docname)[1] in self.env.config.source_suffix:
-                docname = os.path.splitext(docname)[0]
-            if docname not in self.env.all_docs:
-                return None
-
-        if node["refexplicit"]:
-            # reference with explicit title
-            caption = node.astext()
-            innernode = nodes.inline(caption, "", classes=["doc"])
-            innernode.extend(node[0].children)
-        else:
-            # TODO do we want nested syntax for titles?
-            caption = clean_astext(self.env.titles[docname])
-            innernode = nodes.inline(caption, caption, classes=["doc"])
-
-        assert self.app.builder
-        return make_refnode(self.app.builder, fromdocname, docname, "", innernode)

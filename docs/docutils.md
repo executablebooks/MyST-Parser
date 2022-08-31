@@ -28,7 +28,7 @@ $ echo "Hello World" | myst-docutils-html
 $ myst-docutils-html hello-world.md
 ```
 
-The commands are based on the [Docutils Front-End Tools](https://docutils.sourceforge.io/docs/user/tools.html), and so follow the same argument and options structure, included many of the MyST specific options detailed in [](sphinx/config-options).
+The commands are based on the [Docutils Front-End Tools](https://docutils.sourceforge.io/docs/user/tools.html), and so follow the same argument and options structure, included many of the MyST specific options detailed in [](myst:any#sphinx/config-options).
 
 :::{dropdown}  Shared Docutils CLI Options
 ```{docutils-cli-help}

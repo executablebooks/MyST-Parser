@@ -36,7 +36,7 @@ abcd *abc* [google](https://www.google.com)
 
 ````
 
-```{admonition} Title with [link](target2)
+```{admonition} Title with [link](#target2)
 Content
 ```
 
@@ -54,7 +54,7 @@ Caption
 
 <https://www.google.com>
 
-**{code}`` a=1{`} ``**
+**{sup}`` a=1{`} ``**
 
 {math}`sdfds`
 

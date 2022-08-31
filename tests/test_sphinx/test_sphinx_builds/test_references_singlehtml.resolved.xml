@@ -1,5 +1,5 @@
 <document source="other.md">
-    <section ids="other-title" myst-anchor="other/other.md#other-title" names="other\ title">
+    <section anchor_id="other-title" ids="other-title" names="other\ title">
         <title>
             Other Title
         <paragraph>
@@ -12,9 +12,9 @@
                     Other 2 Title
         <paragraph>
             <reference internal="True" refuri="index.html#document-other/other2">
-                <inline classes="doc std std-doc">
+                <inline classes="std std-doc doc">
                     Other 2 Title
         <paragraph>
             <reference internal="True" refuri="index.html#document-index#title">
-                <inline classes="std std-doc">
+                <inline classes="std std-doc doc">
                     Title

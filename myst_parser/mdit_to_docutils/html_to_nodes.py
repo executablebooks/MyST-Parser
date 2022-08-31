@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from docutils import nodes
 
 from myst_parser.parsers.parse_html import Data, tokenize_html
+from myst_parser.warnings import MystWarnings
 
 if TYPE_CHECKING:
     from .base import DocutilsRenderer
@@ -58,7 +59,7 @@ def html_to_nodes(
         root = tokenize_html(text).strip(inplace=True, recurse=False)
     except Exception:
         msg_node = renderer.create_warning(
-            "HTML could not be parsed", line=line_number, subtype="html"
+            "HTML could not be parsed", MystWarnings.HTML_PARSE, line=line_number
         )
         return ([msg_node] if msg_node else []) + default_html(
             text, renderer.document["source"], line_number

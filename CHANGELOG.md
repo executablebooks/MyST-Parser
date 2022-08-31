@@ -363,7 +363,7 @@ In particular for users, this update alters the parsing of tables to be consiste
 
 ### New Features ✨
 
-- **Task lists** utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+- **Task lists** utilise the [markdown-it-py tasklists plugin](myst:any#markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
 
   ```markdown
   - [ ] An item that needs doing
@@ -437,7 +437,7 @@ A warning (of type `myst.nested_header`) is now emitted when this occurs.
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
-  See [How-to suppress warnings](howto/warnings) for more information.
+  See [How-to suppress warnings](myst:any#howto/warnings) for more information.
 
 ## 0.13.3 - 2021-01-20
 
@@ -596,7 +596,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ## 0.12.7 - 2020-08-31
 
 ✨ NEW: Want to include your README.md in the documentation?
-: See [including a file from outside the docs folder](howto/include-readme).
+: See [including a file from outside the docs folder](myst:any#howto/include-readme).
 
 (👌 added `relative-docs` option in 0.12.8)
 

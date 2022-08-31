@@ -46,7 +46,7 @@ To parse single documents, see the [](docutils.md) section
 ## Write a CommonMark document
 
 MyST is an extension of [CommonMark Markdown](https://commonmark.org/),
-that includes [additional syntax](../syntax/syntax.md) for technical authoring,
+that includes [additional syntax](./syntax/syntax.md) for technical authoring,
 which integrates with Docutils and Sphinx.
 
 To start off, create an empty file called `myfile.md` and give it a markdown title and text.
@@ -80,7 +80,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 To include this document within a Sphinx project,
-include `myfile.md` in a [`toctree` directive](sphinx:toctree-directive) on an index page.
+include `myfile.md` in a [`toctree` directive](myst:any#sphinx:toctree-directive) on an index page.
 
 ## Extend CommonMark with roles and directives
 
@@ -128,7 +128,7 @@ For example, to add a section *reference target*, and reference it:
 (header-label)=
 # A header
 
-[My reference](header-label)
+[My reference](#header-label)
 ```
 
 ```html
@@ -142,7 +142,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 :::{seealso}
-The [](syntax/referencing) section,\
+The [](myst:any#syntax/referencing) section,\
 and the [ReadTheDocs cross-referencing](https://docs.readthedocs.io/en/stable/guides/cross-referencing-with-sphinx.html) documentation
 :::
 
@@ -209,8 +209,8 @@ Here's my admonition content
 And some more content.
 
 % This comment won't make it into the outputs!
-And here's {ref}`a reference to this section <section-two>`.
-I can also reference the section {ref}`section-two` without specifying my title.
+And here's [a reference to this section](#section-two).
+I can also reference the section [](#section-two) without specifying my title.
 
 :::{note}
 And here's a note with a colon fence!

@@ -8,11 +8,11 @@
 
 [nested *syntax*](https://example.com)
 
-[](title)
+[](#title)
 
-[plain text](title)
+[plain text](#title)
 
-[nested *syntax*](title)
+[nested *syntax*](#title)
 
 [](index.md)
 
@@ -34,7 +34,7 @@ Referencing the :ref:`title`
 Still inside the codeblock insidecodeblock_
 ```
 
-I am outside the [fence](insidecodeblock)
+I am outside the [fence](#insidecodeblock)
 
 ## Title *anchors*
 
@@ -44,8 +44,6 @@ subfolder/other2.md
 ```
 
 [](#title-anchors)
-
-[](./#title-anchors)
 
 [](./other.md#title-anchors)
 

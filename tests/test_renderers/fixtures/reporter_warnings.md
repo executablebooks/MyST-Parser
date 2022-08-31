@@ -3,14 +3,14 @@ Duplicate Reference definitions:
 [a]: b
 [a]: c
 .
-<string>:2: (WARNING/2) Duplicate reference definition: A [myst.ref]
+<string>:2: (WARNING/2) Duplicate reference definition: A [myst.duplicate_def]
 .
 
 Missing Reference:
 .
 [a](b)
 .
-<string>:1: (ERROR/3) Unknown target name: "b".
+<string>:1: (WARNING/2) Unhandled link URI (prepend with '#' or 'myst:any#'?): 'b' [myst.link_uri]
 .
 
 Unknown role:

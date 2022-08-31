@@ -8,9 +8,18 @@ import re
 from collections import OrderedDict
 from contextlib import contextmanager
 from datetime import date, datetime
+from pathlib import Path
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Iterator, MutableMapping, Sequence, cast
-from urllib.parse import urlparse
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterator,
+    MutableMapping,
+    Optional,
+    Sequence,
+    cast,
+)
+from urllib.parse import unquote
 
 import jinja2
 import yaml
@@ -43,6 +52,8 @@ from myst_parser.mocking import (
     MockStateMachine,
 )
 from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
+from myst_parser.transforms.local_links import MystLocalLink
+from myst_parser.warnings import MystWarnings, create_warning
 from .html_to_nodes import html_to_nodes
 from .utils import is_external_url
 
@@ -56,6 +67,8 @@ def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     return new_document(source_path, settings=settings)
 
 
+# https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+REGEX_URL_SCHEMA = re.compile(r"^(?P<schema>[a-zA-Z][a-zA-Z0-9+.-]*):(?P<body>.*)")
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
@@ -66,55 +79,6 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
             return default
         raise ValueError(f"token map not set: {token}")
     return token.map[0]  # type: ignore[index]
-
-
-def is_suppressed_warning(
-    type: str, subtype: str, suppress_warnings: Sequence[str]
-) -> bool:
-    """Check whether the warning is suppressed or not.
-
-    Mirrors:
-    https://github.com/sphinx-doc/sphinx/blob/47d9035bca9e83d6db30a0726a02dc9265bd66b1/sphinx/util/logging.py
-    """
-    if type is None:
-        return False
-
-    subtarget: str | None
-
-    for warning_type in suppress_warnings:
-        if "." in warning_type:
-            target, subtarget = warning_type.split(".", 1)
-        else:
-            target, subtarget = warning_type, None
-
-        if target == type and subtarget in (None, subtype, "*"):
-            return True
-
-    return False
-
-
-def create_warning(
-    document: nodes.document,
-    config: MdParserConfig,
-    message: str,
-    *,
-    line: int | None = None,
-    append_to: nodes.Element | None = None,
-    wtype: str = "myst",
-    subtype: str = "other",
-) -> nodes.system_message | None:
-    """Generate a warning, logging if it is necessary.
-
-    Note this is overridden in the ``SphinxRenderer``,
-    to handle suppressed warning types.
-    """
-    if is_suppressed_warning(wtype, subtype, config.suppress_warnings):
-        return None
-    kwargs = {"line": line} if line is not None else {}
-    msg_node = document.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
-    if append_to is not None:
-        append_to.append(msg_node)
-    return msg_node
 
 
 class DocutilsRenderer(RendererProtocol):
@@ -184,25 +148,22 @@ class DocutilsRenderer(RendererProtocol):
     def create_warning(
         self,
         message: str,
+        subtype: MystWarnings,
         *,
         line: int | None = None,
         append_to: nodes.Element | None = None,
-        wtype: str = "myst",
-        subtype: str = "other",
     ) -> nodes.system_message | None:
         """Generate a warning, logging if it is necessary.
 
-        Note this is overridden in the ``SphinxRenderer``,
-        to handle suppressed warning types.
+        If the warning type is listed in the ``suppress_warnings`` configuration,
+        then ``None`` will be returned and no warning logged.
         """
         return create_warning(
             self.document,
-            self.md_config,
             message,
+            subtype,
             line=line,
             append_to=append_to,
-            wtype=wtype,
-            subtype=subtype,
         )
 
     def _render_tokens(self, tokens: list[Token]) -> None:
@@ -240,8 +201,8 @@ class DocutilsRenderer(RendererProtocol):
             else:
                 self.create_warning(
                     f"No render method for: {child.type}",
+                    MystWarnings.RENDER_METHOD,
                     line=token_line(child, default=0),
-                    subtype="render",
                     append_to=self.current_node,
                 )
 
@@ -280,8 +241,8 @@ class DocutilsRenderer(RendererProtocol):
         for dup_ref in self.md_env.get("duplicate_refs", []):
             self.create_warning(
                 f"Duplicate reference definition: {dup_ref['label']}",
+                MystWarnings.MD_DEF_DUPE,
                 line=dup_ref["map"][0] + 1,
-                subtype="ref",
                 append_to=self.document,
             )
 
@@ -301,14 +262,14 @@ class DocutilsRenderer(RendererProtocol):
             if len(foot_ref_tokens) > 1:
                 self.create_warning(
                     f"Multiple footnote definitions found for label: '{footref}'",
-                    subtype="footnote",
+                    MystWarnings.MD_FOOTNOTE_DUPE,
                     append_to=self.current_node,
                 )
 
             if len(foot_ref_tokens) < 1:
                 self.create_warning(
                     f"No footnote definitions found for label: '{footref}'",
-                    subtype="footnote",
+                    MystWarnings.MD_FOOTNOTE_MISSING,
                     append_to=self.current_node,
                 )
             else:
@@ -389,8 +350,8 @@ class DocutilsRenderer(RendererProtocol):
             else:
                 self.create_warning(
                     f"No render method for: {child.type}",
+                    MystWarnings.RENDER_METHOD,
                     line=token_line(child, default=0),
-                    subtype="render",
                     append_to=self.current_node,
                 )
 
@@ -431,8 +392,8 @@ class DocutilsRenderer(RendererProtocol):
                 msg = f"Document headings start at H{level}, not H1"
             self.create_warning(
                 msg,
+                MystWarnings.MD_HEADING_NON_CONSECUTIVE,
                 line=section.line,
-                subtype="header",
                 append_to=self.current_node,
             )
 
@@ -667,8 +628,8 @@ class DocutilsRenderer(RendererProtocol):
             # this would break the document structure
             self.create_warning(
                 "Disallowed nested header found, converting to rubric",
+                MystWarnings.MD_HEADING_NESTED,
                 line=token_line(token, default=0),
-                subtype="nested_header",
                 append_to=self.current_node,
             )
             rubric = nodes.rubric(token.content, "")
@@ -702,87 +663,168 @@ class DocutilsRenderer(RendererProtocol):
         # create a target reference for the section, based on the heading text
         name = nodes.fully_normalize_name(title_node.astext())
         new_section["names"].append(name)
+        # a header reference is implicit, meaning that if duplicate names are found,
+        # a warning will not be immediately emitted.
+        # Only if the name is referenced, then a duplicate target warning will be emitted.
+        # Sections with duplicate names will have an id set with an integer prefix.
+        # Additionally, if an explicit target is created with the same name,
+        # this will be used for any reference, and no warning will be emitted.
         self.document.note_implicit_target(new_section, new_section)
+
+        # Add specific anchor ID created by the Markdown parse (optional)
+        # Note, we do not use the docutils name/id mechanism here (as an explicit target),
+        # since (a) the id format may not comply with docutils one,
+        # and (b) we don't want sphinx to pick up these as project wide targets
+        # (which could lead to many name clashes)
+        # we handle it in a specific transform.
+        anchor_id = cast(Optional[str], token.attrGet("id"))
+        if anchor_id:
+            new_section["anchor_id"] = anchor_id
 
         # set the section as the current node for subsequent rendering
         self.current_node = new_section
 
     def render_link(self, token: SyntaxTreeNode) -> None:
-        """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
+        """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST."""
 
-        - If `<>` autolink, forward to `render_autolink`
-        - If `myst_all_links_external` is True, forward to `render_external_url`
-        - If link is an external URL, forward to `render_external_url`
-          - External URLs start with a scheme (e.g. `http:`) in `myst_url_schemes`,
-            or any scheme if  `myst_url_schemes` is None.
-        - Otherwise, forward to `render_internal_link`
-        """
-        if token.info == "auto":  # handles both autolink and linkify
-            return self.render_autolink(token)
+        uri = cast(str, token.attrGet("href") or "")
 
         if (
-            self.md_config.commonmark_only
+            self.md_config.all_links_external
+            or self.md_config.commonmark_only
             or self.md_config.gfm_only
-            or self.md_config.all_links_external
+            or token.info == "auto"  # assume auto-links and linkify are always external
         ):
-            return self.render_external_url(token)
+            return self.add_external_ref(token, uri)
 
-        # Check for external URL
-        url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
-        allowed_url_schemes = self.md_config.url_schemes
-        if (allowed_url_schemes is None and url_scheme) or (
-            allowed_url_schemes is not None and url_scheme in allowed_url_schemes
+        # if the link starts with #, then it is a local fragment,
+        # i.e. a reference to a target id on the same page
+        if uri.startswith("#"):
+            return self.add_local_fragment_ref(token, uri[1:])
+
+        # if the link has a scheme, split it into the scheme and the rest of the link
+        scheme: None | str = None
+        body: str = uri
+        schema_match = REGEX_URL_SCHEMA.fullmatch(uri)
+        if schema_match:
+            scheme = schema_match.groupdict()["schema"].lower()
+            body = schema_match.groupdict()["body"]
+
+        # TODO allow for custom scheme handling here
+        # to be loaded how? (added by extensions)
+
+        # if its the myst scheme, then render that
+        if scheme == "myst":
+            return self.add_myst_ref(token, unquote(body))
+
+        # if its a known external scheme, then render that
+        if scheme and (
+            self.md_config.url_schemes is None or scheme in self.md_config.url_schemes
         ):
-            return self.render_external_url(token)
+            return self.add_external_ref(token, uri)
 
-        return self.render_internal_link(token)
+        # if no scheme,7 check if the path is to a local file (possible including fragment)
+        # (currently only available in sphinx, where we can retrieve the path
+        #  and exclude some test cases that have no set srcdir)
+        # TODO support in docutils (or at least identify)
+        if not scheme:
 
-    def render_external_url(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has been identified as an external URL::
+            # obtain the path relative to the current file
+            rel_path = unquote(uri)
+            fragment: None | str = None
+            if "#" in rel_path:
+                rel_path, fragment = rel_path.split("#", 1)
+            # make the path relative to an "including" document, this is set
+            # when using the `relative-docs` option of the MyST `include` directive
+            relative_include = self.md_env.get("relative-docs", None)
+            if relative_include is not None and rel_path.startswith(
+                relative_include[0]
+            ):
+                source_dir, include_dir = relative_include[1:]
+                rel_path = os.path.relpath(
+                    os.path.join(include_dir, os.path.normpath(rel_path)), source_dir
+                )
 
-            <reference refuri="link" title="title">
-                text
+            # obtain the absolute path to the file
+            abs_path: None | Path = None
+            if self.sphinx_env:
+                # when parsing with sphinx
+                # in some test cases, the scrdir is not set
+                if self.sphinx_env.srcdir:
+                    abs_path = (
+                        Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent
+                        / rel_path
+                    )
+            elif self.document.get("source"):
+                # when parsing with docutils
+                abs_path = Path(self.document.get("source")).parent / rel_path
 
-        `text` can contain nested syntax, e.g. `[**bold**](url "title")`.
+            if abs_path and abs_path.is_file():
+                return self.add_local_file_ref(token, rel_path, abs_path, fragment)
+
+        # otherwise create warning and parse children only
+        self.create_warning(
+            f"Unhandled link URI (prepend with '#' or 'myst:any#'?): {uri!r}",
+            MystWarnings.MD_LINK_URI,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
+        )
+        self.render_children(token)
+
+    def add_external_ref(self, token: SyntaxTreeNode, uri: str) -> None:
+        """Render link token `[text](schema:path "title")`,
+        where the link has been identified as an external URL.
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        ref_node["refuri"] = cast(str, token.attrGet("href") or "")
+        ref_node["refuri"] = escapeHtml(uri)
         title = token.attrGet("title")
         if title:
             ref_node["title"] = title
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def render_internal_link(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has not been identified as an external URL::
-
-            <reference refname="link" title="title">
-                text
-
-        `text` can contain nested syntax, e.g. `[**bold**](link "title")`.
-
-        Note, this is overridden by `SphinxRenderer`, to use `pending_xref` nodes.
-        """
-        ref_node = nodes.reference()
+    def add_local_fragment_ref(self, token: SyntaxTreeNode, refname: str) -> None:
+        """Render link token `[text](#ref "title")`"""
+        ref_node = MystLocalLink(refname=refname)
         self.add_line_and_source_path(ref_node, token)
-        ref_node["refname"] = cast(str, token.attrGet("href") or "")
-        self.document.note_refname(ref_node)
         title = token.attrGet("title")
         if title:
             ref_node["title"] = title
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def render_autolink(self, token: SyntaxTreeNode) -> None:
-        refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
-        ref_node = nodes.reference()
-        ref_node["refuri"] = refuri
-        self.add_line_and_source_path(ref_node, token)
-        with self.current_node_context(ref_node, append=True):
-            self.render_children(token)
+    def add_myst_ref(self, token: SyntaxTreeNode, reference: str) -> None:
+        """Render link token `[text](myst:any#ref "title")`
+
+        These are only supported by sphinx, since they require inter-document links,
+        so this method is overridden in the sphinx renderer.
+        """
+        self.create_warning(
+            "docutils only parsing does not support 'myst:' links: "
+            + repr(token.attrGet("href")),
+            MystWarnings.DOCUTILS_UNSUPPORTED,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
+        )
+        self.render_children(token)
+
+    def add_local_file_ref(
+        self, token: SyntaxTreeNode, rel_path: str, abs_path: Path, fragment: None | str
+    ) -> None:
+        """Render link token `[text](path/to/file#fragment "title")`
+
+        These are only supported by sphinx, since they require inter-document links,
+        so this method is overridden in the sphinx renderer.
+        """
+        self.create_warning(
+            "docutils only parsing does not support local file links "
+            + repr(token.attrGet("href")),
+            MystWarnings.DOCUTILS_UNSUPPORTED,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
+        )
+        self.render_children(token)
 
     def render_html_inline(self, token: SyntaxTreeNode) -> None:
         self.render_html_block(token)
@@ -873,9 +915,9 @@ class DocutilsRenderer(RendererProtocol):
             except (yaml.parser.ParserError, yaml.scanner.ScannerError):
                 self.create_warning(
                     "Malformed YAML",
+                    MystWarnings.MD_TOPMATTER,
                     line=position,
                     append_to=self.current_node,
-                    subtype="topmatter",
                 )
                 return
         else:
@@ -884,9 +926,9 @@ class DocutilsRenderer(RendererProtocol):
         if not isinstance(data, dict):
             self.create_warning(
                 f"YAML is not a dict: {type(data)}",
+                MystWarnings.MD_TOPMATTER,
                 line=position,
                 append_to=self.current_node,
-                subtype="topmatter",
             )
             return
 
@@ -1033,8 +1075,8 @@ class DocutilsRenderer(RendererProtocol):
         # TODO strikethrough not currently directly supported in docutils
         self.create_warning(
             "Strikethrough is currently only supported in HTML output",
+            MystWarnings.STRIKETHROUGH,
             line=token_line(token, 0),
-            subtype="strikethrough",
             append_to=self.current_node,
         )
         self.current_node.append(nodes.raw("", "<s>", format="html"))
@@ -1139,9 +1181,9 @@ class DocutilsRenderer(RendererProtocol):
         )
         inliner = MockInliner(self)
         if role_func:
-            nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
+            _nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
             # return nodes, messages + messages2
-            self.current_node += nodes
+            self.current_node += _nodes
         else:
             message = self.reporter.error(
                 f'Unknown interpreted text role "{name}".', line=lineno

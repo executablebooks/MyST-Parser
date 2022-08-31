@@ -15,6 +15,7 @@ from myst_parser.config.main import (
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer, create_warning
 from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.transforms.local_links import MdDocumentLinks
 
 
 def _validate_int(
@@ -48,6 +49,10 @@ class Unset:
     def __repr__(self):
         return "UNSET"
 
+    def __bool__(self):
+        # this allows to check if the setting is unset/falsy
+        return False
+
 
 DOCUTILS_UNSET = Unset()
 """Sentinel for arguments not set through docutils.conf."""
@@ -62,7 +67,6 @@ DOCUTILS_EXCLUDED_ARGS = (
     # we can't add substitutions so not needed
     "sub_delimiters",
     # sphinx only options
-    "heading_anchors",
     "ref_domains",
     "update_mathjax",
     "mathjax_classes",
@@ -182,6 +186,9 @@ class Parser(RstParser):
     config_section_dependencies = ("parsers",)
     translate_section_name = None
 
+    def get_transforms(self):
+        return super().get_transforms() + [MdDocumentLinks]
+
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.
 
@@ -218,7 +225,7 @@ class Parser(RstParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document, config, msg, line=1, append_to=document, subtype=wtype
+                    document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
 

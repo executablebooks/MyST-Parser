@@ -38,7 +38,7 @@ Configuration specific to syntax extensions:
 ```
 
 The following configuration variables are available at the document level.
-These can be set in the document [front matter](syntax/frontmatter), under the `myst` key, e.g.
+These can be set in the document [front matter](myst:any#syntax/frontmatter), under the `myst` key, e.g.
 
 ```yaml
 ---
@@ -64,28 +64,28 @@ Configuration specific to syntax extensions:
 
 ## List of syntax extensions
 
-Full details in the [](syntax/extensions) section.
+Full details in the [](myst:any#syntax/extensions) section.
 
 amsmath
 : enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
 
 colon_fence
-: Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
+: Enable code fences using `:::` delimiters, [see here](myst:any#syntax/colon_fence) for details
 
 deflist
-: Enable definition lists, [see here](syntax/definition-lists) for details
+: Enable definition lists, [see here](myst:any#syntax/definition-lists) for details
 
 dollarmath
 : Enable parsing of dollar `$` and `$$` encapsulated math
 
 fieldlist
-: Enable field lists, [see here](syntax/fieldlists) for details
+: Enable field lists, [see here](myst:any#syntax/fieldlists) for details
 
 html_admonition
-: Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](syntax/html-admonition) for details
+: Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](myst:any#syntax/html-admonition) for details
 
 html_image
-: Convert HTML `<img>` elements to sphinx image nodes, [see here](syntax/images) for details
+: Convert HTML `<img>` elements to sphinx image nodes, [see here](myst:any#syntax/images) for details
 
 linkify
 : Automatically identify "bare" web URLs and add hyperlinks
@@ -97,10 +97,10 @@ smartquotes
 : Automatically convert standard quotations to their opening/closing variants
 
 strikethrough
-: Enable strikethrough syntax, [see here](syntax/strikethrough) for details
+: Enable strikethrough syntax, [see here](myst:any#syntax/strikethrough) for details
 
 substitution
-: Substitute keys, [see here](syntax/substitutions) for details
+: Substitute keys, [see here](myst:any#syntax/substitutions) for details
 
 tasklist
-: Add check-boxes to the start of list items, [see here](syntax/tasklists) for details
+: Add check-boxes to the start of list items, [see here](myst:any#syntax/tasklists) for details
