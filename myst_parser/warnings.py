@@ -15,7 +15,6 @@ class MystWarnings(Enum):
 
     MD_TOPMATTER = "topmatter"
     """Issue reading top-matter."""
-
     MD_DEF_DUPE = "duplicate_def"
     """Duplicate Markdown reference definition."""
     MD_FOOTNOTE_DUPE = "footnote"
@@ -26,28 +25,41 @@ class MystWarnings(Enum):
     """Non-consecutive heading levels."""
     MD_HEADING_NESTED = "nested_header"
     """Header found nested in another element."""
-
     MD_LINK_URI = "link_uri"
     """Link URI is not valid."""
 
-    DOCUTILS_UNSUPPORTED = "sphinx_only"
-    """Sphinx only feature."""
+    # local reference resolution
+    REF_MISSING = "ref_missing"
+    """A target was not found for a local reference."""
+    REF_EMPTY = "ref_no_content"
+    """A cross-reference was found without content."""
 
     # myst domain reference resolution
-    REF_TYPE = "ref_unknown_type"
-    """A reference was given with an unknown ``reftype``."""
-    REF_MISSING = "ref_missing"
-    """A target was not found for a reference."""
-    REF_DUPLICATE = "ref_duplicate"
-    """Multiple reference were found for a target."""
-    REF_EMPTY = "ref_no_content"
-    """A reference was found without content."""
+    XREF_UNSUPPORTED = "xref_unsupported"
+    """Sphinx only cross-referencing."""
+    # TODO test all these warnings
+    XREF_TYPE = "xref_unknown_type"
+    """A cross-reference was given with an unknown type."""
+    XREF_MISSING = "xref_missing"
+    """A target was not found for a cross-reference."""
+    XREF_DUPLICATE = "xref_duplicate"
+    """Multiple targets were found for a cross-reference."""
+    XREF_EMPTY = "xref_no_content"
+    """A cross-reference was found without content."""
+    XREF_ERROR = "xref_error"
+    """An unspecified error occurred while resolving a cross-reference."""
+    IREF_MISSING = "iref_missing"
+    """A target was not found for an inventory reference."""
+    IREF_DUPLICATE = "iref_duplicate"
+    """Multiple targets were found for an inventory reference."""
+    IREF_ERROR = "iref_error"
+    """An unspecified error occurred while resolving an inventory reference."""
     LEGACY_DOMAIN = "domains"
     """A legacy domain found, which does not support `resolve_any_xref`."""
 
     # extensions
     ANCHOR_DUPE = "anchor_dupe"
-    """Duplicate anchor found."""
+    """Duplicate target anchors found."""
     STRIKETHROUGH = "strikethrough"
     """Strikethrough warning, since only implemented in HTML."""
     HTML_PARSE = "html"

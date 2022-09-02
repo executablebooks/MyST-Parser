@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms import Transform
+from markdown_it.common.utils import escapeHtml
 
 from myst_parser._compat import findall
 from myst_parser.warnings import MystWarnings
@@ -120,33 +121,37 @@ class MdDocumentLinks(Transform):
             if not target:
                 create_warning(
                     self.document,
-                    f"unknown link name {node['refname']!r}",
+                    f"ref name does not match any known target: {node['refname']!r}",
                     MystWarnings.REF_MISSING,
                     line=node.line,
                 )
-                # TODO what to do now? allow for children to remain? use external reference?
-                # append the warning to the parent node?
-                node.parent.remove(node)
+                # here we simply add an internal link, that may not work
+                reference = nodes.reference(refuri=escapeHtml(f"#{node['refname']}"))
             else:
                 reference = nodes.reference(refid=target.id, internal=True)
-                inner_node = nodes.inline("", "", classes=["std", "std-ref"])
-                reference += inner_node
-                inner_node.children = node.children
-                if not inner_node.children:
-                    if target.text:
-                        inner_node.children = [nodes.Text(target.text)]
-                    else:
-                        create_warning(
-                            self.document,
-                            "empty link text",
-                            MystWarnings.REF_EMPTY,
-                            line=node.line,
-                        )
-                if node["classes"]:
-                    reference["classes"].extend(node["classes"])
-                if "title" in node:
-                    reference["reftitle"] = node["title"]
-                node.parent.replace(node, reference)
+
+            inner_node = nodes.inline("", "", classes=["std", "std-ref"])
+            reference += inner_node
+            inner_node.children = node.children
+            if not inner_node.children:
+                if target and target.text:
+                    inner_node.children = [nodes.Text(target.text)]
+                else:
+                    create_warning(
+                        self.document,
+                        "empty link text",
+                        MystWarnings.REF_EMPTY,
+                        line=node.line,
+                    )
+
+            # transfer attributes to reference
+            reference.source, reference.line = node.source, node.line
+            if node["classes"]:
+                reference["classes"].extend(node["classes"])
+            if "title" in node:
+                reference["reftitle"] = node["title"]
+
+            node.parent.replace(node, reference)
 
         # if using sphinx, then save local links to the environment,
         # for use by inter-document link resolution

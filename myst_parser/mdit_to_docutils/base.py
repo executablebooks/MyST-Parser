@@ -803,7 +803,7 @@ class DocutilsRenderer(RendererProtocol):
         self.create_warning(
             "docutils only parsing does not support 'myst:' links: "
             + repr(token.attrGet("href")),
-            MystWarnings.DOCUTILS_UNSUPPORTED,
+            MystWarnings.XREF_UNSUPPORTED,
             line=token_line(token, default=0),
             append_to=self.current_node,
         )
@@ -820,7 +820,7 @@ class DocutilsRenderer(RendererProtocol):
         self.create_warning(
             "docutils only parsing does not support local file links "
             + repr(token.attrGet("href")),
-            MystWarnings.DOCUTILS_UNSUPPORTED,
+            MystWarnings.XREF_UNSUPPORTED,
             line=token_line(token, default=0),
             append_to=self.current_node,
         )

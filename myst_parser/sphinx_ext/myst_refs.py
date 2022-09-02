@@ -5,7 +5,8 @@ and allows for nested syntax
 """
 from __future__ import annotations
 
-from contextlib import contextmanager, suppress
+from contextlib import suppress
+from itertools import product
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -42,20 +43,6 @@ def log_warning(
         subtype=subtype.value,
         **optional,
     )
-
-
-@contextmanager
-def tmp_node_attrs(node: Element, **attrs: dict):
-    """Temporarily set node attributes."""
-    old_attrs = {key: node[key] for key in attrs if key in node}
-    for key, val in attrs.items():
-        node[key] = val
-    yield
-    for key in attrs:
-        if key in old_attrs:
-            node[key] = old_attrs[key]
-        elif key in node:
-            del node[key]
 
 
 class MystRefDomain(Domain):
@@ -97,16 +84,21 @@ class MystRefDomain(Domain):
             newnode = self._resolve_xref_project(
                 env, fromdocname, builder, node, contnode
             )
-        elif typ == "external":
-            newnode = self._resolve_xref_external(
+        elif typ == "inv":
+            newnode = self._resolve_xref_inventory(
                 env, fromdocname, builder, node, contnode
             )
         else:
             log_warning(
                 f"Unknown reference type {typ!r}",
                 location=node,
-                subtype=MystWarnings.REF_TYPE,
+                subtype=MystWarnings.XREF_TYPE,
             )
+
+        # always override the title, if an explicit title is given
+        if newnode and node.get("title"):
+            newnode["reftitle"] = node["title"]
+
         # always return a node, so that sphinx does not emit its own warnings
         return newnode or contnode
 
@@ -132,7 +124,7 @@ class MystRefDomain(Domain):
             log_warning(
                 f"Unknown project reference {target!r}",
                 location=node,
-                subtype=MystWarnings.REF_MISSING,
+                subtype=MystWarnings.XREF_MISSING,
             )
             return None
         if node["refexplicit"]:
@@ -143,12 +135,9 @@ class MystRefDomain(Domain):
             contnode["classes"].extend(["std", "std-ref"])
             newnode.children = [contnode]
 
-        if newnode and node.get("title"):
-            newnode["reftitle"] = node["title"]
-
         return newnode
 
-    def _resolve_xref_external(
+    def _resolve_xref_inventory(
         self,
         env: BuildEnvironment,
         fromdocname: str,
@@ -156,49 +145,23 @@ class MystRefDomain(Domain):
         node: pending_xref,
         contnode: Element,
     ) -> Element | None:
-        """Resolve a cross-reference to an external project."""
-        from sphinx.ext.intersphinx import (
-            inventory_exists,
-            resolve_reference_any_inventory,
-            resolve_reference_in_inventory,
-        )
+        """Resolve a cross-reference to an intersphinx inventory."""
 
+        # get search variables
         refquery = node.get("refquery", {})
-        inv_name = refquery.get("inv")
-        if not inventory_exists(env, inv_name):
-            log_warning(
-                f"Unknown external reference inventory {inv_name!r}",
-                location=node,
-                subtype=MystWarnings.REF_MISSING,
-            )
-            return None
-        with tmp_node_attrs(
-            node,
-            reftype=refquery.get("type", "any"),
-            refdomain=refquery.get("domain", "std"),
-        ):
-            if inv_name is not None:
-                newnode = resolve_reference_in_inventory(env, inv_name, node, contnode)
-            else:
-                newnode = resolve_reference_any_inventory(env, False, node, contnode)
-        if not newnode:
-            loc = [
-                inv_name or "any",
-                refquery.get("domain", "-"),
-                refquery.get("type", "any"),
-            ]
-            log_warning(
-                f"Unknown external reference {node['reftarget']!r} in '{':'.join(loc)}'",
-                location=node,
-                subtype=MystWarnings.REF_MISSING,
-            )
-            return None
-        if newnode and node.get("title"):
-            newnode["reftitle"] = node["title"]
-        # TODO
-        # if not node["refexplicit"] and not newnode.astext():
-        #     newnode.insert(0, nodes.Text(" "))
-        return newnode
+        inv_name = refquery.get("name")
+        refdomain = refquery.get("domain")
+        reftype = refquery.get("type")
+        reftarget = node["reftarget"]
+
+        # Ensure the node has content, based on its target
+        # we then set refexplicit, to stop the intersphinx function from overriding
+        if not node["refexplicit"]:
+            label = nodes.literal(reftarget, reftarget)
+            contnode.append(label)
+            node["refexplicit"] = True
+
+        return resolve_intersphinx(env, node, contnode, inv_name, refdomain, reftype)
 
     def _resolve_xref_doc(
         self,
@@ -219,7 +182,7 @@ class MystRefDomain(Domain):
             log_warning(
                 f"Unknown reference docname {docname!r}",
                 location=node,
-                subtype=MystWarnings.REF_MISSING,
+                subtype=MystWarnings.XREF_MISSING,
             )
             return None
 
@@ -234,7 +197,7 @@ class MystRefDomain(Domain):
                 log_warning(
                     f"Unknown local ref {refname!r} in doc {docname!r}",
                     location=node,
-                    subtype=MystWarnings.REF_MISSING,
+                    subtype=MystWarnings.XREF_MISSING,
                 )
             else:
                 ref = MystLocalTarget(**myst_refs[refname])
@@ -249,7 +212,7 @@ class MystRefDomain(Domain):
                     log_warning(
                         "empty link text",
                         location=node,
-                        subtype=MystWarnings.REF_EMPTY,
+                        subtype=MystWarnings.XREF_EMPTY,
                     )
             else:
                 text = clean_astext(env.titles[docname])
@@ -335,7 +298,7 @@ class MystRefDomain(Domain):
             log_warning(
                 f"more than one target found for {target!r}: could be {candidates}",
                 location=node,
-                subtype=MystWarnings.REF_DUPLICATE,
+                subtype=MystWarnings.XREF_DUPLICATE,
             )
 
         newnode: None | Element = None
@@ -356,9 +319,6 @@ class MystRefDomain(Domain):
         if newnode and node["refexplicit"]:
             newnode.children = [contnode]
 
-        if newnode and node.get("title"):
-            newnode["reftitle"] = node["title"]
-
         if newnode and res_role:
             # Add classes to the node's first child, for styling
             res_domain = res_role.split(":")[0]
@@ -378,14 +338,130 @@ class MystRefDomain(Domain):
                 f"no target found for {target!r}"
                 + ("" if ref_domains is None else f" in domains {ref_domains}"),
                 location=node,
-                subtype=MystWarnings.REF_MISSING,
+                subtype=MystWarnings.XREF_MISSING,
             )
         elif not newnode.astext():
             log_warning(
                 f"empty link text for target {target!r}"
                 + (f" ({res_role})" if res_role else ""),
                 location=node,
-                subtype=MystWarnings.REF_EMPTY,
+                subtype=MystWarnings.XREF_EMPTY,
             )
 
         return newnode
+
+
+def resolve_intersphinx(
+    env: BuildEnvironment,
+    node: Element,
+    contnode: Element,
+    inv_name: None | str,
+    domain_name: None | str,
+    typ: None | str,
+) -> None | tuple[str, str, Element]:
+    """Resolve a cross-reference to an intersphinx inventory.
+
+    This mirrors `sphinx.ext.intersphinx._resolve_reference` (available from sphinx 4.3)
+    but adds additional features:
+
+    - allows for missing object typ, this will then search all types in the domain
+    - warn on matches in multiple inventories/domains
+
+    :param env: The sphinx build environment
+    :param node: The pending xref node, this requires the `reftarget` attribute,
+        and the 'refexplicit' attribute is optional
+    :param contnode: The content node, this is the node that will be used to
+        display the link text
+    :param inv_name: The name of the intersphinx inventory to use, if None then
+        all inventories will be searched
+    :param domain_name: The name of the domain to search, if None then all domains
+        will be searched
+    :param typ: The type of object to search for, if None then all types will be searched
+
+    :returns: tuple of (inv_name, domain_name, resolved node),
+        or None if no match was found
+    """
+    # TODO upstream this to sphinx?
+
+    try:
+        from sphinx.ext.intersphinx import (
+            InventoryAdapter,
+            _resolve_reference_in_domain,
+        )
+    except ImportError:
+        log_warning(
+            "Sphinx >= 4.3 is required",
+            subtype=MystWarnings.XREF_ERROR,
+            location=node,
+        )
+        return None
+
+    inv_lookup = InventoryAdapter(env)
+    if inv_name is None:
+        inventories = inv_lookup.named_inventory
+    else:
+        if inv_name not in inv_lookup.named_inventory:
+            log_warning(
+                f"Unknown inventory {inv_name!r}",
+                location=node,
+                subtype=MystWarnings.IREF_MISSING,
+            )
+            return None
+        inventories = {inv_name: inv_lookup.named_inventory[inv_name]}
+
+    # get domains to search
+    if domain_name is None:
+        # search all domains
+        domains = list(env.domains.values())
+    else:
+        if domain_name not in env.domains:
+            # TODO create warning
+            return None
+        domains = [env.domains[domain_name]]
+
+    # search over domains and inventories
+    results = []
+    for (_inv_name, inventory), domain in product(inventories.items(), domains):
+        # object types to search for
+        obj_types: list[str]
+        if typ is None:
+            # search all types
+            obj_types = list(domain.object_types)
+        else:
+            obj_types = domain.objtypes_for_role(typ)
+
+        if not obj_types:
+            continue
+
+        # TODO ideally we would warn if multiple results found for different types,
+        # but currently this function just returns the first match
+        res = _resolve_reference_in_domain(
+            env, _inv_name, inventory, False, domain, obj_types, node, contnode
+        )
+        if res:
+            results.append((_inv_name, domain.name, res))
+
+    # warn if we have none or more than one result
+    loc = ":".join([inv_name or "?", domain_name or "?", typ or "?", node["reftarget"]])
+
+    if not results:
+        log_warning(
+            f"Unmatched target {loc!r}",
+            location=node,
+            subtype=MystWarnings.IREF_MISSING,
+        )
+        return None
+
+    if len(results) > 1:
+        matches = ",".join([f"'{i}:{d}'" for i, d, _ in results])
+        log_warning(
+            f"Multiple matches found for target {loc!r} in {matches}",
+            location=node,
+            subtype=MystWarnings.IREF_DUPLICATE,
+        )
+
+    res_inv, res_domain, res_node = results[0]
+    # add a class, so we can capture what the match was in the output
+    res_node["classes"].append(f"inv-{res_inv}-{res_domain}-{typ or ''}")
+
+    return res_node

@@ -10,7 +10,7 @@ from myst_parser.parsers.docutils_ import Parser
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
-@pytest.mark.param_file(FIXTURE_PATH / "reporter_warnings.md")
+@pytest.mark.param_file(FIXTURE_PATH / "warnings_docutils.md")
 def test_basic(file_params):
     """Test basic functionality."""
     report_stream = StringIO()
