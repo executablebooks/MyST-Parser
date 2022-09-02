@@ -32,6 +32,7 @@ def log_warning(
     msg: str, subtype: MystWarnings, location: None | Element, once: None | bool = None
 ) -> None:
     """Log a warning message."""
+    # TODO bypass reference warnings on nitpicky?
     optional = {}
     if location is not None:
         optional["location"] = location
@@ -154,14 +155,14 @@ class MystRefDomain(Domain):
         reftype = refquery.get("type")
         reftarget = node["reftarget"]
 
-        # Ensure the node has content, based on its target
-        # we then set refexplicit, to stop the intersphinx function from overriding
-        if not node["refexplicit"]:
+        res = resolve_intersphinx(env, node, contnode, inv_name, refdomain, reftype)
+
+        if res and not res.astext():
             label = nodes.literal(reftarget, reftarget)
             contnode.append(label)
-            node["refexplicit"] = True
+            res.children = [contnode]
 
-        return resolve_intersphinx(env, node, contnode, inv_name, refdomain, reftype)
+        return res
 
     def _resolve_xref_doc(
         self,
@@ -358,7 +359,7 @@ def resolve_intersphinx(
     inv_name: None | str,
     domain_name: None | str,
     typ: None | str,
-) -> None | tuple[str, str, Element]:
+) -> None | Element:
     """Resolve a cross-reference to an intersphinx inventory.
 
     This mirrors `sphinx.ext.intersphinx._resolve_reference` (available from sphinx 4.3)
@@ -378,8 +379,7 @@ def resolve_intersphinx(
         will be searched
     :param typ: The type of object to search for, if None then all types will be searched
 
-    :returns: tuple of (inv_name, domain_name, resolved node),
-        or None if no match was found
+    :returns: resolved node or None if no match was found
     """
     # TODO upstream this to sphinx?
 
