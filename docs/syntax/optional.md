@@ -19,9 +19,9 @@ myst:
 
 # Syntax Extensions
 
-MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](myst:any#markdown_it:index) parser.
+MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](myst:inv?name=markdown_it#index) parser.
 The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](myst:any#sphinx/config-options)).
-Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](myst:any#markdown_it:md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
+Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](myst:inv?name=markdown_it#md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:
 
@@ -99,7 +99,7 @@ Math is parsed by adding to the `myst_enable_extensions` list option, in the sph
 - `"dollarmath"` for parsing of dollar `$` and `$$` encapsulated math.
 - `"amsmath"` for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
-These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](myst:any#markdown_it:md/plugins).
+These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](myst:inv?name=markdown_it#md/plugins).
 
 :::{important}
 `myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
@@ -543,7 +543,7 @@ $ myst-anchors -l 2 docs/syntax/optional.md
 
 By adding `"deflist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 you will be able to utilise definition lists.
-Definition lists utilise the [markdown-it-py deflist plugin](myst:any#markdown_it:md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
+Definition lists utilise the [markdown-it-py deflist plugin](myst:inv?name=markdown_it#md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
 
 This syntax can be useful, for example, as an alternative to nested bullet-lists:
 
@@ -622,7 +622,7 @@ Term 3
 
 By adding `"tasklist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
 you will be able to utilise task lists.
-Task lists utilise the [markdown-it-py tasklists plugin](myst:any#markdown_it:md/plugins),
+Task lists utilise the [markdown-it-py tasklists plugin](myst:inv?name=markdown_it#md/plugins),
 and are applied to markdown list items starting with `[ ]` or `[x]`:
 
 ```markdown
@@ -694,7 +694,7 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
   print("Hello, world!")
   ```
 
-A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](myst:any#sphinx:python-domain):
+A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](myst:inv?name=sphinx#python-domain):
 
 ````md
 ```{py:function} send_message(sender, priority)
@@ -743,7 +743,7 @@ The first is the standard Markdown syntax:
 This will correctly copy the image to the build folder and will render it in all output formats (HTML, TeX, etc).
 However, it is limited in the configuration that can be applied, for example setting a width.
 
-As discussed [above](myst:any#syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see {ref}`the sphinx documentation <sphinx:rst-primer>`):
+As discussed [above](myst:any#syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see [the sphinx documentation](myst:inv?name=sphinx#rst-primer):
 
 ````md
 ```{image} img/fun-fish.png

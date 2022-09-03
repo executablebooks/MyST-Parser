@@ -5,8 +5,8 @@ and allows for nested syntax
 """
 from __future__ import annotations
 
+import re
 from contextlib import suppress
-from itertools import product
 from typing import TYPE_CHECKING, cast
 
 from docutils import nodes
@@ -15,6 +15,8 @@ from sphinx.addnodes import pending_xref
 from sphinx.domains import Domain
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import NoUri
+from sphinx.ext.intersphinx import InventoryAdapter
+from sphinx.locale import _
 from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
 
@@ -149,20 +151,43 @@ class MystRefDomain(Domain):
         """Resolve a cross-reference to an intersphinx inventory."""
 
         # get search variables
-        refquery = node.get("refquery", {})
-        inv_name = refquery.get("name")
-        refdomain = refquery.get("domain")
-        reftype = refquery.get("type")
-        reftarget = node["reftarget"]
+        ref_query = node.get("refquery", {})
+        ref_inv = ref_query.get("name")
+        ref_domain = ref_query.get("domain")
+        ref_type = ref_query.get("type")
+        ref_target = node["reftarget"]
+        ref_regex = "regex" in ref_query
 
-        res = resolve_intersphinx(env, node, contnode, inv_name, refdomain, reftype)
+        res = resolve_intersphinx(
+            env, node, ref_inv, ref_domain, ref_type, ref_target, ref_regex
+        )
 
-        if res and not res.astext():
-            label = nodes.literal(reftarget, reftarget)
-            contnode.append(label)
-            res.children = [contnode]
+        if res is None:
+            return None
 
-        return res
+        # create a new node
+        res_inv, res_domain, res_type, res_target, (proj, version, uri, dispname) = res
+
+        if node.get("title"):
+            reftitle = node["title"]
+        elif version:
+            reftitle = _("(in %s v%s)") % (proj, version)
+        else:
+            reftitle = _("(in %s)") % (proj,)
+
+        res_node = nodes.reference(
+            "", "", internal=False, refuri=uri, reftitle=reftitle
+        )
+        # add a class, so we can capture what the match was in the output
+        res_node["classes"].append(f"inv-{res_inv}-{res_domain}-{res_type}")
+        if node.get("refexplicit"):
+            res_node.append(contnode)
+        elif dispname == "-":
+            res_node.append(nodes.literal(res_target, res_target))
+        else:
+            res_node.append(nodes.Text(dispname))
+
+        return res_node
 
     def _resolve_xref_doc(
         self,
@@ -355,11 +380,12 @@ class MystRefDomain(Domain):
 def resolve_intersphinx(
     env: BuildEnvironment,
     node: Element,
-    contnode: Element,
-    inv_name: None | str,
-    domain_name: None | str,
-    typ: None | str,
-) -> None | Element:
+    ref_inv: None | str,
+    ref_domain: None | str,
+    ref_type: None | str,
+    ref_target: str,
+    regex_match=False,
+) -> None | tuple[str, str, str, str, tuple[str, str, str, str]]:
     """Resolve a cross-reference to an intersphinx inventory.
 
     This mirrors `sphinx.ext.intersphinx._resolve_reference` (available from sphinx 4.3)
@@ -369,80 +395,62 @@ def resolve_intersphinx(
     - warn on matches in multiple inventories/domains
 
     :param env: The sphinx build environment
-    :param node: The pending xref node, this requires the `reftarget` attribute,
-        and the 'refexplicit' attribute is optional
-    :param contnode: The content node, this is the node that will be used to
-        display the link text
-    :param inv_name: The name of the intersphinx inventory to use, if None then
+    :param node: The pending xref node, used for logging location
+    :param ref_inv: The name of the intersphinx inventory to use, if None then
         all inventories will be searched
-    :param domain_name: The name of the domain to search, if None then all domains
+    :param ref_domain: The name of the domain to search, if None then all domains
         will be searched
-    :param typ: The type of object to search for, if None then all types will be searched
+    :param ref_type: The type of object to search for, if None then all types will be searched
+    :param ref_target: The target to search for
+    :param regex_match: Whether to use regex matching of the target
 
-    :returns: resolved node or None if no match was found
+    :returns: resolved data, or None if not found
     """
-    # TODO upstream this to sphinx?
+    inventories = InventoryAdapter(env).named_inventory
 
-    try:
-        from sphinx.ext.intersphinx import (
-            InventoryAdapter,
-            _resolve_reference_in_domain,
-        )
-    except ImportError:
+    if regex_match:
+        ref_target_re = re.compile(ref_target)
+    else:
+        ref_target_re = None
+
+    # get the inventories to search
+    if ref_inv is not None and ref_inv not in inventories:
         log_warning(
-            "Sphinx >= 4.3 is required",
-            subtype=MystWarnings.XREF_ERROR,
+            f"Unknown inventory {ref_inv!r}",
             location=node,
+            subtype=MystWarnings.IREF_MISSING,
         )
         return None
+    elif ref_inv is not None:
+        inventories = {ref_inv: inventories[ref_inv]}
 
-    inv_lookup = InventoryAdapter(env)
-    if inv_name is None:
-        inventories = inv_lookup.named_inventory
-    else:
-        if inv_name not in inv_lookup.named_inventory:
-            log_warning(
-                f"Unknown inventory {inv_name!r}",
-                location=node,
-                subtype=MystWarnings.IREF_MISSING,
-            )
-            return None
-        inventories = {inv_name: inv_lookup.named_inventory[inv_name]}
-
-    # get domains to search
-    if domain_name is None:
-        # search all domains
-        domains = list(env.domains.values())
-    else:
-        if domain_name not in env.domains:
-            # TODO create warning
-            return None
-        domains = [env.domains[domain_name]]
-
-    # search over domains and inventories
+    # search through the inventories
     results = []
-    for (_inv_name, inventory), domain in product(inventories.items(), domains):
-        # object types to search for
-        obj_types: list[str]
-        if typ is None:
-            # search all types
-            obj_types = list(domain.object_types)
-        else:
-            obj_types = domain.objtypes_for_role(typ)
+    for inv_name, inv_data in inventories.items():
 
-        if not obj_types:
-            continue
+        for domain_obj_name, data in inv_data.items():
 
-        # TODO ideally we would warn if multiple results found for different types,
-        # but currently this function just returns the first match
-        res = _resolve_reference_in_domain(
-            env, _inv_name, inventory, False, domain, obj_types, node, contnode
-        )
-        if res:
-            results.append((_inv_name, domain.name, res))
+            domain_name, obj_type = domain_obj_name.split(":", 1)
+
+            if ref_domain is not None and ref_domain != domain_name:
+                continue
+
+            if ref_type is not None and ref_type != obj_type:
+                continue
+
+            if not regex_match and ref_target in data:
+                results.append(
+                    (inv_name, domain_name, obj_type, ref_target, data[ref_target])
+                )
+            elif ref_target_re is not None:
+                for target in data:
+                    if ref_target_re.fullmatch(target):
+                        results.append(
+                            (inv_name, domain_name, obj_type, target, data[target])
+                        )
 
     # warn if we have none or more than one result
-    loc = ":".join([inv_name or "?", domain_name or "?", typ or "?", node["reftarget"]])
+    loc = ":".join([ref_inv or "?", ref_domain or "?", ref_type or "?", ref_target])
 
     if not results:
         log_warning(
@@ -453,15 +461,13 @@ def resolve_intersphinx(
         return None
 
     if len(results) > 1:
-        matches = ",".join([f"'{i}:{d}'" for i, d, _ in results])
+        matches = [f"'{i}:{d}:{o}:{t}'" for i, d, o, t, _ in results]
+        if len(matches) > 4:
+            matches = matches[:5] + ["..."]
         log_warning(
-            f"Multiple matches found for target {loc!r} in {matches}",
+            f"Multiple matches found for target {loc!r} in {','.join(matches)}",
             location=node,
             subtype=MystWarnings.IREF_DUPLICATE,
         )
 
-    res_inv, res_domain, res_node = results[0]
-    # add a class, so we can capture what the match was in the output
-    res_node["classes"].append(f"inv-{res_inv}-{res_domain}-{typ or ''}")
-
-    return res_node
+    return results[0]

@@ -230,7 +230,7 @@ For "internal" links, myst-parser in Sphinx will attempt to resolve the referenc
   - This is similar to `` {download}`*example* text <example.txt>` ``; {download}`*example* text <example.txt>`, but parses nested Markdown text.
 - `[reference](myst:any#syntax/referencing)` will link to an internal cross-reference: [reference](myst:any#syntax/referencing)
   - This is similar to `` {any}`reference <syntax/referencing>` ``; {any}`reference <syntax/referencing>`, but parses nested Markdown text.
-  - You can limit the scope of the cross-reference to specific [sphinx domains](myst:any#sphinx:domain), by using the `myst_ref_domains` configuration.
+  - You can limit the scope of the cross-reference to specific [sphinx domains](myst:inv?name=sphinx#domain), by using the `myst_ref_domains` configuration.
     For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
 
 Additionally, only if [](myst:any#syntax/header-anchors) are enabled, then internal links to document headers can be used.
@@ -313,7 +313,7 @@ c = "string"
 ```
 
 You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
-or within a sphinx extension, with the [`app.add_lexer` method](myst:any#sphinx:sphinx.application.Sphinx.add_lexer).
+or within a sphinx extension, with the [`app.add_lexer` method](myst:inv#sphinx.application.Sphinx.add_lexer).
 
 Using the `myst_number_code_blocks` configuration option, you can also control whether code blocks are numbered by line.
 For example, using `myst_number_code_blocks = ["typescript"]`:

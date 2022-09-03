@@ -80,7 +80,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 To include this document within a Sphinx project,
-include `myfile.md` in a [`toctree` directive](myst:any#sphinx:toctree-directive) on an index page.
+include `myfile.md` in a [`toctree` directive](myst:inv?name=sphinx#toctree-directive) on an index page.
 
 ## Extend CommonMark with roles and directives
 

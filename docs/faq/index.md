@@ -102,7 +102,7 @@ If you encounter any issues with this feature, please don't hesitate to report i
 (howto/autodoc)=
 ### Use `sphinx.ext.autodoc` in Markdown files
 
-The [Sphinx extension `autodoc`](myst:any#sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
+The [Sphinx extension `autodoc`](myst:inv#sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
 It is therefore incompatible with MyST's Markdown parser.
 However, the special [`eval-rst` directive](myst:any#syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
 
@@ -247,7 +247,7 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 *emphasis is now disabled*
 ```
 
-For a list of all the syntax elements you can disable, see the [markdown-it parser guide](myst:any#markdown_it:using).
+For a list of all the syntax elements you can disable, see the [markdown-it parser guide](myst:inv?name=markdown_it#using).
 
 ## Common errors and questions
 

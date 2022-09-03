@@ -363,7 +363,7 @@ In particular for users, this update alters the parsing of tables to be consiste
 
 ### New Features ✨
 
-- **Task lists** utilise the [markdown-it-py tasklists plugin](myst:any#markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+- **Task lists** utilise the [markdown-it-py tasklists plugin](myst:inv?name=markdown_it#md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
 
   ```markdown
   - [ ] An item that needs doing
