@@ -8,10 +8,12 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any
 
+import yaml
 from docutils import nodes
 from docutils.nodes import Element
 from docutils.utils import relative_path
 from sphinx.addnodes import pending_xref
+from sphinx.builders.dummy import DummyBuilder
 from sphinx.errors import NoUri
 from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.locale import _
@@ -324,3 +326,32 @@ class MystRefrenceResolver(SphinxPostTransform):
             ref_node.append(nodes.Text(text))
 
         return ref_node
+
+
+class ObjectsBuilder(DummyBuilder):
+    """A builder that outputs the objects inventory for the project."""
+
+    name = "objects"
+    epilog = "Build finished. See 'objects.yaml' in: %(outdir)s"
+
+    def finish(self) -> None:
+        data = {
+            "name": self.config.project,
+            "version": self.config.version,
+            "objects": {},
+        }
+        objects = data["objects"]
+        for domainname, domain in sorted(self.env.domains.items()):
+            for name, dispname, otype, docname, anchor, __ in sorted(
+                domain.get_objects()
+            ):
+                objects.setdefault(domainname, {})
+                objects[domainname].setdefault(otype, {})
+                objects[domainname][otype][name] = {
+                    "docname": docname,
+                    "anchor": anchor,
+                }
+                if isinstance(dispname, str) and dispname != name:
+                    objects[domainname][otype][name]["dispname"] = dispname
+        with open(os.path.join(self.outdir, "objects.yaml"), "w") as f:
+            yaml.dump(data, f, sort_keys=False)

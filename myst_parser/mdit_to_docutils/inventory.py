@@ -36,7 +36,7 @@ class InventoryType(TypedDict):
     """The name of the project."""
     version: str
     """The version of the project."""
-    items: dict[str, dict[str, dict[str, InventoryItemType]]]
+    objects: dict[str, dict[str, dict[str, InventoryItemType]]]
     """Mapping of domain -> object -> name -> item."""
 
 
@@ -59,7 +59,7 @@ def _load_v1(stream: InventoryFileReader) -> InventoryType:
     invdata: InventoryType = {
         "name": projname,
         "version": version,
-        "items": {},
+        "objects": {},
     }
     for line in stream.readlines():
         name, objtype, location = line.rstrip().split(None, 2)
@@ -70,8 +70,8 @@ def _load_v1(stream: InventoryFileReader) -> InventoryType:
             location += "#module-" + name
         else:
             location += "#" + name
-        invdata["items"].setdefault(domain, {}).setdefault(objtype, {})
-        invdata["items"][domain][objtype][name] = {"loc": location, "disp": "-"}
+        invdata["objects"].setdefault(domain, {}).setdefault(objtype, {})
+        invdata["objects"][domain][objtype][name] = {"loc": location, "disp": "-"}
 
     return invdata
 
@@ -83,7 +83,7 @@ def _load_v2(stream: InventoryFileReader) -> InventoryType:
     invdata: InventoryType = {
         "name": projname,
         "version": version,
-        "items": {},
+        "objects": {},
     }
     line = stream.readline()
     if "zlib" not in line:
@@ -104,8 +104,8 @@ def _load_v2(stream: InventoryFileReader) -> InventoryType:
             continue
         if (
             type == "py:module"
-            and type in invdata["items"]
-            and name in invdata["items"][type]
+            and type in invdata["objects"]
+            and name in invdata["objects"][type]
         ):
             # due to a bug in 1.1 and below,
             # two inventory entries are created
@@ -115,8 +115,8 @@ def _load_v2(stream: InventoryFileReader) -> InventoryType:
         if location.endswith("$"):
             location = location[:-1] + name
         domain, objtype = type.split(":", 1)
-        invdata["items"].setdefault(domain, {}).setdefault(objtype, {})
-        invdata["items"][domain][objtype][name] = {"loc": location, "disp": dispname}
+        invdata["objects"].setdefault(domain, {}).setdefault(objtype, {})
+        invdata["objects"][domain][objtype][name] = {"loc": location, "disp": dispname}
     return invdata
 
 
@@ -323,39 +323,41 @@ def inventory_cli(inputs: None | list[str] = None):
     # filter the inventory
     if args.domain:
         re_domain = re.compile(args.domain)
-        invdata["items"] = {
-            d: invdata["items"][d] for d in invdata["items"] if re_domain.fullmatch(d)
+        invdata["objects"] = {
+            d: invdata["objects"][d]
+            for d in invdata["objects"]
+            if re_domain.fullmatch(d)
         }
     if args.object_type:
         re_type = re.compile(args.object_type)
-        for domain in list(invdata["items"]):
-            invdata["items"][domain] = {
-                t: invdata["items"][domain][t]
-                for t in invdata["items"][domain]
+        for domain in list(invdata["objects"]):
+            invdata["objects"][domain] = {
+                t: invdata["objects"][domain][t]
+                for t in invdata["objects"][domain]
                 if re_type.fullmatch(t)
             }
     if args.name:
         re_name = re.compile(args.name)
-        for domain in invdata["items"]:
-            for otype in list(invdata["items"][domain]):
-                invdata["items"][domain][otype] = {
-                    n: invdata["items"][domain][otype][n]
-                    for n in invdata["items"][domain][otype]
+        for domain in invdata["objects"]:
+            for otype in list(invdata["objects"][domain]):
+                invdata["objects"][domain][otype] = {
+                    n: invdata["objects"][domain][otype][n]
+                    for n in invdata["objects"][domain][otype]
                     if re_name.fullmatch(n)
                 }
 
     # clean up empty items
-    for domain in list(invdata["items"]):
-        for otype in list(invdata["items"][domain]):
-            if not invdata["items"][domain][otype]:
-                del invdata["items"][domain][otype]
-        if not invdata["items"][domain]:
-            del invdata["items"][domain]
+    for domain in list(invdata["objects"]):
+        for otype in list(invdata["objects"][domain]):
+            if not invdata["objects"][domain][otype]:
+                del invdata["objects"][domain][otype]
+        if not invdata["objects"][domain]:
+            del invdata["objects"][domain]
 
     if args.format == "json":
-        return json.dumps(invdata, indent=2, sort_keys=False)
+        print(json.dumps(invdata, indent=2, sort_keys=False))
     else:
-        return yaml.dump(invdata, sort_keys=False)
+        print(yaml.dump(invdata, sort_keys=False))
 
 
 if __name__ == "__main__":

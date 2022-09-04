@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+import yaml
 from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -67,7 +68,7 @@ def test_parse(
     monkeypatch,
 ):
     monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
-    if "myst_inv" in test_name:
+    if test_name.startswith("myst_inv"):
         sphinx_doctree.set_conf(
             {
                 "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
@@ -92,7 +93,7 @@ def test_parse(
     file_regression.check(doctree.pformat(), basename=test_name, extension=".xml")
 
 
-def test_suppress_warnings(sphinx_doctree):
+def test_suppress_warnings(sphinx_doctree: CreateDoctree):
     sphinx_doctree.set_conf(
         {
             "extensions": ["myst_parser"],
@@ -102,3 +103,14 @@ def test_suppress_warnings(sphinx_doctree):
     result = sphinx_doctree("[](ref)", "index.md")
 
     assert not result.warnings
+
+
+def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
+    sphinx_doctree.buildername = "objects"
+    sphinx_doctree.set_conf(
+        {"extensions": ["myst_parser"], "project": "test", "version": "0.0.1"}
+    )
+    result = sphinx_doctree("(target)=\n# Head\n", "index.md")
+    opath = Path(result.app.outdir).joinpath("objects.yaml")
+    assert opath.exists()
+    data_regression.check(yaml.safe_load(opath.read_text()))

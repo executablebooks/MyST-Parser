@@ -1,0 +1,27 @@
+name: test
+objects:
+  std:
+    doc:
+      index:
+        anchor: ''
+        dispname: Head
+        docname: index
+    label:
+      genindex:
+        anchor: ''
+        docname: genindex
+      modindex:
+        anchor: ''
+        docname: py-modindex
+      py-modindex:
+        anchor: ''
+        dispname: Python Module Index
+        docname: py-modindex
+      search:
+        anchor: ''
+        docname: search
+      target:
+        anchor: target
+        dispname: Head
+        docname: index
+version: 0.0.1
