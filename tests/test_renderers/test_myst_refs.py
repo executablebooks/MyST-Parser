@@ -90,3 +90,15 @@ def test_parse(
 
     doctree["source"] = "root/index.md"
     file_regression.check(doctree.pformat(), basename=test_name, extension=".xml")
+
+
+def test_suppress_warnings(sphinx_doctree):
+    sphinx_doctree.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "suppress_warnings": ["myst.link_uri"],
+        }
+    )
+    result = sphinx_doctree("[](ref)", "index.md")
+
+    assert not result.warnings
