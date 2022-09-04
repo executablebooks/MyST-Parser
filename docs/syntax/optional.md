@@ -13,6 +13,7 @@ myst:
       :width: 200px
       ```
     key4: example
+    sphinx_config: "[configuration file](myst:inv?i=sphinx#usage/configuration)"
 ---
 
 (syntax/extensions)=
@@ -52,12 +53,12 @@ myst_enable_extensions = [
 
 ## Typography
 
-Adding `"smartquotes"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will automatically convert standard quotations to their opening/closing variants:
+Adding `"smartquotes"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}) will automatically convert standard quotations to their opening/closing variants:
 
 - `'single quotes'`: 'single quotes'
 - `"double quotes"`: "double quotes"
 
-Adding `"replacements"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will automatically convert some common typographic texts
+Adding `"replacements"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}) will automatically convert some common typographic texts
 
 text  | converted
 ----- | ----------
@@ -88,13 +89,13 @@ For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough wit
 :::{warning}
 This extension is currently only supported for HTML output,
 and you will need to suppress the `myst.strikethrough` warning
-(see [](myst:project#howto/warnings))
+(see [](myst:project#myst-warnings))
 :::
 
 (syntax/math)=
 ## Math shortcuts
 
-Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html) one or both of:
+Math is parsed by adding to the `myst_enable_extensions` list option, in the sphinx `conf.py` {{sphinx_config}} one or both of:
 
 - `"dollarmath"` for parsing of dollar `$` and `$$` encapsulated math.
 - `"amsmath"` for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
@@ -235,7 +236,7 @@ See [the extended syntax option](myst:project#syntax/amsmath).
 (syntax/mathjax)=
 ### Mathjax and math parsing
 
-When building HTML using the [sphinx.ext.mathjax](https://www.sphinx-doc.org/en/master/usage/extensions/math.html#module-sphinx.ext.mathjax) extension (enabled by default),
+When building HTML using the [sphinx.ext.mathjax](myst:inv?i=sphinx#sphinx.ext.mathjax) extension (enabled by default),
 If `dollarmath` is enabled, Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
 MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
@@ -257,7 +258,7 @@ To change this behaviour, set a custom regex, for identifying HTML classes to pr
 (syntax/linkify)=
 ## Linkify
 
-Adding `"linkify"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will automatically identify "bare" web URLs and add hyperlinks:
+Adding `"linkify"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}) will automatically identify "bare" web URLs and add hyperlinks:
 
 `www.example.com` -> www.example.com
 
@@ -272,7 +273,7 @@ Either directly; `pip install linkify-it-py` or *via* `pip install myst-parser[l
 
 ## Substitutions (with Jinja2)
 
-Adding `"substitution"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)) will allow you to add substitutions, added in either the `conf.py` using `myst_substitutions`:
+Adding `"substitution"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}) will allow you to add substitutions, added in either the `conf.py` using `myst_substitutions`:
 
 ```python
 myst_substitutions = {
@@ -357,7 +358,7 @@ This may lead to unexpected outcomes.
 
 :::
 
-Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) in the context (as `env`).
+Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](myst:inv?i=sphinx#sphinx.environment.BuildEnvironment) in the context (as `env`).
 Therefore you can do things like:
 
 ```md
@@ -405,7 +406,7 @@ However, since Jinja2 substitutions allow for Python methods to be used, you can
 
 ## Code fences using colons
 
-By adding `"colon_fence"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"colon_fence"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 you can also use `:::` delimiters to denote code fences, instead of ```` ``` ````.
 
 Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
@@ -541,7 +542,7 @@ $ myst-anchors -l 2 docs/syntax/optional.md
 
 ## Definition Lists
 
-By adding `"deflist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"deflist"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 you will be able to utilise definition lists.
 Definition lists utilise the [markdown-it-py deflist plugin](myst:inv?i=markdown_it#md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
 
@@ -620,7 +621,7 @@ Term 3
 (syntax/tasklists)=
 ## Task Lists
 
-By adding `"tasklist"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"tasklist"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 you will be able to utilise task lists.
 Task lists utilise the [markdown-it-py tasklists plugin](myst:inv?i=markdown_it#md/plugins),
 and are applied to markdown list items starting with `[ ]` or `[x]`:
@@ -767,7 +768,7 @@ This is usually a bad option, because the HTML is treated as raw text during the
 
 HTML parsing to the rescue!
 
-By adding `"html_image"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"html_image"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
 
 ```html
@@ -825,7 +826,7 @@ Inside the curly braces, the following syntax is possible:
 
 ## Markdown Figures
 
-By adding `"colon_fence"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"colon_fence"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 we can combine the above two extended syntaxes,
 to create a fully Markdown compliant version of the `figure` directive named `figure-md`.
 
@@ -867,7 +868,7 @@ As we see here, the target we set can be referenced:
 
 ## HTML Admonitions
 
-By adding `"html_admonition"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"html_admonition"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 you can enable parsing of `<div class="admonition">` HTML blocks.
 These blocks will be converted internally to Sphinx admonition directives, and so will work correctly for all output formats.
 This is helpful when you care about viewing the "source" Markdown, such as in Jupyter Notebooks.
@@ -933,7 +934,7 @@ You can also nest HTML admonitions:
 
 ## Direct LaTeX Math
 
-By adding `"amsmath"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+By adding `"amsmath"` to `myst_enable_extensions` (in the sphinx `conf.py` {{sphinx_config}}),
 you can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations.
 These top-level math environments will then be directly parsed:
 

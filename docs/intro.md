@@ -28,7 +28,7 @@ conda install -c conda-forge myst-parser
 (intro/sphinx)=
 ## Enable MyST in Sphinx
 
-To get started with Sphinx, see their [Quickstart Guide](https://www.sphinx-doc.org/en/master/usage/quickstart.html).
+To get started with Sphinx, see their [Quickstart Guide](myst:inv?i=sphinx#usage/quickstart).
 
 To use the MyST parser in Sphinx, simply add the following to your `conf.py` file:
 

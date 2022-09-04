@@ -5,7 +5,7 @@
 Roles and directives provide a way to extend the syntax of MyST in an unbound manner,
 by interpreting a chuck of text as a specific type of markup, according to its name.
 
-Mostly all [docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html), [docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html), [sphinx roles](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html), or [sphinx directives](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html) can be used in MyST.
+Mostly all [docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html), [docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html), [sphinx roles](myst:inv?i=sphinx#usage/restructuredtext/roles), or [sphinx directives](myst:inv?i=sphinx#usage/restructuredtext/directives) can be used in MyST.
 
 ## Syntax
 
@@ -416,6 +416,6 @@ For example:
 
 > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
 
-`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
+`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](myst:inv?i=sphinx#today_fmt), or the `today` variable if set in the configuration file.
 
 The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](myst:project#sphinx/config-options)).
