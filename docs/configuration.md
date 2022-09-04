@@ -104,3 +104,23 @@ substitution
 
 tasklist
 : Add check-boxes to the start of list items, [see here](myst:project#syntax/tasklists) for details
+
+(myst-warnings)=
+## Build Warnings
+
+Below lists the MyST specific warnings that may be emitted during the build process. These will be prepended to the end of the warning message, e.g.
+
+```
+WARNING: Non-consecutive header level increase; H1 to H3 [myst.header]
+```
+
+**In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.**
+
+However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](myst:inv?i=sphinx#suppress_warnings) configuration option, e.g.
+
+```python
+suppress_warnings = ["myst.header"]
+```
+
+```{myst-warnings}
+```

@@ -14,6 +14,7 @@ from sphinx.util.docutils import SphinxDirective
 from ._compat import get_args, get_origin
 from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
+from .warnings import MystWarnings
 
 logger = logging.getLogger(__name__)
 
@@ -196,3 +197,27 @@ def convert_opt(name, func):
     if func is other.int_or_nothing:
         return "integer"
     return ""
+
+
+class MystWarningsDirective(SphinxDirective):
+    """Directive to print all known warnings."""
+
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+
+    def run(self):
+        """Run the directive."""
+        from sphinx.pycode import ModuleAnalyzer
+
+        analyzer = ModuleAnalyzer.for_module(MystWarnings.__module__)
+        qname = MystWarnings.__qualname__
+        analyzer.analyze()
+        warning_names = [
+            (e.value, analyzer.attr_docs[(qname, e.name)]) for e in MystWarnings
+        ]
+        text = [f"- `myst.{name}`: {' '.join(doc)}" for name, doc in warning_names]
+        node = nodes.Element()
+        self.state.nested_parse(text, 0, node)
+        return node.children

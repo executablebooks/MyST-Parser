@@ -161,9 +161,11 @@ def setup(app: Sphinx):
         DirectiveDoc,
         DocutilsCliHelpDirective,
         MystConfigDirective,
+        MystWarningsDirective,
     )
 
     app.add_css_file("custom.css")
     app.add_directive("myst-config", MystConfigDirective)
+    app.add_directive("myst-warnings", MystWarningsDirective)
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)

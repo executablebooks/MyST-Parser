@@ -437,7 +437,7 @@ A warning (of type `myst.nested_header`) is now emitted when this occurs.
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
-  See [How-to suppress warnings](myst:project#howto/warnings) for more information.
+  See [How-to suppress warnings](myst:project#myst-warnings) for more information.
 
 ## 0.13.3 - 2021-01-20
 
