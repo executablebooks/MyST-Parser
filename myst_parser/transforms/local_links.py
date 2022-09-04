@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms import Transform
 from markdown_it.common.utils import escapeHtml
+from typing_extensions import TypedDict
 
 from myst_parser._compat import findall
 from myst_parser.warnings import MystWarnings
@@ -18,8 +18,7 @@ class MystLocalLink(nodes.Element):
     """A node for a link to a fragment in a Markdown document."""
 
 
-@dataclass
-class MystLocalTarget:
+class MystLocalTarget(TypedDict):
     """A reference target within a document."""
 
     name: str
@@ -28,7 +27,7 @@ class MystLocalTarget:
     """The internal id of the target"""
     line: int | None
     """The line number of the target"""
-    text: str | None = None
+    text: str | None
     """For use if no explicit text is given by the reference, e.g. the section title"""
 
 
@@ -69,7 +68,12 @@ class MdDocumentLinks(Transform):
             ):
                 continue
 
-            local_targets[name] = MystLocalTarget(name, labelid, node.line)
+            local_targets[name] = {
+                "name": name,
+                "id": labelid,
+                "line": node.line,
+                "text": None,
+            }
             local_nodes[name] = node
 
         # gather heading anchors
@@ -86,10 +90,8 @@ class MdDocumentLinks(Transform):
                 # if the section has been "promoted" to a doctitle or subtitle
                 if local_nodes[anchor_name] is not node:
                     msg = f"skipping anchor with duplicate name {anchor_name!r}"
-                    if local_targets[anchor_name].line:
-                        msg += (
-                            f", already set at line {local_targets[anchor_name].line}"
-                        )
+                    if local_targets[anchor_name]["line"]:
+                        msg += f", already set at line {local_targets[anchor_name]['line']}"
                     create_warning(
                         self.document,
                         msg,
@@ -106,14 +108,17 @@ class MdDocumentLinks(Transform):
                     index += 1
                 node["ids"].insert(0, anchor_id)
 
-            local_targets[anchor_name] = MystLocalTarget(
-                anchor_name, anchor_id, node.line
-            )
+            local_targets[anchor_name] = {
+                "name": anchor_name,
+                "id": anchor_id,
+                "line": node.line,
+                "text": None,
+            }
             local_nodes[anchor_name] = node
 
         for name, node in local_nodes.items():
             if node.children and isinstance(node.children[0], nodes.title):
-                local_targets[name].text = node.children[0].astext()
+                local_targets[name]["text"] = node.children[0].astext()
 
         # resolve local links
         for node in findall(self.document)(MystLocalLink):
@@ -128,14 +133,14 @@ class MdDocumentLinks(Transform):
                 # here we simply add an internal link, that may not work
                 reference = nodes.reference(refuri=escapeHtml(f"#{node['refname']}"))
             else:
-                reference = nodes.reference(refid=target.id, internal=True)
+                reference = nodes.reference(refid=target["id"], internal=True)
 
             inner_node = nodes.inline("", "", classes=["std", "std-ref"])
             reference += inner_node
             inner_node.children = node.children
             if not inner_node.children:
-                if target and target.text:
-                    inner_node.children = [nodes.Text(target.text)]
+                if target and target["text"]:
+                    inner_node.children = [nodes.Text(target["text"])]
                 else:
                     create_warning(
                         self.document,
@@ -157,6 +162,4 @@ class MdDocumentLinks(Transform):
         # for use by inter-document link resolution
         env: None | BuildEnvironment = getattr(self.document.settings, "env", None)
         if env is not None:
-            env.metadata[env.docname]["myst_local_targets"] = {
-                k: asdict(v) for k, v in local_targets.items()
-            }
+            env.metadata[env.docname]["myst_local_targets"] = local_targets

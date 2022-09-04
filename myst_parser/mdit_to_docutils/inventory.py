@@ -9,11 +9,15 @@ import argparse
 import json
 import re
 import zlib
-from typing import IO, Iterator
+from dataclasses import dataclass
+from typing import IO, TYPE_CHECKING, Iterator
 from urllib.request import urlopen
 
 import yaml
 from typing_extensions import TypedDict
+
+if TYPE_CHECKING:
+    from sphinx.util.typing import Inventory
 
 
 class InventoryItemType(TypedDict):
@@ -175,6 +179,109 @@ class InventoryFileReader:
                 pos = buf.find(b"\n")
 
 
+class ResoleInventoryMissingError(Exception):
+    """Exception raised when an inventory reference cannot be resolved."""
+
+
+class ResoleInventoryDupeError(Exception):
+    """Exception raised when an inventory reference is ambiguous."""
+
+
+@dataclass
+class InvMatch:
+    """A match from an inventory."""
+
+    inv: str
+    domain: str
+    otype: str
+    target: str
+    proj: str
+    version: str
+    uri: str
+    dispname: str
+
+
+def resolve_inventory(
+    inventories: dict[str, Inventory],
+    ref_inv: None | str,
+    ref_domain: None | str,
+    ref_type: None | str,
+    ref_target: str,
+    regex_match=False,
+) -> InvMatch:
+    """Resolve a cross-reference in the loaded sphinx inventories.
+
+    :param inventories: Mapping of inventory name to inventory data
+    :param ref_inv: The name of the sphinx inventory to use, if None then
+        all inventories will be searched
+    :param ref_domain: The name of the domain to search, if None then all domains
+        will be searched
+    :param ref_type: The type of object to search for, if None then all types will be searched
+    :param ref_target: The target to search for
+    :param regex_match: Whether to use regex matching of the target
+
+    :returns: resolved data
+    :raises ResoleInventoryMissingError: if the cross-reference cannot be resolved
+    :raises ResoleInventoryDupeError: if the cross-reference is ambiguous
+    """
+    if regex_match:
+        ref_target_re = re.compile(ref_target)
+    else:
+        ref_target_re = None
+
+    # get the inventories to search
+    if ref_inv is not None and ref_inv not in inventories:
+        raise ResoleInventoryMissingError(f"Unknown inventory {ref_inv!r}")
+
+    if ref_inv is not None:
+        inventories = {ref_inv: inventories[ref_inv]}
+
+    # search through the inventories
+    results: list[InvMatch] = []
+    for inv_name, inv_data in inventories.items():
+
+        for domain_obj_name, data in inv_data.items():
+
+            domain_name, obj_type = domain_obj_name.split(":", 1)
+
+            if ref_domain is not None and ref_domain != domain_name:
+                continue
+
+            if ref_type is not None and ref_type != obj_type:
+                continue
+
+            if not regex_match and ref_target in data:
+                results.append(
+                    InvMatch(
+                        inv_name, domain_name, obj_type, ref_target, *data[ref_target]
+                    )
+                )
+            elif ref_target_re is not None:
+                for target in data:
+                    if ref_target_re.fullmatch(target):
+                        results.append(
+                            InvMatch(
+                                inv_name, domain_name, obj_type, target, *data[target]
+                            )
+                        )
+
+    # warn if we have none or more than one result
+    loc = ":".join([ref_inv or "?", ref_domain or "?", ref_type or "?", ref_target])
+
+    if not results:
+        raise ResoleInventoryMissingError(f"Unmatched target {loc!r}")
+
+    if len(results) > 1:
+        matches = [f"'{r.inv}:{r.domain}:{r.otype}:{r.target}'" for r in results]
+        if len(matches) > 4:
+            matches = matches[:4] + ["..."]
+        raise ResoleInventoryDupeError(
+            f"Multiple matches found for target {loc!r} in {','.join(matches)}"
+        )
+
+    return results[0]
+
+
 def inventory_cli(inputs: None | list[str] = None):
     """Command line interface for fetching and parsing an inventory."""
     parser = argparse.ArgumentParser(description="Parse an inventory file.")
@@ -186,8 +293,8 @@ def inventory_cli(inputs: None | list[str] = None):
         help="Filter the inventory by domain regex",
     )
     parser.add_argument(
-        "-t",
-        "--type",
+        "-o",
+        "--object-type",
         metavar="TYPE",
         help="Filter the inventory by object type regex",
     )
@@ -219,8 +326,8 @@ def inventory_cli(inputs: None | list[str] = None):
         invdata["items"] = {
             d: invdata["items"][d] for d in invdata["items"] if re_domain.fullmatch(d)
         }
-    if args.type:
-        re_type = re.compile(args.type)
+    if args.object_type:
+        re_type = re.compile(args.object_type)
         for domain in list(invdata["items"]):
             invdata["items"][domain] = {
                 t: invdata["items"][domain][t]
@@ -246,9 +353,9 @@ def inventory_cli(inputs: None | list[str] = None):
             del invdata["items"][domain]
 
     if args.format == "json":
-        print(json.dumps(invdata, indent=2, sort_keys=False))
+        return json.dumps(invdata, indent=2, sort_keys=False)
     else:
-        print(yaml.dump(invdata, sort_keys=False))
+        return yaml.dump(invdata, sort_keys=False)
 
 
 if __name__ == "__main__":

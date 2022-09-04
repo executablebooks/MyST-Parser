@@ -1,0 +1,5 @@
+<document source="root/index.md">
+    <paragraph>
+        <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+            <emphasis>
+                text

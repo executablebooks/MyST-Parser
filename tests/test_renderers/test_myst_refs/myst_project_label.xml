@@ -4,6 +4,5 @@
         <title>
             Title
         <paragraph>
-            <reference internal="True" refid="index">
-                <inline classes="std std-ref">
-                    Title
+            <reference classes="obj-std-label myst-project" internal="True" refid="index">
+                Title

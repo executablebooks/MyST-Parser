@@ -17,7 +17,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
         SubstitutionReferenceRole,
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
-    from myst_parser.sphinx_ext.myst_refs import MystRefDomain
+    from myst_parser.sphinx_ext.myst_refs import MystRefrenceResolver
 
     if load_parser:
         app.add_source_suffix(".md", "markdown")
@@ -27,7 +27,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_directive("figure-md", FigureMarkdown)
 
     app.add_transform(MdDocumentLinks)
-    app.add_domain(MystRefDomain)
+    app.add_post_transform(MystRefrenceResolver)
 
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):

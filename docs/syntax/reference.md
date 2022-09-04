@@ -79,7 +79,7 @@ we have shown equivalent rST syntax for many MyST markdown features below.
     ```
 * - Admonitions (optional)
   - An alternative approach for admonition style directives only, which has the benefit of allowing the content to be rendered in standard markdown editors.
-    See [admonition directives](myst:any#syntax/admonitions) for more details.
+    See [admonition directives](myst:project#syntax/admonitions) for more details.
   - ````md
     :::{note}
     *content*
@@ -234,7 +234,7 @@ sections below:
     ```
 * - Image
   - Link to an image.
-    You can also use HTML syntax, to include image size etc, [see here](myst:any#syntax/images) for details
+    You can also use HTML syntax, to include image size etc, [see here](myst:project#syntax/images) for details
   - ```md
     ![alt](src "title")
     ```

@@ -250,7 +250,7 @@ print('yep!')
 #### Markdown-friendly directives
 
 Want to use syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](myst:any#syntax/colon_fence).
+See [the extended syntax option](myst:project#syntax/colon_fence).
 
 ```md
 :::{note}
@@ -418,4 +418,4 @@ For example:
 
 `today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
 
-The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](myst:any#sphinx/config-options)).
+The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](myst:project#sphinx/config-options)).

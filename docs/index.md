@@ -54,7 +54,7 @@ Get Started
 MyST extends the CommonMark syntax specification, to support technical authoring features such as tables and footnotes.
 
 +++
-[Learn more »](myst:any#syntax/core)
+[Learn more »](myst:project#syntax/core)
 :::
 
 :::{grid-item-card} {octicon}`plug;1.5em;sd-mr-1` Sphinx compatible
@@ -64,7 +64,7 @@ MyST extends the CommonMark syntax specification, to support technical authoring
 Use the MyST role and directive syntax to harness the full capability of Sphinx, such as admonitions and figures, and all existing Sphinx extensions.
 
 +++
-[Learn more »](myst:any#roles-directives)
+[Learn more »](myst:project#roles-directives)
 :::
 
 :::{grid-item-card} {octicon}`tools;1.5em;sd-mr-1` Highly configurable
@@ -75,7 +75,7 @@ MyST-parser can be configured at both the global and individual document level,
 to modify parsing behaviour and access extended syntax features.
 
 +++
-[Learn more »](myst:any#configuration)
+[Learn more »](myst:project#configuration)
 :::
 
 ::::

@@ -1,0 +1,8 @@
+name: Python
+version: ''
+items:
+  std:
+    label:
+      ref:
+        loc: index.html#ref
+        disp: Title

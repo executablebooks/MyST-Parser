@@ -80,7 +80,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 To include this document within a Sphinx project,
-include `myfile.md` in a [`toctree` directive](myst:inv?name=sphinx#toctree-directive) on an index page.
+include `myfile.md` in a [`toctree` directive](myst:inv?i=sphinx#toctree-directive) on an index page.
 
 ## Extend CommonMark with roles and directives
 
@@ -142,7 +142,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 :::{seealso}
-The [](myst:any#syntax/referencing) section,\
+The [](myst:project#syntax/referencing) section,\
 and the [ReadTheDocs cross-referencing](https://docs.readthedocs.io/en/stable/guides/cross-referencing-with-sphinx.html) documentation
 :::
 

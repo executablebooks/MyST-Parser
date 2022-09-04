@@ -33,19 +33,16 @@
                     <emphasis>
                         syntax
         <paragraph>
-            <reference internal="True" refuri="">
-                <inline classes="std std-doc doc">
-                    Title with nested a=1
+            <reference classes="myst-doc" internal="True" refuri="">
+                Title with nested a=1
         <paragraph>
-            <reference internal="True" refuri="">
-                <inline classes="std std-doc doc">
-                    plain text
+            <reference classes="myst-doc" internal="True" refuri="">
+                plain text
         <paragraph>
-            <reference internal="True" refuri="">
-                <inline classes="std std-doc doc">
-                    nested 
-                    <emphasis>
-                        syntax
+            <reference classes="myst-doc" internal="True" refuri="">
+                nested 
+                <emphasis>
+                    syntax
         <paragraph>
             <download_reference classes="myst" filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" reftarget="file_link.txt">
                 <inline classes="xref download">
@@ -98,14 +95,11 @@
                     <inline classes="std std-ref">
                         Title anchors
             <paragraph>
-                <reference internal="True" refuri="other.html#title-anchors">
-                    <inline classes="std std-doc doc">
-                        Title anchors
+                <reference classes="myst-doc" internal="True" refuri="other.html#title-anchors">
+                    Title anchors
             <paragraph>
-                <reference internal="True" refuri="other.html#title-anchors">
-                    <inline classes="std std-doc doc">
-                        Title anchors
+                <reference classes="myst-doc" internal="True" refuri="other.html#title-anchors">
+                    Title anchors
             <paragraph>
-                <reference internal="True" refuri="subfolder/other2.html#title-anchors">
-                    <inline classes="std std-doc doc">
-                        Title anchors
+                <reference classes="myst-doc" internal="True" refuri="subfolder/other2.html#title-anchors">
+                    Title anchors

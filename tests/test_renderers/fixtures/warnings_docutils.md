@@ -10,7 +10,7 @@ Unhandled URI:
 .
 [a](b)
 .
-<string>:1: (WARNING/2) Unhandled link URI (prepend with '#' or 'myst:any#'?): 'b' [myst.link_uri]
+<string>:1: (WARNING/2) Unhandled link URI (prepend with '#' or 'myst:project#'?): 'b' [myst.link_uri]
 .
 
 Missing local reference:

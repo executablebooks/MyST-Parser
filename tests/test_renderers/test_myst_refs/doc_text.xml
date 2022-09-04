@@ -1,0 +1,5 @@
+<document source="root/index.md">
+    <paragraph>
+        <reference classes="myst-doc" internal="True" refuri="">
+            <emphasis>
+                text

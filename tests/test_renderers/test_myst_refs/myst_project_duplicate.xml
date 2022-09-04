@@ -1,0 +1,8 @@
+<document source="root/index.md">
+    <target refid="index">
+    <section ids="title index" names="title index">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error myst-project">
+                text

@@ -9,7 +9,7 @@ These sections describe some common scenarios and use-cases for writing MyST wit
 (howto/include-rst)=
 ### Include rST files into a Markdown file
 
-As explained in [this section](myst:any#syntax/directives/parsing), all MyST directives will parse their content as Markdown.
+As explained in [this section](myst:project#syntax/directives/parsing), all MyST directives will parse their content as Markdown.
 Therefore, using the conventional `include` directive, will parse the file contents as Markdown:
 
 ````md
@@ -20,7 +20,7 @@ Therefore, using the conventional `include` directive, will parse the file conte
 ```{include} snippets/include-md.md
 ```
 
-To include rST, we must first "wrap" the directive in the [eval-rst directive](myst:any#syntax/directives/parsing):
+To include rST, we must first "wrap" the directive in the [eval-rst directive](myst:project#syntax/directives/parsing):
 
 ````md
 ```{eval-rst}
@@ -104,7 +104,7 @@ If you encounter any issues with this feature, please don't hesitate to report i
 
 The [Sphinx extension `autodoc`](myst:inv#sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
 It is therefore incompatible with MyST's Markdown parser.
-However, the special [`eval-rst` directive](myst:any#syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
+However, the special [`eval-rst` directive](myst:project#syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
 
 ````md
 ```{eval-rst}
@@ -123,7 +123,7 @@ However, the special [`eval-rst` directive](myst:any#syntax/directives/parsing) 
 As with other objects in MyST, this can then be referenced:
 
 - Using the role `` {py:class}`myst_parser.mocking.MockRSTParser` ``: {py:class}`myst_parser.mocking.MockRSTParser`
-- Using the Markdown syntax `[MockRSTParser](myst_parser.mocking.MockRSTParser)`: [MockRSTParser](myst:any#myst_parser.mocking.MockRSTParser)
+- Using the Markdown syntax `[MockRSTParser](myst_parser.mocking.MockRSTParser)`: [MockRSTParser](myst:project#myst_parser.mocking.MockRSTParser)
 
 ```{warning}
 This expects docstrings to be written in reStructuredText.
@@ -137,7 +137,7 @@ We hope to support Markdown in the future, see [GitHub issue #228](https://githu
 
 New in `v0.13.0` ✨, myst-parser now provides a separate implementation of `autosectionlabel`, which implements GitHub Markdown style bookmark anchors, like `[](file.md#header-anchor)`.
 
-See the [](myst:any#syntax/header-anchors) section of extended syntaxes.
+See the [](myst:project#syntax/header-anchors) section of extended syntaxes.
 
 :::
 
@@ -247,7 +247,7 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 *emphasis is now disabled*
 ```
 
-For a list of all the syntax elements you can disable, see the [markdown-it parser guide](myst:inv?name=markdown_it#using).
+For a list of all the syntax elements you can disable, see the [markdown-it parser guide](myst:inv?i=markdown_it#using).
 
 ## Common errors and questions
 

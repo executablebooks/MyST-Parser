@@ -34,17 +34,14 @@
                         syntax
         <paragraph>
             <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="True" reftarget="/index" reftype="doc">
-                <inline classes="std std-doc">
         <paragraph>
             <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refname="True" reftarget="/index" reftype="doc">
-                <inline classes="std std-doc">
-                    plain text
+                plain text
         <paragraph>
             <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refname="True" reftarget="/index" reftype="doc">
-                <inline classes="std std-doc">
-                    nested 
-                    <emphasis>
-                        syntax
+                nested 
+                <emphasis>
+                    syntax
         <paragraph>
             <download_reference classes="myst" filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" reftarget="file_link.txt">
                 <inline classes="xref download">
@@ -85,10 +82,7 @@
                         Title anchors
             <paragraph>
                 <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/other" reftype="doc">
-                    <inline classes="std std-doc">
             <paragraph>
                 <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/other" reftype="doc">
-                    <inline classes="std std-doc">
             <paragraph>
                 <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/subfolder/other2" reftype="doc">
-                    <inline classes="std std-doc">

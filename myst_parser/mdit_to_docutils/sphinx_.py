@@ -71,12 +71,7 @@ class SphinxRenderer(DocutilsRenderer):
         if title:
             wrap_node["title"] = title
         self.add_line_and_source_path(wrap_node, token)
-        self.current_node.append(wrap_node)
-
-        inner_node = nodes.inline("", "", classes=["xref", f"myst-{reftype}"])
-        self.add_line_and_source_path(inner_node, token)
-        wrap_node.append(inner_node)
-        with self.current_node_context(inner_node):
+        with self.current_node_context(wrap_node, append=True):
             self.render_children(token)
 
     def add_local_file_ref(
@@ -100,12 +95,7 @@ class SphinxRenderer(DocutilsRenderer):
         if title:
             wrap_node["title"] = title
         self.add_line_and_source_path(wrap_node, token)
-        self.current_node.append(wrap_node)
-
-        inner_node = nodes.inline("", "", classes=["std", "std-doc"])
-        self.add_line_and_source_path(inner_node, token)
-        wrap_node.append(inner_node)
-        with self.current_node_context(inner_node):
+        with self.current_node_context(wrap_node, append=True):
             self.render_children(token)
 
     def add_local_download_ref(
