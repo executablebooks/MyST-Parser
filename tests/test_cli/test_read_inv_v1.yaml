@@ -1,6 +1,6 @@
 name: foo
 version: '1.0'
-items:
+objects:
   py:
     module:
       module:
