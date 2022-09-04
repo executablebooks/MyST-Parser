@@ -44,6 +44,12 @@ PARAMS = [
         "[*text*](myst:inv#xxx)",
         "<src>/index.md:1: WARNING: Unmatched target '?:?:?:xxx' [myst.iref_missing]",
     ),
+    (
+        "myst_inv_duplicate",
+        "[*text*](myst:inv?regex#.*modindex)",
+        "<src>/index.md:1: WARNING: Multiple matches found for target '?:?:?:.*modindex' in "
+        "'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]",
+    ),
 ]
 
 
@@ -66,7 +72,7 @@ def test_parse(
             {
                 "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
                 "intersphinx_mapping": {
-                    "project": ("https://project.com", str(STATIC / "objects.inv"))
+                    "project": ("https://project.com", str(STATIC / "objects_v2.inv"))
                 },
             }
         )

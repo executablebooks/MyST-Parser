@@ -1,0 +1,12 @@
+name: foo
+version: '1.0'
+items:
+  py:
+    module:
+      module:
+        loc: foo.html#module-module
+        disp: '-'
+    class:
+      module.cls:
+        loc: foo.html#module.cls
+        disp: '-'
