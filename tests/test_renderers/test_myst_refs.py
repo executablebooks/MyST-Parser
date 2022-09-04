@@ -12,7 +12,7 @@ PARAMS = [
     (
         "unhandled",
         "[](ref)",
-        "<src>/index.md:1: WARNING: Unhandled link URI (prepend with '#' or 'myst:project#'?): 'ref' [myst.link_uri]",  # noqa: E501
+        "<src>/index.md:1: WARNING: Unhandled link URI (prepend with '#' or 'myst:project#'?): 'ref' [myst.invalid_uri]",  # noqa: E501
     ),
     ("doc", "[](index.md)", None),
     ("doc_text", "[*text*](index.md)", None),
@@ -97,7 +97,7 @@ def test_suppress_warnings(sphinx_doctree: CreateDoctree):
     sphinx_doctree.set_conf(
         {
             "extensions": ["myst_parser"],
-            "suppress_warnings": ["myst.link_uri"],
+            "suppress_warnings": ["myst.invalid_uri"],
         }
     )
     result = sphinx_doctree("[](ref)", "index.md")

@@ -53,7 +53,7 @@ class SphinxRenderer(DocutilsRenderer):
             if not value:
                 self.create_warning(
                     f"No myst reference {key} given in 'myst:{reference}'",
-                    MystWarnings.MD_LINK_URI,
+                    MystWarnings.MD_INVALID_URI,
                     line=token_line(token, default=0),
                     append_to=self.current_node,
                 )

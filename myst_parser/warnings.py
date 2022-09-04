@@ -25,7 +25,7 @@ class MystWarnings(Enum):
     """Non-consecutive heading levels."""
     MD_HEADING_NESTED = "nested_header"
     """Header found nested in another element."""
-    MD_LINK_URI = "link_uri"
+    MD_INVALID_URI = "invalid_uri"
     """Link URI is not valid."""
 
     # local reference resolution

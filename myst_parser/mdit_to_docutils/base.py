@@ -765,7 +765,7 @@ class DocutilsRenderer(RendererProtocol):
         # otherwise create warning and parse children only
         self.create_warning(
             f"Unhandled link URI (prepend with '#' or 'myst:project#'?): {uri!r}",
-            MystWarnings.MD_LINK_URI,
+            MystWarnings.MD_INVALID_URI,
             line=token_line(token, default=0),
             append_to=self.current_node,
         )
