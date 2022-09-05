@@ -44,6 +44,37 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.7", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+    "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
+}
+
+autodoc_member_order = "bysource"
+
+# -- Parsing Configuration ---------------------------------------------------
+
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+    "linkify",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+    "attrs_image",
+]
+myst_number_code_blocks = ["typescript"]
+myst_heading_anchors = 2
+myst_footnote_transition = True
+myst_dmath_double_inline = True
+
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -76,27 +107,6 @@ ogp_custom_meta_tags = [
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-myst_enable_extensions = [
-    "dollarmath",
-    "amsmath",
-    "deflist",
-    "fieldlist",
-    "html_admonition",
-    "html_image",
-    "colon_fence",
-    "smartquotes",
-    "replacements",
-    "linkify",
-    "strikethrough",
-    "substitution",
-    "tasklist",
-    "attrs_image",
-]
-myst_number_code_blocks = ["typescript"]
-myst_heading_anchors = 2
-myst_footnote_transition = True
-myst_dmath_double_inline = True
-
 rediraffe_redirects = {
     "using/intro.md": "sphinx/intro.md",
     "sphinx/intro.md": "intro.md",
@@ -112,24 +122,13 @@ rediraffe_redirects = {
     "explain/index.md": "develop/background.md",
 }
 
-suppress_warnings = ["myst.strikethrough"]
+# -- Options for LaTeX output -------------------------------------------------
 
+latex_engine = "xelatex"
 
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
-    "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
-}
+# -- Options for Warnings -------------------------------------------------
 
-# autodoc_default_options = {
-#     "show-inheritance": True,
-#     "special-members": "__init__, __enter__, __exit__",
-#     "members": True,
-#     # 'exclude-members': '',
-#     "undoc-members": True,
-#     # 'inherited-members': True
-# }
-autodoc_member_order = "bysource"
+suppress_warnings = ["myst.strikethrough", "myst.strip"]
 nitpicky = True
 nitpick_ignore = [
     ("py:class", "docutils.nodes.document"),
@@ -162,6 +161,8 @@ def setup(app: Sphinx):
         DocutilsCliHelpDirective,
         MystConfigDirective,
         MystWarningsDirective,
+        StripMermaid,
+        StripSVGImages,
     )
 
     app.add_css_file("custom.css")
@@ -169,3 +170,5 @@ def setup(app: Sphinx):
     app.add_directive("myst-warnings", MystWarningsDirective)
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
+    app.add_post_transform(StripMermaid)
+    app.add_post_transform(StripSVGImages)

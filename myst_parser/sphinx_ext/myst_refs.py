@@ -166,11 +166,7 @@ class MystRefrenceResolver(SphinxPostTransform):
             res_node["refid"] = anchor
         else:
             try:
-                res_node["refuri"] = (
-                    self.app.builder.get_relative_uri(node["refdoc"], docname)
-                    + "#"
-                    + anchor
-                )
+                refuri = self.app.builder.get_relative_uri(node["refdoc"], docname)
             except NoUri:
                 log_warning(
                     "No URI available for this builder",
@@ -178,6 +174,9 @@ class MystRefrenceResolver(SphinxPostTransform):
                     location=node,
                 )
                 return None
+            if anchor:
+                refuri += "#" + anchor
+            res_node["refuri"] = refuri
 
         # add a class, so we can capture what the match was in the output
         res_node["classes"].append(f"obj-{res.domain}-{res.otype}")
@@ -292,16 +291,7 @@ class MystRefrenceResolver(SphinxPostTransform):
             ref_node["refid"] = refid
         else:
             try:
-                if refid:
-                    ref_node["refuri"] = (
-                        self.app.builder.get_relative_uri(node["refdoc"], docname)
-                        + "#"
-                        + refid
-                    )
-                else:
-                    ref_node["refuri"] = self.app.builder.get_relative_uri(
-                        node["refdoc"], docname
-                    )
+                refuri = self.app.builder.get_relative_uri(node["refdoc"], docname)
             except NoUri:
                 log_warning(
                     "No URI available for this builder",
@@ -309,6 +299,9 @@ class MystRefrenceResolver(SphinxPostTransform):
                     location=node,
                 )
                 return None
+            if refid:
+                refuri += "#" + refid
+            ref_node["refuri"] = refuri
 
         if node.get("refexplicit"):
             ref_node.extend(node.children)

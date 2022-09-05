@@ -8,6 +8,7 @@ from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.parsers.rst import directives
 from sphinx.directives import other
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
@@ -16,7 +17,7 @@ from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
 from .warnings import MystWarnings
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class _ConfigBase(SphinxDirective):
@@ -147,7 +148,7 @@ class DirectiveDoc(SphinxDirective):
             name, self.state.memo.language, self.state.document
         )
         if klass is None:
-            logger.warning(f"Directive {name} not found.", line=self.lineno)
+            LOGGER.warning(f"Directive {name} not found.", line=self.lineno)
             return []
         content = " ".join(self.content)
         text = f"""\
@@ -221,3 +222,42 @@ class MystWarningsDirective(SphinxDirective):
         node = nodes.Element()
         self.state.nested_parse(text, 0, node)
         return node.children
+
+
+class StripSVGImages(SphinxPostTransform):
+    """Remove SVG images from the doctree for unsupported builders."""
+
+    default_priority = 100
+
+    def apply(self, **kwargs):
+        if "image/svg+xml" in self.app.builder.supported_image_types:
+            return
+        for node in self.document.traverse(nodes.image):
+            if node["uri"].endswith(".svg"):
+                LOGGER.warning(
+                    "Removing SVG image from doctree [myst.strip]",
+                    type="myst",
+                    subtype="strip",
+                    location=node,
+                )
+                node.parent.replace(node, nodes.inline("", "Removed SVG image"))
+
+
+class StripMermaid(SphinxPostTransform):
+    """Remove Mermaid nodes from the doctree for unsupported builders."""
+
+    default_priority = 100
+
+    def apply(self, **kwargs):
+        if self.app.builder.format == "html":
+            return
+        for node in self.document.traverse():
+            if node.tagname != "mermaid":
+                continue
+            LOGGER.warning(
+                "Removing Mermaid node from doctree [myst.strip]",
+                type="myst",
+                subtype="strip",
+                location=node,
+            )
+            node.parent.replace(node, nodes.inline("", "Removed Mermaid diagram"))
