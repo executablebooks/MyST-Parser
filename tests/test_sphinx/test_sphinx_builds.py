@@ -72,8 +72,20 @@ def test_basic(
         "other_dict": '{"key": "value"}',
         "wordcount": {"minutes": 0, "words": 57},
         "myst_local_targets": {
-            "target": {"name": "target", "id": "target", "line": 26, "text": "Header"},
-            "target2": {"name": "target2", "id": "target2", "line": 50, "text": None},
+            "target": {
+                "name": "target",
+                "id": "target",
+                "line": 26,
+                "text": "Header",
+                "type": "section",
+            },
+            "target2": {
+                "name": "target2",
+                "id": "target2",
+                "line": 50,
+                "text": None,
+                "type": "figure",
+            },
         },
     }
 

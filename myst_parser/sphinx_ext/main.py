@@ -17,7 +17,10 @@ def setup_sphinx(app: Sphinx, load_parser=False):
         SubstitutionReferenceRole,
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
-    from myst_parser.sphinx_ext.myst_refs import MystRefrenceResolver, ObjectsBuilder
+    from myst_parser.sphinx_ext.myst_refs import (
+        MystReferencesBuilder,
+        MystRefrenceResolver,
+    )
 
     if load_parser:
         app.add_source_suffix(".md", "markdown")
@@ -28,7 +31,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
 
     app.add_transform(MdDocumentLinks)
     app.add_post_transform(MystRefrenceResolver)
-    app.add_builder(ObjectsBuilder)
+    app.add_builder(MystReferencesBuilder)
 
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):

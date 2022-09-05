@@ -10,6 +10,7 @@ import json
 import re
 import zlib
 from dataclasses import dataclass
+from fnmatch import fnmatchcase
 from typing import IO, TYPE_CHECKING, Iterator
 from urllib.request import urlopen
 
@@ -207,7 +208,7 @@ def resolve_inventory(
     ref_domain: None | str,
     ref_type: None | str,
     ref_target: str,
-    regex_match=False,
+    pattern_match=False,
 ) -> InvMatch:
     """Resolve a cross-reference in the loaded sphinx inventories.
 
@@ -218,17 +219,12 @@ def resolve_inventory(
         will be searched
     :param ref_type: The type of object to search for, if None then all types will be searched
     :param ref_target: The target to search for
-    :param regex_match: Whether to use regex matching of the target
+    :param pattern_match: Whether to use unix pattern matching of the target
 
     :returns: resolved data
     :raises ResoleInventoryMissingError: if the cross-reference cannot be resolved
     :raises ResoleInventoryDupeError: if the cross-reference is ambiguous
     """
-    if regex_match:
-        ref_target_re = re.compile(ref_target)
-    else:
-        ref_target_re = None
-
     # get the inventories to search
     if ref_inv is not None and ref_inv not in inventories:
         raise ResoleInventoryMissingError(f"Unknown inventory {ref_inv!r}")
@@ -250,15 +246,15 @@ def resolve_inventory(
             if ref_type is not None and ref_type != obj_type:
                 continue
 
-            if not regex_match and ref_target in data:
+            if not pattern_match and ref_target in data:
                 results.append(
                     InvMatch(
                         inv_name, domain_name, obj_type, ref_target, *data[ref_target]
                     )
                 )
-            elif ref_target_re is not None:
+            elif pattern_match:
                 for target in data:
-                    if ref_target_re.fullmatch(target):
+                    if fnmatchcase(target, ref_target):
                         results.append(
                             InvMatch(
                                 inv_name, domain_name, obj_type, target, *data[target]
@@ -290,19 +286,19 @@ def inventory_cli(inputs: None | list[str] = None):
         "-d",
         "--domain",
         metavar="DOMAIN",
-        help="Filter the inventory by domain regex",
+        help="Filter the inventory by domain pattern",
     )
     parser.add_argument(
         "-o",
         "--object-type",
         metavar="TYPE",
-        help="Filter the inventory by object type regex",
+        help="Filter the inventory by object type pattern",
     )
     parser.add_argument(
         "-n",
         "--name",
         metavar="NAME",
-        help="Filter the inventory by reference name regex",
+        help="Filter the inventory by reference name pattern",
     )
     parser.add_argument(
         "-f",
@@ -322,28 +318,25 @@ def inventory_cli(inputs: None | list[str] = None):
 
     # filter the inventory
     if args.domain:
-        re_domain = re.compile(args.domain)
         invdata["objects"] = {
             d: invdata["objects"][d]
             for d in invdata["objects"]
-            if re_domain.fullmatch(d)
+            if fnmatchcase(d, args.domain)
         }
     if args.object_type:
-        re_type = re.compile(args.object_type)
         for domain in list(invdata["objects"]):
             invdata["objects"][domain] = {
                 t: invdata["objects"][domain][t]
                 for t in invdata["objects"][domain]
-                if re_type.fullmatch(t)
+                if fnmatchcase(t, args.object_type)
             }
     if args.name:
-        re_name = re.compile(args.name)
         for domain in invdata["objects"]:
             for otype in list(invdata["objects"][domain]):
                 invdata["objects"][domain][otype] = {
                     n: invdata["objects"][domain][otype][n]
                     for n in invdata["objects"][domain][otype]
-                    if re_name.fullmatch(n)
+                    if fnmatchcase(n, args.name)
                 }
 
     # clean up empty items

@@ -132,7 +132,7 @@ class MystRefrenceResolver(SphinxPostTransform):
         ref_domain = ref_query.get("d")
         ref_object_type = ref_query.get("o")
         ref_target = node["reftarget"]
-        ref_regex = "regex" in ref_query
+        ref_pattern = "pat" in ref_query
 
         try:
             res = resolve_inventory(
@@ -141,7 +141,7 @@ class MystRefrenceResolver(SphinxPostTransform):
                 ref_domain,
                 ref_object_type,
                 ref_target,
-                ref_regex,
+                ref_pattern,
             )
         except ResoleInventoryMissingError as exc:
             log_warning(
@@ -201,7 +201,7 @@ class MystRefrenceResolver(SphinxPostTransform):
         ref_domain = ref_query.get("d")
         ref_object_type = ref_query.get("o")
         ref_target = node["reftarget"]
-        ref_regex = "regex" in ref_query
+        ref_pattern = "pat" in ref_query
 
         try:
             res = resolve_inventory(
@@ -210,7 +210,7 @@ class MystRefrenceResolver(SphinxPostTransform):
                 ref_domain,
                 ref_object_type,
                 ref_target,
-                ref_regex,
+                ref_pattern,
             )
         except ResoleInventoryMissingError as exc:
             log_warning(
@@ -321,13 +321,31 @@ class MystRefrenceResolver(SphinxPostTransform):
         return ref_node
 
 
-class ObjectsBuilder(DummyBuilder):
-    """A builder that outputs the objects inventory for the project."""
+class MystReferencesBuilder(DummyBuilder):
+    """A builder that outputs the objects inventory for the project, and local links."""
 
-    name = "objects"
-    epilog = "Build finished. See 'objects.yaml' in: %(outdir)s"
+    name = "myst_refs"
+    epilog = "Build finished. See 'local.yaml' and 'project.yaml' in: %(outdir)s"
 
     def finish(self) -> None:
+
+        # local references
+        local_data: dict = {}
+        for docname, data in self.env.metadata.items():
+            local_data.setdefault(docname, {})
+            doc_data: dict[str, MystLocalTarget] = data.get("myst_local_targets", {})
+            for ref_data in doc_data.values():
+                local_data[docname].setdefault(ref_data["type"], {})
+                local_data[docname][ref_data["type"]][ref_data["name"]] = {
+                    "id": ref_data["id"],
+                    "line": ref_data["line"],
+                    "text": ref_data["text"],
+                }
+
+        with open(os.path.join(self.outdir, "local.yaml"), "w") as f:
+            yaml.dump(local_data, f, sort_keys=True)
+
+        # project references
         data = {
             "name": self.config.project,
             "version": self.config.version,
@@ -346,5 +364,5 @@ class ObjectsBuilder(DummyBuilder):
                 }
                 if isinstance(dispname, str) and dispname != name:
                     objects[domainname][otype][name]["dispname"] = dispname
-        with open(os.path.join(self.outdir, "objects.yaml"), "w") as f:
+        with open(os.path.join(self.outdir, "project.yaml"), "w") as f:
             yaml.dump(data, f, sort_keys=False)

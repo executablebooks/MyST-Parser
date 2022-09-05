@@ -37,7 +37,7 @@ PARAMS = [
         "(index)=\n# Title\n[](myst:project?o=label#index)",
         None,
     ),
-    ("myst_project_regex", "(target)=\n# Title\n[](myst:project?regex#.*get)", None),
+    ("myst_project_pattern", "(target)=\n# Title\n[](myst:project?pat#*get)", None),
     ("myst_inv", "[](myst:inv#ref)", None),
     ("myst_inv_text", "[*text*](myst:inv#ref)", None),
     (
@@ -47,8 +47,8 @@ PARAMS = [
     ),
     (
         "myst_inv_duplicate",
-        "[*text*](myst:inv?regex#.*modindex)",
-        "<src>/index.md:1: WARNING: Multiple matches found for target '?:?:?:.*modindex' in "
+        "[*text*](myst:inv?pat#*modindex)",
+        "<src>/index.md:1: WARNING: Multiple matches found for target '?:?:?:*modindex' in "
         "'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]",
     ),
 ]
@@ -106,11 +106,11 @@ def test_suppress_warnings(sphinx_doctree: CreateDoctree):
 
 
 def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
-    sphinx_doctree.buildername = "objects"
+    sphinx_doctree.buildername = "myst_refs"
     sphinx_doctree.set_conf(
         {"extensions": ["myst_parser"], "project": "test", "version": "0.0.1"}
     )
     result = sphinx_doctree("(target)=\n# Head\n", "index.md")
-    opath = Path(result.app.outdir).joinpath("objects.yaml")
+    opath = Path(result.app.outdir).joinpath("project.yaml")
     assert opath.exists()
     data_regression.check(yaml.safe_load(opath.read_text()))

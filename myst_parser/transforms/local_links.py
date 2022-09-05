@@ -29,6 +29,8 @@ class MystLocalTarget(TypedDict):
     """The line number of the target"""
     text: str | None
     """For use if no explicit text is given by the reference, e.g. the section title"""
+    type: str
+    """The type of target, e.g. "section", "figure", "table", "code-block" etc."""
 
 
 class MdDocumentLinks(Transform):
@@ -73,6 +75,7 @@ class MdDocumentLinks(Transform):
                 "id": labelid,
                 "line": node.line,
                 "text": None,
+                "type": str(node.tagname or "unknown"),
             }
             local_nodes[name] = node
 
@@ -113,6 +116,7 @@ class MdDocumentLinks(Transform):
                 "id": anchor_id,
                 "line": node.line,
                 "text": None,
+                "type": "section-anchor",
             }
             local_nodes[anchor_name] = node
 
