@@ -19,19 +19,16 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    Title with nested a=1
+            <reference classes="myst-local" internal="True" refid="title">
+                Title with nested a=1
         <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    plain text
+            <reference classes="myst-local" internal="True" refid="title">
+                plain text
         <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    nested 
-                    <emphasis>
-                        syntax
+            <reference classes="myst-local" internal="True" refid="title">
+                nested 
+                <emphasis>
+                    syntax
         <paragraph>
             <reference classes="myst-doc" internal="True" refuri="">
                 Title with nested a=1
@@ -67,9 +64,8 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <reference internal="True" refid="insidecodeblock">
-                <inline classes="std std-ref">
-                    fence
+            <reference classes="myst-local" internal="True" refid="insidecodeblock">
+                fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
                 Title 
@@ -91,9 +87,8 @@
                                     <emphasis>
                                         anchors
             <paragraph>
-                <reference internal="True" refid="title-anchors">
-                    <inline classes="std std-ref">
-                        Title anchors
+                <reference classes="myst-local" internal="True" refid="title-anchors">
+                    Title anchors
             <paragraph>
                 <reference classes="myst-doc" internal="True" refuri="other.html#title-anchors">
                     Title anchors

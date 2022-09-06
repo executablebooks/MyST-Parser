@@ -1,9 +1,0 @@
-<document source="root/index.md">
-    <target refid="ref">
-    <section ids="title ref" names="title ref">
-        <title>
-            Title
-        <paragraph>
-            <reference internal="True" refid="ref">
-                <inline classes="std std-ref">
-                    Title

@@ -74,6 +74,9 @@ class MystConfigDirective(_ConfigBase):
         count = 0
         for name, value, field in config.as_triple():
 
+            if field.metadata.get("deprecated"):
+                continue
+
             # filter by sphinx options
             if "sphinx" in self.options and field.metadata.get("sphinx_exclude"):
                 continue

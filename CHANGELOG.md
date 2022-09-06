@@ -100,7 +100,7 @@ In addition, configuration to more finely tune this behaviour has been added.
 - `myst_url_schemes=("http", "https")`, sets what URL schemes are treated as (1)
 - `myst_ref_domains=("std", "py")`, sets what Sphinx reference domains are checked, when handling (3)
 
-See [Markdown Links and Referencing](docs/syntax/syntax.md#markdown-links-and-referencing) for more information.
+See [Markdown Links and Referencing](docs/syntax/syntax.md#links-and-referencing) for more information.
 
 ### ‼️ Dollarmath is now disabled by default
 

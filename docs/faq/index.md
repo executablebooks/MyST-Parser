@@ -137,7 +137,7 @@ We hope to support Markdown in the future, see [GitHub issue #228](https://githu
 
 New in `v0.13.0` ✨, myst-parser now provides a separate implementation of `autosectionlabel`, which implements GitHub Markdown style bookmark anchors, like `[](file.md#header-anchor)`.
 
-See the [](myst:project#syntax/header-anchors) section of extended syntaxes.
+See the <myst:project#syntax/header-anchors> section of extended syntaxes.
 
 :::
 
@@ -175,7 +175,7 @@ like so:
 (howto/warnings)=
 ### Suppress warnings
 
-See [](myst:project#myst-warnings).
+See <myst:project#myst-warnings>.
 
 ### Sphinx-specific page front matter
 

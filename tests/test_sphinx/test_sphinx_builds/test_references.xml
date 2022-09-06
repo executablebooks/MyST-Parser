@@ -19,26 +19,23 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    Title with nested a=1
+            <reference classes="myst-local" internal="True" refid="title">
+                Title with nested a=1
         <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    plain text
-        <paragraph>
-            <reference internal="True" refid="title">
-                <inline classes="std std-ref">
-                    nested 
-                    <emphasis>
-                        syntax
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="True" reftarget="/index" reftype="doc">
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refname="True" reftarget="/index" reftype="doc">
+            <reference classes="myst-local" internal="True" refid="title">
                 plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refname="True" reftarget="/index" reftype="doc">
+            <reference classes="myst-local" internal="True" refid="title">
+                nested 
+                <emphasis>
+                    syntax
+        <paragraph>
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': ''}" reftarget="index" reftype="doc">
+        <paragraph>
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{'t': ''}" reftarget="index" reftype="doc">
+                plain text
+        <paragraph>
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{'t': ''}" reftarget="index" reftype="doc">
                 nested 
                 <emphasis>
                     syntax
@@ -66,9 +63,8 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <reference internal="True" refid="insidecodeblock">
-                <inline classes="std std-ref">
-                    fence
+            <reference classes="myst-local" internal="True" refid="insidecodeblock">
+                fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
                 Title 
@@ -77,12 +73,11 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <reference internal="True" refid="title-anchors">
-                    <inline classes="std std-ref">
-                        Title anchors
+                <reference classes="myst-local" internal="True" refid="title-anchors">
+                    Title anchors
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="other" reftype="doc">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="other" reftype="doc">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refname="title-anchors" reftarget="/subfolder/other2" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="subfolder/other2" reftype="doc">

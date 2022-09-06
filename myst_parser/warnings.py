@@ -10,6 +10,9 @@ from docutils import nodes
 class MystWarnings(Enum):
     """MyST warning types."""
 
+    CONFIG_DEPRECATED = "config"
+    """A deprecated configuration option has been used."""
+
     RENDER_METHOD = "render"
     """The render method is not implemented."""
 
@@ -32,7 +35,7 @@ class MystWarnings(Enum):
     REF_MISSING = "ref_missing"
     """A target was not found for a local reference."""
     REF_EMPTY = "ref_no_content"
-    """A cross-reference was found without content."""
+    """No content was resolved for a local reference."""
 
     # myst domain reference resolution
     XREF_UNSUPPORTED = "xref_unsupported"
@@ -45,7 +48,7 @@ class MystWarnings(Enum):
     XREF_DUPLICATE = "xref_duplicate"
     """Multiple targets were found for a cross-reference."""
     XREF_EMPTY = "xref_no_content"
-    """A cross-reference was found without content."""
+    """No content was resolved for a cross-reference."""
     XREF_ERROR = "xref_error"
     """An unspecified error occurred while resolving a cross-reference."""
     IREF_MISSING = "iref_missing"

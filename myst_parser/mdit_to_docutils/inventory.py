@@ -41,6 +41,31 @@ class InventoryType(TypedDict):
     """Mapping of domain -> object -> name -> item."""
 
 
+def format_inventory(inv: Inventory) -> InventoryType:
+    """Convert a Sphinx inventory to one that is JSON compliant."""
+    project = ""
+    version = ""
+    objs: dict[str, dict[str, dict[str, InventoryItemType]]] = {}
+    for domain_obj_name, data in inv.items():
+        if ":" not in domain_obj_name:
+            continue
+
+        domain_name, obj_type = domain_obj_name.split(":", 1)
+        objs.setdefault(domain_name, {}).setdefault(obj_type, {})
+        for refname, refdata in data.items():
+            project, version, uri, dispname = refdata
+            objs[domain_name][obj_type][refname] = {
+                "loc": uri,
+                "disp": dispname,
+            }
+
+    return {
+        "name": project,
+        "version": version,
+        "objects": objs,
+    }
+
+
 def load(stream: IO) -> InventoryType:
     """Load inventory data from a stream."""
     reader = InventoryFileReader(stream)
@@ -237,6 +262,9 @@ def resolve_inventory(
     for inv_name, inv_data in inventories.items():
 
         for domain_obj_name, data in inv_data.items():
+
+            if ":" not in domain_obj_name:
+                continue
 
             domain_name, obj_type = domain_obj_name.split(":", 1)
 

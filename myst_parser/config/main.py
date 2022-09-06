@@ -117,23 +117,14 @@ class MdParserConfig:
         },
     )
 
-    # TODO deprecate this method
     ref_domains: Optional[Iterable[str]] = dc.field(
         default=None,
         metadata={
+            "deprecated": "use `[](myst:project?d=name#target)` instead",
             "validator": optional(
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
             "help": "Sphinx domain names to search in for link references",
-        },
-    )
-
-    highlight_code_blocks: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "Syntax highlight code blocks with pygments",
-            "docutils_only": True,
         },
     )
 
@@ -187,15 +178,6 @@ class MdParserConfig:
         metadata={
             "validator": instance_of(bool),
             "help": "Place a transition before any footnotes",
-        },
-    )
-
-    suppress_warnings: Sequence[str] = dc.field(
-        default_factory=list,
-        metadata={
-            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
-            "help": "A list of warning types to suppress warning messages",
-            "docutils_only": True,
         },
     )
 
@@ -293,6 +275,27 @@ class MdParserConfig:
         },
     )
 
+    # docutils only (replicating aspects of sphinx config)
+
+    suppress_warnings: Sequence[str] = dc.field(
+        default_factory=list,
+        metadata={
+            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
+            "help": "A list of warning types to suppress warning messages",
+            "docutils_only": True,
+            "global_only": True,
+        },
+    )
+
+    highlight_code_blocks: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Syntax highlight code blocks with pygments",
+            "docutils_only": True,
+        },
+    )
+
     def __post_init__(self):
         validate_fields(self)
 
@@ -366,6 +369,12 @@ def merge_file_level(
             continue
 
         old_value, field = fields[name]
+        if field.metadata.get("deprecated"):
+            warning(
+                MystWarnings.MD_TOPMATTER,
+                f"{name!r} is deprecated and will be removed in a future release.",
+            )
+            continue
 
         try:
             validate_field(new, field, value)

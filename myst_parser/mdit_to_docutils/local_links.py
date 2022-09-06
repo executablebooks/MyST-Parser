@@ -1,3 +1,4 @@
+"""Handling of references to targets within the same document."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -15,7 +16,11 @@ if TYPE_CHECKING:
 
 
 class MystLocalLink(nodes.Element):
-    """A node for a link to a fragment in a Markdown document."""
+    """A node for a link local to the referencing document.
+
+    It should have at least a `refname` attribute,
+    and a `refexplicit` attribute to indicate whether the reference text is explicit.
+    """
 
 
 class MystLocalTarget(TypedDict):
@@ -121,11 +126,15 @@ class MdDocumentLinks(Transform):
             local_nodes[anchor_name] = node
 
         for name, node in local_nodes.items():
-            if node.children and isinstance(node.children[0], nodes.title):
-                local_targets[name]["text"] = node.children[0].astext()
+            for child in node:
+                if isinstance(child, (nodes.title, nodes.caption)):
+                    local_targets[name]["text"] = child.astext()
+                    break
 
         # resolve local links
         for node in findall(self.document)(MystLocalLink):
+
+            # create the reference node
             target = local_targets.get(node["refname"])
             if not target:
                 create_warning(
@@ -139,31 +148,38 @@ class MdDocumentLinks(Transform):
             else:
                 reference = nodes.reference(refid=target["id"], internal=True)
 
-            inner_node = nodes.inline("", "", classes=["std", "std-ref"])
-            reference += inner_node
-            inner_node.children = node.children
-            if not inner_node.children:
-                if target and target["text"]:
-                    inner_node.children = [nodes.Text(target["text"])]
-                else:
+            # transfer attributes to reference
+            reference.source, reference.line = node.source, node.line
+            if node["classes"]:
+                reference["classes"].extend(node["classes"])
+            if node.get("title"):
+                reference["reftitle"] = node["title"]
+
+            # add content children for the reference
+            if node["refexplicit"]:
+                reference += node.children
+            elif target and target["text"]:
+                reference += nodes.Text(target["text"])
+            else:
+                if target:
+                    # only issue a warning if the target exists
                     create_warning(
                         self.document,
                         "empty link text",
                         MystWarnings.REF_EMPTY,
                         line=node.line,
                     )
-
-            # transfer attributes to reference
-            reference.source, reference.line = node.source, node.line
-            if node["classes"]:
-                reference["classes"].extend(node["classes"])
-            if "title" in node:
-                reference["reftitle"] = node["title"]
+                if node.children:
+                    # the node may still have children, if it was an autolink
+                    reference += node.children
+                else:
+                    reference += nodes.Text(node["refname"])
 
             node.parent.replace(node, reference)
 
         # if using sphinx, then save local links to the environment,
         # for use by inter-document link resolution
+        # TODO store these in a myst specific domain?
         env: None | BuildEnvironment = getattr(self.document.settings, "env", None)
         if env is not None:
             env.metadata[env.docname]["myst_local_targets"] = local_targets

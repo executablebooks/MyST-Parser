@@ -64,7 +64,7 @@ Configuration specific to syntax extensions:
 
 ## List of syntax extensions
 
-Full details in the [](myst:project#syntax/extensions) section.
+Full details in the <myst:project#syntax/extensions> section.
 
 amsmath
 : enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations

@@ -1,7 +1,6 @@
 """A post-transform for overriding the behaviour of sphinx reference resolution.
 
-This is applied to MyST type references only, such as ``[text](target)``,
-and allows for nested syntax
+This is applied to MyST type references only, such as ``[text](myst:target)``
 """
 from __future__ import annotations
 
@@ -18,15 +17,16 @@ from sphinx.errors import NoUri
 from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.locale import _
 from sphinx.transforms.post_transforms import ReferencesResolver, SphinxPostTransform
-from sphinx.util import docname_join, logging
+from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
 from myst_parser.mdit_to_docutils.inventory import (
     ResoleInventoryDupeError,
     ResoleInventoryMissingError,
+    format_inventory,
     resolve_inventory,
 )
-from myst_parser.transforms.local_links import MystLocalTarget
+from myst_parser.mdit_to_docutils.local_links import MystLocalTarget
 from myst_parser.warnings import MystWarnings
 
 if TYPE_CHECKING:
@@ -74,6 +74,8 @@ class MystRefrenceResolver(SphinxPostTransform):
             newnode: Element | None = None
             if typ == "doc":
                 newnode = self._resolve_xref_doc(node)
+            elif typ == "local":
+                newnode = self._resolve_xref_local(node)
             elif typ == "project":
                 if inventory is None:
                     inventory = self._project_inventory()
@@ -87,10 +89,14 @@ class MystRefrenceResolver(SphinxPostTransform):
                     subtype=MystWarnings.XREF_TYPE,
                 )
 
+            # create a placeholder, for failed resolutions
             if newnode is None:
                 newnode = nodes.inline()
                 newnode["classes"].append("myst-ref-error")
-                newnode.extend(node.children)
+                if node.children:
+                    newnode.extend(node.children)
+                else:
+                    newnode += nodes.Text(node["reftarget"])
 
             # add myst class to all references
             if newnode:
@@ -105,7 +111,7 @@ class MystRefrenceResolver(SphinxPostTransform):
             node.replace_self(newnode)
 
     def _project_inventory(self) -> Inventory:
-        """Build the inventory."""
+        """Build the inventory for this project."""
         inventory: Inventory = {}
         for domainname, domain in sorted(self.env.domains.items()):
             for name, dispname, otype, docname, anchor, __ in sorted(
@@ -178,11 +184,13 @@ class MystRefrenceResolver(SphinxPostTransform):
                 refuri += "#" + anchor
             res_node["refuri"] = refuri
 
-        # add a class, so we can capture what the match was in the output
-        res_node["classes"].append(f"obj-{res.domain}-{res.otype}")
+        # add a title, so we can capture what the match was in the output
+        res_node["reftitle"] = f"myst:project:{res.domain}:{res.otype}"
+
+        # add content children
         if node.get("refexplicit"):
-            res_node.extend(node.children)
-        elif res.dispname == "-":
+            res_node += node.children
+        elif not res.dispname or res.dispname == "-":
             res_node.append(nodes.literal(res.target, res.target))
         else:
             res_node.append(nodes.Text(res.dispname))
@@ -241,6 +249,8 @@ class MystRefrenceResolver(SphinxPostTransform):
         )
         # add a class, so we can capture what the match was in the output
         res_node["classes"].append(f"inv-{res.inv}-{res.domain}-{res.otype}")
+
+        # add content children
         if node.get("refexplicit"):
             res_node.extend(node.children)
         elif res.dispname == "-":
@@ -254,12 +264,29 @@ class MystRefrenceResolver(SphinxPostTransform):
         self,
         node: pending_xref,
     ) -> Element | None:
-        """Resolve a cross-reference to another document within the project,
-        and possibly a target within it.
+        """Resolve a cross-reference another document within the project,
+        and optionally a target within it.
         """
-        docname: str = docname_join(node["refdoc"], node["reftarget"])
-        refname: str | None = node.get("refname", None)
+        docname: str = node["reftarget"]
+        refname: str = node["refquery"].get("t", "")
+        return self._resolve_xref_doc_target(node, docname, refname)
 
+    def _resolve_xref_local(
+        self,
+        node: pending_xref,
+    ) -> Element | None:
+        """Resolve a cross-reference to a target within the current document."""
+        docname: str = node["refdoc"]
+        refname: str = node["reftarget"]
+        return self._resolve_xref_doc_target(node, docname, refname)
+
+    def _resolve_xref_doc_target(
+        self,
+        node: pending_xref,
+        docname: str,
+        refname: str,
+    ) -> Element | None:
+        """Resolve a cross-reference to a document and (optional) target."""
         # check that the docname can be found
         if docname not in self.env.all_docs:
             log_warning(
@@ -269,7 +296,7 @@ class MystRefrenceResolver(SphinxPostTransform):
             )
             return None
 
-        # find the the id for the a fragment, if given
+        # find the the id for the refname, if given
         refid = ""
         reftext: str | None = None
         if refname:
@@ -278,13 +305,13 @@ class MystRefrenceResolver(SphinxPostTransform):
             )
             if refname not in myst_refs:
                 log_warning(
-                    f"Unknown local ref {refname!r} in doc {docname!r}",
+                    f"Unknown ref {refname!r} in doc {docname!r}",
                     location=node,
                     subtype=MystWarnings.XREF_MISSING,
                 )
-            else:
-                refid = myst_refs[refname]["id"]
-                reftext = myst_refs[refname]["text"]
+                return None
+            refid = myst_refs[refname]["id"]
+            reftext = myst_refs[refname]["text"]
 
         ref_node = nodes.reference("", "", internal=True)
         if node["refdoc"] == docname and refid:
@@ -303,29 +330,33 @@ class MystRefrenceResolver(SphinxPostTransform):
                 refuri += "#" + refid
             ref_node["refuri"] = refuri
 
+        # add content children
         if node.get("refexplicit"):
             ref_node.extend(node.children)
-        else:
-            if refname and refid:
-                text = reftext or ""
-                if not text:
-                    log_warning(
-                        "empty link text",
-                        location=node,
-                        subtype=MystWarnings.XREF_EMPTY,
-                    )
-            else:
-                text = clean_astext(self.env.titles[docname])
+        elif not refname:
+            # use the document title
+            text = clean_astext(self.env.titles[docname])
             ref_node.append(nodes.Text(text))
+        elif reftext:
+            # use the display text given for the reference
+            ref_node.append(nodes.Text(reftext))
+        else:
+            # default to just showing the target
+            log_warning(
+                "empty link text",
+                location=node,
+                subtype=MystWarnings.XREF_EMPTY,
+            )
+            ref_node.append(nodes.Text(f"{docname}#{refname}"))
 
         return ref_node
 
 
 class MystReferencesBuilder(DummyBuilder):
-    """A builder that outputs the objects inventory for the project, and local links."""
+    """A builder that outputs YAML mappings of local/project/external references."""
 
     name = "myst_refs"
-    epilog = "Build finished. See 'local.yaml' and 'project.yaml' in: %(outdir)s"
+    epilog = "Build finished. See files in: %(outdir)s"
 
     def finish(self) -> None:
 
@@ -366,3 +397,9 @@ class MystReferencesBuilder(DummyBuilder):
                     objects[domainname][otype][name]["dispname"] = dispname
         with open(os.path.join(self.outdir, "project.yaml"), "w") as f:
             yaml.dump(data, f, sort_keys=False)
+
+        # external inventories
+        for name, inv in InventoryAdapter(self.env).named_inventory.items():
+            with open(os.path.join(self.outdir, f"inv.{name}.yaml"), "w") as f:
+                inv_data = format_inventory(inv)
+                yaml.dump(inv_data, f, sort_keys=False)

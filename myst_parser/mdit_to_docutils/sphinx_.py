@@ -12,26 +12,9 @@ from sphinx.domains.math import MathDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.util import logging
 
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer, token_line
-from myst_parser.warnings import MystWarnings
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 
 LOGGER = logging.getLogger(__name__)
-
-
-def split_myst_uri(uri: str) -> tuple[str, str, dict[str, bool | str]]:
-    """Split `type?key1=value&key2=value#target` to type, target, query."""
-    front, *_fragment = uri.split("#", 1)
-    reftarget = _fragment[0] if _fragment else ""
-    reftype, *_query = front.split("?", 1)
-    refquery: dict[str, bool | str] = {}
-    if _query:
-        for comp in _query[0].split("&"):
-            if "=" in comp:
-                key, val = comp.split("=", 1)
-                refquery[key] = val
-            else:
-                refquery[comp] = True
-    return reftype, reftarget, refquery
 
 
 class SphinxRenderer(DocutilsRenderer):
@@ -45,27 +28,23 @@ class SphinxRenderer(DocutilsRenderer):
     def sphinx_env(self) -> BuildEnvironment:
         return self.document.settings.env
 
-    def add_myst_ref(self, token: SyntaxTreeNode, reference: str) -> None:
-        """Render link token `[text](myst:any#ref "title")`"""
-        reftype, reftarget, refquery = split_myst_uri(reference)
+    def add_myst_ref(
+        self, token: SyntaxTreeNode, rtype: str, target: str, query: dict[str, str]
+    ) -> None:
 
-        for value, key in ((reftype, "type"), (reftarget, "target")):
-            if not value:
-                self.create_warning(
-                    f"No myst reference {key} given in 'myst:{reference}'",
-                    MystWarnings.MD_INVALID_URI,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
-                return self.render_children(token)
+        # if the target is a local to the document, then handle same as docutils
+        if rtype == "local":
+            return self._add_myst_ref_local(token, target)
 
+        # otherwise create a pending xref, which will be resolved later
+        refexplicit = True if (token.info != "auto" and token.children) else False
         wrap_node = addnodes.pending_xref(
             refdoc=self.sphinx_env.docname,
             refdomain="myst",
-            reftype=reftype,
-            reftarget=reftarget,
-            refexplicit=len(token.children or []) > 0,
-            refquery=refquery,
+            reftype=rtype,
+            reftarget=target,
+            refexplicit=refexplicit,
+            refquery=query,
         )
         title = token.attrGet("title")
         if title:
@@ -80,30 +59,9 @@ class SphinxRenderer(DocutilsRenderer):
         """Render link token `[text](path/to/file.ext#fragment "title")`"""
         docname = self.sphinx_env.path2doc(str(abs_path))
 
-        if not docname:
-            return self.add_local_download_ref(token, rel_path, abs_path, fragment)
+        if docname:
+            return self.add_myst_ref(token, "doc", docname, {"t": fragment or ""})
 
-        wrap_node = addnodes.pending_xref(
-            refdoc=self.sphinx_env.docname,
-            refdomain="myst",
-            reftype="doc",
-            reftarget="/" + docname,  # add `/` to denote an absolute name
-            refname=fragment,
-            refexplicit=len(token.children or []) > 0,
-        )
-        title = token.attrGet("title")
-        if title:
-            wrap_node["title"] = title
-        self.add_line_and_source_path(wrap_node, token)
-        with self.current_node_context(wrap_node, append=True):
-            self.render_children(token)
-
-    def add_local_download_ref(
-        self, token: SyntaxTreeNode, rel_path: str, abs_path: Path, fragment: None | str
-    ) -> None:
-        """Render link token `[text](path/to/file.ext#fragment "title")`,
-        which is not a project document.
-        """
         # TODO what if fragment?
         wrap_node = addnodes.download_reference(
             refdoc=self.sphinx_env.docname,

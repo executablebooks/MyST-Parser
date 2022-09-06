@@ -332,15 +332,15 @@ Title
         <title>
             Title
         <paragraph>
-            <MystLocalLink refname="target">
+            <MystLocalLink classes="myst-local" refexplicit="True" refname="target">
                 alt1
         <paragraph>
-            <MystLocalLink refname="target2">
+            <MystLocalLink classes="myst-local" refexplicit="False" refname="target2">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <MystLocalLink refname="target3">
+            <MystLocalLink classes="myst-local" refexplicit="True" refname="target3">
                 alt3
 .
 
@@ -376,7 +376,7 @@ Link Reference:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <reference refuri="https://www.google.com" title="a title">
+        <reference reftitle="a title" refuri="https://www.google.com">
             name
 .
 
@@ -388,7 +388,7 @@ Link Reference short version:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <reference refuri="https://www.google.com" title="a title">
+        <reference reftitle="a title" refuri="https://www.google.com">
             name
 .
 
@@ -423,7 +423,7 @@ Link Definition in directive:
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <MystLocalLink refname="link">
+            <MystLocalLink classes="myst-local" refexplicit="True" refname="link">
                 a
 .
 
@@ -446,7 +446,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <MystLocalLink refname="link">
+            <MystLocalLink classes="myst-local" refexplicit="True" refname="link">
                 ref1
 
             [ref2]
@@ -790,5 +790,5 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <MystLocalLink refname="target">
+            <MystLocalLink classes="myst-local" refexplicit="False" refname="target">
 .

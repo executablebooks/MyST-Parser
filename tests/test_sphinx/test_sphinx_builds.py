@@ -83,7 +83,7 @@ def test_basic(
                 "name": "target2",
                 "id": "target2",
                 "line": 50,
-                "text": None,
+                "text": "Caption",
                 "type": "figure",
             },
         },

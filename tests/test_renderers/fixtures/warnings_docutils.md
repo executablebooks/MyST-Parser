@@ -24,7 +24,7 @@ Unsupported myst link
 .
 [a](myst:link)
 .
-<string>:1: (WARNING/2) docutils only parsing does not support 'myst:' links: 'myst:link' [myst.xref_unsupported]
+<string>:1: (WARNING/2) Invalid myst link 'myst:link': Missing reference target [myst.invalid_uri]
 .
 
 Unknown role:

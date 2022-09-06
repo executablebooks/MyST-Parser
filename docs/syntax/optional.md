@@ -21,7 +21,7 @@ myst:
 # Syntax Extensions
 
 MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](myst:inv?i=markdown_it#index) parser.
-The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](myst:project#sphinx/config-options)).
+The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also <myst:project#sphinx/config-options>).
 Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](myst:inv?i=markdown_it#md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:
@@ -89,7 +89,7 @@ For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough wit
 :::{warning}
 This extension is currently only supported for HTML output,
 and you will need to suppress the `myst.strikethrough` warning
-(see [](myst:project#myst-warnings))
+(see <myst:project#myst-warnings>)
 :::
 
 (syntax/math)=
@@ -483,7 +483,7 @@ This text is **standard** _Markdown_
 `myst_admonition_enable` is deprecated and replaced by `myst_enable_extensions = ["colon_fence"]` (see above).
 Also, classes should now be set with the `:class: myclass` option.
 
-Also see [](myst:project#syntax/html-admonition).
+Also see <myst:project#syntax/html-admonition>.
 :::
 
 (syntax/header-anchors)=
@@ -718,7 +718,7 @@ Send a message to a recipient
 ```
 
 :::{note}
-Currently `sphinx.ext.autodoc` does not support MyST, see [](myst:project#howto/autodoc).
+Currently `sphinx.ext.autodoc` does not support MyST, see <myst:project#howto/autodoc>.
 :::
 
 (syntax/images)=

@@ -1,9 +1,12 @@
 """The setup for the sphinx extension."""
-from typing import Any
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
 
-from myst_parser.transforms.local_links import MdDocumentLinks
+from myst_parser.mdit_to_docutils.local_links import MdDocumentLinks
+from myst_parser.warnings import MystWarnings
+
+DEPRECATED = "__deprecated__"
 
 
 def setup_sphinx(app: Sphinx, load_parser=False):
@@ -17,7 +20,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
         SubstitutionReferenceRole,
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
-    from myst_parser.sphinx_ext.myst_refs import (
+    from myst_parser.sphinx_ext.references import (
         MystReferencesBuilder,
         MystRefrenceResolver,
     )
@@ -36,7 +39,10 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):
             # TODO add types?
-            app.add_config_value(f"myst_{name}", default, "env", types=Any)
+            if field.metadata.get("deprecated"):
+                app.add_config_value(f"myst_{name}", DEPRECATED, "env", types=Any)
+            else:
+                app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
@@ -53,11 +59,20 @@ def create_myst_config(app):
 
     logger = logging.getLogger(__name__)
 
-    values = {
-        name: app.config[f"myst_{name}"]
-        for name, _, field in MdParserConfig().as_triple()
-        if not field.metadata.get("docutils_only", False)
-    }
+    values: Dict[str, Any] = {}
+
+    for name, _, field in MdParserConfig().as_triple():
+        if not field.metadata.get("docutils_only", False):
+            if field.metadata.get("deprecated"):
+                if app.config[f"myst_{name}"] != DEPRECATED:
+                    logger.warning(
+                        f"'myst_{name}' is deprecated, "
+                        f"{field.metadata.get('deprecated')} [myst.config]",
+                        type="myst",
+                        subtype=MystWarnings.CONFIG_DEPRECATED.value,
+                    )
+                continue
+            values[name] = app.config[f"myst_{name}"]
 
     try:
         app.env.myst_config = MdParserConfig(**values)

@@ -205,94 +205,320 @@ Is below, but it won't be parsed into the document.
 
 (syntax/referencing)=
 
-## Markdown Links and Referencing
+## Links and Referencing
 
-Markdown links are of the form: `[text](link)`.
+CommonMark links come in three forms ([see the spec](https://spec.commonmark.org/0.30/#links)):
 
-If you set the configuration `myst_all_links_external = True` (`False` by default),
-then all links will be treated simply as "external" links.
-For example, in HTML outputs, `[text](link)` will be rendered as `<a href="link">text</a>`.
+*Autolinks* are [URIs][uri] surrounded by `<` and `>`:
 
-Otherwise, links will only be treated as "external" links if they are prefixed with a scheme,
-configured with `myst_url_schemes` (by default, `http`, `https`, `ftp`, or `mailto`).
-For example, `[example.com](https://example.com)` becomes [example.com](https://example.com).
+```md
+<scheme:path?query#fragment>
+```
 
-:::{note}
-The `text` will be parsed as nested Markdown, for example `[here's some *emphasised text*](https://example.com)` will be parsed as [here's some *emphasised text*](https://example.com).
+*Inline links* allow for optional explicit text and titles (in HTML titles are rendered as tooltips):
+
+```md
+[Explicit *Markdown* text](destination "optional explicit title")
+```
+
+or, if the destination contains spaces,
+
+```md
+[text](<a destination>)
+```
+
+*Reference links* define the destination separately in the document, and can be used multiple times:
+
+```md
+[Explicit *Markdown* text][label]
+
+[label]: destination "optional explicit title"
+```
+
+MyST, supports the following destination types:
+
+|      Link Type      |            Auto            |          Inline           | Single Page[^sp] |
+| :------------------ | :------------------------- | :------------------------ | :--------------: |
+| External URL        | `<https://example.com>`    | `[](https://example.com)` |        ✅         |
+| Local file          | -                          | `[](file.txt)`            |        ❌         |
+| Project document    | `<myst:doc#file>`          | `[](file.md)`             |        ❌         |
+| Local target        | `<myst:local#target>`      | `[](#target)`             |        ✅         |
+| Target in document  | `<myst:doc?t=target#file>` | `[](file.md#target)`      |        ❌         |
+| Target in project   | `<myst:project#target>`    | `[](myst:project#target)` |        ❌         |
+| Target in inventory | `<myst:inv#target>`        | `[](myst:inv#target)`     |        ❌         |
+
+[^sp]: Whether this link type is supported in [single page builds](../docutils.md),
+       otherwise a `myst.xref_unsupported` warning will be raised.
+
+The `myst:` scheme is used to indicate that the link should be resolved by MyST specific logic, as described below.
+Its format follows standard [URI][uri] syntax:
+
+```
+URI = myst ":" type ["?" query] "#" fragment
+```
+
+The optional query string represents a sequence of `key=value` pairs, separated by an `&` delimiter.
+A key without a value is interpreted as an a empty string value,
+and for duplicate keys the last value will be used.
+For example: `key1=value1&key2=value2&key3&key2=value3` would be parsed as:
+
+```json
+{
+    "key1": "value1",
+    "key2": "value3",
+    "key3": ""
+}
+```
+
+:::{versionchanged} 0.19.0
+- The `myst:` scheme was introduced
+- `[text](myst:project#target)` syntax replaces the previous `[text](target)` syntax.
+  On upgrading, you may now see [`myst.invalid_uri` warnings](myst:project#myst-warnings).
+- `[text](myst:project?d=std#target)` syntax replaces the `myst_ref_domains` config.
+- `[text](#target)` will now refer to any local reference, not just heading anchors.
 :::
 
-For "internal" links, myst-parser in Sphinx will attempt to resolve the reference to either a relative document path, or a cross-reference to a target (see [](myst:project#syntax/targets)):
+[uri]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
 
-- `[this doc](syntax.md)` will link to a rendered source document: [this doc](syntax.md)
-  - This is similar to `` {doc}`this doc <syntax>` ``; {doc}`this doc <syntax>`, but allows for document extensions, and parses nested Markdown text.
-- `[example text](example.txt)` will link to a non-source (downloadable) file: [*example* text](example.txt)
-  - The linked document itself will be copied to the build directory.
-  - This is similar to `` {download}`*example* text <example.txt>` ``; {download}`*example* text <example.txt>`, but parses nested Markdown text.
-- `[reference](myst:project#syntax/referencing)` will link to an internal cross-reference: [reference](myst:project#syntax/referencing)
-  - This is similar to `` {any}`reference <syntax/referencing>` ``; {any}`reference <syntax/referencing>`, but parses nested Markdown text.
-  - You can limit the scope of the cross-reference to specific [sphinx domains](myst:inv?i=sphinx#domain), by using the `myst_ref_domains` configuration.
-    For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
+(syntax/referencing/external)=
+### External URLs
 
-Additionally, only if [](myst:project#syntax/header-anchors) are enabled, then internal links to document headers can be used.
-For example `[a header](syntax.md#markdown-links-and-referencing)` will link to a header anchor: [a header](syntax.md#markdown-links-and-referencing).
+External [Uniform Resource Locator (URL)](https://en.wikipedia.org/wiki/URL) are direct links to other websites.
+They are recognised by the presence of a known URL scheme (`scheme:...`).
+This can be configured using the [`myst_url_schemes` configuration variable](../configuration.md),
+and by default is  `http`, `https`, `ftp`, or `mailto`.
+
+| Examples |                                              |                                            |
+| :------- | :------------------------------------------- | :----------------------------------------- |
+| Auto     | `<https://example.com>`                      | <https://example.com>                      |
+| Inline   | `[Some *text*](https://example.com "title")` | [Some *text*](https://example.com "title") |
+
+Note, if you set the configuration `myst_all_links_external = True` (`False` by default),
+then all links will be treated simply as external URLs.
+
+(syntax/referencing/paths)=
+### Paths to local files
+
+If the destination can be resolved as a **relative path** to a file on the local filesystem,
+then it will be treated as a link to a local file.
+
+If the file is another source document in the project (e.g. another Markdown file),
+then the link will be resolved to that location in the build output.
+If no explicit link text is given, the link text will be the title of the given document.
+
+If the file is a non-source document, then the referenced file will be marked for inclusion in the build output.
+The rendered link will be the path to the file in the build output.
+Note, that such links will generally only be rendered in HTML builds.
+
+| Examples |                                      |                                    |
+| :------- | :----------------------------------- | :--------------------------------- |
+| File     | `[Some *text*](example.txt "title")` | [Some *text*](example.txt "title") |
+|          | `[](example.txt)` | [](example.txt) |
+| Document | `[Some *text*](optional.md "title")` | [Some *text*](optional.md "title") |
+|          | `[](optional.md)` | [](optional.md) |
+
+(syntax/referencing/myst-doc)=
+### Links to documents in the project
+
+Each document in the project is assigned a unique `docname` identifier, which is created by by taking a POSIX path of the document, relative to the project's source directory, and removing the file extension (for example `sub-folder/file`).
+
+These `docname`s can be referenced using the `myst:doc` scheme, which will be resolved to the corresponding document in the build output.
+
+| Examples |                                      |                                    |
+| :------- | :----------------------------------- | :--------------------------------- |
+| Auto     | `<myst:doc#syntax/optional>` | <myst:doc#syntax/optional> |
+| Inline   | `[Some *text*](myst:doc#syntax/optional "title")` | [Some *text*](myst:doc#syntax/optional "title") |
 
 (syntax/targets)=
+(syntax/referencing/myst-local)=
+### Local and document-specific targets
 
-## Targets and Cross-Referencing
+MyST allows for explicit reference targets to be defined in the document.
 
-Targets are used to define custom anchors that you can refer to elsewhere in your
-documentation. They generally go before section titles so that you can easily refer
-to them.
+The most general way to do this is using the `(target)=` syntax.
+This can be placed above any content block, such as headings, paragraphs, or code blocks, to allow them to be referenced. For example:
+
+````md
+(code-block-1)=
+```python
+print("Hello World!")
+```
+````
+
+Allows the code block to be referenced by the `code-block-1` name.
+
+(code-block-1)=
+```python
+print("Hello World!")
+```
+
+Additionally, many [directives](myst:project#syntax/directives) include a `name` option, to define the target.
+For example:
+
+````md
+```{code-block} python
+:name: code-block-2
+:caption: A code block
+print("Hello World!")
+```
+````
+
+Allows the code block to be referenced by the `code-block-2` name.
+
+```{code-block} python
+:name: code-block-2
+:caption: A code block
+print("Hello World!")
+```
+
+To reference these targets within the same document, use the `myst:local#target` URI, or the shorthand `#target` syntax.
+
+When targetting certain block types, such as headings or directives with captions, if no explicit text is given, then the text will be derived from the title or caption text.
+In these instances, the auto-link format can be used.
+
+| Examples |                                                  |                                                |
+| :------- | :----------------------------------------------- | :--------------------------------------------- |
+| Inline   | `[Some *text*](myst:local#code-block-1 "title")` | [Some *text*](myst:local#code-block-1 "title") |
+|          | `[Some *text*](#code-block-1)`                   | [Some *text*](#code-block-1)                   |
+| Auto     | `<myst:local#code-block-2>`                      | <myst:local#code-block-2>                      |
+
+If you wish to reference a target specifically in another document, use either the [local path format](#syntax/referencing/paths), with a fragment or the `myst:doc?t=target#docname` [URI format](#syntax/referencing/myst-doc):
+
+| Examples |                                                        |                                                      |
+| :------- | :----------------------------------------------------- | :--------------------------------------------------- |
+| Inline   | `[text](optional.md#syntax/extensions)`                | [text](optional.md#syntax/extensions)                |
+|          | `[text](myst:doc?t=syntax/extensions#syntax/optional)` | [text](myst:doc?t=syntax/extensions#syntax/optional) |
+| Auto     | `<myst:doc?t=syntax/extensions#syntax/optional>`       | <myst:doc?t=syntax/extensions#syntax/optional>       |
 
 :::{tip}
-
-If you'd like to *automatically* generate targets for each of your section headers,
-check out the [](myst:project#syntax/header-anchors) section of extended syntaxes.
-
+Use the [`myst_refs` builder](#syntax/referencing/builder) to view all the references in your project.
 :::
 
-Target headers are defined with this syntax:
+#### Auto-generating heading targets
 
-```md
-(header_target)=
+To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
+
+[gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
+
+To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, where `DEPTH` is the depth of header levels for which you wish to generate links.
+
+For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
+
+```python
+myst_heading_anchors = 3
 ```
 
-They can then be referred to with the [ref inline role](myst:inv?i=sphinx#ref):
+By default, the target names created (known as slugs) aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger):
 
-```md
-{ref}`header_target`
+- lower-case text
+- remove punctuation
+- replace spaces with `-`
+- enforce uniqueness *via* suffix enumeration `-1`
+
+For example, `## Links and Referencing` can then be referenced as `[](#links-and-referencing)`: [](#links-and-referencing)
+
+To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
+
+(syntax/referencing/myst-project)=
+### Project-wide targets
+
+As well as generating reference targets from for content blocks and directives, sphinx (and its extensions) may also generate targets for a range of other objects in the project, such as software package APIs.
+These are collated into an *inventory* of targets, scoped by **domain** and **object type**.
+
+To explore the inventory of targets in your project, see <myst:local#syntax/referencing/builder>.
+This may generate a YAML resembling the following:
+
+```yaml
+name: MyST Parser
+version: 0.18.0
+objects:
+  py:
+    class:
+      myst_parser.parsers.sphinx_.MystParser:
+        docname: api/reference
+        anchor: myst_parser.parsers.sphinx_.MystParser
+  std:
+    label:
+      api/directive:
+        docname: api/reference
+        anchor: api-directive
+        dispname: Directive and role processing
+    doc:
+      api/reference:
+        docname: api/reference
+        anchor: ''
+        dispname: Python API
 ```
 
-By default, the reference will use the text of the target (such as the section title), but also you can directly specify the text:
+To reference a project wide target, in any domain or object type, use the `myst:project#target` URI format.
+If no explicit text is set, either the `dispname` will be used if present, or the name of the target.
 
-```md
-{ref}`my text <header_target>`
+If you wish the target to be matched by a [Unix pattern](myst:inv#library/fnmatch), then set the `pat` query flag.
+
+| Examples |                                                         |                                                       |
+| :------- | :------------------------------------------------------ | :---------------------------------------------------- |
+| Inline   | `[text](myst:project#api/reference)`                    | [text](myst:project#api/reference)                    |
+| Auto     | `<myst:project#api/reference>`                          | <myst:project#api/reference>                          |
+| Pattern  | `<myst:project?pat#*.MystParser>`                       | <myst:project?pat#*.MystParser>                       |
+
+
+If the referenced target is present in multiple domains  and/or object types, then you will see a warning such as:
+
+```
+WARNING: Multiple matches found for target 'local:?:?:target' in 'local:py:module:target','local:std:label:target' [myst.xref_duplicate]
 ```
 
-For example, see this ref: {ref}`syntax/targets`, and here's a ref back to the top of this page: {ref}`my text <syntax/core>`.
+In this case, you can use the `d` and `o` query keys to specify the domain and object type, respectively.
 
-Alternatively using the markdown syntax:
+|                   Examples                    |                                             |
+| :-------------------------------------------- | :------------------------------------------ |
+| `[text](myst:project?d=std&o=label#api/main)` | [text](myst:project?d=std&o=label#api/main) |
 
-```md
-[my text](header_target)
+(syntax/referencing/myst-inv)=
+### Cross-project (inventory) targets
+
+For HTML builds, the inventory that is generated for the project, is also written to a file called `objects.inv`,
+and contains the "endpoints" for all the targets in the project, which can be combined with the base URL of the project to create a full URL to the target.
+
+Any HTML site then built with Sphinx should contain this file at the root of the site.
+You can export this file to a readable YAML, using the `myst-inv` command line tool, pointing to either a local file or remote URL:
+
+```yaml
+# $ myst-inv -d "py" -o "module" -n "datetime"  https://docs.python.org/3.7/objects.inv
+name: Python
+version: '3.7'
+objects:
+  py:
+    module:
+      datetime:
+        loc: library/datetime.html#module-datetime
+        disp: '-'
 ```
 
-is equivalent to using the [any inline role](myst:inv?i=sphinx#any):
+To load external inventories into your Sphinx project, you must load the [`sphinx.ext.intersphinx` extension](myst:inv#usage/extensions/intersphinx), and set the `intersphinx_mapping` configuration option, e.g.:
 
-```md
-{any}`my text <header_target>`
+```python
+extensions = ["myst_parser", "sphinx.ext.intersphinx"]
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.7", None),
+}
 ```
 
-but can also accept "nested" syntax (like bold text) and will recognise document paths that include extensions (e.g. `syntax/syntax` or `syntax/syntax.md`)
+You can then use `myst:inv` to reference targets in the external inventories, in a similar fashion to the [project-wide targets](#syntax/referencing/myst-project).
+To also filter by inventory key, use the `i` query key.
 
-Using the same example, see this ref: [](myst:project#syntax/targets), here is a reference back to the top of
-this page: [my text with **nested** $\alpha$ syntax](myst:project#syntax/core), and here is a reference to another page (`[](../intro.md)`): [](../intro.md).
+| Examples |                                |                              |
+| :------- | :----------------------------- | :--------------------------- |
+| Inline   | `[text](myst:inv#datetime)`    | [text](myst:inv#datetime)    |
+| Auto     | `<myst:inv#datetime>`          | <myst:inv#datetime>          |
+| Filter   | `<myst:inv?i=python#datetime>` | <myst:inv?i=python#datetime> |
 
-```{note}
-If you wish to have the target's title inserted into your text, you can
-leave the "text" section of the markdown link empty. For example, this
-markdown: `[](syntax.md)` will result in: [](syntax.md).
-```
+(syntax/referencing/builder)=
+### Exploring references in a project
+
+As well as the `myst-inv` command-line tool, `myst-parser` also provides the `myst_refs` builder, which can be used to explore references available to a projects.
+
+Running: `sphinx-build -b myst_refs docs/ docs/_build/myst_refs` will generate a folder containing YAML files, showing targets available for the `myst:local`, `myst:project` and `myst:inv` URI schemes.
 
 (syntax/code-blocks)=
 ## Code syntax highlighting

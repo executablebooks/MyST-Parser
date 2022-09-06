@@ -14,8 +14,8 @@ from myst_parser.config.main import (
     read_topmatter,
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer, create_warning
+from myst_parser.mdit_to_docutils.local_links import MdDocumentLinks
 from myst_parser.parsers.mdit import create_md_parser
-from myst_parser.transforms.local_links import MdDocumentLinks
 
 
 def _validate_int(

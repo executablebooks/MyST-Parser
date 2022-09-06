@@ -1,8 +1,0 @@
-<document source="root/index.md">
-    <target refid="index">
-    <section ids="title index" names="title index">
-        <title>
-            Title
-        <paragraph>
-            <reference classes="obj-std-label myst-project" internal="True" refid="index">
-                Title

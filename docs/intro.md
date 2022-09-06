@@ -142,7 +142,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 :::{seealso}
-The [](myst:project#syntax/referencing) section,\
+The <myst:project#syntax/referencing> section,\
 and the [ReadTheDocs cross-referencing](https://docs.readthedocs.io/en/stable/guides/cross-referencing-with-sphinx.html) documentation
 :::
 

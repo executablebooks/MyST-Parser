@@ -6,69 +6,18 @@ from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
 STATIC = Path(__file__).parent.absolute() / ".." / "static"
-
-PARAMS = [
-    ("null", "", None),
-    (
-        "unhandled",
-        "[](ref)",
-        "<src>/index.md:1: WARNING: Unhandled link URI (prepend with '#' or 'myst:project#'?): 'ref' [myst.invalid_uri]",  # noqa: E501
-    ),
-    ("doc", "[](index.md)", None),
-    ("doc_text", "[*text*](index.md)", None),
-    ("file", "[](other.txt)", None),
-    ("file_text", "[*text*](other.txt)", None),
-    ("local_anchor", "(ref)=\n# Title\n[](#ref)", None),
-    ("local_anchor_text", "(ref)=\n# Title\n[*text*](#ref)", None),
-    ("myst_project", "[](myst:project#index)", None),
-    ("myst_project_text", "[*text*](myst:project#index)", None),
-    (
-        "myst_project_missing",
-        "[*text*](myst:project#xxx)",
-        "<src>/index.md:1: WARNING: Unmatched target 'local:?:?:xxx' [myst.xref_missing]",
-    ),
-    (
-        "myst_project_duplicate",
-        "(index)=\n# Title\n[text](myst:project#index)",
-        "<src>/index.md:3: WARNING: Multiple matches found for target 'local:?:?:index' in 'local:std:label:index','local:std:doc:index' [myst.xref_duplicate]",  # noqa: E501
-    ),
-    (
-        "myst_project_label",
-        "(index)=\n# Title\n[](myst:project?o=label#index)",
-        None,
-    ),
-    ("myst_project_pattern", "(target)=\n# Title\n[](myst:project?pat#*get)", None),
-    ("myst_inv", "[](myst:inv#ref)", None),
-    ("myst_inv_text", "[*text*](myst:inv#ref)", None),
-    (
-        "myst_inv_missing",
-        "[*text*](myst:inv#xxx)",
-        "<src>/index.md:1: WARNING: Unmatched target '?:?:?:xxx' [myst.iref_missing]",
-    ),
-    (
-        "myst_inv_duplicate",
-        "[*text*](myst:inv?pat#*modindex)",
-        "<src>/index.md:1: WARNING: Multiple matches found for target '?:?:?:*modindex' in "
-        "'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]",
-    ),
-]
+FIXTURES = Path(__file__).parent.absolute() / "fixtures"
 
 
-@pytest.mark.parametrize(
-    "test_name,text,warning",
-    PARAMS,
-    ids=[ps[0] for ps in PARAMS],
-)
+@pytest.mark.param_file(FIXTURES / "myst_references.md")
 def test_parse(
-    test_name: str,
-    text: str,
-    warning: bool,
+    file_params,
     sphinx_doctree: CreateDoctree,
-    file_regression,
     monkeypatch,
 ):
     monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
-    if test_name.startswith("myst_inv"):
+    sphinx_doctree.buildername = "html"
+    if "[LOAD_INV]" in file_params.title:
         sphinx_doctree.set_conf(
             {
                 "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
@@ -79,18 +28,24 @@ def test_parse(
         )
     else:
         sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    sphinx_doctree.srcdir.joinpath("index.md").write_text(
+        "# Main\n```{toctree}\ntest\nother\n```", encoding="utf8"
+    )
+    sphinx_doctree.srcdir.joinpath("other.md").write_text(
+        "(ref2)=\n# Other", encoding="utf8"
+    )
     sphinx_doctree.srcdir.joinpath("other.txt").write_text("hi", encoding="utf8")
-    result = sphinx_doctree(text, "index.md")
+    result = sphinx_doctree(file_params.content, "test.md")
 
-    doctree = result.get_resolved_doctree("index")
+    # get warnings before we run the doctree resolution (and thus post-transforms) again
+    warnings = result.warnings.strip()
 
-    if warning is not None:
-        assert result.warnings.strip() == warning
-    else:
-        assert not result.warnings
-
-    doctree["source"] = "root/index.md"
-    file_regression.check(doctree.pformat(), basename=test_name, extension=".xml")
+    doctree = result.get_resolved_doctree("test")
+    doctree["source"] = "root/test.md"
+    output = doctree.pformat()
+    if warnings:
+        output += "\n" + warnings
+    file_params.assert_expected(output, rstrip_lines=True)
 
 
 def test_suppress_warnings(sphinx_doctree: CreateDoctree):
@@ -108,9 +63,21 @@ def test_suppress_warnings(sphinx_doctree: CreateDoctree):
 def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
     sphinx_doctree.buildername = "myst_refs"
     sphinx_doctree.set_conf(
-        {"extensions": ["myst_parser"], "project": "test", "version": "0.0.1"}
+        {
+            "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
+            "project": "test",
+            "version": "0.0.1",
+            "intersphinx_mapping": {
+                "other": ("https://project.com", str(STATIC / "objects_v2.inv"))
+            },
+        }
     )
     result = sphinx_doctree("(target)=\n# Head\n", "index.md")
+    assert {p.name for p in Path(result.app.outdir).iterdir()} == {
+        "project.yaml",
+        "local.yaml",
+        "inv.other.yaml",
+    }
     opath = Path(result.app.outdir).joinpath("project.yaml")
     assert opath.exists()
     data_regression.check(yaml.safe_load(opath.read_text()))
