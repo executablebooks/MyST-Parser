@@ -388,14 +388,18 @@ As per the [document links](#syntax/referencing/paths), if the path starts with 
 | Auto     | `<project:optional.md#syntax/extensions>`         | <project:optional.md#syntax/extensions>         |
 |          | `<project:/syntax/optional.md#syntax/extensions>` | <project:/syntax/optional.md#syntax/extensions> |
 
-:::{tip}
-Use the [`myst_refs` builder](#syntax/referencing/builder) to view all the references in your project.
-:::
+### Auto-generating heading targets
+
+To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
+
+See the <project#syntax/header-anchors> section for more details.
+
+[gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
 
 (syntax/referencing/myst-project)=
 ### Project-wide targets
 
-As well as generating reference targets from for content blocks and directives, sphinx (and its extensions) may also generate targets for a range of other objects in the project, such as software package APIs.
+As well as generating reference targets for content blocks and directives, sphinx (and its extensions) may also generate targets for a range of other objects in the project, such as software package APIs.
 These are collated into an *inventory* of targets, scoped by **domain** and **object type**.
 
 To explore the inventory of targets in your project, see <project:#syntax/referencing/builder>.
@@ -436,42 +440,19 @@ If you wish the target to be matched by a [Unix pattern](myst:python#library/fnm
 | Auto     | `<project:#api/reference>`    | <project:#api/reference>    |
 | Pattern  | `<project:?pat#*.MystParser>` | <project:?pat#*.MystParser> |
 
-If the referenced target is present in multiple domains  and/or object types, then you will see a warning such as:
+### Filtering target matches
+
+If a referenced target is present in multiple domains and/or object types, then you will see a warning such as:
 
 ```
-WARNING: Multiple matches found for target 'local:*:*:target' in 'local:py:module:target','local:std:label:target' [myst.xref_duplicate]
+<src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
 ```
 
-In this case, you can use the `d` and `o` query keys to specify the domain and object type, respectively.
+In this case, you can use the `d` and `o` query keys to filter by the domain and object type, respectively.
 
-|                   Examples                    |                                             |
-| :-------------------------------------------- | :------------------------------------------ |
+|                 Examples                  |                                         |
+| :---------------------------------------- | :-------------------------------------- |
 | `[text](project:?d=std&o=label#api/main)` | [text](project:?d=std&o=label#api/main) |
-
-### Auto-generating heading targets
-
-To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
-
-[gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
-
-To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, where `DEPTH` is the depth of header levels for which you wish to generate links.
-
-For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
-
-```python
-myst_heading_anchors = 3
-```
-
-By default, the target names created (known as slugs) aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger):
-
-- lower-case text
-- remove punctuation
-- replace spaces with `-`
-- enforce uniqueness *via* suffix enumeration `-1`
-
-For example, `## Links and Referencing` can then be referenced as `[](#links-and-referencing)`: [](#links-and-referencing)
-
-To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 
 (syntax/referencing/myst-inv)=
 ### Cross-project (inventory) targets

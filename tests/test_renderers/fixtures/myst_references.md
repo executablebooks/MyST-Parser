@@ -165,7 +165,7 @@ fragment_same_doc
                 Title
 .
 
-fragment_same_doc_text_x
+fragment_same_doc_text
 .
 (ref)=
 # Title
@@ -321,7 +321,7 @@ project_target
                 Main
 .
 
-myst_project_auto
+project_auto
 .
 # Title
 <project:#index>
@@ -335,7 +335,7 @@ myst_project_auto
                 Main
 .
 
-myst_project_auto_missing
+project_auto_missing
 .
 # Title
 <project:#xxx>
@@ -351,7 +351,7 @@ myst_project_auto_missing
 <src>/test.md:2: WARNING: Unmatched target '*:*:xxx' [myst.xref_missing]
 .
 
-myst_project_text
+project_text
 .
 # Title
 [*text*](project:#index)
@@ -366,7 +366,7 @@ myst_project_text
                     text
 .
 
-myst_project_missing
+project_missing
 .
 # Title
 [*text*](project:#xxx)
@@ -383,7 +383,7 @@ myst_project_missing
 <src>/test.md:2: WARNING: Unmatched target '*:*:xxx' [myst.xref_missing]
 .
 
-myst_project_duplicate_local_first
+project_duplicate_local_first
 .
 (index)=
 # Title
@@ -399,20 +399,34 @@ myst_project_duplicate_local_first
                 text
 .
 
-project_label
+project_duplicate_non_local
 .
-(index)=
 # Title
-[](project:?o=label#index)
+<project:#duplicate>
 .
 <document source="root/test.md">
-    <target refid="index">
-    <section ids="title index" names="title index">
+    <section ids="title" names="title">
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="index" reftitle="std:label:index">
-                Title
+            <reference classes="myst-project" internal="True" reftitle="myst:project:std:label" refuri="other.html#duplicate">
+                Other
+
+<src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
+.
+
+project_filter
+.
+# Title
+<project:?o=term#duplicate>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" reftitle="myst:project:std:term" refuri="other.html#term-duplicate">
+                duplicate
 .
 
 myst_project_pattern

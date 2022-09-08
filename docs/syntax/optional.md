@@ -490,21 +490,39 @@ Also see <project:#syntax/html-admonition>.
 
 ## Auto-generated header anchors
 
-The MyST Parser can automatically generate label "slugs" for header anchors so that you can reference them from markdown links.
-For example, you can use header bookmark links, locally; `[](#header-anchor)`, or cross-file `[](path/to/file.md#header-anchor)`.
+```{versionchanged} 0.19.0
+Referencing a heading anchor will now issue a `myst.xref_not_explicit` warning.
+```
+
+To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
+
+[gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
+
 To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, where `DEPTH` is the depth of header levels for which you wish to generate links.
 
 For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
 
 ```python
 myst_heading_anchors = 3
+suppress_warnings = ["myst.xref_not_explicit"]
 ```
 
 You can then insert markdown links directly to anchors that are generated from your header titles in your documentation.
 For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
 
-The paths to other files should be relative to the current file, for example
-`[**link text**](./syntax.md#core-syntax)`: [**link text**](./syntax.md#core-syntax).
+Anchors in other files should be relative to the current file, for example
+`[**link text**](syntax.md#core-syntax)`: [**link text**](syntax.md#core-syntax).
+
+For more details see: <project:#syntax/referencing>.
+
+By default, links to these "implicit" headings will issue a warning, like:
+
+```
+WARNING: Local link target 'myst:anchor:title' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+```
+
+Where possible it is advised to avoid linking to these headings, since they are liable to change, if one changes the heading text.
+But otherwise, suppress the warning with: `suppress_warnings = ["myst.xref_not_explicit"]`.
 
 ### Anchor slug structure
 
@@ -514,6 +532,8 @@ The anchor "slugs" created aim to follow the [GitHub implementation](https://git
 - remove punctuation
 - replace spaces with `-`
 - enforce uniqueness *via* suffix enumeration `-1`
+
+For example, `## Links and Referencing` can then be referenced as `[](#links-and-referencing)`
 
 To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 

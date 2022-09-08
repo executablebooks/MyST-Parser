@@ -27,10 +27,30 @@ def test_parse(
         }
     sphinx_doctree.set_conf(conf)
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
-        "# Main\n```{toctree}\ntest\nother\n```", encoding="utf8"
+        """\
+# Main
+```{toctree}
+test
+other
+```
+""",
+        encoding="utf8",
     )
     sphinx_doctree.srcdir.joinpath("other.md").write_text(
-        "(ref2)=\n# Other", encoding="utf8"
+        """\
+(ref2)=
+(duplicate)=
+# Other
+
+```{glossary}
+term1
+  description ...
+
+duplicate
+  description ...
+```
+""",
+        encoding="utf8",
     )
     sphinx_doctree.srcdir.joinpath("other.txt").write_text("hi", encoding="utf8")
     result = sphinx_doctree(file_params.content, "test.md")
