@@ -5,37 +5,42 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 from docutils.transforms import Transform
-from markdown_it.common.utils import escapeHtml
-from typing_extensions import TypedDict
 
 from myst_parser._compat import findall
-from myst_parser.warnings import MystWarnings
+from myst_parser.mdit_to_docutils.inventory import (
+    MystInventoryType,
+    resolve_myst_inventory,
+)
+from myst_parser.warnings import MystWarnings, create_warning
 
 if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
 
+    from myst_parser.sphinx_ext.references import MystDomain
 
-class MystLocalLink(nodes.Element):
+
+class MystProjectLink(nodes.Element):
     """A node for a link local to the referencing document.
 
-    It should have at least a `refname` attribute,
-    and a `refexplicit` attribute to indicate whether the reference text is explicit.
+    It should have at least attributes:
+
+    - `refname`
+    - `refexplicit`, to indicate whether the reference text is explicit
+    - `refquery` dictionary of query parameters
+
     """
 
+    @property
+    def refname(self) -> str:
+        return self.attributes["refname"]
 
-class MystLocalTarget(TypedDict):
-    """A reference target within a document."""
+    @property
+    def refexplicit(self) -> bool:
+        return self.attributes["refexplicit"]
 
-    name: str
-    """The user facing name of the target"""
-    id: str
-    """The internal id of the target"""
-    line: int | None
-    """The line number of the target"""
-    text: str | None
-    """For use if no explicit text is given by the reference, e.g. the section title"""
-    type: str
-    """The type of target, e.g. "section", "figure", "table", "code-block" etc."""
+    @property
+    def refquery(self) -> dict[str, str]:
+        return self.attributes["refquery"]
 
 
 class MdDocumentLinks(Transform):
@@ -44,15 +49,19 @@ class MdDocumentLinks(Transform):
     When matching to a
     """
 
-    default_priority = 880  # same as sphinx doctree-read even / std domain process_docs
+    default_priority = 880  # same as sphinx doctree-read event / std.py process_docs
+
+    @property
+    def sphinx_env(self) -> BuildEnvironment | None:
+        return getattr(self.document.settings, "env", None)
 
     def apply(self):
         # import here, to avoid import loop
         from myst_parser.mdit_to_docutils.base import create_warning
 
         # mapping of name to target
-        local_targets: dict[str, MystLocalTarget] = {}
-        local_nodes: dict[str, nodes.Element] = {}
+        inventory: MystInventoryType = {}
+        local_nodes: dict[tuple[str, str, str], nodes.Element] = {}
 
         # gather explicit target names
         # this mirrors the logic in `sphinx.domains.std.StandardDomain.process_doc`,
@@ -75,14 +84,14 @@ class MdDocumentLinks(Transform):
             ):
                 continue
 
-            local_targets[name] = {
-                "name": name,
+            inventory.setdefault("std", {}).setdefault("label", {})[name] = {
                 "id": labelid,
                 "line": node.line,
                 "text": None,
-                "type": str(node.tagname or "unknown"),
+                "tagname": str(node.tagname or ""),
+                "explicit": True,
             }
-            local_nodes[name] = node
+            local_nodes[("std", "label", name)] = node
 
         # gather heading anchors
         for node in findall(self.document)():
@@ -92,22 +101,20 @@ class MdDocumentLinks(Transform):
                 anchor_name = None
             if anchor_name is None:
                 continue
-            if anchor_name in local_targets:
-                # the anchor id may have already been set, if a target has the same name
-                # TODO this check will still raise a warning,
-                # if the section has been "promoted" to a doctitle or subtitle
-                if local_nodes[anchor_name] is not node:
-                    msg = f"skipping anchor with duplicate name {anchor_name!r}"
-                    if local_targets[anchor_name]["line"]:
-                        msg += f", already set at line {local_targets[anchor_name]['line']}"
-                    create_warning(
-                        self.document,
-                        msg,
-                        MystWarnings.ANCHOR_DUPE,
-                        line=node.line,
-                    )
+            if anchor_name in inventory.get("myst", {}).get("anchor", {}):
+                msg = f"skipping anchor with duplicate name {anchor_name!r}"
+                line = inventory["myst"]["anchor"][anchor_name].get("line")
+                if line:
+                    msg += f", already set at line {line}"
+                create_warning(
+                    self.document,
+                    msg,
+                    MystWarnings.ANCHOR_DUPE,
+                    line=node.line,
+                )
                 continue
 
+            # create a unique id for the anchor and add it to the node if necessary
             anchor_id = anchor_name
             if anchor_name not in node["ids"]:
                 index = 1
@@ -116,37 +123,76 @@ class MdDocumentLinks(Transform):
                     index += 1
                 node["ids"].insert(0, anchor_id)
 
-            local_targets[anchor_name] = {
-                "name": anchor_name,
+            inventory.setdefault("myst", {}).setdefault("anchor", {})[anchor_name] = {
                 "id": anchor_id,
                 "line": node.line,
                 "text": None,
-                "type": "section-anchor",
+                "tagname": "anchor",
+                "explicit": False,
             }
-            local_nodes[anchor_name] = node
+            local_nodes[("myst", "anchor", anchor_name)] = node
 
-        for name, node in local_nodes.items():
+        # set the implicit text for all items
+        for (dom, obj, name), node in local_nodes.items():
             for child in node:
                 if isinstance(child, (nodes.title, nodes.caption)):
-                    local_targets[name]["text"] = child.astext()
+                    inventory[dom][obj][name]["text"] = child.astext()
                     break
 
-        # resolve local links
-        for node in findall(self.document)(MystLocalLink):
+        # if using sphinx, then save local links to the environment,
+        # for use by inter-document link resolution
+        if self.sphinx_env is not None:
+            domain: MystDomain = self.sphinx_env.get_domain("myst")  # type: ignore
+            domain.invs[self.sphinx_env.docname] = inventory
+
+        self._resolve_links(inventory)
+
+    def _resolve_links(self, inventory: MystInventoryType):
+        """attempt to resolve project links locally"""
+        node: MystProjectLink
+        for node in findall(self.document)(MystProjectLink):
+
+            ref_domain = node.refquery.get("d")
+            ref_object_type = node.refquery.get("o")
+            loc = ":".join([ref_domain or "*", ref_object_type or "*", node.refname])
+
+            results = resolve_myst_inventory(
+                inventory,
+                ref_domain,
+                ref_object_type,
+                node.refname,
+                "pat" in node.refquery,
+            )
 
             # create the reference node
-            target = local_targets.get(node["refname"])
-            if not target:
+            if not results:
+                self._handle_missing_ref(node, loc)
+                continue
+
+            if len(results) > 1:
+                matches = [f"'{r.domain}:{r.otype}:{r.target}'" for r in results]
+                if len(matches) > 4:
+                    matches = matches[:4] + ["..."]
                 create_warning(
                     self.document,
-                    f"ref name does not match any known target: {node['refname']!r}",
-                    MystWarnings.REF_MISSING,
+                    f"Multiple local matches found for target {loc!r}: "
+                    f"{','.join(matches)}",
+                    MystWarnings.XREF_DUPLICATE,
                     line=node.line,
                 )
-                # here we simply add an internal link, that may not work
-                reference = nodes.reference(refuri=escapeHtml(f"#{node['refname']}"))
-            else:
-                reference = nodes.reference(refid=target["id"], internal=True)
+
+            result = results[0]
+
+            if not result.data.get("explicit"):
+                create_warning(
+                    self.document,
+                    f"Local link target '{result.domain}:{result.otype}:{result.target}' "
+                    "is auto-generated, so may change unexpectedly",
+                    MystWarnings.XREF_NOT_EXPLICIT,
+                    line=node.line,
+                )
+
+            reference = nodes.reference(refid=result.anchor, internal=True)
 
             # transfer attributes to reference
             reference.source, reference.line = node.source, node.line
@@ -154,32 +200,67 @@ class MdDocumentLinks(Transform):
                 reference["classes"].extend(node["classes"])
             if node.get("title"):
                 reference["reftitle"] = node["title"]
+            else:
+                reference[
+                    "reftitle"
+                ] = f"{result.domain}:{result.otype}:{result.target}"
 
             # add content children for the reference
-            if node["refexplicit"]:
+            if node.refexplicit:
                 reference += node.children
-            elif target and target["text"]:
-                reference += nodes.Text(target["text"])
+            elif result.text:
+                reference += nodes.Text(result.text)
             else:
-                if target:
-                    # only issue a warning if the target exists
-                    create_warning(
-                        self.document,
-                        "empty link text",
-                        MystWarnings.REF_EMPTY,
-                        line=node.line,
-                    )
+                create_warning(
+                    self.document,
+                    "empty link text",
+                    MystWarnings.XREF_EMPTY,
+                    line=node.line,
+                )
                 if node.children:
                     # the node may still have children, if it was an autolink
                     reference += node.children
                 else:
-                    reference += nodes.Text(node["refname"])
+                    reference += nodes.Text(node.refname)
 
-            node.parent.replace(node, reference)
+            node.replace_self(reference)
 
-        # if using sphinx, then save local links to the environment,
+    def _handle_missing_ref(self, node: MystProjectLink, loc: str):
+        """handle a missing local reference"""
+        # if using sphinx, then the reference resolution is forwarded on
         # for use by inter-document link resolution
-        # TODO store these in a myst specific domain?
-        env: None | BuildEnvironment = getattr(self.document.settings, "env", None)
-        if env is not None:
-            env.metadata[env.docname]["myst_local_targets"] = local_targets
+        if (not node.get("reflocal")) and (self.sphinx_env is not None):
+            from sphinx.addnodes import pending_xref
+
+            xref = pending_xref(
+                # standard pending attributes
+                refdoc=self.sphinx_env.docname,
+                refdomain="myst",
+                reftype="project",
+                reftarget=node.refname,
+                refexplicit=node.refexplicit,
+                # myst:project specific attributes
+                refquery=node.refquery,
+            )
+            xref.source, xref.line = node.source, node.line
+            if node.get("title"):
+                xref["title"] = node["title"]
+            xref.children.extend(node.children)
+            node.replace_self(xref)
+            return
+
+        # otherwise create a warning and replace with text of refname
+        create_warning(
+            self.document,
+            f"Unmatched local target {loc!r}",
+            subtype=MystWarnings.XREF_MISSING,
+            line=node.line,
+        )
+        newnode = nodes.inline()
+        newnode.source, newnode.line = node.source, node.line
+        newnode["classes"].append("myst-ref-error")
+        if node.refexplicit:
+            newnode.extend(node.children)
+        else:
+            newnode += nodes.Text(node.refname)
+        node.replace_self(newnode)

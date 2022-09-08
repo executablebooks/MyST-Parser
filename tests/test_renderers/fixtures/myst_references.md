@@ -1,22 +1,65 @@
-unhandled
+path_link_implicit_text
 .
 # Title
-[](ref)
+[](other.txt)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
         <title>
             Title
         <paragraph>
-            <reference refuri="ref">
-
-<src>/test.md:2: WARNING: Unhandled link URI (prepend with '#' or 'myst:project#'?): 'ref' [myst.invalid_uri]
+            <download_reference classes="myst-file" filename="8b15c0404e301d2ad766e86e4f4e1ffd/other.txt" refdoc="test" reftarget="/other.txt">
+                <literal>
+                    /other.txt
 .
 
-doc_path
+path_link_explicit_text
 .
 # Title
-[](other.md)
+[*text*](other.txt)
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <download_reference classes="myst-file" filename="8b15c0404e301d2ad766e86e4f4e1ffd/other.txt" refdoc="test" reftarget="/other.txt">
+                <emphasis>
+                    text
+.
+
+path_auto
+.
+# Title
+<path:other.txt>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <download_reference classes="myst-file" filename="8b15c0404e301d2ad766e86e4f4e1ffd/other.txt" refdoc="test" reftarget="other.txt">
+                path:other.txt
+.
+
+doc_path_relative
+.
+# Title
+[](./other.md)
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-doc" internal="True" refuri="other.html">
+                Other
+.
+
+doc_path_absolute
+.
+# Title
+[](/other.md)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -42,68 +85,22 @@ doc_path_text
                     text
 .
 
-file_path
+doc_path_unknown
 .
 # Title
-[](other.txt)
+[*text*](xxx.md)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
         <title>
             Title
         <paragraph>
-            <download_reference classes="myst" filename="8b15c0404e301d2ad766e86e4f4e1ffd/other.txt" refdoc="test" reftarget="other.txt">
-                <literal classes="xref download">
-                    other.txt
-.
-
-file_path_text
-.
-# Title
-[*text*](other.txt)
-.
-<document source="root/test.md">
-    <section ids="title" names="title">
-        <title>
-            Title
-        <paragraph>
-            <download_reference classes="myst" filename="8b15c0404e301d2ad766e86e4f4e1ffd/other.txt" refdoc="test" reftarget="other.txt">
-                <inline classes="xref download">
-                    <emphasis>
-                        text
-.
-
-fragment_local
-.
-(ref)=
-# Title
-[](#ref)
-.
-<document source="root/test.md">
-    <target refid="ref">
-    <section ids="title ref" names="title ref">
-        <title>
-            Title
-        <paragraph>
-            <reference classes="myst-local" internal="True" refid="ref">
-                Title
-.
-
-fragment_local_text
-.
-(ref)=
-# Title
-[*text*](#ref)
-.
-<document source="root/test.md">
-    <target refid="ref">
-    <section ids="title ref" names="title ref">
-        <title>
-            Title
-        <paragraph>
-            <reference classes="myst-local" internal="True" refid="ref">
+            <inline classes="myst-ref-error myst-project">
                 <emphasis>
                     text
+
+<src>/test.md:2: WARNING: Unknown link URI (implicitly prepending with '#'): 'xxx.md' [myst.invalid_uri]
+<src>/test.md:2: WARNING: Unmatched target '*:*:xxx.md' [myst.xref_missing]
 .
 
 doc_path_target
@@ -120,59 +117,27 @@ doc_path_target
                 Other
 .
 
-myst_local
-.
-(ref)=
-# Title
-[](myst:local#ref)
-.
-<document source="root/test.md">
-    <target refid="ref">
-    <section ids="title ref" names="title ref">
-        <title>
-            Title
-        <paragraph>
-            <reference classes="myst-local" internal="True" refid="ref">
-                Title
-.
-
-myst_local_auto
-.
-(ref)=
-# Title
-<myst:local#ref>
-.
-<document source="root/test.md">
-    <target refid="ref">
-    <section ids="title ref" names="title ref">
-        <title>
-            Title
-        <paragraph>
-            <reference classes="myst-local" internal="True" refid="ref">
-                Title
-.
-
-myst_local_auto_encode
+doc_path_target_unknown
 .
 # Title
-<myst:local#a%20b>
+[](other.md#xxx)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
         <title>
             Title
         <paragraph>
-            <reference classes="myst-local" refuri="#a b">
-                myst:local#a b
+            <inline classes="myst-ref-error myst-doc">
+                xxx
 
-<src>/test.md:2: WARNING: ref name does not match any known target: 'a b' [myst.ref_missing]
+<src>/test.md:2: WARNING: Unmatched target '*:*:xxx' in doc 'other' [myst.xref_missing]
 .
 
-myst_local_text
+fragment_local
 .
 (ref)=
 # Title
-[*text*](myst:local#ref)
+[](_#ref)
 .
 <document source="root/test.md">
     <target refid="ref">
@@ -180,15 +145,96 @@ myst_local_text
         <title>
             Title
         <paragraph>
-            <reference classes="myst-local" internal="True" refid="ref">
+            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+                Title
+.
+
+fragment_same_doc
+.
+(ref)=
+# Title
+[](#ref)
+.
+<document source="root/test.md">
+    <target refid="ref">
+    <section ids="title ref" names="title ref">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+                Title
+.
+
+fragment_same_doc_text_x
+.
+(ref)=
+# Title
+[*text*](#ref)
+.
+<document source="root/test.md">
+    <target refid="ref">
+    <section ids="title ref" names="title ref">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
                 <emphasis>
                     text
 .
 
-myst_doc
+project_fragment_local
+.
+(ref)=
+# Title
+<project:#ref>
+.
+<document source="root/test.md">
+    <target refid="ref">
+    <section ids="title ref" names="title ref">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+                Title
+.
+
+project_fragment_unknown
 .
 # Title
-<myst:doc#other>
+<project:#a%20b>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error myst-project">
+                project:#a b
+
+<src>/test.md:2: WARNING: Unmatched target '*:*:a b' [myst.xref_missing]
+.
+
+project_fragment_local_text
+.
+(ref)=
+# Title
+[*text*](project:#ref)
+.
+<document source="root/test.md">
+    <target refid="ref">
+    <section ids="title ref" names="title ref">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+                <emphasis>
+                    text
+.
+
+project_doc
+.
+# Title
+<project:other.md>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -199,10 +245,26 @@ myst_doc
                 Other
 .
 
-myst_doc_missing
+project_doc_no_suffix
 .
 # Title
-<myst:doc#xxx>
+<project:other>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error">
+                project:other
+
+<src>/test.md:2: WARNING: Path does not have a known document suffix: other [myst.xref_error]
+.
+
+project_doc_missing
+.
+# Title
+<project:xxx.md>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -210,15 +272,15 @@ myst_doc_missing
             Title
         <paragraph>
             <inline classes="myst-ref-error myst-doc">
-                myst:doc#xxx
+                project:xxx.md
 
 <src>/test.md:2: WARNING: Unknown reference docname 'xxx' [myst.xref_missing]
 .
 
-myst_doc_target
+project_doc_target
 .
 # Title
-<myst:doc?t=ref2#other>
+<project:other.md#ref2>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -229,10 +291,10 @@ myst_doc_target
                 Other
 .
 
-myst_doc_target_missing
+project_doc_target_missing
 .
 # Title
-<myst:doc?t=xxx#other>
+<project:other.md#xxx>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -240,15 +302,15 @@ myst_doc_target_missing
             Title
         <paragraph>
             <inline classes="myst-ref-error myst-doc">
-                myst:doc?t=xxx#other
+                project:other.md#xxx
 
-<src>/test.md:2: WARNING: Unknown ref 'xxx' in doc 'other' [myst.xref_missing]
+<src>/test.md:2: WARNING: Unmatched target '*:*:xxx' in doc 'other' [myst.xref_missing]
 .
 
-myst_project
+project_target
 .
 # Title
-[](myst:project#index)
+[](project:#index)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -262,7 +324,7 @@ myst_project
 myst_project_auto
 .
 # Title
-<myst:project#index>
+<project:#index>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -276,7 +338,7 @@ myst_project_auto
 myst_project_auto_missing
 .
 # Title
-<myst:project#xxx>
+<project:#xxx>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -284,15 +346,15 @@ myst_project_auto_missing
             Title
         <paragraph>
             <inline classes="myst-ref-error myst-project">
-                myst:project#xxx
+                project:#xxx
 
-<src>/test.md:2: WARNING: Unmatched target 'local:?:?:xxx' [myst.xref_missing]
+<src>/test.md:2: WARNING: Unmatched target '*:*:xxx' [myst.xref_missing]
 .
 
 myst_project_text
 .
 # Title
-[*text*](myst:project#index)
+[*text*](project:#index)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -307,7 +369,7 @@ myst_project_text
 myst_project_missing
 .
 # Title
-[*text*](myst:project#xxx)
+[*text*](project:#xxx)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -318,14 +380,14 @@ myst_project_missing
                 <emphasis>
                     text
 
-<src>/test.md:2: WARNING: Unmatched target 'local:?:?:xxx' [myst.xref_missing]
+<src>/test.md:2: WARNING: Unmatched target '*:*:xxx' [myst.xref_missing]
 .
 
-myst_project_duplicate
+myst_project_duplicate_local_first
 .
 (index)=
 # Title
-[text](myst:project#index)
+[text](project:#index)
 .
 <document source="root/test.md">
     <target refid="index">
@@ -333,17 +395,15 @@ myst_project_duplicate
         <title>
             Title
         <paragraph>
-            <inline classes="myst-ref-error myst-project">
+            <reference classes="myst-project" internal="True" refid="index" reftitle="std:label:index">
                 text
-
-<src>/test.md:3: WARNING: Multiple matches found for target 'local:?:?:index' in 'local:std:label:index','local:std:doc:index' [myst.xref_duplicate]
 .
 
-myst_project_label
+project_label
 .
 (index)=
 # Title
-[](myst:project?o=label#index)
+[](project:?o=label#index)
 .
 <document source="root/test.md">
     <target refid="index">
@@ -351,7 +411,7 @@ myst_project_label
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="index" reftitle="myst:project:std:label">
+            <reference classes="myst-project" internal="True" refid="index" reftitle="std:label:index">
                 Title
 .
 
@@ -359,7 +419,7 @@ myst_project_pattern
 .
 (target)=
 # Title
-[](myst:project?pat#*get)
+[](project:?pat#*get)
 .
 <document source="root/test.md">
     <target refid="target">
@@ -367,14 +427,14 @@ myst_project_pattern
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="target" reftitle="myst:project:std:label">
+            <reference classes="myst-project" internal="True" refid="target" reftitle="std:label:target">
                 Title
 .
 
 myst_inv [LOAD_INV]
 .
 # Title
-[](myst:inv#ref)
+[](myst:#ref)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -388,7 +448,7 @@ myst_inv [LOAD_INV]
 myst_inv_auto [LOAD_INV]
 .
 # Title
-<myst:inv#ref>
+<myst:#ref>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -402,7 +462,7 @@ myst_inv_auto [LOAD_INV]
 myst_inv_text [LOAD_INV]
 .
 # Title
-[*text*](myst:inv#ref)
+[*text*](myst:#ref)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -414,10 +474,40 @@ myst_inv_text [LOAD_INV]
                     text
 .
 
-myst_inv_missing [LOAD_INV]
+myst_inv_named [LOAD_INV]
 .
 # Title
-[*text*](myst:inv#xxx)
+<myst:project#ref>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+                Title
+.
+
+myst_inv_missing_name [LOAD_INV]
+.
+# Title
+<myst:xxx#ref>
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error myst-inv">
+                myst:xxx#ref
+
+<src>/test.md:2: WARNING: Unknown inventory 'xxx' [myst.iref_missing]
+.
+
+myst_inv_missing_target [LOAD_INV]
+.
+# Title
+[*text*](myst:#xxx)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -428,13 +518,13 @@ myst_inv_missing [LOAD_INV]
                 <emphasis>
                     text
 
-<src>/test.md:2: WARNING: Unmatched target '?:?:?:xxx' [myst.iref_missing]
+<src>/test.md:2: WARNING: Unmatched target '*:*:*:xxx' [myst.iref_missing]
 .
 
 myst_inv_duplicate [LOAD_INV]
 .
 # Title
-[*text*](myst:inv?pat#*modindex)
+[*text*](myst:?pat#*modindex)
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -445,5 +535,38 @@ myst_inv_duplicate [LOAD_INV]
                 <emphasis>
                     text
 
-<src>/test.md:2: WARNING: Multiple matches found for target '?:?:?:*modindex' in 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]
+<src>/test.md:2: WARNING: Multiple matches found for target '*:*:*:*modindex': 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]
+.
+
+implicit_anchors [ADD_ANCHORS]
+.
+# Title
+[](#title)
+.
+<document source="root/test.md">
+    <section anchor_id="title" ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <reference classes="myst-project" internal="True" refid="title" reftitle="myst:anchor:title">
+                Title
+
+<src>/test.md:2: WARNING: Local link target 'myst:anchor:title' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+.
+
+deprecated
+.
+# Title
+[](ref)
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error myst-project">
+                ref
+
+<src>/test.md:2: WARNING: Unknown link URI (implicitly prepending with '#'): 'ref' [myst.invalid_uri]
+<src>/test.md:2: WARNING: Unmatched target '*:*:ref' [myst.xref_missing]
 .

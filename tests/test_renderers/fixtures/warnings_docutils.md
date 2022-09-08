@@ -10,21 +10,22 @@ Unhandled URI:
 .
 [a](b)
 .
-<string>:1: (WARNING/2) Unhandled link URI (prepend with '#' or 'myst:project#'?): 'b' [myst.invalid_uri]
+<string>:1: (WARNING/2) Unknown link URI (implicitly prepending with '#'): 'b' [myst.invalid_uri]
+<string>:1: (WARNING/2) Unmatched local target '*:*:b' [myst.xref_missing]
 .
 
 Missing local reference:
 .
 [a](#b)
 .
-<string>:1: (WARNING/2) ref name does not match any known target: 'b' [myst.ref_missing]
+<string>:1: (WARNING/2) Unmatched local target '*:*:b' [myst.xref_missing]
 .
 
 Unsupported myst link
 .
 [a](myst:link)
 .
-<string>:1: (WARNING/2) Invalid myst link 'myst:link': Missing reference target [myst.invalid_uri]
+<string>:1: (WARNING/2) docutils only parsing does not support myst links [myst.xref_unsupported]
 .
 
 Unknown role:

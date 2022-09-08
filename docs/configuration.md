@@ -38,7 +38,7 @@ Configuration specific to syntax extensions:
 ```
 
 The following configuration variables are available at the document level.
-These can be set in the document [front matter](myst:project#syntax/frontmatter), under the `myst` key, e.g.
+These can be set in the document [front matter](#syntax/frontmatter), under the `myst` key, e.g.
 
 ```yaml
 ---
@@ -64,28 +64,28 @@ Configuration specific to syntax extensions:
 
 ## List of syntax extensions
 
-Full details in the <myst:project#syntax/extensions> section.
+Full details in the <project:#syntax/extensions> section.
 
 amsmath
 : enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
 
 colon_fence
-: Enable code fences using `:::` delimiters, [see here](myst:project#syntax/colon_fence) for details
+: Enable code fences using `:::` delimiters, [see here](#syntax/colon_fence) for details
 
 deflist
-: Enable definition lists, [see here](myst:project#syntax/definition-lists) for details
+: Enable definition lists, [see here](#syntax/definition-lists) for details
 
 dollarmath
 : Enable parsing of dollar `$` and `$$` encapsulated math
 
 fieldlist
-: Enable field lists, [see here](myst:project#syntax/fieldlists) for details
+: Enable field lists, [see here](#syntax/fieldlists) for details
 
 html_admonition
-: Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](myst:project#syntax/html-admonition) for details
+: Convert `<div class="admonition">` elements to sphinx admonition nodes, see the [HTML admonition syntax](#syntax/html-admonition) for details
 
 html_image
-: Convert HTML `<img>` elements to sphinx image nodes, [see here](myst:project#syntax/images) for details
+: Convert HTML `<img>` elements to sphinx image nodes, [see here](#syntax/images) for details
 
 linkify
 : Automatically identify "bare" web URLs and add hyperlinks
@@ -97,13 +97,13 @@ smartquotes
 : Automatically convert standard quotations to their opening/closing variants
 
 strikethrough
-: Enable strikethrough syntax, [see here](myst:project#syntax/strikethrough) for details
+: Enable strikethrough syntax, [see here](#syntax/strikethrough) for details
 
 substitution
-: Substitute keys, [see here](myst:project#syntax/substitutions) for details
+: Substitute keys, [see here](#syntax/substitutions) for details
 
 tasklist
-: Add check-boxes to the start of list items, [see here](myst:project#syntax/tasklists) for details
+: Add check-boxes to the start of list items, [see here](#syntax/tasklists) for details
 
 (myst-warnings)=
 ## Build Warnings
@@ -116,7 +116,7 @@ WARNING: Non-consecutive header level increase; H1 to H3 [myst.header]
 
 **In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.**
 
-However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](myst:inv?i=sphinx#suppress_warnings) configuration option, e.g.
+However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](myst:sphinx#suppress_warnings) configuration option, e.g.
 
 ```python
 suppress_warnings = ["myst.header"]

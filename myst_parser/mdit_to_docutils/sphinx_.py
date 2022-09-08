@@ -1,7 +1,7 @@
 """Convert Markdown-it tokens to docutils nodes, including sphinx specific elements."""
 from __future__ import annotations
 
-from pathlib import Path
+import posixpath
 from typing import cast
 from uuid import uuid4
 
@@ -10,9 +10,10 @@ from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
 from sphinx.domains.math import MathDomain
 from sphinx.environment import BuildEnvironment
-from sphinx.util import logging
+from sphinx.util import docname_join, logging
 
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer, token_line
+from myst_parser.warnings import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,64 +29,84 @@ class SphinxRenderer(DocutilsRenderer):
     def sphinx_env(self) -> BuildEnvironment:
         return self.document.settings.env
 
-    def add_myst_ref(
-        self, token: SyntaxTreeNode, rtype: str, target: str, query: dict[str, str]
+    def add_ref_inventory(
+        self, token: SyntaxTreeNode, key: str, target: str, query: dict[str, str]
     ) -> None:
-
-        # if the target is a local to the document, then handle same as docutils
-        if rtype == "local":
-            return self._add_myst_ref_local(token, target)
-
         # otherwise create a pending xref, which will be resolved later
         refexplicit = True if (token.info != "auto" and token.children) else False
         wrap_node = addnodes.pending_xref(
+            # standard pending attributes
             refdoc=self.sphinx_env.docname,
             refdomain="myst",
-            reftype=rtype,
+            reftype="inv",
             reftarget=target,
             refexplicit=refexplicit,
+            # myst:inv specific attributes
+            refkey=key,
             refquery=query,
         )
-        title = token.attrGet("title")
-        if title:
-            wrap_node["title"] = title
-        self.add_line_and_source_path(wrap_node, token)
+        self.add_line_and_source_path(wrap_node, token, add_title=True)
         with self.current_node_context(wrap_node, append=True):
             self.render_children(token)
 
-    def add_local_file_ref(
-        self, token: SyntaxTreeNode, rel_path: str, abs_path: Path, fragment: None | str
+    def add_ref_path(
+        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
     ) -> None:
-        """Render link token `[text](path/to/file.ext#fragment "title")`"""
-        docname = self.sphinx_env.path2doc(str(abs_path))
-
-        if docname:
-            return self.add_myst_ref(token, "doc", docname, {"t": fragment or ""})
-
-        # TODO what if fragment?
         wrap_node = addnodes.download_reference(
             refdoc=self.sphinx_env.docname,
-            reftarget=str(rel_path),
-            classes=["myst"],
+            reftarget=str(path),
+            classes=["myst-file"],
         )
-        title = token.attrGet("title")
-        if title:
-            wrap_node["title"] = title
-        self.add_line_and_source_path(wrap_node, token)
+        self.add_line_and_source_path(wrap_node, token, add_title=True)
         self.current_node.append(wrap_node)
         if token.children:
-            inner_node = nodes.inline("", "", classes=["xref", "download"])
-            self.add_line_and_source_path(inner_node, token)
-            wrap_node.append(inner_node)
-            with self.current_node_context(inner_node):
+            with self.current_node_context(wrap_node):
                 self.render_children(token)
         else:
-            # using literal mimics the default `download` role behaviour
-            inner_node = nodes.literal(
-                str(rel_path), str(rel_path), classes=["xref", "download"]
-            )
+            inner_node = nodes.literal(str(path), str(path))
             self.add_line_and_source_path(inner_node, token)
             wrap_node.append(inner_node)
+
+    def add_ref_document(
+        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
+    ) -> None:
+        path = posixpath.normpath(path)
+        if path.startswith("/"):
+            docname = self.sphinx_env.path2doc(path[1:])
+        else:
+            rel_docname = self.sphinx_env.path2doc(path)
+            docname = (
+                docname_join(self.sphinx_env.docname, rel_docname)
+                if rel_docname
+                else None
+            )
+        if docname is None:
+            self.create_warning(
+                f"Path does not have a known document suffix: {path}",
+                MystWarnings.XREF_ERROR,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+            warn_node = nodes.inline(classes=["myst-ref-error"])
+            with self.current_node_context(warn_node, append=True):
+                self.render_children(token)
+            return
+
+        refexplicit = True if (token.info != "auto" and token.children) else False
+        wrap_node = addnodes.pending_xref(
+            # standard pending attributes
+            refdoc=self.sphinx_env.docname,
+            refdomain="myst",
+            reftype="doc",
+            reftarget=target,
+            refexplicit=refexplicit,
+            # myst:doc specific attributes
+            reftargetdoc=docname,
+            refquery=query,
+        )
+        self.add_line_and_source_path(wrap_node, token, add_title=True)
+        with self.current_node_context(wrap_node, append=True):
+            self.render_children(token)
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""

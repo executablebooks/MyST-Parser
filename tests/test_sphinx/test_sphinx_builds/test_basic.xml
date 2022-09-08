@@ -35,7 +35,7 @@
         <admonition classes="admonition-title-with-link-target2">
             <title>
                 Title with 
-                <reference classes="myst-local" internal="True" refid="target2">
+                <reference classes="myst-project" internal="True" refid="target2" reftitle="std:label:target2">
                     link
             <paragraph>
                 Content

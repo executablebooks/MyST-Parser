@@ -17,17 +17,15 @@ def test_parse(
 ):
     monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
     sphinx_doctree.buildername = "html"
+    conf = {"extensions": ["myst_parser"]}
+    if "[ADD_ANCHORS]" in file_params.title:
+        conf["myst_heading_anchors"] = 2
     if "[LOAD_INV]" in file_params.title:
-        sphinx_doctree.set_conf(
-            {
-                "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
-                "intersphinx_mapping": {
-                    "project": ("https://project.com", str(STATIC / "objects_v2.inv"))
-                },
-            }
-        )
-    else:
-        sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+        conf["extensions"].append("sphinx.ext.intersphinx")
+        conf["intersphinx_mapping"] = {
+            "project": ("https://project.com", str(STATIC / "objects_v2.inv"))
+        }
+    sphinx_doctree.set_conf(conf)
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
         "# Main\n```{toctree}\ntest\nother\n```", encoding="utf8"
     )

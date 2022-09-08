@@ -128,7 +128,7 @@ latex_engine = "xelatex"
 
 # -- Options for Warnings -------------------------------------------------
 
-suppress_warnings = ["myst.strikethrough", "myst.strip"]
+suppress_warnings = ["myst.strikethrough", "myst.strip", "myst.xref_not_explicit"]
 nitpicky = True
 nitpick_ignore = [
     ("py:class", "docutils.nodes.document"),

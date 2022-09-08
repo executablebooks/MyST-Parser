@@ -1,4 +1,6 @@
-"""Read an inter-sphinx inventory file (`objects.inv`).
+"""Logic for dealing with sphinx style inventories (e.g. `objects.inv`).
+
+These contain mappings of reference names to ids, scoped by domain and object type.
 
 This is adapted from the Sphinx inventory.py module.
 We replicate it here, so that it can be used without Sphinx.
@@ -11,7 +13,7 @@ import re
 import zlib
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
-from typing import IO, TYPE_CHECKING, Iterator
+from typing import IO, TYPE_CHECKING, Dict, Iterator, Union, cast
 from urllib.request import urlopen
 
 import yaml
@@ -38,7 +40,39 @@ class InventoryType(TypedDict):
     version: str
     """The version of the project."""
     objects: dict[str, dict[str, dict[str, InventoryItemType]]]
-    """Mapping of domain -> object -> name -> item."""
+    """Mapping of domain -> object type -> name -> item."""
+
+
+class MystLocalTarget(TypedDict):
+    """A reference target within a document."""
+
+    id: str
+    """The internal id of the target"""
+    text: str | None
+    """For use if no explicit text is given by the reference, e.g. the section title"""
+    line: int | None
+    """The line number of the target"""
+    explicit: bool
+    """Whether the target was explicitly named, or otherwise auto-generated."""
+    tagname: str | None
+    """The name of the node, e.g. "section", "figure", "table", "code-block" etc."""
+
+
+class MystProjectTarget(TypedDict):
+    """A reference target within a document."""
+
+    id: str
+    """The internal id of the target"""
+    text: str | None
+    """For use if no explicit text is given by the reference, e.g. the section title"""
+    docname: str
+    """The name of the document containing the target"""
+
+
+MystInventoryType = Dict[
+    str, Dict[str, Dict[str, Union[MystLocalTarget, MystProjectTarget]]]
+]
+"""Mapping of: domain -> object type -> name -> target"""
 
 
 def format_inventory(inv: Inventory) -> InventoryType:
@@ -205,14 +239,6 @@ class InventoryFileReader:
                 pos = buf.find(b"\n")
 
 
-class ResoleInventoryMissingError(Exception):
-    """Exception raised when an inventory reference cannot be resolved."""
-
-
-class ResoleInventoryDupeError(Exception):
-    """Exception raised when an inventory reference is ambiguous."""
-
-
 @dataclass
 class InvMatch:
     """A match from an inventory."""
@@ -234,7 +260,7 @@ def resolve_inventory(
     ref_type: None | str,
     ref_target: str,
     pattern_match=False,
-) -> InvMatch:
+) -> list[InvMatch]:
     """Resolve a cross-reference in the loaded sphinx inventories.
 
     :param inventories: Mapping of inventory name to inventory data
@@ -246,20 +272,13 @@ def resolve_inventory(
     :param ref_target: The target to search for
     :param pattern_match: Whether to use unix pattern matching of the target
 
-    :returns: resolved data
-    :raises ResoleInventoryMissingError: if the cross-reference cannot be resolved
-    :raises ResoleInventoryDupeError: if the cross-reference is ambiguous
+    :returns: matching results
     """
-    # get the inventories to search
-    if ref_inv is not None and ref_inv not in inventories:
-        raise ResoleInventoryMissingError(f"Unknown inventory {ref_inv!r}")
-
-    if ref_inv is not None:
-        inventories = {ref_inv: inventories[ref_inv]}
-
-    # search through the inventories
     results: list[InvMatch] = []
     for inv_name, inv_data in inventories.items():
+
+        if ref_inv is not None and ref_inv != inv_name:
+            continue
 
         for domain_obj_name, data in inv_data.items():
 
@@ -289,21 +308,72 @@ def resolve_inventory(
                             )
                         )
 
-    # warn if we have none or more than one result
-    loc = ":".join([ref_inv or "?", ref_domain or "?", ref_type or "?", ref_target])
+    return results
 
-    if not results:
-        raise ResoleInventoryMissingError(f"Unmatched target {loc!r}")
 
-    if len(results) > 1:
-        matches = [f"'{r.inv}:{r.domain}:{r.otype}:{r.target}'" for r in results]
-        if len(matches) > 4:
-            matches = matches[:4] + ["..."]
-        raise ResoleInventoryDupeError(
-            f"Multiple matches found for target {loc!r} in {','.join(matches)}"
-        )
+@dataclass
+class LocalInvMatch:
+    """A match from an inventory."""
 
-    return results[0]
+    domain: str
+    otype: str
+    target: str
+    data: MystLocalTarget | MystProjectTarget
+
+    @property
+    def anchor(self) -> str:
+        return self.data["id"]
+
+    @property
+    def text(self) -> str:
+        return self.data["text"] or ""
+
+    @property
+    def docname(self) -> str:
+        return cast(str, self.data.get("docname", ""))
+
+
+def resolve_myst_inventory(
+    inventory: MystInventoryType,
+    ref_domain: None | str,
+    ref_type: None | str,
+    ref_target: str,
+    pattern_match=False,
+) -> list[LocalInvMatch]:
+    """Resolve a cross-reference in a document level inventory.
+
+    :param ref_domain: The name of the domain to search, if None then all domains
+        will be searched
+    :param ref_type: The type of object to search for, if None then all types will be searched
+    :param ref_target: The target to search for
+    :param pattern_match: Whether to use unix pattern matching of the target
+
+    :returns:  matching results
+    """
+    results: list[LocalInvMatch] = []
+
+    for domain_name, ddata in inventory.items():
+
+        if ref_domain is not None and ref_domain != domain_name:
+            continue
+
+        for obj_type, data in ddata.items():
+
+            if ref_type is not None and ref_type != obj_type:
+                continue
+
+            if not pattern_match and ref_target in data:
+                results.append(
+                    LocalInvMatch(domain_name, obj_type, ref_target, data[ref_target])
+                )
+            elif pattern_match:
+                for target in data:
+                    if fnmatchcase(target, ref_target):
+                        results.append(
+                            LocalInvMatch(domain_name, obj_type, target, data[target])
+                        )
+
+    return results
 
 
 def inventory_cli(inputs: None | list[str] = None):

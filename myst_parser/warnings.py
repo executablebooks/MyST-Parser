@@ -31,22 +31,17 @@ class MystWarnings(Enum):
     MD_INVALID_URI = "invalid_uri"
     """Link URI is not valid."""
 
-    # local reference resolution
-    REF_MISSING = "ref_missing"
-    """A target was not found for a local reference."""
-    REF_EMPTY = "ref_no_content"
-    """No content was resolved for a local reference."""
-
-    # myst domain reference resolution
+    # cross-reference resolution
     XREF_UNSUPPORTED = "xref_unsupported"
     """Sphinx only cross-referencing."""
-    # TODO test all these warnings
     XREF_TYPE = "xref_unknown_type"
     """A cross-reference was given with an unknown type."""
     XREF_MISSING = "xref_missing"
     """A target was not found for a cross-reference."""
     XREF_DUPLICATE = "xref_duplicate"
     """Multiple targets were found for a cross-reference."""
+    XREF_NOT_EXPLICIT = "xref_not_explicit"
+    """A target was not explicitly defined, and so may change in future."""
     XREF_EMPTY = "xref_no_content"
     """No content was resolved for a cross-reference."""
     XREF_ERROR = "xref_error"

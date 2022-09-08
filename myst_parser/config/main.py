@@ -120,7 +120,7 @@ class MdParserConfig:
     ref_domains: Optional[Iterable[str]] = dc.field(
         default=None,
         metadata={
-            "deprecated": "use `[](myst:project?d=name#target)` instead",
+            "deprecated": "use `[](project:?d=name#target)` instead",
             "validator": optional(
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),

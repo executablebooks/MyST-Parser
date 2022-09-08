@@ -19,36 +19,35 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference classes="myst-local" internal="True" refid="title">
+            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
                 Title with nested a=1
         <paragraph>
-            <reference classes="myst-local" internal="True" refid="title">
+            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
                 plain text
         <paragraph>
-            <reference classes="myst-local" internal="True" refid="title">
+            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
                 nested 
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': ''}" reftarget="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{'t': ''}" reftarget="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
                 plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{'t': ''}" reftarget="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
                 nested 
                 <emphasis>
                     syntax
         <paragraph>
-            <download_reference classes="myst" filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" reftarget="file_link.txt">
-                <inline classes="xref download">
-                    download 
-                    <strong>
-                        link
+            <download_reference classes="myst-file" filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" reftarget="/file_link.txt">
+                download 
+                <strong>
+                    link
         <paragraph>
-            <download_reference classes="myst" filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" reftarget="subfolder/file_link2.txt">
-                <literal classes="xref download">
-                    subfolder/file_link2.txt
+            <download_reference classes="myst-file" filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" reftarget="/subfolder/file_link2.txt">
+                <literal>
+                    /subfolder/file_link2.txt
         <target refid="insidecodeblock">
         <paragraph ids="insidecodeblock" names="insidecodeblock">
             I am inside the eval-rst fence
@@ -63,7 +62,7 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <reference classes="myst-local" internal="True" refid="insidecodeblock">
+            <reference classes="myst-project" internal="True" refid="insidecodeblock" reftitle="std:label:insidecodeblock">
                 fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
@@ -73,11 +72,11 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <reference classes="myst-local" internal="True" refid="title-anchors">
+                <reference classes="myst-project" internal="True" refid="title-anchors" reftitle="myst:anchor:title-anchors">
                     Title anchors
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="doc">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="doc">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{'t': 'title-anchors'}" reftarget="subfolder/other2" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="doc">

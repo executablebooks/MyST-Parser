@@ -21,6 +21,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
     from myst_parser.sphinx_ext.references import (
+        MystDomain,
         MystReferencesBuilder,
         MystRefrenceResolver,
     )
@@ -32,6 +33,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_role("sub-ref", SubstitutionReferenceRole())
     app.add_directive("figure-md", FigureMarkdown)
 
+    app.add_domain(MystDomain)
     app.add_transform(MdDocumentLinks)
     app.add_post_transform(MystRefrenceResolver)
     app.add_builder(MystReferencesBuilder)
