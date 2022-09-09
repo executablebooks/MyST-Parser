@@ -52,7 +52,7 @@ doc_path_relative
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-doc" internal="True" refuri="other.html">
                 Other
 .
 
@@ -66,7 +66,7 @@ doc_path_absolute
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-doc" internal="True" refuri="other.html">
                 Other
 .
 
@@ -80,7 +80,7 @@ doc_path_text
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-doc" internal="True" refuri="other.html">
                 <emphasis>
                     text
 .
@@ -113,7 +113,7 @@ doc_path_target
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html#ref2">
+            <reference classes="std-label myst-doc" internal="True" refuri="other.html#ref2">
                 Other
 .
 
@@ -241,7 +241,7 @@ project_doc
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-doc" internal="True" refuri="other.html">
                 Other
 .
 
@@ -287,7 +287,7 @@ project_doc_target
         <title>
             Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="other.html#ref2">
+            <reference classes="std-label myst-doc" internal="True" refuri="other.html#ref2">
                 Other
 .
 
@@ -317,7 +317,7 @@ project_target
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
                 Main
 .
 
@@ -331,7 +331,7 @@ project_auto
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
                 Main
 .
 
@@ -361,7 +361,7 @@ project_text
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
                 <emphasis>
                     text
 .
@@ -409,7 +409,7 @@ project_duplicate_non_local
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" reftitle="myst:project:std:label" refuri="other.html#duplicate">
+            <reference classes="std-label myst-project" internal="True" reftitle="myst:project:std:label" refuri="other.html#duplicate">
                 Other
 
 <src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
@@ -425,7 +425,7 @@ project_filter
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" reftitle="myst:project:std:term" refuri="other.html#term-duplicate">
+            <reference classes="std-term myst-project" internal="True" reftitle="myst:project:std:term" refuri="other.html#term-duplicate">
                 duplicate
 .
 
@@ -455,7 +455,7 @@ myst_inv [LOAD_INV]
         <title>
             Title
         <paragraph>
-            <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+            <reference classes="std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
                 Title
 .
 
@@ -469,7 +469,7 @@ myst_inv_auto [LOAD_INV]
         <title>
             Title
         <paragraph>
-            <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+            <reference classes="std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
                 Title
 .
 
@@ -483,7 +483,7 @@ myst_inv_text [LOAD_INV]
         <title>
             Title
         <paragraph>
-            <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+            <reference classes="std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
                 <emphasis>
                     text
 .
@@ -498,7 +498,7 @@ myst_inv_named [LOAD_INV]
         <title>
             Title
         <paragraph>
-            <reference classes="inv-project-std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
+            <reference classes="std-label myst-inv" internal="False" reftitle="(in Python)" refuri="https://project.com/index.html#ref">
                 Title
 .
 

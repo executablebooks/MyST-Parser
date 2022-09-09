@@ -66,6 +66,43 @@ duplicate
     file_params.assert_expected(output, rstrip_lines=True)
 
 
+@pytest.mark.param_file(FIXTURES / "myst_references_latex.md")
+def test_latex_builds(
+    file_params,
+    sphinx_doctree: CreateDoctree,
+    monkeypatch,
+):
+    monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
+    sphinx_doctree.buildername = "latex"
+    sphinx_doctree.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "project": "test",
+            "templates_path": ["_templates"],
+        }
+    )
+    sphinx_doctree.srcdir.joinpath("_templates").mkdir()
+    sphinx_doctree.srcdir.joinpath("_templates", "latex.tex_t").write_text(
+        "<%= body %>\n", encoding="utf8"
+    )
+    sphinx_doctree.srcdir.joinpath("index.md").write_text(
+        """\
+# Main
+```{toctree}
+test
+```
+""",
+        encoding="utf8",
+    )
+    result = sphinx_doctree(file_params.content, "test.md")
+    warnings = result.warnings.strip()
+    output = Path(result.app.outdir).joinpath("test.tex").read_text(encoding="utf8")
+    output = "\n".join([line for line in output.splitlines() if line])
+    if warnings:
+        output += "\n" + warnings
+    file_params.assert_expected(output, rstrip_lines=True)
+
+
 def test_suppress_warnings(sphinx_doctree: CreateDoctree):
     sphinx_doctree.set_conf(
         {

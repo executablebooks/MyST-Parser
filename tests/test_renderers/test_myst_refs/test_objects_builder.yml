@@ -3,25 +3,28 @@ objects:
   std:
     doc:
       index:
-        anchor: ''
-        dispname: Head
         docname: index
+        id: ''
+        text: Head
     label:
       genindex:
-        anchor: ''
         docname: genindex
+        id: ''
+        text: ''
       modindex:
-        anchor: ''
         docname: py-modindex
+        id: ''
+        text: ''
       py-modindex:
-        anchor: ''
-        dispname: Python Module Index
         docname: py-modindex
+        id: ''
+        text: Python Module Index
       search:
-        anchor: ''
         docname: search
+        id: ''
+        text: ''
       target:
-        anchor: target
-        dispname: Head
         docname: index
+        id: target
+        text: Head
 version: 0.0.1

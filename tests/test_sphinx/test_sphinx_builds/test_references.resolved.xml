@@ -30,13 +30,13 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-doc" internal="True" refuri="">
                 Title with nested a=1
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-doc" internal="True" refuri="">
                 plain text
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-doc" internal="True" refuri="">
                 nested 
                 <emphasis>
                     syntax
@@ -89,11 +89,11 @@
                 <reference classes="myst-project" internal="True" refid="title-anchors" reftitle="myst:anchor:title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-doc" internal="True" refuri="other.html#title-anchors">
+                <reference classes="myst-anchor myst-doc" internal="True" refuri="other.html#title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-doc" internal="True" refuri="other.html#title-anchors">
+                <reference classes="myst-anchor myst-doc" internal="True" refuri="other.html#title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-doc" internal="True" refuri="subfolder/other2.html#title-anchors">
+                <reference classes="myst-anchor myst-doc" internal="True" refuri="subfolder/other2.html#title-anchors">
                     Title anchors

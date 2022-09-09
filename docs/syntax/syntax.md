@@ -413,24 +413,25 @@ objects:
     class:
       myst_parser.parsers.sphinx_.MystParser:
         docname: api/reference
-        anchor: myst_parser.parsers.sphinx_.MystParser
+        id: myst_parser.parsers.sphinx_.MystParser
+        text: ""
   std:
     label:
       api/directive:
         docname: api/reference
-        anchor: api-directive
-        dispname: Directive and role processing
+        id: api-directive
+        text: Directive and role processing
     doc:
       api/reference:
         docname: api/reference
-        anchor: ''
-        dispname: Python API
+        id: ''
+        text: Python API
 ```
 
 To reference a project wide target, in any domain or object type, use the `project:#target` URI, or the shorthand `#target` syntax.
 Without a specific path, these references will first be searched for in the current document, then only if not found there, in the project-wide inventory.
 
-If no explicit text is set then either the `dispname` will be used, if present, or the name of the target.
+If no explicit text is set then either the `text` will be used, if present, or the name of the target.
 
 If you wish the target to be matched by a [Unix pattern](myst:python#library/fnmatch), then set the `pat` query flag.
 

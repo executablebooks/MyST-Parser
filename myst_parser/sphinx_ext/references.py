@@ -14,6 +14,7 @@ from docutils.utils import relative_path
 from sphinx.addnodes import pending_xref
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.domains import Domain
+from sphinx.domains.math import MathDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.ext.intersphinx import InventoryAdapter
@@ -82,6 +83,33 @@ class MystDomain(Domain):
             self.invs[docname] = otherdata["invs"][docname]
 
 
+def project_inventory(env: BuildEnvironment) -> MystInventoryType:
+    """Build the inventory for this project."""
+    # get the data for the standard inventory
+    inventory: MystInventoryType = {}
+    for domainname, domain in sorted(env.domains.items()):
+        for name, dispname, otype, docname, anchor, __ in sorted(domain.get_objects()):
+            inventory.setdefault(domainname, {}).setdefault(otype, {})[name] = {
+                "id": anchor,
+                # genindex/search have this as a tuple
+                "text": dispname if isinstance(dispname, str) else "",
+                "docname": docname,
+            }
+    # now also add the math domain, which is not yet included in the inventory
+    # see: https://github.com/sphinx-doc/sphinx/issues/9483
+    math: MathDomain = env.get_domain("math")  # type: ignore
+    if not math.get_objects():
+        for label, (docname, __) in math.equations.items():
+            node_id = nodes.make_id(f"equation-{label}")
+            inventory.setdefault("math", {}).setdefault("label", {})
+            inventory["math"]["label"][label] = {
+                "id": node_id,
+                "docname": docname,
+                "text": None,
+            }
+    return inventory
+
+
 class MystRefrenceResolver(SphinxPostTransform):
     """A post-transform for overriding the behaviour of myst reference resolution."""
 
@@ -105,7 +133,7 @@ class MystRefrenceResolver(SphinxPostTransform):
                 newnode = self._resolve_xref_document(node)
             elif typ == "project":
                 if inventory is None:
-                    inventory = self._project_inventory()
+                    inventory = project_inventory(self.env)
                 newnode = self._resolve_xref_project(node, inventory)
             elif typ == "inv":
                 newnode = self._resolve_xref_inventory(node)
@@ -136,20 +164,6 @@ class MystRefrenceResolver(SphinxPostTransform):
             newnode.source = node.source
             newnode.line = node.line
             node.replace_self(newnode)
-
-    def _project_inventory(self) -> MystInventoryType:
-        """Build the inventory for this project."""
-        inventory: MystInventoryType = {}
-        for domainname, domain in sorted(self.env.domains.items()):
-            for name, dispname, otype, docname, anchor, __ in sorted(
-                domain.get_objects()
-            ):
-                inventory.setdefault(domainname, {}).setdefault(otype, {})[name] = {
-                    "id": anchor,
-                    "text": dispname,
-                    "docname": docname,
-                }
-        return inventory
 
     def _resolve_xref_project(
         self,
@@ -191,7 +205,19 @@ class MystRefrenceResolver(SphinxPostTransform):
 
         result = results[0]
 
-        res_node = nodes.reference("", "", internal=True)
+        res_node = nodes.reference(
+            "", "", internal=True, classes=[f"{result.domain}-{result.otype}"]
+        )
+        if (
+            self.app.builder.name == "latex"
+            and result.domain == "math"
+            and result.otype == "label"
+        ):
+            # The latex builder replaces math xrefs with math_reference nodes,
+            # which always makes the reference name `equation:{docname}:{target}`
+            # we need to make the reference be output as that
+            # TODO make this less hacky?
+            res_node["refuri"] = f"%equation:{result.docname}#{result.anchor[9:]}"
         if result.docname == node["refdoc"]:
             res_node["refid"] = result.anchor
         else:
@@ -286,10 +312,13 @@ class MystRefrenceResolver(SphinxPostTransform):
             reftitle = _("(in %s)") % (res.proj,)
 
         res_node = nodes.reference(
-            "", "", internal=False, refuri=res.uri, reftitle=reftitle
+            "",
+            "",
+            internal=False,
+            refuri=res.uri,
+            reftitle=reftitle,
+            classes=[f"{res.domain}-{res.otype}"],
         )
-        # add a class, so we can capture what the match was in the output
-        res_node["classes"].append(f"inv-{res.inv}-{res.domain}-{res.otype}")
 
         # add content children
         if node.get("refexplicit"):
@@ -358,8 +387,11 @@ class MystRefrenceResolver(SphinxPostTransform):
                 )
             refid = result.anchor
             reftext = result.text
+            classes = [f"{result.domain}-{result.otype}"]
+        else:
+            classes = ["doc"]
 
-        ref_node = nodes.reference("", "", internal=True)
+        ref_node = nodes.reference("", "", internal=True, classes=classes)
         if node["refdoc"] == docname and refid:
             ref_node["refid"] = refid
         else:
@@ -415,21 +447,8 @@ class MystReferencesBuilder(DummyBuilder):
         data = {
             "name": self.config.project,
             "version": self.config.version,
-            "objects": {},
+            "objects": project_inventory(self.env),
         }
-        objects = data["objects"]
-        for domainname, domain in sorted(self.env.domains.items()):
-            for name, dispname, otype, docname, anchor, __ in sorted(
-                domain.get_objects()
-            ):
-                objects.setdefault(domainname, {})
-                objects[domainname].setdefault(otype, {})
-                objects[domainname][otype][name] = {
-                    "docname": docname,
-                    "anchor": anchor,
-                }
-                if isinstance(dispname, str) and dispname != name:
-                    objects[domainname][otype][name]["dispname"] = dispname
         with open(os.path.join(self.outdir, "project.yaml"), "w") as f:
             yaml.dump(data, f, sort_keys=False)
 

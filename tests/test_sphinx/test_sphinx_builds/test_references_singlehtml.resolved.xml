@@ -11,8 +11,8 @@
                 <inline classes="doc doc doc">
                     Other 2 Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="index.html#document-other/other2">
+            <reference classes="doc myst-doc" internal="True" refuri="index.html#document-other/other2">
                 Other 2 Title
         <paragraph>
-            <reference classes="myst-doc" internal="True" refuri="index.html#document-index#title">
+            <reference classes="myst-anchor myst-doc" internal="True" refuri="index.html#document-index#title">
                 Title
