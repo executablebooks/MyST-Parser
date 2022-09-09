@@ -369,14 +369,14 @@ Allows the code block to be referenced by the `code-block-2` name.
 print("Hello World!")
 ```
 
-To reference these targets only within the same document, use the `project:_#target` URI, or the shorthand `_#target` syntax.
+To reference these targets only within the same document, use the `project:.#target` URI, or the shorthand `.#target` syntax.
 
 When targetting certain block types, such as headings or directives with captions, if no explicit text is given, then the text will be derived from the title or caption text. In these instances, the auto-link format can be used.
 
 | Examples |                                         |                                       |
 | :------- | :-------------------------------------- | :------------------------------------ |
-| Inline   | `[Some *text*](_#code-block-1 "title")` | [Some *text*](_#code-block-1 "title") |
-| Auto     | `<project:_#code-block-2>`              | <project:_#code-block-2>              |
+| Inline   | `[Some *text*](.#code-block-1 "title")` | [Some *text*](.#code-block-1 "title") |
+| Auto     | `<project:.#code-block-2>`              | <project:.#code-block-2>              |
 
 If you wish to reference a target specifically in another document, use the `project:path/to/file.md#target` URI, or the shorthand `path/to/file.md#target` syntax.
 As per the [document links](#syntax/referencing/paths), if the path starts with a `/`, then it will be treated as a path relative to the root of the project.

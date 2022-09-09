@@ -137,7 +137,7 @@ fragment_local
 .
 (ref)=
 # Title
-[](_#ref)
+[](.#ref)
 .
 <document source="root/test.md">
     <target refid="ref">

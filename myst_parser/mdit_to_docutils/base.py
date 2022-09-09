@@ -704,8 +704,8 @@ class DocutilsRenderer(RendererProtocol):
 
         # if the link starts with _#, then it is a local fragment,
         # i.e. a reference to a target id in the current file
-        if uri.startswith("_#"):
-            return self.add_ref_project(token, "_", unquote(uri[2:]), {})
+        if uri.startswith(".#"):
+            return self.add_ref_project(token, ".", unquote(uri[2:]), {})
 
         # if the link has a scheme, split it into the scheme and the rest of the link
         scheme: None | str = None
@@ -861,7 +861,7 @@ class DocutilsRenderer(RendererProtocol):
             warn_node = nodes.inline(classes=["myst-ref-error"])
             with self.current_node_context(warn_node, append=True):
                 self.render_children(token)
-        elif path and path != "_":
+        elif path and path != ".":
             self.add_ref_document(token, path, target, query)
         else:
             refexplicit = True if (token.info != "auto" and token.children) else False
@@ -871,7 +871,7 @@ class DocutilsRenderer(RendererProtocol):
                 refexplicit=refexplicit,
                 refquery=query,
             )
-            if path == "_":
+            if path == ".":
                 ref_node["reflocal"] = True
             ref_node["classes"].append("myst-project")
             self.add_line_and_source_path(ref_node, token, add_title=True)
