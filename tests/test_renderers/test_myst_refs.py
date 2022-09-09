@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from sphinx import version_info
 from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -66,6 +67,10 @@ duplicate
     file_params.assert_expected(output, rstrip_lines=True)
 
 
+@pytest.mark.skipif(
+    version_info[0] < 5,
+    reason="latex output changed in sphinx 5",
+)
 @pytest.mark.param_file(FIXTURES / "myst_references_latex.md")
 def test_latex_builds(
     file_params,
