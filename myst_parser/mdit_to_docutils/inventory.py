@@ -13,7 +13,7 @@ import re
 import zlib
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
-from typing import IO, TYPE_CHECKING, Dict, Iterator, Union, cast
+from typing import IO, TYPE_CHECKING, Dict, Iterator
 from urllib.request import urlopen
 
 import yaml
@@ -43,35 +43,26 @@ class InventoryType(TypedDict):
     """Mapping of domain -> object type -> name -> item."""
 
 
-class MystLocalTarget(TypedDict):
+class MystTargetType(TypedDict, total=False):
     """A reference target within a document."""
 
     id: str
     """The internal id of the target"""
-    text: str | None
-    """For use if no explicit text is given by the reference, e.g. the section title"""
-    line: int | None
-    """The line number of the target"""
-    explicit: bool
-    """Whether the target was explicitly named, or otherwise auto-generated."""
-    tagname: str | None
-    """The name of the node, e.g. "section", "figure", "table", "code-block" etc."""
-
-
-class MystProjectTarget(TypedDict):
-    """A reference target within a document."""
-
-    id: str
-    """The internal id of the target"""
-    text: str | None
+    text: str
     """For use if no explicit text is given by the reference, e.g. the section title"""
     docname: str
     """The name of the document containing the target"""
+    line: int
+    """The line number of the target"""
+    implicit: bool
+    """If the target was auto-generated."""
+    tagname: str
+    """The name of the node, e.g. "section", "figure", "table", "code-block" etc."""
+    number: str
+    """The number of the target, e.g. "1.2.3"."""
 
 
-MystInventoryType = Dict[
-    str, Dict[str, Dict[str, Union[MystLocalTarget, MystProjectTarget]]]
-]
+MystInventoryType = Dict[str, Dict[str, Dict[str, MystTargetType]]]
 """Mapping of: domain -> object type -> name -> target"""
 
 
@@ -318,19 +309,19 @@ class LocalInvMatch:
     domain: str
     otype: str
     target: str
-    data: MystLocalTarget | MystProjectTarget
+    data: MystTargetType
 
     @property
     def anchor(self) -> str:
-        return self.data["id"]
+        return self.data.get("id", "")
 
     @property
     def text(self) -> str:
-        return self.data["text"] or ""
+        return self.data.get("text", "")
 
     @property
     def docname(self) -> str:
-        return cast(str, self.data.get("docname", ""))
+        return self.data.get("docname", "")
 
 
 def resolve_myst_inventory(

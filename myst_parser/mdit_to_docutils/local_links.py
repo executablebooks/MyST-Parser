@@ -87,9 +87,7 @@ class MdDocumentLinks(Transform):
             inventory.setdefault("std", {}).setdefault("label", {})[name] = {
                 "id": labelid,
                 "line": node.line,
-                "text": None,
                 "tagname": str(node.tagname or ""),
-                "explicit": True,
             }
             local_nodes[("std", "label", name)] = node
 
@@ -126,9 +124,8 @@ class MdDocumentLinks(Transform):
             inventory.setdefault("myst", {}).setdefault("anchor", {})[anchor_name] = {
                 "id": anchor_id,
                 "line": node.line,
-                "text": None,
                 "tagname": "anchor",
-                "explicit": False,
+                "implicit": True,
             }
             local_nodes[("myst", "anchor", anchor_name)] = node
 
@@ -183,7 +180,7 @@ class MdDocumentLinks(Transform):
 
             result = results[0]
 
-            if not result.data.get("explicit"):
+            if result.data.get("implicit"):
                 create_warning(
                     self.document,
                     f"Local link target '{result.domain}:{result.otype}:{result.target}' "

@@ -414,7 +414,6 @@ objects:
       myst_parser.parsers.sphinx_.MystParser:
         docname: api/reference
         id: myst_parser.parsers.sphinx_.MystParser
-        text: ""
   std:
     label:
       api/directive:

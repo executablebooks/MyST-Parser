@@ -10,11 +10,9 @@ objects:
       genindex:
         docname: genindex
         id: ''
-        text: ''
       modindex:
         docname: py-modindex
         id: ''
-        text: ''
       py-modindex:
         docname: py-modindex
         id: ''
@@ -22,7 +20,6 @@ objects:
       search:
         docname: search
         id: ''
-        text: ''
       target:
         docname: index
         id: target

@@ -1,0 +1,39 @@
+std:
+  doc:
+    index:
+      docname: index
+      id: ''
+      text: Head
+    page:
+      docname: page
+      id: ''
+      text: Section
+  label:
+    code1:
+      docname: page
+      id: code1
+      number: 1.2.1
+      text: Caption
+    figure1:
+      docname: page
+      id: figure1
+      number: 1.2.1
+      text: Caption
+    genindex:
+      docname: genindex
+      id: ''
+    modindex:
+      docname: py-modindex
+      id: ''
+    py-modindex:
+      docname: py-modindex
+      id: ''
+      text: Python Module Index
+    search:
+      docname: search
+      id: ''
+    table1:
+      docname: page
+      id: table1
+      number: 1.2.1
+      text: Caption

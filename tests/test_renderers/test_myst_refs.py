@@ -6,6 +6,8 @@ from sphinx import version_info
 from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
+from myst_parser.sphinx_ext.references import project_inventory
+
 STATIC = Path(__file__).parent.absolute() / ".." / "static"
 FIXTURES = Path(__file__).parent.absolute() / "fixtures"
 
@@ -141,3 +143,50 @@ def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
     opath = Path(result.app.outdir).joinpath("project.yaml")
     assert opath.exists()
     data_regression.check(yaml.safe_load(opath.read_text()))
+
+
+def test_project_inventory_numbering(sphinx_doctree: CreateDoctree, data_regression):
+    sphinx_doctree.buildername = "myst_refs"
+    sphinx_doctree.set_conf(
+        {"extensions": ["myst_parser"], "numfig": True, "numfig_secnum_depth": 2}
+    )
+    sphinx_doctree.srcdir.joinpath("index.md").write_text(
+        """
+# Head
+
+```{toctree}
+:numbered:
+page
+```
+"""
+    )
+    result = sphinx_doctree(
+        """
+# Section
+
+## Sub-section 1
+
+## Sub-section 2
+
+```{figure} https://example.com
+:name: figure1
+Caption
+```
+
+```{code-block} python
+:caption: Caption
+:name: code1
+a = 1
+```
+
+```{table} Caption
+:name: table1
+a  | b
+-- | --
+```
+""",
+        "page.md",
+    )
+    assert not result.warnings
+    data = project_inventory(result.env)
+    data_regression.check(data)

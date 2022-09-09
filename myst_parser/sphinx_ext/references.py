@@ -15,6 +15,7 @@ from sphinx.addnodes import pending_xref
 from sphinx.builders.dummy import DummyBuilder
 from sphinx.domains import Domain
 from sphinx.domains.math import MathDomain
+from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.errors import NoUri
 from sphinx.ext.intersphinx import InventoryAdapter
@@ -25,6 +26,7 @@ from sphinx.util.nodes import clean_astext
 
 from myst_parser.mdit_to_docutils.inventory import (
     MystInventoryType,
+    MystTargetType,
     format_inventory,
     resolve_inventory,
     resolve_myst_inventory,
@@ -91,10 +93,11 @@ def project_inventory(env: BuildEnvironment) -> MystInventoryType:
         for name, dispname, otype, docname, anchor, __ in sorted(domain.get_objects()):
             inventory.setdefault(domainname, {}).setdefault(otype, {})[name] = {
                 "id": anchor,
-                # genindex/search have this as a tuple
-                "text": dispname if isinstance(dispname, str) else "",
                 "docname": docname,
             }
+            # genindex/search have this as a tuple
+            if isinstance(dispname, str) and dispname:
+                inventory[domainname][otype][name]["text"] = dispname
     # now also add the math domain, which is not yet included in the inventory
     # see: https://github.com/sphinx-doc/sphinx/issues/9483
     math: MathDomain = env.get_domain("math")  # type: ignore
@@ -105,8 +108,48 @@ def project_inventory(env: BuildEnvironment) -> MystInventoryType:
             inventory["math"]["label"][label] = {
                 "id": node_id,
                 "docname": docname,
-                "text": None,
             }
+
+    # assign numbers to standard labels
+    std: StandardDomain = env.get_domain("std")  # type: ignore
+
+    class _Builder(DummyBuilder):
+        """`std.get_fignumber` skips latex builders,
+        but here we don't actually want to do that, so we use a dummy builder
+        """
+
+        def __init__(self) -> None:
+            pass
+
+    _builder = _Builder()
+
+    # categorise by docname
+    doc_label: dict[str, list[MystTargetType]] = {}
+    for item in inventory.get("std", {}).get("label", {}).values():
+        docname = item.get("docname", "")
+        if docname:
+            doc_label.setdefault(docname, []).append(item)
+    for docname, labels in doc_label.items():
+        # we only run if there are actually labels to assign,
+        # as loading documents is costly
+        if not (env.toc_secnumbers.get(docname) or env.toc_fignumbers.get(docname)):
+            continue
+        doc = env.get_doctree(docname)
+        for item in labels:
+            target_node = doc.ids.get(item["id"])
+            if target_node is None:
+                continue
+            figtype = std.get_enumerable_node_type(target_node)
+            if not figtype:
+                continue
+            try:
+                num = std.get_fignumber(env, _builder, figtype, docname, target_node)
+            except ValueError:
+                continue
+            if not num:
+                continue
+            item["number"] = ".".join(map(str, num))
+
     return inventory
 
 
@@ -378,7 +421,7 @@ class MystRefrenceResolver(SphinxPostTransform):
                     subtype=MystWarnings.XREF_DUPLICATE,
                 )
             result = results[0]
-            if not result.data.get("explicit"):
+            if result.data.get("implicit"):
                 log_warning(
                     f"Link target '{result.domain}:{result.otype}:{result.target}' "
                     f"in doc {docname!r} is auto-generated, so may change unexpectedly",
