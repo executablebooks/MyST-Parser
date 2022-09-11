@@ -276,7 +276,7 @@ For example: `key1=value1&key2=value2&key3&key2=value3` would be parsed as:
 - `[text](#target)` syntax replaces the previous `[text](target)` syntax.
   On upgrading, you may now see [`myst.invalid_uri` warnings](#myst-warnings).
 - `[text](project:?d=std#target)` syntax replaces the `myst_ref_domains` config.
-- `[text](#target)` will now refer to any local reference, not just heading anchors.
+- `[text](#target)` will now refer to any project reference, not just heading anchors.
 :::
 
 [uri]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
