@@ -242,7 +242,7 @@ MyST, supports the following destination types:
 | External URL       | `<https://example.com>`    | `[](https://example.com)` |        ✅         |
 | Local file path    | `<path:file.txt>`          | `[](file.txt)`            |        ❌         |
 | Project document   | `<project:file.md>`        | `[](file.md)`             |        ❌         |
-| Local target       | `<project:_#target>`       | `[](_#target)`            |        ✅         |
+| Local target       | `<project:.#target>`       | `[](.#target)`            |        ✅         |
 | Target in document | `<project:target.md#file>` | `[](file.md#target)`      |        ❌         |
 | Target in project  | `<project:#target>`        | `[](#target)`             |     ~[^hash]     |
 | Cross-project      | `<myst:key#target>`        | `[](myst:key#target)`     |        ❌         |
