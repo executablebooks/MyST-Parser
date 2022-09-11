@@ -106,6 +106,15 @@ class MdParserConfig:
         },
     )
 
+    link_placeholders: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Enable replacement of {name} and {number} in link text",
+            "global_only": True,
+        },
+    )
+
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = dc.field(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),

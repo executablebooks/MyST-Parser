@@ -846,6 +846,7 @@ class DocutilsRenderer(RendererProtocol):
         :param path: If not empty, restrict the reference to a certain document.
             This should be a POSIX style path, relative to the current document or,
             if the path startswith "/", relative to the project root.
+            "." is a special case, which refers to the current document.
         :param target: The target reference name
         :param query: query keywords,
             potentially including "d" for domain filter, and "o" for object type filter,
@@ -861,45 +862,29 @@ class DocutilsRenderer(RendererProtocol):
             warn_node = nodes.inline(classes=["myst-ref-error"])
             with self.current_node_context(warn_node, append=True):
                 self.render_children(token)
-        elif path and path != ".":
-            self.add_ref_document(token, path, target, query)
-        else:
-            refexplicit = True if (token.info != "auto" and token.children) else False
-            # TODO how to only link to current file? (without specifying the file name)
-            ref_node = MystProjectLink(
-                refname=target,
-                refexplicit=refexplicit,
-                refquery=query,
+            return
+
+        if path and path != ".":
+            self.create_warning(
+                "docutils only parsing does not support inter-document links",
+                MystWarnings.XREF_UNSUPPORTED,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
             )
-            if path == ".":
-                ref_node["reflocal"] = True
-            ref_node["classes"].append("myst-project")
-            self.add_line_and_source_path(ref_node, token, add_title=True)
-            with self.current_node_context(ref_node, append=True):
+            warn_node = nodes.inline(classes=["myst-ref-error"])
+            with self.current_node_context(warn_node, append=True):
                 self.render_children(token)
+            return
 
-    def add_ref_document(
-        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
-    ) -> None:
-        """Add a reference to a specific document, or target within it.
-
-        :param token: The markdown-it token
-        :param path: This should be a POSIX style path,
-            relative to the current document or,
-            if the path startswith "/", relative to the project root.
-        :param target: The target reference name (optional)
-        :param query: query keywords,
-            potentially including "d" for domain filter, and "o" for object type filter,
-            and "pat" to flag the target should be treated as a unix-style pattern.
-        """
-        self.create_warning(
-            "docutils only parsing does not support inter-document links",
-            MystWarnings.XREF_UNSUPPORTED,
-            line=token_line(token, default=0),
-            append_to=self.current_node,
+        refexplicit = True if (token.info != "auto" and token.children) else False
+        ref_node = MystProjectLink(
+            refname=target,
+            refexplicit=refexplicit,
+            refquery=query,
         )
-        warn_node = nodes.inline(classes=["myst-ref-error"])
-        with self.current_node_context(warn_node, append=True):
+        ref_node["classes"].append("myst-project")
+        self.add_line_and_source_path(ref_node, token, add_title=True)
+        with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
     def add_ref_inventory(

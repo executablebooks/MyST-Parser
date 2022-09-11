@@ -44,6 +44,8 @@ class MystWarnings(Enum):
     """A target was not explicitly defined, and so may change in future."""
     XREF_EMPTY = "xref_no_content"
     """No content was resolved for a cross-reference."""
+    XREF_PLACEHOLDER = "xref_replace"
+    """Placeholders in a cross-reference text are missing."""
     XREF_ERROR = "xref_error"
     """An unspecified error occurred while resolving a cross-reference."""
     IREF_MISSING = "iref_missing"

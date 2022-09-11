@@ -21,6 +21,10 @@ def test_parse(
     monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
     sphinx_doctree.buildername = "html"
     conf = {"extensions": ["myst_parser"]}
+    if "[NUMBERED]" in file_params.title:
+        conf["numfig"] = True
+        conf["numfig_secnum_depth"] = 2
+        conf["myst_link_placeholders"] = True
     if "[ADD_ANCHORS]" in file_params.title:
         conf["myst_heading_anchors"] = 2
     if "[LOAD_INV]" in file_params.title:
@@ -30,9 +34,10 @@ def test_parse(
         }
     sphinx_doctree.set_conf(conf)
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
-        """\
+        f"""\
 # Main
-```{toctree}
+```{{toctree}}
+{':numbered:' if '[NUMBERED]' in file_params.title else ''}
 test
 other
 ```
@@ -81,21 +86,26 @@ def test_latex_builds(
 ):
     monkeypatch.setattr(console, "codes", {})  # turn off coloring of warnings
     sphinx_doctree.buildername = "latex"
-    sphinx_doctree.set_conf(
-        {
-            "extensions": ["myst_parser"],
-            "project": "test",
-            "templates_path": ["_templates"],
-        }
-    )
+    conf = {
+        "extensions": ["myst_parser"],
+        "project": "test",
+        "templates_path": ["_templates"],
+        "myst_link_placeholders": True,
+    }
+    if "[NUMBERED]" in file_params.title:
+        conf["numfig"] = True
+        conf["numfig_secnum_depth"] = 2
+        conf["myst_link_placeholders"] = True
+    sphinx_doctree.set_conf(conf)
     sphinx_doctree.srcdir.joinpath("_templates").mkdir()
     sphinx_doctree.srcdir.joinpath("_templates", "latex.tex_t").write_text(
         "<%= body %>\n", encoding="utf8"
     )
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
-        """\
+        f"""\
 # Main
-```{toctree}
+```{{toctree}}
+{':numbered:' if '[NUMBERED]' in file_params.title else ''}
 test
 ```
 """,
@@ -108,6 +118,73 @@ test
     if warnings:
         output += "\n" + warnings
     file_params.assert_expected(output, rstrip_lines=True)
+
+
+def test_build_numbered_singlehtml(sphinx_doctree: CreateDoctree, data_regression):
+    sphinx_doctree.buildername = "singlehtml"
+    sphinx_doctree.set_conf(
+        {
+            "project": "test",
+            "extensions": ["myst_parser"],
+            "numfig": True,
+            "numfig_secnum_depth": 2,
+            "myst_link_placeholders": True,
+        }
+    )
+    sphinx_doctree.srcdir.joinpath("index.md").write_text(
+        """
+# Head
+
+```{toctree}
+:numbered:
+page
+```
+
+START
+[{number} {name}](#section1)
+[{number} {name}](#figure1)
+[{number} {name}](#code1)
+[{number} {name}](#table1)
+[{number}](#eq1)
+END
+"""
+    )
+    result = sphinx_doctree(
+        """
+# Section
+## Sub-section 1
+(section1)=
+## Sub-section 2
+
+```{figure} https://example.com
+:name: figure1
+Caption figure
+```
+
+```{code-block} python
+:caption: Caption code
+:name: code1
+a = 1
+```
+
+```{table} Caption table
+:name: table1
+a  | b
+-- | --
+```
+
+```{math}
+:label: eq1
+a = 1
+```
+""",
+        "page.md",
+    )
+    assert not result.warnings
+    output = Path(result.app.outdir).joinpath("index.html").read_text(encoding="utf8")
+    output = output.split("START")[1].split("END")[0].strip()
+    print(output)
+    data_regression.check(output)
 
 
 def test_suppress_warnings(sphinx_doctree: CreateDoctree):
@@ -127,6 +204,7 @@ def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
     sphinx_doctree.set_conf(
         {
             "extensions": ["myst_parser", "sphinx.ext.intersphinx"],
+            "myst_heading_anchors": 1,
             "project": "test",
             "version": "0.0.1",
             "intersphinx_mapping": {
@@ -134,21 +212,38 @@ def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
             },
         }
     )
-    result = sphinx_doctree("(target)=\n# Head\n", "index.md")
-    assert {p.name for p in Path(result.app.outdir).iterdir()} == {
+    sphinx_doctree.srcdir.joinpath("index.md").write_text(
+        """
+# Head
+
+```{toctree}
+:numbered:
+page
+```
+"""
+    )
+    result = sphinx_doctree("(target)=\n# Head\n", "page.md")
+    file_names = {
         "project.yaml",
-        "local.yaml",
+        "anchors.yaml",
         "inv.other.yaml",
     }
-    opath = Path(result.app.outdir).joinpath("project.yaml")
-    assert opath.exists()
-    data_regression.check(yaml.safe_load(opath.read_text()))
+    assert {p.name for p in Path(result.app.outdir).iterdir()} == file_names
+    data = {}
+    for file_name in file_names:
+        opath = Path(result.app.outdir).joinpath(file_name)
+        data[file_name] = yaml.safe_load(opath.read_text())
+    data_regression.check(data)
 
 
 def test_project_inventory_numbering(sphinx_doctree: CreateDoctree, data_regression):
     sphinx_doctree.buildername = "myst_refs"
     sphinx_doctree.set_conf(
-        {"extensions": ["myst_parser"], "numfig": True, "numfig_secnum_depth": 2}
+        {
+            "extensions": ["myst_parser"],
+            "numfig": True,
+            "numfig_secnum_depth": 2,
+        }
     )
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
         """
@@ -184,9 +279,14 @@ a = 1
 a  | b
 -- | --
 ```
+
+```{math}
+:label: eq1
+a = 1
+```
 """,
         "page.md",
     )
     assert not result.warnings
-    data = project_inventory(result.env)
+    data = project_inventory(result.env, with_numbers=True)
     data_regression.check(data)

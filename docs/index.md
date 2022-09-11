@@ -120,6 +120,7 @@ intro.md
 ```{toctree}
 :hidden:
 :caption: Guides
+:numbered:
 
 syntax/syntax
 syntax/optional

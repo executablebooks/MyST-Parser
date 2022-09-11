@@ -454,6 +454,134 @@ In this case, you can use the `d` and `o` query keys to filter by the domain and
 | :---------------------------------------- | :-------------------------------------- |
 | `[text](project:?d=std&o=label#api/main)` | [text](project:?d=std&o=label#api/main) |
 
+(section:ref)=
+### Referencing numbered objects
+
+MyST allows for the enumeration of objects, such as sections, figures, tables, equations, and code blocks, and the referencing of these objects by their number.
+
+To enable numbering of objects, use the `numfig` configuration option.
+
+```python
+numfig = True
+```
+
+If there is no section numbering, then each object type will be numbered independently, in consecutive order across the whole project.
+To number sections, the `toctree` directive that contains the page must have the `numbered` flag set.
+
+````md
+```{toctree}
+:numbered:
+
+page.md
+```
+````
+
+Object numbering can the be controlled by the `numfig_secnum_depth` configuration option.
+
+```python
+numfig_secnum_depth = 2
+```
+
+This will restart object numbering at each second level section heading, and will prepend the section number to the object number, e.g. `h1.h2.o`.
+
+Below are some examples of numbered objects:
+
+
+::::{grid} 2
+:gutter: 1
+
+:::{grid-item-card}
+````md
+```{figure} img/fun-fish.png
+:name: figure:ref
+
+Caption for the figure
+```
+````
+:::
+:::{grid-item-card}
+```{figure} img/fun-fish.png
+:name: figure:ref
+:height: 100px
+
+Caption for the figure
+```
+:::
+
+:::{grid-item-card}
+````md
+```{code-block} python
+:caption: Caption for the code block
+:name: code:ref
+
+a = 1
+```
+````
+:::
+:::{grid-item-card}
+```{code-block} python
+:caption: Caption for the code block
+:name: code:ref
+
+a = 1
+```
+:::
+
+:::{grid-item-card}
+````md
+```{table} Caption for the table
+:name: table:ref
+
+a  | b
+-- | --
+c  | d
+```
+````
+:::
+:::{grid-item-card}
+```{table} Caption for the table
+:name: table:ref
+
+a  | b
+-- | --
+c  | d
+```
+:::
+
+:::{grid-item-card}
+````md
+```{math}
+:label: eq:ref
+a = 1
+```
+````
+:::
+:::{grid-item-card}
+```{math}
+:label: eq:ref
+a = 1
+```
+:::
+
+::::
+
+To refer to the number or title/caption of a numbered object, you must first enable placeholder replacements.
+
+```python
+myst_link_placeholders = True
+```
+
+You can then use the `{number}` and `{name}` placeholders in the link text:
+
+|                   Examples                    |                                             |
+| :-------------------------------------------- | :------------------------------------------ |
+| `[section {number} *"{name}"*](#section:ref)` | [section {number} *"{name}"*](#section:ref) |
+| `[figure {number} *"{name}"*](#figure:ref)`   | [figure {number} *"{name}"*](#figure:ref)   |
+| `[code {number} *"{name}"*](#code:ref)`       | [code {number} *"{name}"*](#code:ref)       |
+| `[table {number} *"{name}"*](#table:ref)`     | [table {number} *"{name}"*](#table:ref)     |
+| `[equation {number}](#eq:ref)`                | [equation {number}](#eq:ref)                |
+
+
 (syntax/referencing/myst-inv)=
 ### Cross-project (inventory) targets
 

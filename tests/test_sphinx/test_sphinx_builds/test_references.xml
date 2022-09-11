@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section anchor_id="title-with-nested" classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title">
+    <section anchor_id="title-with-nested" classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title title-with-nested" names="title\ with\ nested\ a=1 title">
         <title>
             Title with 
             <strong>
@@ -19,23 +19,22 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
-                Title with nested a=1
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title" reftype="project">
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="title" reftype="project">
                 plain text
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="title" reftype="project">
                 nested 
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
                 plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
                 nested 
                 <emphasis>
                     syntax
@@ -62,7 +61,7 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <reference classes="myst-project" internal="True" refid="insidecodeblock" reftitle="std:label:insidecodeblock">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="insidecodeblock" reftype="project">
                 fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
@@ -72,11 +71,10 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <reference classes="myst-project" internal="True" refid="title-anchors" reftitle="myst:anchor:title-anchors">
-                    Title anchors
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="project">

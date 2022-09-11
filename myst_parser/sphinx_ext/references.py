@@ -5,6 +5,8 @@ This is applied to MyST type references only, such as ``[text](myst:target)``
 from __future__ import annotations
 
 import os
+import re
+from fnmatch import fnmatchcase
 from typing import Any
 
 import yaml
@@ -25,12 +27,14 @@ from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
 from myst_parser.mdit_to_docutils.inventory import (
+    LocalInvMatch,
     MystInventoryType,
     MystTargetType,
     format_inventory,
     resolve_inventory,
     resolve_myst_inventory,
 )
+from myst_parser.mdit_to_docutils.local_links import LocalAnchorType, gather_anchors
 from myst_parser.warnings import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
@@ -68,24 +72,24 @@ class MystDomain(Domain):
         return []
 
     @property
-    def invs(self) -> dict[str, MystInventoryType]:
-        """The per document inventories."""
-        return self.data.setdefault("invs", {})
+    def anchors(self) -> dict[str, dict[str, LocalAnchorType]]:
+        """The per document mapping of auto-generated heading anchors."""
+        return self.data.setdefault("anchors", {})
 
     def process_doc(
         self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
-        pass
+        self.anchors[docname] = gather_anchors(document)
 
     def clear_doc(self, docname: str) -> None:
-        self.invs.pop(docname, None)
+        self.anchors.pop(docname, None)
 
     def merge_domaindata(self, docnames: list[str], otherdata: dict) -> None:
         for docname in docnames:
-            self.invs[docname] = otherdata["invs"][docname]
+            self.anchors[docname] = otherdata["anchors"][docname]
 
 
-def project_inventory(env: BuildEnvironment) -> MystInventoryType:
+def project_inventory(env: BuildEnvironment, with_numbers: bool) -> MystInventoryType:
     """Build the inventory for this project."""
     # get the data for the standard inventory
     inventory: MystInventoryType = {}
@@ -102,7 +106,7 @@ def project_inventory(env: BuildEnvironment) -> MystInventoryType:
     # see: https://github.com/sphinx-doc/sphinx/issues/9483
     math: MathDomain = env.get_domain("math")  # type: ignore
     if not math.get_objects():
-        for label, (docname, __) in math.equations.items():
+        for label, (docname, number) in math.equations.items():
             node_id = nodes.make_id(f"equation-{label}")
             inventory.setdefault("math", {}).setdefault("label", {})
             inventory["math"]["label"][label] = {
@@ -110,8 +114,28 @@ def project_inventory(env: BuildEnvironment) -> MystInventoryType:
                 "docname": docname,
             }
 
-    # assign numbers to standard labels
+            # get number
+            numbers = (
+                env.toc_fignumbers.get(docname, {})
+                .get("displaymath", {})
+                .get(node_id, None)
+            )
+            if env.config.math_numfig and env.config.numfig:
+                if numbers:
+                    inventory["math"]["label"][label]["number"] = ".".join(
+                        map(str, numbers)
+                    )
+                else:
+                    inventory["math"]["label"][label]["number"] = ""
+            else:
+                inventory["math"]["label"][label]["number"] = str(number)
+
+    if not with_numbers:
+        return inventory
+
+    # assign numbers to standard labels and anchors
     std: StandardDomain = env.get_domain("std")  # type: ignore
+    myst: MystDomain = env.get_domain("myst")  # type: ignore
 
     class _Builder(DummyBuilder):
         """`std.get_fignumber` skips latex builders,
@@ -129,6 +153,8 @@ def project_inventory(env: BuildEnvironment) -> MystInventoryType:
         docname = item.get("docname", "")
         if docname:
             doc_label.setdefault(docname, []).append(item)
+    for docname, items in myst.anchors.items():
+        doc_label.setdefault(docname, []).extend(list(items.values()))  # type: ignore
     for docname, labels in doc_label.items():
         # we only run if there are actually labels to assign,
         # as loading documents is costly
@@ -162,6 +188,8 @@ class MystRefrenceResolver(SphinxPostTransform):
     def run(self, **kwargs: Any) -> None:
 
         # lazy load the inventory, if we find a reference to it
+        # TODO move this loading to env-check-consistency event (store on MystDomain?)
+        # so that we are not running it for every document
         inventory: None | MystInventoryType = None
 
         for node in self.document.findall(pending_xref):
@@ -172,11 +200,11 @@ class MystRefrenceResolver(SphinxPostTransform):
             typ = node.get("reftype")
 
             newnode: Element | None = None
-            if typ == "doc":
-                newnode = self._resolve_xref_document(node)
-            elif typ == "project":
+            if typ == "project":
                 if inventory is None:
-                    inventory = project_inventory(self.env)
+                    inventory = project_inventory(
+                        self.env, with_numbers=self.env.config.myst_link_placeholders
+                    )
                 newnode = self._resolve_xref_project(node, inventory)
             elif typ == "inv":
                 newnode = self._resolve_xref_inventory(node)
@@ -208,6 +236,44 @@ class MystRefrenceResolver(SphinxPostTransform):
             newnode.line = node.line
             node.replace_self(newnode)
 
+    def _resolve_xref_doc(
+        self,
+        node: pending_xref,
+        docname: str,
+    ) -> Element | None:
+        """Resolve a reference to a document."""
+        if docname not in self.env.all_docs:
+            log_warning(
+                f"Unknown reference docname {docname!r}",
+                location=node,
+                subtype=MystWarnings.XREF_MISSING,
+            )
+            return None
+
+        ref_node = nodes.reference("", "", internal=True, classes=["doc"])
+
+        try:
+            ref_node["refuri"] = self.app.builder.get_relative_uri(
+                node["refdoc"], docname
+            )
+        except NoUri:
+            log_warning(
+                "No URI available for this builder",
+                subtype=MystWarnings.XREF_ERROR,
+                location=node,
+            )
+            return None
+
+        # add content children
+        if node.get("refexplicit"):
+            ref_node.extend(node.children)
+        else:
+            # use the document title
+            text = clean_astext(self.env.titles[docname])
+            ref_node.append(nodes.Text(text))
+
+        return ref_node
+
     def _resolve_xref_project(
         self,
         node: pending_xref,
@@ -215,59 +281,104 @@ class MystRefrenceResolver(SphinxPostTransform):
     ) -> Element | None:
         """Resolve a cross-reference to an object within this project."""
         # get search variables
-        ref_query = node.get("refquery", {})
+        ref_query: dict[str, str] = node.get("refquery", {})
         ref_domain = ref_query.get("d")
         ref_object_type = ref_query.get("o")
-        ref_target = node["reftarget"]
+        ref_target: str = node["reftarget"]
+        ref_docname: None | str = node.get("reftargetdoc")
         ref_pattern = "pat" in ref_query
 
-        results = resolve_myst_inventory(
+        if not ref_target and ref_docname:
+            return self._resolve_xref_doc(node, ref_docname)
+
+        # get matches from the project inventory
+        loc_str = ":".join([ref_domain or "*", ref_object_type or "*", ref_target])
+        matches = resolve_myst_inventory(
             inventory,
-            ref_domain,
-            ref_object_type,
             ref_target,
-            ref_pattern,
+            has_domain=ref_domain,
+            has_type=ref_object_type,
+            has_docname=ref_docname,
+            pattern_match=ref_pattern,
         )
-        loc = ":".join([ref_domain or "*", ref_object_type or "*", ref_target])
-        if not results:
+
+        # if there are no inventory matches, look at any auto-generated (implicit) labels
+        if (
+            not matches
+            and (ref_domain is None or ref_domain == "myst")
+            and (ref_object_type is None or ref_object_type == "anchor")
+        ):
+            anchor_docname = ref_docname or node["refdoc"]
+            myst_domain: MystDomain = self.env.get_domain("myst")  # type: ignore
+            for anchor_name, anchor_data in myst_domain.anchors.get(
+                anchor_docname, {}
+            ).items():
+                if (ref_pattern and fnmatchcase(anchor_name, ref_target)) or (
+                    not ref_pattern and anchor_name == ref_target
+                ):
+                    matches.append(
+                        LocalInvMatch(
+                            "myst",
+                            "anchor",
+                            anchor_name,
+                            {
+                                "docname": anchor_docname,
+                                "id": anchor_data["id"],
+                                "text": anchor_data["text"],
+                                "number": anchor_data.get("number", ""),  # type: ignore
+                            },
+                        )
+                    )
+
+        # handle none or multiple matches
+        doc_str = f" in doc {ref_docname!r}" if ref_docname else ""
+        if not matches:
             log_warning(
-                f"Unmatched target {loc!r}",
+                f"Unmatched target {loc_str!r}{doc_str}",
                 subtype=MystWarnings.XREF_MISSING,
                 location=node,
             )
             return None
-        if len(results) > 1:
-            matches = [f"'{r.domain}:{r.otype}:{r.target}'" for r in results]
-            if len(matches) > 4:
-                matches = matches[:4] + ["..."]
+        if len(matches) > 1:
+            match_items = [f"'{r.domain}:{r.otype}:{r.target}'" for r in matches]
+            if len(match_items) > 4:
+                match_items = match_items[:4] + ["..."]
             log_warning(
-                f"Multiple matches found for target {loc!r}: {','.join(matches)}",
+                f"Multiple targets found for {loc_str!r}{doc_str}: "
+                f"{','.join(match_items)}",
                 subtype=MystWarnings.XREF_DUPLICATE,
                 location=node,
             )
 
-        result = results[0]
+        # TODO sort multiple matches by priority (e.g. local first, std domain)
+        ref = matches[0]
 
-        res_node = nodes.reference(
-            "", "", internal=True, classes=[f"{result.domain}-{result.otype}"]
+        if ref.domain == "myst" and ref.otype == "anchor":
+            log_warning(
+                f"Link target 'myst:anchor:{ref_target}' in doc {anchor_docname!r} "
+                f"is auto-generated, so may change unexpectedly",
+                subtype=MystWarnings.XREF_NOT_EXPLICIT,
+                location=node,
+            )
+
+        ref_node = nodes.reference(
+            "", "", internal=True, classes=[f"{ref.domain}-{ref.otype}"]
         )
         if (
             self.app.builder.name == "latex"
-            and result.domain == "math"
-            and result.otype == "label"
+            and ref.domain == "math"
+            and ref.otype == "label"
         ):
             # The latex builder replaces math xrefs with math_reference nodes,
             # which always makes the reference name `equation:{docname}:{target}`
             # we need to make the reference be output as that
             # TODO make this less hacky?
-            res_node["refuri"] = f"%equation:{result.docname}#{result.anchor[9:]}"
-        if result.docname == node["refdoc"]:
-            res_node["refid"] = result.anchor
+            ref_node["refuri"] = f"%equation:{ref.docname}#{ref.target}"
+        if ref.docname == node["refdoc"]:
+            ref_node["refid"] = ref.anchor
         else:
             try:
-                refuri = self.app.builder.get_relative_uri(
-                    node["refdoc"], result.docname
-                )
+                refuri = self.app.builder.get_relative_uri(node["refdoc"], ref.docname)
             except NoUri:
                 log_warning(
                     "No URI available for this builder",
@@ -275,22 +386,93 @@ class MystRefrenceResolver(SphinxPostTransform):
                     location=node,
                 )
                 return None
-            if result.anchor:
-                refuri += "#" + result.anchor
-            res_node["refuri"] = refuri
-
-        # add a title, so we can capture what the match was in the output
-        res_node["reftitle"] = f"myst:project:{result.domain}:{result.otype}"
+            if ref.anchor:
+                refuri += "#" + ref.anchor
+            ref_node["refuri"] = refuri
 
         # add content children
         if node.get("refexplicit"):
-            res_node += node.children
-        elif not result.text or result.text == "-":
-            res_node.append(nodes.literal(result.target, result.target))
+            ref_node += node.children
+            if self.config.myst_link_placeholders:
+                if self.app.builder.name == "latex":
+                    self._replace_placeholders_latex(ref_node, ref)
+                else:
+                    self._replace_placeholders(ref_node, ref)
+        elif ref.text and ref.text != "-":
+            ref_node.append(nodes.Text(ref.text))
         else:
-            res_node.append(nodes.Text(result.text))
+            # default to just showing the target
+            ref_node.append(nodes.literal(ref.target, ref.target))
 
-        return res_node
+        return ref_node
+
+    def _replace_placeholders(
+        self,
+        node: Element,
+        ref: LocalInvMatch,
+    ) -> None:
+        """Replace placeholders in a nodes text."""
+        placeholders = {"{name}": ref.text, "{number}": ref.number}
+        regex = re.compile(f"({'|'.join(placeholders)})")
+
+        for child in node.findall(nodes.Text):
+            final = ""
+            for piece in regex.split(child.astext()):
+                if piece in placeholders:
+                    value = placeholders[piece]
+                    if not value:
+                        log_warning(
+                            f"{piece!r} replacement is not available",
+                            subtype=MystWarnings.XREF_PLACEHOLDER,
+                            location=node,
+                        )
+                        final += "?"
+                    else:
+                        final += value
+                else:
+                    final += piece
+            child.parent.replace(child, nodes.Text(final))
+
+    def _replace_placeholders_latex(
+        self,
+        node: Element,
+        ref: LocalInvMatch,
+    ) -> None:
+        """Replace placeholders in a nodes text, for latex builder."""
+
+        if ref.domain == "math" and ref.otype == "label":
+            # The latex builder replaces math xrefs with math_reference nodes,
+            # which always prepend this
+            placeholders = {
+                "{name}": f"\\nameref{{equation:{ref.docname}:{ref.target}}}",
+                "{number}": f"\\ref{{equation:{ref.docname}:{ref.target}}}",
+            }
+        else:
+            placeholders = {
+                "{name}": f"\\nameref{{{ref.docname}:{ref.anchor}}}",
+                "{number}": f"\\ref{{{ref.docname}:{ref.anchor}}}",
+            }
+        regex = re.compile(f"({'|'.join(placeholders)})")
+
+        for child in node.findall(nodes.Text):
+            components = []
+            for piece in regex.split(child.astext()):
+                if piece in placeholders:
+                    if not placeholders[piece]:
+                        log_warning(
+                            f"{piece!r} replacement not available",
+                            subtype=MystWarnings.XREF_PLACEHOLDER,
+                            location=node,
+                        )
+                    else:
+                        components.append(
+                            nodes.raw(
+                                placeholders[piece], placeholders[piece], format="latex"
+                            )
+                        )
+                elif piece:
+                    components.append(nodes.Text(piece))
+            child.parent.replace(child, components)
 
     def _resolve_xref_inventory(
         self,
@@ -337,7 +519,7 @@ class MystRefrenceResolver(SphinxPostTransform):
             if len(matches) > 4:
                 matches = matches[:4] + ["..."]
             log_warning(
-                f"Multiple matches found for target {loc!r}: {','.join(matches)}",
+                f"Multiple targets found for {loc!r}: {','.join(matches)}",
                 subtype=MystWarnings.IREF_DUPLICATE,
                 location=node,
             )
@@ -373,105 +555,6 @@ class MystRefrenceResolver(SphinxPostTransform):
 
         return res_node
 
-    def _resolve_xref_document(
-        self,
-        node: pending_xref,
-    ) -> Element | None:
-        """Resolve a cross-reference to a document and (optional) target."""
-        docname = node["reftargetdoc"]
-        refname = node["reftarget"]
-        # check that the docname can be found
-        if docname not in self.env.all_docs:
-            log_warning(
-                f"Unknown reference docname {docname!r}",
-                location=node,
-                subtype=MystWarnings.XREF_MISSING,
-            )
-            return None
-
-        # find the the id for the refname, if given
-        refid = ""
-        reftext: str | None = None
-        if refname:
-            # get search variables
-            ref_query = node.get("refquery", {})
-            ref_domain = ref_query.get("d")
-            ref_object_type = ref_query.get("o")
-            ref_pattern = "pat" in ref_query
-            inventory: MystInventoryType = self.env.domaindata["myst"]["invs"][docname]
-            results = resolve_myst_inventory(
-                inventory, ref_domain, ref_object_type, refname, ref_pattern
-            )
-            loc = ":".join([ref_domain or "*", ref_object_type or "*", refname])
-            if not results:
-                log_warning(
-                    f"Unmatched target {loc!r} in doc {docname!r}",
-                    location=node,
-                    subtype=MystWarnings.XREF_MISSING,
-                )
-                return None
-            if len(results) > 1:
-                matches = [f"'{r.domain}:{r.otype}:{r.target}'" for r in results]
-                if len(matches) > 4:
-                    matches = matches[:4] + ["..."]
-                log_warning(
-                    f"Multiple matches found for target {loc!r} in doc {docname!r}: "
-                    f"{','.join(matches)}",
-                    location=node,
-                    subtype=MystWarnings.XREF_DUPLICATE,
-                )
-            result = results[0]
-            if result.data.get("implicit"):
-                log_warning(
-                    f"Link target '{result.domain}:{result.otype}:{result.target}' "
-                    f"in doc {docname!r} is auto-generated, so may change unexpectedly",
-                    MystWarnings.XREF_NOT_EXPLICIT,
-                    location=node,
-                )
-            refid = result.anchor
-            reftext = result.text
-            classes = [f"{result.domain}-{result.otype}"]
-        else:
-            classes = ["doc"]
-
-        ref_node = nodes.reference("", "", internal=True, classes=classes)
-        if node["refdoc"] == docname and refid:
-            ref_node["refid"] = refid
-        else:
-            try:
-                refuri = self.app.builder.get_relative_uri(node["refdoc"], docname)
-            except NoUri:
-                log_warning(
-                    "No URI available for this builder",
-                    subtype=MystWarnings.XREF_ERROR,
-                    location=node,
-                )
-                return None
-            if refid:
-                refuri += "#" + refid
-            ref_node["refuri"] = refuri
-
-        # add content children
-        if node.get("refexplicit"):
-            ref_node.extend(node.children)
-        elif not refname:
-            # use the document title
-            text = clean_astext(self.env.titles[docname])
-            ref_node.append(nodes.Text(text))
-        elif reftext:
-            # use the display text given for the reference
-            ref_node.append(nodes.Text(reftext))
-        else:
-            # default to just showing the target
-            log_warning(
-                "empty link text",
-                location=node,
-                subtype=MystWarnings.XREF_EMPTY,
-            )
-            ref_node.append(nodes.Text(f"{docname}#{refname}"))
-
-        return ref_node
-
 
 class MystReferencesBuilder(DummyBuilder):
     """A builder that outputs YAML mappings of local/project/external references."""
@@ -481,19 +564,19 @@ class MystReferencesBuilder(DummyBuilder):
 
     def finish(self) -> None:
 
-        # local references
-        dom: MystDomain = self.env.get_domain("myst")  # type: ignore
-        with open(os.path.join(self.outdir, "local.yaml"), "w") as f:
-            yaml.dump(dom.invs, f, sort_keys=True)
-
         # project references
         data = {
             "name": self.config.project,
             "version": self.config.version,
-            "objects": project_inventory(self.env),
+            "objects": project_inventory(self.env, with_numbers=True),
         }
         with open(os.path.join(self.outdir, "project.yaml"), "w") as f:
             yaml.dump(data, f, sort_keys=False)
+
+        # local references (call after project_inventory, to populate numbers)
+        dom: MystDomain = self.env.get_domain("myst")  # type: ignore
+        with open(os.path.join(self.outdir, "anchors.yaml"), "w") as f:
+            yaml.dump(dom.anchors, f, sort_keys=True)
 
         # external inventories
         for name, inv in InventoryAdapter(self.env).named_inventory.items():

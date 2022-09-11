@@ -67,22 +67,13 @@ class SphinxRenderer(DocutilsRenderer):
             self.add_line_and_source_path(inner_node, token)
             wrap_node.append(inner_node)
 
-    def add_ref_document(
+    def add_ref_project(
         self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
     ) -> None:
-        path = posixpath.normpath(path)
-        if path.startswith("/"):
-            docname = self.sphinx_env.path2doc(path[1:])
-        else:
-            rel_docname = self.sphinx_env.path2doc(path)
-            docname = (
-                docname_join(self.sphinx_env.docname, rel_docname)
-                if rel_docname
-                else None
-            )
-        if docname is None:
+
+        if not (path or target):
             self.create_warning(
-                f"Path does not have a known document suffix: {path}",
+                "No path or target given for project reference",
                 MystWarnings.XREF_ERROR,
                 line=token_line(token, default=0),
                 append_to=self.current_node,
@@ -92,18 +83,46 @@ class SphinxRenderer(DocutilsRenderer):
                 self.render_children(token)
             return
 
+        # find the target document identifier
+        docname: str | None = None
+        if path == ".":
+            docname = self.sphinx_env.docname
+        elif path:
+            path = posixpath.normpath(path)
+            if path.startswith("/"):
+                docname = self.sphinx_env.path2doc(path[1:])
+            else:
+                rel_docname = self.sphinx_env.path2doc(path)
+                docname = (
+                    docname_join(self.sphinx_env.docname, rel_docname)
+                    if rel_docname
+                    else None
+                )
+            if docname is None:
+                self.create_warning(
+                    f"Path does not have a known document suffix: {path}",
+                    MystWarnings.XREF_ERROR,
+                    line=token_line(token, default=0),
+                    append_to=self.current_node,
+                )
+                warn_node = nodes.inline(classes=["myst-ref-error"])
+                with self.current_node_context(warn_node, append=True):
+                    self.render_children(token)
+                return
+
         refexplicit = True if (token.info != "auto" and token.children) else False
         wrap_node = addnodes.pending_xref(
             # standard pending attributes
             refdoc=self.sphinx_env.docname,
             refdomain="myst",
-            reftype="doc",
+            reftype="project",
             reftarget=target,
             refexplicit=refexplicit,
-            # myst:doc specific attributes
-            reftargetdoc=docname,
+            # myst:project specific attributes
             refquery=query,
         )
+        if docname is not None:
+            wrap_node["reftargetdoc"] = docname
         self.add_line_and_source_path(wrap_node, token, add_title=True)
         with self.current_node_context(wrap_node, append=True):
             self.render_children(token)

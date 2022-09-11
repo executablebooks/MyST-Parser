@@ -1,3 +1,9 @@
+math:
+  label:
+    eq1:
+      docname: page
+      id: equation-eq1
+      number: 1.2.1
 std:
   doc:
     index:

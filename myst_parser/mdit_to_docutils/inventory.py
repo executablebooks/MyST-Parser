@@ -52,12 +52,6 @@ class MystTargetType(TypedDict, total=False):
     """For use if no explicit text is given by the reference, e.g. the section title"""
     docname: str
     """The name of the document containing the target"""
-    line: int
-    """The line number of the target"""
-    implicit: bool
-    """If the target was auto-generated."""
-    tagname: str
-    """The name of the node, e.g. "section", "figure", "table", "code-block" etc."""
     number: str
     """The number of the target, e.g. "1.2.3"."""
 
@@ -323,20 +317,26 @@ class LocalInvMatch:
     def docname(self) -> str:
         return self.data.get("docname", "")
 
+    @property
+    def number(self) -> str | None:
+        return self.data.get("number", None)
+
 
 def resolve_myst_inventory(
     inventory: MystInventoryType,
-    ref_domain: None | str,
-    ref_type: None | str,
     ref_target: str,
+    *,
+    has_domain: None | str = None,
+    has_type: None | str = None,
+    has_docname: None | str = None,
     pattern_match=False,
 ) -> list[LocalInvMatch]:
     """Resolve a cross-reference in a document level inventory.
 
-    :param ref_domain: The name of the domain to search, if None then all domains
-        will be searched
-    :param ref_type: The type of object to search for, if None then all types will be searched
     :param ref_target: The target to search for
+    :param has_domain: Specify a domain to filter by
+    :param has_type: Specify a type of object to filter by
+    :param has_docname: Specify a docname to filter by
     :param pattern_match: Whether to use unix pattern matching of the target
 
     :returns:  matching results
@@ -345,12 +345,12 @@ def resolve_myst_inventory(
 
     for domain_name, ddata in inventory.items():
 
-        if ref_domain is not None and ref_domain != domain_name:
+        if has_domain is not None and has_domain != domain_name:
             continue
 
         for obj_type, data in ddata.items():
 
-            if ref_type is not None and ref_type != obj_type:
+            if has_type is not None and has_type != obj_type:
                 continue
 
             if not pattern_match and ref_target in data:
@@ -363,6 +363,9 @@ def resolve_myst_inventory(
                         results.append(
                             LocalInvMatch(domain_name, obj_type, target, data[target])
                         )
+
+    if has_docname is not None:
+        results = [r for r in results if r.docname == has_docname]
 
     return results
 

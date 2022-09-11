@@ -1,0 +1,13 @@
+'<a class="std-label myst-project reference internal" href="index.html#section1">1.2
+  Sub-section 2</a>
+
+  <a class="std-label myst-project reference internal" href="index.html#figure1">1.2.1
+  Caption figure</a>
+
+  <a class="std-label myst-project reference internal" href="index.html#code1">1.2.1
+  Caption code</a>
+
+  <a class="std-label myst-project reference internal" href="index.html#table1">1.2.1
+  Caption table</a>
+
+  <a class="math-label myst-project reference internal" href="index.html#equation-eq1">1.2.1</a>'

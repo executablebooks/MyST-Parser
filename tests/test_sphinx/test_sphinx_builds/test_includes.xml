@@ -37,7 +37,7 @@
             <paragraph>
                 <image alt="alt" candidates="{'?': 'https://example.com'}" uri="https://example.com">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="doc">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
                     text
             <paragraph>
                 <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="inc_header" reftype="ref" refwarn="True">

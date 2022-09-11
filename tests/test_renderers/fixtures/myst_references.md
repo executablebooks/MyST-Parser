@@ -52,7 +52,7 @@ doc_path_relative
         <title>
             Title
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-project" internal="True" refuri="other.html">
                 Other
 .
 
@@ -66,7 +66,7 @@ doc_path_absolute
         <title>
             Title
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-project" internal="True" refuri="other.html">
                 Other
 .
 
@@ -80,7 +80,7 @@ doc_path_text
         <title>
             Title
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-project" internal="True" refuri="other.html">
                 <emphasis>
                     text
 .
@@ -113,7 +113,7 @@ doc_path_target
         <title>
             Title
         <paragraph>
-            <reference classes="std-label myst-doc" internal="True" refuri="other.html#ref2">
+            <reference classes="std-label myst-project" internal="True" refuri="other.html#ref2">
                 Other
 .
 
@@ -127,10 +127,25 @@ doc_path_target_unknown
         <title>
             Title
         <paragraph>
-            <inline classes="myst-ref-error myst-doc">
+            <inline classes="myst-ref-error myst-project">
                 xxx
 
 <src>/test.md:2: WARNING: Unmatched target '*:*:xxx' in doc 'other' [myst.xref_missing]
+.
+
+empty_fragment
+.
+# Title
+[](#)
+.
+<document source="root/test.md">
+    <section ids="title" names="title">
+        <title>
+            Title
+        <paragraph>
+            <inline classes="myst-ref-error">
+
+<src>/test.md:2: WARNING: No path or target given for project reference [myst.xref_error]
 .
 
 fragment_local
@@ -145,7 +160,7 @@ fragment_local
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+            <reference classes="std-label myst-project" internal="True" refid="ref">
                 Title
 .
 
@@ -161,7 +176,7 @@ fragment_same_doc
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+            <reference classes="std-label myst-project" internal="True" refid="ref">
                 Title
 .
 
@@ -177,7 +192,7 @@ fragment_same_doc_text
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+            <reference classes="std-label myst-project" internal="True" refid="ref">
                 <emphasis>
                     text
 .
@@ -194,7 +209,7 @@ project_fragment_local
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+            <reference classes="std-label myst-project" internal="True" refid="ref">
                 Title
 .
 
@@ -226,7 +241,7 @@ project_fragment_local_text
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="ref" reftitle="std:label:ref">
+            <reference classes="std-label myst-project" internal="True" refid="ref">
                 <emphasis>
                     text
 .
@@ -241,7 +256,7 @@ project_doc
         <title>
             Title
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="other.html">
+            <reference classes="doc myst-project" internal="True" refuri="other.html">
                 Other
 .
 
@@ -271,7 +286,7 @@ project_doc_missing
         <title>
             Title
         <paragraph>
-            <inline classes="myst-ref-error myst-doc">
+            <inline classes="myst-ref-error myst-project">
                 project:xxx.md
 
 <src>/test.md:2: WARNING: Unknown reference docname 'xxx' [myst.xref_missing]
@@ -287,7 +302,7 @@ project_doc_target
         <title>
             Title
         <paragraph>
-            <reference classes="std-label myst-doc" internal="True" refuri="other.html#ref2">
+            <reference classes="std-label myst-project" internal="True" refuri="other.html#ref2">
                 Other
 .
 
@@ -301,7 +316,7 @@ project_doc_target_missing
         <title>
             Title
         <paragraph>
-            <inline classes="myst-ref-error myst-doc">
+            <inline classes="myst-ref-error myst-project">
                 project:other.md#xxx
 
 <src>/test.md:2: WARNING: Unmatched target '*:*:xxx' in doc 'other' [myst.xref_missing]
@@ -317,7 +332,7 @@ project_target
         <title>
             Title
         <paragraph>
-            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" refuri="index.html">
                 Main
 .
 
@@ -331,7 +346,7 @@ project_auto
         <title>
             Title
         <paragraph>
-            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" refuri="index.html">
                 Main
 .
 
@@ -361,7 +376,7 @@ project_text
         <title>
             Title
         <paragraph>
-            <reference classes="std-doc myst-project" internal="True" reftitle="myst:project:std:doc" refuri="index.html">
+            <reference classes="std-doc myst-project" internal="True" refuri="index.html">
                 <emphasis>
                     text
 .
@@ -395,8 +410,10 @@ project_duplicate_local_first
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="index" reftitle="std:label:index">
+            <reference classes="std-label myst-project" internal="True" refid="index">
                 text
+
+<src>/test.md:3: WARNING: Multiple targets found for '*:*:index': 'std:label:index','std:doc:index' [myst.xref_duplicate]
 .
 
 project_duplicate_non_local
@@ -409,10 +426,10 @@ project_duplicate_non_local
         <title>
             Title
         <paragraph>
-            <reference classes="std-label myst-project" internal="True" reftitle="myst:project:std:label" refuri="other.html#duplicate">
+            <reference classes="std-label myst-project" internal="True" refuri="other.html#duplicate">
                 Other
 
-<src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
+<src>/test.md:2: WARNING: Multiple targets found for '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
 .
 
 project_filter
@@ -425,7 +442,7 @@ project_filter
         <title>
             Title
         <paragraph>
-            <reference classes="std-term myst-project" internal="True" reftitle="myst:project:std:term" refuri="other.html#term-duplicate">
+            <reference classes="std-term myst-project" internal="True" refuri="other.html#term-duplicate">
                 duplicate
 .
 
@@ -441,7 +458,7 @@ myst_project_pattern
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="target" reftitle="std:label:target">
+            <reference classes="std-label myst-project" internal="True" refid="target">
                 Title
 .
 
@@ -549,7 +566,7 @@ myst_inv_duplicate [LOAD_INV]
                 <emphasis>
                     text
 
-<src>/test.md:2: WARNING: Multiple matches found for target '*:*:*:*modindex': 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]
+<src>/test.md:2: WARNING: Multiple targets found for '*:*:*:*modindex': 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]
 .
 
 implicit_anchors [ADD_ANCHORS]
@@ -562,10 +579,10 @@ implicit_anchors [ADD_ANCHORS]
         <title>
             Title
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="myst:anchor:title">
+            <reference classes="myst-anchor myst-project" internal="True" refid="title">
                 Title
 
-<src>/test.md:2: WARNING: Local link target 'myst:anchor:title' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+<src>/test.md:2: WARNING: Link target 'myst:anchor:title' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
 .
 
 deprecated
@@ -583,4 +600,90 @@ deprecated
 
 <src>/test.md:2: WARNING: Unknown link URI (implicitly prepending with '#'): 'ref' [myst.invalid_uri]
 <src>/test.md:2: WARNING: Unmatched target '*:*:ref' [myst.xref_missing]
+.
+
+ref_replacements_warning [NUMBERED]
+.
+# Section
+
+(para)=
+paragraph
+
+[{number}](#para)
+.
+<document source="root/test.md">
+    <section ids="section" names="section">
+        <title>
+            Section
+        <target refid="para">
+        <paragraph ids="para" names="para">
+            paragraph
+        <paragraph>
+            <reference classes="std-label myst-project" internal="True" refid="para">
+                ?
+
+<src>/test.md:6: WARNING: '{number}' replacement is not available [myst.xref_replace]
+.
+
+ref_replacements [NUMBERED]
+.
+(sect)=
+# Section
+(subsect)=
+## Subsection
+[*{name}* {number}](#sect)
+[*{name}* {number}](#subsect)
+.
+<document source="root/test.md">
+    <target refid="sect">
+    <section ids="section sect" names="section sect">
+        <title>
+            Section
+        <target refid="subsect">
+        <section ids="subsection subsect" names="subsection subsect">
+            <title>
+                Subsection
+            <paragraph>
+                <reference classes="std-label myst-project" internal="True" refid="sect">
+                    <emphasis>
+                        Section
+                     1
+
+                <reference classes="std-label myst-project" internal="True" refid="subsect">
+                    <emphasis>
+                        Subsection
+                     1.1
+.
+
+ref_replacements_anchor [NUMBERED] [ADD_ANCHORS]
+.
+(sect)=
+# Section
+(subsect)=
+## Subsection
+[*{name}* {number}](#section)
+[*{name}* {number}](#subsection)
+.
+<document source="root/test.md">
+    <target refid="sect">
+    <section anchor_id="section" ids="section sect" names="section sect">
+        <title>
+            Section
+        <target refid="subsect">
+        <section anchor_id="subsection" ids="subsection subsect" names="subsection subsect">
+            <title>
+                Subsection
+            <paragraph>
+                <reference classes="myst-anchor myst-project" internal="True" refid="section">
+                    <emphasis>
+                        Section
+                     1
+
+                <reference classes="myst-anchor myst-project" internal="True" refid="subsection">
+                    <emphasis>
+                        Subsection
+                     1.1
+
+<src>/test.md:5: WARNING: Link target 'myst:anchor:section' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+<src>/test.md:5: WARNING: Link target 'myst:anchor:subsection' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
 .

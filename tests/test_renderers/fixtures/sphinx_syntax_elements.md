@@ -332,15 +332,15 @@ Title
         <title>
             Title
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="target" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="target" reftype="project">
                 alt1
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="False" refname="target2" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="target2" reftype="project">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="target3" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="target3" reftype="project">
                 alt3
 .
 
@@ -423,7 +423,7 @@ Link Definition in directive:
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="link" reftype="project">
                 a
 .
 
@@ -446,7 +446,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="link" reftype="project">
                 ref1
 
             [ref2]
@@ -790,5 +790,5 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="False" refname="target" refquery="{}">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="target" reftype="project">
 .

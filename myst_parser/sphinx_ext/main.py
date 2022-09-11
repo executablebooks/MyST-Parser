@@ -3,7 +3,6 @@ from typing import Any, Dict
 
 from sphinx.application import Sphinx
 
-from myst_parser.mdit_to_docutils.local_links import MdDocumentLinks
 from myst_parser.warnings import MystWarnings
 
 DEPRECATED = "__deprecated__"
@@ -34,7 +33,6 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_directive("figure-md", FigureMarkdown)
 
     app.add_domain(MystDomain)
-    app.add_transform(MdDocumentLinks)
     app.add_post_transform(MystRefrenceResolver)
     app.add_builder(MystReferencesBuilder)
 

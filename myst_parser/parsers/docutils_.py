@@ -70,6 +70,7 @@ DOCUTILS_EXCLUDED_ARGS = (
     "ref_domains",
     "update_mathjax",
     "mathjax_classes",
+    "link_placeholders",
 )
 """Names of settings that cannot be set in docutils.conf."""
 

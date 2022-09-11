@@ -72,8 +72,11 @@ myst_enable_extensions = [
 ]
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
+myst_link_placeholders = True
 myst_footnote_transition = True
 myst_dmath_double_inline = True
+numfig = True
+numfig_secnum_depth = 2
 
 
 # -- Options for HTML output -------------------------------------------------

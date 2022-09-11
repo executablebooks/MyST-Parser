@@ -1,27 +1,70 @@
-name: test
-objects:
-  std:
-    doc:
-      index:
-        docname: index
-        id: ''
-        text: Head
-    label:
-      genindex:
-        docname: genindex
-        id: ''
-      modindex:
-        docname: py-modindex
-        id: ''
-      py-modindex:
-        docname: py-modindex
-        id: ''
-        text: Python Module Index
-      search:
-        docname: search
-        id: ''
-      target:
-        docname: index
-        id: target
-        text: Head
-version: 0.0.1
+anchors.yaml:
+  index:
+    head:
+      id: head
+      line: 2
+      text: Head
+  page:
+    head:
+      id: head
+      line: 2
+      number: '1'
+      text: Head
+inv.other.yaml:
+  name: Python
+  objects:
+    std:
+      doc:
+        index:
+          disp: Title
+          loc: https://project.com/index.html
+      label:
+        genindex:
+          disp: Index
+          loc: https://project.com/genindex.html
+        modindex:
+          disp: Module Index
+          loc: https://project.com/py-modindex.html
+        py-modindex:
+          disp: Python Module Index
+          loc: https://project.com/py-modindex.html
+        ref:
+          disp: Title
+          loc: https://project.com/index.html#ref
+        search:
+          disp: Search Page
+          loc: https://project.com/search.html
+  version: ''
+project.yaml:
+  name: test
+  objects:
+    std:
+      doc:
+        index:
+          docname: index
+          id: ''
+          text: Head
+        page:
+          docname: page
+          id: ''
+          text: Head
+      label:
+        genindex:
+          docname: genindex
+          id: ''
+        modindex:
+          docname: py-modindex
+          id: ''
+        py-modindex:
+          docname: py-modindex
+          id: ''
+          text: Python Module Index
+        search:
+          docname: search
+          id: ''
+        target:
+          docname: page
+          id: target
+          number: '1'
+          text: Head
+  version: 0.0.1

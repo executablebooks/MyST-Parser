@@ -14,9 +14,12 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 def test_basic(file_params):
     """Test basic functionality."""
     report_stream = StringIO()
+    settings_overrides = {"warning_stream": report_stream}
+    if "[ANCHORS]" in file_params.title:
+        settings_overrides["myst_heading_anchors"] = 2
     publish_doctree(
         file_params.content,
         parser=Parser(),
-        settings_overrides={"warning_stream": report_stream},
+        settings_overrides=settings_overrides,
     )
     file_params.assert_expected(report_stream.getvalue(), rstrip=True)

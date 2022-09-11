@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section anchor_id="title-with-nested" classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title">
+    <section anchor_id="title-with-nested" classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title title-with-nested" names="title\ with\ nested\ a=1 title">
         <title>
             Title with 
             <strong>
@@ -19,24 +19,24 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
+            <reference classes="std-label myst-project" internal="True" refid="title">
                 Title with nested a=1
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
+            <reference classes="std-label myst-project" internal="True" refid="title">
                 plain text
         <paragraph>
-            <reference classes="myst-project" internal="True" refid="title" reftitle="std:label:title">
+            <reference classes="std-label myst-project" internal="True" refid="title">
                 nested 
                 <emphasis>
                     syntax
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-project" internal="True" refuri="">
                 Title with nested a=1
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-project" internal="True" refuri="">
                 plain text
         <paragraph>
-            <reference classes="doc myst-doc" internal="True" refuri="">
+            <reference classes="doc myst-project" internal="True" refuri="">
                 nested 
                 <emphasis>
                     syntax
@@ -63,7 +63,7 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <reference classes="myst-project" internal="True" refid="insidecodeblock" reftitle="std:label:insidecodeblock">
+            <reference classes="std-label myst-project" internal="True" refid="insidecodeblock">
                 fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
@@ -86,14 +86,14 @@
                                     <emphasis>
                                         anchors
             <paragraph>
-                <reference classes="myst-project" internal="True" refid="title-anchors" reftitle="myst:anchor:title-anchors">
+                <reference classes="myst-anchor myst-project" internal="True" refid="title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-anchor myst-doc" internal="True" refuri="other.html#title-anchors">
+                <reference classes="myst-anchor myst-project" internal="True" refuri="other.html#title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-anchor myst-doc" internal="True" refuri="other.html#title-anchors">
+                <reference classes="myst-anchor myst-project" internal="True" refuri="other.html#title-anchors">
                     Title anchors
             <paragraph>
-                <reference classes="myst-anchor myst-doc" internal="True" refuri="subfolder/other2.html#title-anchors">
+                <reference classes="myst-anchor myst-project" internal="True" refuri="subfolder/other2.html#title-anchors">
                     Title anchors

@@ -21,6 +21,14 @@ Missing local reference:
 <string>:1: (WARNING/2) Unmatched local target '*:*:b' [myst.xref_missing]
 .
 
+Implicit local reference [ANCHORS]:
+.
+# A Title
+[](#a-title)
+.
+<string>:2: (WARNING/2) Local link target 'myst:anchor:a-title' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+.
+
 Unsupported myst link
 .
 [a](myst:link)
