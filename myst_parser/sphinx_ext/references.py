@@ -76,6 +76,11 @@ class MystDomain(Domain):
         """The per document mapping of auto-generated heading anchors."""
         return self.data.setdefault("anchors", {})
 
+    @property
+    def inventory(self) -> MystInventoryType:
+        """The project wide MyST references, by domain -> object type."""
+        return self.data.setdefault("inventory", {})
+
     def process_doc(
         self, env: BuildEnvironment, docname: str, document: nodes.document
     ) -> None:
@@ -88,95 +93,104 @@ class MystDomain(Domain):
         for docname in docnames:
             self.anchors[docname] = otherdata["anchors"][docname]
 
+    def update_project_inventory(self) -> None:
+        """Build the inventory for the project, and update anchor numbers.
 
-def project_inventory(env: BuildEnvironment, with_numbers: bool) -> MystInventoryType:
-    """Build the inventory for this project."""
-    # get the data for the standard inventory
-    inventory: MystInventoryType = {}
-    for domainname, domain in sorted(env.domains.items()):
-        for name, dispname, otype, docname, anchor, __ in sorted(domain.get_objects()):
-            inventory.setdefault(domainname, {}).setdefault(otype, {})[name] = {
-                "id": anchor,
-                "docname": docname,
-            }
-            # genindex/search have this as a tuple
-            if isinstance(dispname, str) and dispname:
-                inventory[domainname][otype][name]["text"] = dispname
-    # now also add the math domain, which is not yet included in the inventory
-    # see: https://github.com/sphinx-doc/sphinx/issues/9483
-    math: MathDomain = env.get_domain("math")  # type: ignore
-    if not math.get_objects():
-        for label, (docname, number) in math.equations.items():
-            node_id = nodes.make_id(f"equation-{label}")
-            inventory.setdefault("math", {}).setdefault("label", {})
-            inventory["math"]["label"][label] = {
-                "id": node_id,
-                "docname": docname,
-            }
-
-            # get number
-            numbers = (
-                env.toc_fignumbers.get(docname, {})
-                .get("displaymath", {})
-                .get(node_id, None)
-            )
-            if env.config.math_numfig and env.config.numfig:
-                if numbers:
-                    inventory["math"]["label"][label]["number"] = ".".join(
-                        map(str, numbers)
-                    )
-                else:
-                    inventory["math"]["label"][label]["number"] = ""
-            else:
-                inventory["math"]["label"][label]["number"] = str(number)
-
-    if not with_numbers:
-        return inventory
-
-    # assign numbers to standard labels and anchors
-    std: StandardDomain = env.get_domain("std")  # type: ignore
-    myst: MystDomain = env.get_domain("myst")  # type: ignore
-
-    class _Builder(DummyBuilder):
-        """`std.get_fignumber` skips latex builders,
-        but here we don't actually want to do that, so we use a dummy builder
+        For numbering, this should be run after `TocTreeCollector.get_updated_docs`,
+        i.e. after `env-get-updated` event, priority 500.
         """
+        LOGGER.info("Updating MyST inventory")
 
-        def __init__(self) -> None:
-            pass
+        self.inventory.clear()
 
-    _builder = _Builder()
+        # get the data for the standard inventory
+        for domainname, domain in sorted(self.env.domains.items()):
+            for name, dispname, otype, docname, anchor, __ in sorted(
+                domain.get_objects()
+            ):
+                self.inventory.setdefault(domainname, {}).setdefault(otype, {})[
+                    name
+                ] = {
+                    "id": anchor,
+                    "docname": docname,
+                }
+                # genindex/search have this as a tuple
+                if isinstance(dispname, str) and dispname:
+                    self.inventory[domainname][otype][name]["text"] = dispname
+        # now also add the math domain, which is not yet included in the inventory
+        # see: https://github.com/sphinx-doc/sphinx/issues/9483
+        math: MathDomain = self.env.get_domain("math")  # type: ignore
+        if not math.get_objects():
+            for label, (docname, number) in math.equations.items():
+                node_id = nodes.make_id(f"equation-{label}")
+                self.inventory.setdefault("math", {}).setdefault("label", {})
+                self.inventory["math"]["label"][label] = {
+                    "id": node_id,
+                    "docname": docname,
+                }
 
-    # categorise by docname
-    doc_label: dict[str, list[MystTargetType]] = {}
-    for item in inventory.get("std", {}).get("label", {}).values():
-        docname = item.get("docname", "")
-        if docname:
-            doc_label.setdefault(docname, []).append(item)
-    for docname, items in myst.anchors.items():
-        doc_label.setdefault(docname, []).extend(list(items.values()))  # type: ignore
-    for docname, labels in doc_label.items():
-        # we only run if there are actually labels to assign,
-        # as loading documents is costly
-        if not (env.toc_secnumbers.get(docname) or env.toc_fignumbers.get(docname)):
-            continue
-        doc = env.get_doctree(docname)
-        for item in labels:
-            target_node = doc.ids.get(item["id"])
-            if target_node is None:
-                continue
-            figtype = std.get_enumerable_node_type(target_node)
-            if not figtype:
-                continue
-            try:
-                num = std.get_fignumber(env, _builder, figtype, docname, target_node)
-            except ValueError:
-                continue
-            if not num:
-                continue
-            item["number"] = ".".join(map(str, num))
+                # get number
+                numbers = (
+                    self.env.toc_fignumbers.get(docname, {})
+                    .get("displaymath", {})
+                    .get(node_id, None)
+                )
+                if self.env.config.math_numfig and self.env.config.numfig:
+                    if numbers:
+                        self.inventory["math"]["label"][label]["number"] = ".".join(
+                            map(str, numbers)
+                        )
+                    else:
+                        self.inventory["math"]["label"][label]["number"] = ""
+                else:
+                    self.inventory["math"]["label"][label]["number"] = str(number)
 
-    return inventory
+        # assign numbers to standard labels and anchors
+        std: StandardDomain = self.env.get_domain("std")  # type: ignore
+
+        class _Builder(DummyBuilder):
+            """`std.get_fignumber` skips latex builders,
+            but here we don't actually want to do that, so we use a dummy builder
+            """
+
+            def __init__(self) -> None:
+                pass
+
+        _builder = _Builder()
+
+        # categorise by docname
+        doc_label: dict[str, list[MystTargetType]] = {}
+        for item in self.inventory.get("std", {}).get("label", {}).values():
+            docname = item.get("docname", "")
+            if docname:
+                doc_label.setdefault(docname, []).append(item)
+        for docname, items in self.anchors.items():
+            doc_label.setdefault(docname, []).extend(list(items.values()))  # type: ignore
+        for docname, labels in doc_label.items():
+            # we only run if there are actually labels to assign,
+            # as loading documents is costly
+            if not (
+                self.env.toc_secnumbers.get(docname)
+                or self.env.toc_fignumbers.get(docname)
+            ):
+                continue
+            doc = self.env.get_doctree(docname)
+            for item in labels:
+                target_node = doc.ids.get(item["id"])
+                if target_node is None:
+                    continue
+                figtype = std.get_enumerable_node_type(target_node)
+                if not figtype:
+                    continue
+                try:
+                    num = std.get_fignumber(
+                        self.env, _builder, figtype, docname, target_node
+                    )
+                except ValueError:
+                    continue
+                if not num:
+                    continue
+                item["number"] = ".".join(map(str, num))
 
 
 class MystRefrenceResolver(SphinxPostTransform):
@@ -187,10 +201,7 @@ class MystRefrenceResolver(SphinxPostTransform):
 
     def run(self, **kwargs: Any) -> None:
 
-        # lazy load the inventory, if we find a reference to it
-        # TODO move this loading to env-check-consistency event (store on MystDomain?)
-        # so that we are not running it for every document
-        inventory: None | MystInventoryType = None
+        myst: MystDomain = self.env.get_domain("myst")  # type: ignore
 
         for node in self.document.findall(pending_xref):
 
@@ -201,11 +212,7 @@ class MystRefrenceResolver(SphinxPostTransform):
 
             newnode: Element | None = None
             if typ == "project":
-                if inventory is None:
-                    inventory = project_inventory(
-                        self.env, with_numbers=self.env.config.myst_link_placeholders
-                    )
-                newnode = self._resolve_xref_project(node, inventory)
+                newnode = self._resolve_xref_project(node, myst.inventory)
             elif typ == "inv":
                 newnode = self._resolve_xref_inventory(node)
             else:
@@ -564,19 +571,20 @@ class MystReferencesBuilder(DummyBuilder):
 
     def finish(self) -> None:
 
+        myst: MystDomain = self.env.get_domain("myst")  # type: ignore
+
         # project references
         data = {
             "name": self.config.project,
             "version": self.config.version,
-            "objects": project_inventory(self.env, with_numbers=True),
+            "objects": myst.inventory,
         }
         with open(os.path.join(self.outdir, "project.yaml"), "w") as f:
             yaml.dump(data, f, sort_keys=False)
 
         # local references (call after project_inventory, to populate numbers)
-        dom: MystDomain = self.env.get_domain("myst")  # type: ignore
         with open(os.path.join(self.outdir, "anchors.yaml"), "w") as f:
-            yaml.dump(dom.anchors, f, sort_keys=True)
+            yaml.dump(myst.anchors, f, sort_keys=True)
 
         # external inventories
         for name, inv in InventoryAdapter(self.env).named_inventory.items():

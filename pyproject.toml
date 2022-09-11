@@ -67,7 +67,7 @@ testing = [
     "pytest-cov",
     "pytest-regressions",
     "pytest-param-files~=0.3.4",
-    "sphinx-pytest",
+    "sphinx-pytest~=0.0.5",
     "sphinx<5.2",  # TODO 5.2 changes the attributes of desc/desc_signature nodes
 ]
 

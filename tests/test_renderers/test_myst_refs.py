@@ -6,7 +6,7 @@ from sphinx import version_info
 from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
-from myst_parser.sphinx_ext.references import project_inventory
+from myst_parser.sphinx_ext.references import MystDomain
 
 STATIC = Path(__file__).parent.absolute() / ".." / "static"
 FIXTURES = Path(__file__).parent.absolute() / "fixtures"
@@ -288,5 +288,5 @@ a = 1
         "page.md",
     )
     assert not result.warnings
-    data = project_inventory(result.env, with_numbers=True)
-    data_regression.check(data)
+    myst: MystDomain = result.app.env.get_domain("myst")
+    data_regression.check(myst.inventory)

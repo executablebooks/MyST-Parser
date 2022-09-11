@@ -2,7 +2,9 @@
 from typing import Any, Dict
 
 from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 
+from myst_parser.sphinx_ext.references import MystDomain
 from myst_parser.warnings import MystWarnings
 
 DEPRECATED = "__deprecated__"
@@ -35,6 +37,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_domain(MystDomain)
     app.add_post_transform(MystRefrenceResolver)
     app.add_builder(MystReferencesBuilder)
+    app.connect("env-check-consistency", load_project_inventory)
 
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):
@@ -80,3 +83,9 @@ def create_myst_config(app):
     except (TypeError, ValueError) as error:
         logger.error("myst configuration invalid: %s", error.args[0])
         app.env.myst_config = MdParserConfig()
+
+
+def load_project_inventory(_, env: BuildEnvironment):
+    """Load the project inventory into the myst domain."""
+    myst_domain: MystDomain = env.get_domain("myst")  # type: ignore
+    myst_domain.update_project_inventory()
