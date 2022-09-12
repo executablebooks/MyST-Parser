@@ -106,6 +106,22 @@ class MdParserConfig:
         },
     )
 
+    link_prefixes: Dict[str, str] = dc.field(
+        default_factory=lambda: {
+            "equation": "eq.",
+            "table": "tbl.",
+            "figure": "fig.",
+            "code-block": "code",
+        },
+        metadata={
+            "validator": deep_mapping(
+                instance_of(str), instance_of(str), instance_of(dict)
+            ),
+            "help": "Enable replacement of {name} and {number} in link text",
+            "global_only": True,
+        },
+    )
+
     link_placeholders: bool = dc.field(
         default=False,
         metadata={
@@ -129,7 +145,7 @@ class MdParserConfig:
     ref_domains: Optional[Iterable[str]] = dc.field(
         default=None,
         metadata={
-            "deprecated": "use `[](project:?d=name#target)` instead",
+            "deprecated": "use `[](?name#target)` instead",
             "validator": optional(
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),

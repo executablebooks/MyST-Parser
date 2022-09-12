@@ -33,7 +33,7 @@ class MystProjectLink(nodes.Element):
         return self.attributes["refexplicit"]
 
     @property
-    def refquery(self) -> dict[str, str]:
+    def refquery(self) -> str:
         return self.attributes["refquery"]
 
 
@@ -43,6 +43,26 @@ class LocalAnchorType(TypedDict):
     id: str
     line: int
     text: str
+
+
+def inventory_search_args(
+    ref_target: str, ref_query: str
+) -> tuple[str, str | None, str | None, bool]:
+    """Get the search arguments for a reference target and query."""
+    match_end = False
+    if ref_target.startswith("*"):
+        ref_target = ref_target[1:]
+        match_end = True
+    ref_domain = None
+    ref_object_type = None
+    if ref_query:
+        domain, *_object_type = ref_query.split(":", 1)
+        if domain and domain != "*":
+            ref_domain = domain
+        if _object_type and _object_type[0] and _object_type[0] != "*":
+            ref_object_type = _object_type[0]
+
+    return ref_target, ref_domain, ref_object_type, match_end
 
 
 class MdDocumentLinks(Transform):
@@ -68,19 +88,20 @@ class MdDocumentLinks(Transform):
         link_node: MystProjectLink
         for link_node in findall(self.document)(MystProjectLink):
 
-            ref_domain = link_node.refquery.get("d")
-            ref_object_type = link_node.refquery.get("o")
-            pattern_match = "pat" in link_node.refquery
+            ref_target, ref_domain, ref_object_type, match_end = inventory_search_args(
+                link_node.refname, link_node.refquery
+            )
+
             loc_str = ":".join(
                 [ref_domain or "*", ref_object_type or "*", link_node.refname]
             )
 
             matches = resolve_myst_inventory(
                 inventory,
-                link_node.refname,
+                ref_target,
                 has_domain=ref_domain,
                 has_type=ref_object_type,
-                pattern_match=pattern_match,
+                match_end=match_end,
             )
 
             if not matches:
@@ -109,7 +130,7 @@ class MdDocumentLinks(Transform):
                 ]
 
             if len(matches) > 1:
-                match_items = [f"'{r.domain}:{r.otype}:{r.target}'" for r in matches]
+                match_items = [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches]
                 if len(match_items) > 4:
                     match_items = match_items[:4] + ["..."]
                 create_warning(
@@ -126,7 +147,7 @@ class MdDocumentLinks(Transform):
             if ref.domain == "myst" and ref.otype == "anchor":
                 create_warning(
                     self.document,
-                    f"Local link target 'myst:anchor:{ref.target}' "
+                    f"Local link target 'myst:anchor:{ref.name}' "
                     "is auto-generated, so may change unexpectedly",
                     MystWarnings.XREF_NOT_EXPLICIT,
                     line=link_node.line,
@@ -153,7 +174,7 @@ class MdDocumentLinks(Transform):
                 reference.append(nodes.Text(ref.text))
             else:
                 # default to just showing the target
-                reference.append(nodes.literal(link_node.refname, link_node.refname))
+                reference.append(nodes.literal(ref.name, ref.name))
 
             link_node.replace_self(reference)
 

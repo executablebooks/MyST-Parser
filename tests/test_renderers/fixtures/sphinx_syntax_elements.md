@@ -332,15 +332,15 @@ Title
         <title>
             Title
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="target" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="target" reftype="project">
                 alt1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="target2" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="target2" reftype="project">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="target3" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="target3" reftype="project">
                 alt3
 .
 
@@ -423,7 +423,7 @@ Link Definition in directive:
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="link" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="link" reftype="project">
                 a
 .
 
@@ -446,7 +446,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="link" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="link" reftype="project">
                 ref1
 
             [ref2]
@@ -790,5 +790,5 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="target" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="target" reftype="project">
 .

@@ -6,6 +6,7 @@ anchors.yaml:
       text: Head
   page:
     head:
+      enumtype: section
       id: head
       line: 2
       number: '1'
@@ -64,6 +65,7 @@ project.yaml:
           id: ''
         target:
           docname: page
+          enumtype: section
           id: target
           number: '1'
           text: Head

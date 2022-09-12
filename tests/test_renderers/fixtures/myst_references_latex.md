@@ -74,8 +74,8 @@ ref_replacements [NUMBERED]
 \section{Subsection}
 \label{\detokenize{test:subsection}}\label{\detokenize{test:subsect}}
 \sphinxAtStartPar
-{\hyperref[\detokenize{test:sect}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{test:sect}} \ref{test:sect}}}}
-{\hyperref[\detokenize{test:subsect}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{test:subsect}} \_ \ref{test:subsect}}}}
+{\hyperref[\detokenize{test:sect}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{\detokenize{test:sect}}} \ref{\detokenize{test:sect}}}}}
+{\hyperref[\detokenize{test:subsect}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{\detokenize{test:subsect}}} \_ \ref{\detokenize{test:subsect}}}}}
 .
 
 ref_replacements_math [NUMBERED]
@@ -98,5 +98,5 @@ x = 1
 \begin{split}x = 1\end{split}
 \end{equation}
 \sphinxAtStartPar
-{\hyperref[\detokenize{equation:test:eq1}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{equation:test:eq1}} \ref{equation:test:eq1}}}}
+{\hyperref[\detokenize{equation:test:eq1}]{\sphinxcrossref{\sphinxstyleemphasis{\nameref{\detokenize{equation:test:eq1}}} \ref{\detokenize{equation:test:eq1}}}}}
 .

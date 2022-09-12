@@ -258,24 +258,11 @@ Its format follows standard [URI][uri] syntax:
 URI = scheme ":" type ["?" query] "#" fragment
 ```
 
-The optional query string represents a sequence of `key=value` pairs, separated by an `&` delimiter.
-A key without a value is interpreted as an a empty string value,
-and for duplicate keys the last value will be used.
-For example: `key1=value1&key2=value2&key3&key2=value3` would be parsed as:
-
-```json
-{
-    "key1": "value1",
-    "key2": "value3",
-    "key3": ""
-}
-```
-
 :::{versionchanged} 0.19.0
 - The `path:`, `project:`, `myst:` scheme was introduced
 - `[text](#target)` syntax replaces the previous `[text](target)` syntax.
   On upgrading, you may now see [`myst.invalid_uri` warnings](#myst-warnings).
-- `[text](project:?d=std#target)` syntax replaces the `myst_ref_domains` config.
+- `[text](?name#target)` syntax replaces the `myst_ref_domains` config.
 - `[text](#target)` will now refer to any project reference, not just heading anchors.
 :::
 
@@ -396,7 +383,7 @@ See the <project#syntax/header-anchors> section for more details.
 
 [gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
 
-(syntax/referencing/myst-project)=
+(syntax/referencing/project)=
 ### Project-wide targets
 
 As well as generating reference targets for content blocks and directives, sphinx (and its extensions) may also generate targets for a range of other objects in the project, such as software package APIs.
@@ -432,14 +419,16 @@ Without a specific path, these references will first be searched for in the curr
 
 If no explicit text is set then either the `text` will be used, if present, or the name of the target.
 
-If you wish the target to be matched by a [Unix pattern](myst:python#library/fnmatch), then set the `pat` query flag.
+If you wish the target to match any name with a particular ending, prepend by `*`.
+This is useful for long API names, where you may wish to specify the class, but not the module.
 
 | Examples |                               |                             |
 | :------- | :---------------------------- | :-------------------------- |
 | Inline   | `[text](#api/reference)`      | [text](#api/reference)      |
 | Auto     | `<project:#api/reference>`    | <project:#api/reference>    |
-| Pattern  | `<project:?pat#*.MystParser>` | <project:?pat#*.MystParser> |
+| Match end  | `<project:#*.MystParser>` | <project:#*.MystParser> |
 
+(syntax/referencing/filter)=
 ### Filtering target matches
 
 If a referenced target is present in multiple domains and/or object types, then you will see a warning such as:
@@ -448,18 +437,19 @@ If a referenced target is present in multiple domains and/or object types, then 
 <src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
 ```
 
-In this case, you can use the `d` and `o` query keys to filter by the domain and object type, respectively.
+In this case, you can use the query string to filter matches by `domain:object_type`.
+Use `*` to match any value, e.g. `*:term` will match `term` in any domain.
 
 |                 Examples                  |                                         |
 | :---------------------------------------- | :-------------------------------------- |
-| `[text](project:?d=std&o=label#api/main)` | [text](project:?d=std&o=label#api/main) |
+| `[text](?std:label#api/main)` | [text](?std:label#api/main) |
 
 (section:ref)=
 ### Referencing numbered objects
 
 MyST allows for the enumeration of objects, such as sections, figures, tables, equations, and code blocks, and the referencing of these objects by their number.
 
-To enable numbering of objects, use the `numfig` configuration option.
+To enable numbering of objects, use the [`numfig` configuration option](myst:sphinx#numfig).
 
 ```python
 numfig = True
@@ -476,13 +466,24 @@ page.md
 ```
 ````
 
-Object numbering can the be controlled by the `numfig_secnum_depth` configuration option.
+Object numbering can the be controlled by the [`numfig_secnum_depth` configuration option](myst:sphinx#numfig_secnum_depth).
 
 ```python
 numfig_secnum_depth = 2
 ```
 
 This will restart object numbering at each second level section heading, and will prepend the section number to the object number, e.g. `h1.h2.o`.
+
+Figures, tables and code blocks will be numbered only if they have a caption.
+The prefix for the caption can be set using the [`numfig_format` configuration option](myst:sphinx#numfig_format), where `%s` is replaced with the number.
+
+```python
+numfig_format = {
+    "figure": "Fig. %s",
+    "table": "Table %s",
+    "code-block": "Listing %s",
+}
+```
 
 Below are some examples of numbered objects:
 
@@ -571,15 +572,31 @@ To refer to the number or title/caption of a numbered object, you must first ena
 myst_link_placeholders = True
 ```
 
-You can then use the `{number}` and `{name}` placeholders in the link text:
+You can also set prefixes for enumerable types, using:
 
-|                   Examples                    |                                             |
-| :-------------------------------------------- | :------------------------------------------ |
-| `[section {number} *"{name}"*](#section:ref)` | [section {number} *"{name}"*](#section:ref) |
-| `[figure {number} *"{name}"*](#figure:ref)`   | [figure {number} *"{name}"*](#figure:ref)   |
-| `[code {number} *"{name}"*](#code:ref)`       | [code {number} *"{name}"*](#code:ref)       |
-| `[table {number} *"{name}"*](#table:ref)`     | [table {number} *"{name}"*](#table:ref)     |
-| `[equation {number}](#eq:ref)`                | [equation {number}](#eq:ref)                |
+```python
+myst_link_prefixes = {
+    "equation": "eq.",
+    "table": "tbl.",
+    "figure": "fig.",
+    "code-block": "code",
+}
+```
+
+You can then use these placeholders in the link text:
+
+- `{name}`: the implicit text of the object
+- `{number}`: the number of the object
+- `{prefix}`: the prefix of the enumerable type
+- `{Prefix}`: capitalized prefix of the enumerable type
+
+|                   Examples                   |                                            |
+| :------------------------------------------- | :----------------------------------------- |
+| `[{Prefix} {number} *"{name}"*](#section:ref)` | [{Prefix} {number} *"{name}"*](#section:ref) |
+| `[{Prefix} {number} *"{name}"*](#figure:ref)`  | [{Prefix} {number} *"{name}"*](#figure:ref)  |
+| `[{Prefix} {number} *"{name}"*](#code:ref)`    | [{Prefix} {number} *"{name}"*](#code:ref)    |
+| `[{Prefix} {number} *"{name}"*](#table:ref)`   | [{Prefix} {number} *"{name}"*](#table:ref)   |
+| `[{Prefix} {number}](#eq:ref)`                 | [{Prefix} {number}](#eq:ref)                 |
 
 
 (syntax/referencing/myst-inv)=
@@ -612,14 +629,17 @@ intersphinx_mapping = {
 }
 ```
 
-You can then use `myst:key#target` to reference targets in an external inventory, in a similar fashion to the [project-wide targets](#syntax/referencing/myst-project).
+You can then use `myst:key#target` to reference targets in an external inventory, in a similar fashion to the [project-wide targets](#syntax/referencing/project).
 If a key is not specified, then all inventories will be searched.
+
+See also [](#syntax/referencing/filter) for filtering matches by domain and object type.
 
 | Examples |                                |                              |
 | :------- | :----------------------------- | :--------------------------- |
 | Inline   | `[text](myst:python#datetime)` | [text](myst:python#datetime) |
 | Auto     | `<myst:python#datetime>`       | <myst:python#datetime>       |
 | All      | `<myst:#datetime>`             | <myst:#datetime>             |
+| Filter   | `<myst:python?py:*#datetime>`       | <myst:python?py:*#datetime>             |
 
 (syntax/referencing/builder)=
 ### Exploring references in a project

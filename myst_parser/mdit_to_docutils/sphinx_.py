@@ -30,7 +30,7 @@ class SphinxRenderer(DocutilsRenderer):
         return self.document.settings.env
 
     def add_ref_inventory(
-        self, token: SyntaxTreeNode, key: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, key: str, target: str, query: str
     ) -> None:
         # otherwise create a pending xref, which will be resolved later
         refexplicit = True if (token.info != "auto" and token.children) else False
@@ -50,7 +50,7 @@ class SphinxRenderer(DocutilsRenderer):
             self.render_children(token)
 
     def add_ref_path(
-        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
     ) -> None:
         wrap_node = addnodes.download_reference(
             refdoc=self.sphinx_env.docname,
@@ -68,7 +68,7 @@ class SphinxRenderer(DocutilsRenderer):
             wrap_node.append(inner_node)
 
     def add_ref_project(
-        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
     ) -> None:
 
         if not (path or target):

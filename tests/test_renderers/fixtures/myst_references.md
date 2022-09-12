@@ -435,7 +435,7 @@ project_duplicate_non_local
 project_filter
 .
 # Title
-<project:?o=term#duplicate>
+<project:?*:term#duplicate>
 .
 <document source="root/test.md">
     <section ids="title" names="title">
@@ -450,7 +450,7 @@ myst_project_pattern
 .
 (target)=
 # Title
-[](project:?pat#*get)
+[](#*get)
 .
 <document source="root/test.md">
     <target refid="target">
@@ -555,7 +555,7 @@ myst_inv_missing_target [LOAD_INV]
 myst_inv_duplicate [LOAD_INV]
 .
 # Title
-[*text*](myst:?pat#*modindex)
+[*text*](myst:#*modindex)
 .
 <document source="root/test.md">
     <section ids="title" names="title">

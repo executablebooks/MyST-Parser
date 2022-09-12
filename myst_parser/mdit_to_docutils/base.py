@@ -699,13 +699,14 @@ class DocutilsRenderer(RendererProtocol):
 
         # if the link starts with #, then it is a project fragment,
         # i.e. a reference to a target id in the project
-        if uri.startswith("#"):
-            return self.add_ref_project(token, "", unquote(uri[1:]), {})
-
-        # if the link starts with _#, then it is a local fragment,
-        # i.e. a reference to a target id in the current file
-        if uri.startswith(".#"):
-            return self.add_ref_project(token, ".", unquote(uri[2:]), {})
+        if (
+            uri.startswith("#")
+            or uri.startswith(".#")
+            or uri.startswith("?")
+            or uri.startswith(".?")
+        ):
+            key, target, query = parse_uri(unquote(uri))
+            return self.add_ref_project(token, key, target, query)
 
         # if the link has a scheme, split it into the scheme and the rest of the link
         scheme: None | str = None
@@ -717,30 +718,30 @@ class DocutilsRenderer(RendererProtocol):
 
         # note: we cannot call this scheme "file" since markdown-it will not validate it
         if scheme == "path":
-            path, target, query_dict = parse_uri(unquote(body))
+            path, target, query = parse_uri(unquote(body))
             return self.add_ref_path(
                 token,
                 path,
                 target,
-                query_dict,
+                query,
             )
 
         if scheme == "project":
-            path, target, query_dict = parse_uri(unquote(body))
+            path, target, query = parse_uri(unquote(body))
             return self.add_ref_project(
                 token,
                 path,
                 target,
-                query_dict,
+                query,
             )
 
         if scheme == "myst":
-            key, target, query_dict = parse_uri(unquote(body))
+            key, target, query = parse_uri(unquote(body))
             return self.add_ref_inventory(
                 token,
                 key,
                 target,
-                query_dict,
+                query,
             )
 
         # if its a known external URL scheme, then render that
@@ -773,11 +774,11 @@ class DocutilsRenderer(RendererProtocol):
             line=token_line(token, default=0),
             append_to=self.current_node,
         )
-        return self.add_ref_project(token, "", unquote(uri), {})
+        return self.add_ref_project(token, "", unquote(uri), "")
 
     def _check_for_path_link(
         self, uri: str
-    ) -> None | tuple[Path, str, dict[str, str], None | str]:
+    ) -> None | tuple[Path, str, str, None | str]:
         """Check if the uri is a path to an existing file.
 
         return: (relative path to source directory, fragment, query, docname)
@@ -791,7 +792,7 @@ class DocutilsRenderer(RendererProtocol):
         uri = unquote(uri)
 
         # split the URI into its components
-        posix_path_str, fragment, query_dict = parse_uri(uri)
+        posix_path_str, fragment, query = parse_uri(uri)
 
         # ensure it is normalised
         posix_path = posixpath.normpath(posix_path_str)
@@ -820,7 +821,7 @@ class DocutilsRenderer(RendererProtocol):
 
         if abs_path.is_file():
             docname = self.sphinx_env.path2doc(str(abs_path))
-            return abs_path.relative_to(src_path), fragment, query_dict, docname
+            return abs_path.relative_to(src_path), fragment, query, docname
 
         return None
 
@@ -838,7 +839,7 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def add_ref_project(
-        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
     ) -> None:
         """Add a reference to a target within the project.
 
@@ -888,7 +889,7 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def add_ref_inventory(
-        self, token: SyntaxTreeNode, key: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, key: str, target: str, query: str
     ) -> None:
         """Add a reference to external inventories.
 
@@ -916,7 +917,7 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def add_ref_path(
-        self, token: SyntaxTreeNode, path: str, target: str, query: dict[str, str]
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
     ) -> None:
         """Add a reference to a file path in the project.
 
@@ -1630,12 +1631,8 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
-def parse_uri(uri: str) -> tuple[str, str, dict[str, str]]:
+def parse_uri(uri: str) -> tuple[str, str, str]:
     """Split a myst uri (without the scheme prefix) <type>?<query>#<target>.
-
-    Also parses query string into a dictionary.
-    This splits by `&` then, if `=` is present, splits into <key>=<value>,
-    otherwise the value is set to an empty string.
 
     :returns: (type, target, query)
     """
@@ -1645,16 +1642,7 @@ def parse_uri(uri: str) -> tuple[str, str, dict[str, str]]:
     target = _target[0] if _target else ""
     query_string = _query[0] if _query else ""
 
-    query_dict: dict[str, str] = {}
-    if query_string:
-        for comp in query_string.split("&"):
-            if "=" in comp:
-                key, val = comp.split("=", 1)
-                query_dict[key] = val
-            else:
-                query_dict[comp] = ""
-
-    return reftype, target, query_dict
+    return reftype, target, query_string
 
 
 def html_meta_to_nodes(

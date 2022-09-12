@@ -332,15 +332,15 @@ Title
         <title>
             Title
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="target" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="True" refname="target" refquery="">
                 alt1
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="False" refname="target2" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="False" refname="target2" refquery="">
         <paragraph>
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="target3" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="True" refname="target3" refquery="">
                 alt3
 .
 
@@ -423,7 +423,7 @@ Link Definition in directive:
 <document source="notset">
     <note>
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="">
                 a
 .
 
@@ -446,7 +446,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="True" refname="link" refquery="">
                 ref1
 
             [ref2]
@@ -790,5 +790,5 @@ a = 1
         <literal_block classes="code ::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <MystProjectLink classes="myst-project" refexplicit="False" refname="target" refquery="{}">
+            <MystProjectLink classes="myst-project" refexplicit="False" refname="target" refquery="">
 .

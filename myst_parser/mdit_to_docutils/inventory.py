@@ -46,14 +46,12 @@ class InventoryType(TypedDict):
 class MystTargetType(TypedDict, total=False):
     """A reference target within a document."""
 
+    docname: str
+    """The name of the document containing the target"""
     id: str
     """The internal id of the target"""
     text: str
     """For use if no explicit text is given by the reference, e.g. the section title"""
-    docname: str
-    """The name of the document containing the target"""
-    number: str
-    """The number of the target, e.g. "1.2.3"."""
 
 
 MystInventoryType = Dict[str, Dict[str, Dict[str, MystTargetType]]]
@@ -72,10 +70,10 @@ def format_inventory(inv: Inventory) -> InventoryType:
         domain_name, obj_type = domain_obj_name.split(":", 1)
         objs.setdefault(domain_name, {}).setdefault(obj_type, {})
         for refname, refdata in data.items():
-            project, version, uri, dispname = refdata
+            project, version, uri, text = refdata
             objs[domain_name][obj_type][refname] = {
                 "loc": uri,
-                "disp": dispname,
+                "disp": text,
             }
 
     return {
@@ -141,7 +139,7 @@ def _load_v2(stream: InventoryFileReader) -> InventoryType:
             continue
         name: str
         type: str
-        name, type, _, location, dispname = m.groups()
+        name, type, _, location, text = m.groups()
         if ":" not in type:
             # wrong type value. type should be in the form of "{domain}:{objtype}"
             #
@@ -161,7 +159,7 @@ def _load_v2(stream: InventoryFileReader) -> InventoryType:
             location = location[:-1] + name
         domain, objtype = type.split(":", 1)
         invdata["objects"].setdefault(domain, {}).setdefault(objtype, {})
-        invdata["objects"][domain][objtype][name] = {"loc": location, "disp": dispname}
+        invdata["objects"][domain][objtype][name] = {"loc": location, "disp": text}
     return invdata
 
 
@@ -231,31 +229,32 @@ class InvMatch:
     inv: str
     domain: str
     otype: str
-    target: str
+    name: str
     proj: str
     version: str
     uri: str
-    dispname: str
+    text: str
 
 
 def resolve_inventory(
     inventories: dict[str, Inventory],
-    ref_inv: None | str,
-    ref_domain: None | str,
-    ref_type: None | str,
     ref_target: str,
-    pattern_match=False,
+    *,
+    ref_inv: None | str = None,
+    ref_domain: None | str = None,
+    ref_otype: None | str = None,
+    match_end=False,
 ) -> list[InvMatch]:
     """Resolve a cross-reference in the loaded sphinx inventories.
 
     :param inventories: Mapping of inventory name to inventory data
-    :param ref_inv: The name of the sphinx inventory to use, if None then
+    :param ref_target: The target to search for
+    :param ref_inv: The name of the sphinx inventory to search, if None then
         all inventories will be searched
     :param ref_domain: The name of the domain to search, if None then all domains
         will be searched
-    :param ref_type: The type of object to search for, if None then all types will be searched
-    :param ref_target: The target to search for
-    :param pattern_match: Whether to use unix pattern matching of the target
+    :param ref_otype: The type of object to search for, if None then all types will be searched
+    :param match_end: Whether to match against targets that end with the ref_target
 
     :returns: matching results
     """
@@ -275,18 +274,18 @@ def resolve_inventory(
             if ref_domain is not None and ref_domain != domain_name:
                 continue
 
-            if ref_type is not None and ref_type != obj_type:
+            if ref_otype is not None and ref_otype != obj_type:
                 continue
 
-            if not pattern_match and ref_target in data:
+            if not match_end and ref_target in data:
                 results.append(
                     InvMatch(
                         inv_name, domain_name, obj_type, ref_target, *data[ref_target]
                     )
                 )
-            elif pattern_match:
+            elif match_end:
                 for target in data:
-                    if fnmatchcase(target, ref_target):
+                    if target.endswith(ref_target):
                         results.append(
                             InvMatch(
                                 inv_name, domain_name, obj_type, target, *data[target]
@@ -302,7 +301,7 @@ class LocalInvMatch:
 
     domain: str
     otype: str
-    target: str
+    name: str
     data: MystTargetType
 
     @property
@@ -317,10 +316,6 @@ class LocalInvMatch:
     def docname(self) -> str:
         return self.data.get("docname", "")
 
-    @property
-    def number(self) -> str | None:
-        return self.data.get("number", None)
-
 
 def resolve_myst_inventory(
     inventory: MystInventoryType,
@@ -329,7 +324,7 @@ def resolve_myst_inventory(
     has_domain: None | str = None,
     has_type: None | str = None,
     has_docname: None | str = None,
-    pattern_match=False,
+    match_end=False,
 ) -> list[LocalInvMatch]:
     """Resolve a cross-reference in a document level inventory.
 
@@ -337,7 +332,7 @@ def resolve_myst_inventory(
     :param has_domain: Specify a domain to filter by
     :param has_type: Specify a type of object to filter by
     :param has_docname: Specify a docname to filter by
-    :param pattern_match: Whether to use unix pattern matching of the target
+    :param match_end: Whether to match against targets that end with the ref_target
 
     :returns:  matching results
     """
@@ -353,13 +348,13 @@ def resolve_myst_inventory(
             if has_type is not None and has_type != obj_type:
                 continue
 
-            if not pattern_match and ref_target in data:
+            if not match_end and ref_target in data:
                 results.append(
                     LocalInvMatch(domain_name, obj_type, ref_target, data[ref_target])
                 )
-            elif pattern_match:
+            elif match_end:
                 for target in data:
-                    if fnmatchcase(target, ref_target):
+                    if target.endswith(ref_target):
                         results.append(
                             LocalInvMatch(domain_name, obj_type, target, data[target])
                         )

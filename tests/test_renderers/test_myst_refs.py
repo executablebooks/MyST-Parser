@@ -6,8 +6,6 @@ from sphinx import version_info
 from sphinx.util import console
 from sphinx_pytest.plugin import CreateDoctree
 
-from myst_parser.sphinx_ext.references import MystDomain
-
 STATIC = Path(__file__).parent.absolute() / ".." / "static"
 FIXTURES = Path(__file__).parent.absolute() / "fixtures"
 
@@ -199,7 +197,7 @@ def test_suppress_warnings(sphinx_doctree: CreateDoctree):
     assert not result.warnings
 
 
-def test_objects_builder(sphinx_doctree: CreateDoctree, data_regression):
+def test_refs_builder(sphinx_doctree: CreateDoctree, data_regression):
     sphinx_doctree.buildername = "myst_refs"
     sphinx_doctree.set_conf(
         {
@@ -236,13 +234,14 @@ page
     data_regression.check(data)
 
 
-def test_project_inventory_numbering(sphinx_doctree: CreateDoctree, data_regression):
+def test_refs_builder_numbering(sphinx_doctree: CreateDoctree, data_regression):
     sphinx_doctree.buildername = "myst_refs"
     sphinx_doctree.set_conf(
         {
             "extensions": ["myst_parser"],
             "numfig": True,
             "numfig_secnum_depth": 2,
+            "myst_heading_anchors": 2,
         }
     )
     sphinx_doctree.srcdir.joinpath("index.md").write_text(
@@ -288,5 +287,8 @@ a = 1
         "page.md",
     )
     assert not result.warnings
-    myst: MystDomain = result.app.env.get_domain("myst")
-    data_regression.check(myst.inventory)
+    data = {}
+    for file_name in ["project.yaml", "anchors.yaml"]:
+        opath = Path(result.app.outdir).joinpath(file_name)
+        data[file_name] = yaml.safe_load(opath.read_text())
+    data_regression.check(data)

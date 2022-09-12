@@ -19,22 +19,22 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title" reftype="project">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="title" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="title" reftype="project">
                 plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="title" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="title" reftype="project">
                 nested 
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="" reftargetdoc="index" reftype="project">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="" reftargetdoc="index" reftype="project">
                 plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="" reftargetdoc="index" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="" reftargetdoc="index" reftype="project">
                 nested 
                 <emphasis>
                     syntax
@@ -61,7 +61,7 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="{}" reftarget="insidecodeblock" reftype="project">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="insidecodeblock" reftype="project">
                 fence
         <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
@@ -71,10 +71,10 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftype="project">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="project">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="other" reftype="project">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="{}" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="project">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="project">
