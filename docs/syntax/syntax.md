@@ -242,9 +242,8 @@ MyST, supports the following destination types:
 | External URL       | `<https://example.com>`    | `[](https://example.com)` |        ✅         |
 | Local file path    | `<path:file.txt>`          | `[](file.txt)`            |        ❌         |
 | Project document   | `<project:file.md>`        | `[](file.md)`             |        ❌         |
-| Local target       | `<project:.#target>`       | `[](.#target)`            |        ✅         |
 | Target in document | `<project:target.md#file>` | `[](file.md#target)`      |        ❌         |
-| Target in project  | `<project:#target>`        | `[](#target)`             |     ~[^hash]     |
+| Target in project  | `<project:#target>`        | `[](#target)`             |     ✅[^hash]     |
 | Cross-project      | `<myst:key#target>`        | `[](myst:key#target)`     |        ❌         |
 
 [^sp]: Whether this link type is supported in [single page builds](../docutils.md),

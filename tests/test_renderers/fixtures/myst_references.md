@@ -571,21 +571,27 @@ myst_inv_duplicate [LOAD_INV]
 
 implicit_anchors [ADD_ANCHORS]
 .
-# Title
-[](#title)
+# A Title
+
+(a-title)=
+## Other
+
+[](#a-title)
 .
 <document source="root/test.md">
-    <section anchor_id="title" ids="title" names="title">
+    <section anchor_id="a-title" ids="a-title" names="a\ title">
         <title>
-            Title
-        <paragraph>
-            <reference classes="myst-anchor myst-project" internal="True" refid="title">
-                Title
-
-<src>/test.md:2: WARNING: Link target 'myst:anchor:title' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
+            A Title
+        <target refid="id1">
+        <section anchor_id="other" ids="other id1" names="other a-title">
+            <title>
+                Other
+            <paragraph>
+                <reference classes="myst-anchor myst-project" internal="True" refid="a-title">
+                    A Title
 .
 
-deprecated
+unknown_uri
 .
 # Title
 [](ref)
@@ -683,7 +689,4 @@ ref_replacements_anchor [NUMBERED] [ADD_ANCHORS]
                     <emphasis>
                         Subsection
                      1.1
-
-<src>/test.md:5: WARNING: Link target 'myst:anchor:section' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
-<src>/test.md:5: WARNING: Link target 'myst:anchor:subsection' in doc 'test' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
 .

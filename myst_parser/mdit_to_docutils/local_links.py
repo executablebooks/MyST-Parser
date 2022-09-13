@@ -6,10 +6,7 @@ from docutils.transforms import Transform
 from typing_extensions import TypedDict
 
 from myst_parser._compat import findall
-from myst_parser.mdit_to_docutils.inventory import (
-    MystInventoryType,
-    resolve_myst_inventory,
-)
+from myst_parser.mdit_to_docutils.inventory import resolve_myst_inventory
 from myst_parser.warnings import MystWarnings, create_warning
 
 
@@ -78,11 +75,6 @@ class MdDocumentLinks(Transform):
         # gather targets
         heading_anchors = gather_anchors(self.document)
         std_refs = gather_std_refs(self.document)
-        # turn them into an inventory
-        inventory: MystInventoryType = {
-            "std": {"label": std_refs},  # type: ignore
-            "myst": {"anchor": heading_anchors},  # type: ignore
-        }
 
         # now find and resolve all local links
         link_node: MystProjectLink
@@ -91,18 +83,27 @@ class MdDocumentLinks(Transform):
             ref_target, ref_domain, ref_object_type, match_end = inventory_search_args(
                 link_node.refname, link_node.refquery
             )
-
             loc_str = ":".join(
                 [ref_domain or "*", ref_object_type or "*", link_node.refname]
             )
 
+            # look at anchors first
             matches = resolve_myst_inventory(
-                inventory,
+                {"myst": {"anchor": heading_anchors}},  # type: ignore
                 ref_target,
                 has_domain=ref_domain,
                 has_type=ref_object_type,
                 match_end=match_end,
             )
+            if not matches:
+                # if no anchors, then look at std refs
+                matches = resolve_myst_inventory(
+                    {"std": {"label": std_refs}},  # type: ignore
+                    ref_target,
+                    has_domain=ref_domain,
+                    has_type=ref_object_type,
+                    match_end=match_end,
+                )
 
             if not matches:
                 create_warning(
@@ -141,17 +142,7 @@ class MdDocumentLinks(Transform):
                     line=link_node.line,
                 )
 
-            # TODO sort multiple matches by priority (e.g. local first, std domain)
             ref = matches[0]
-
-            if ref.domain == "myst" and ref.otype == "anchor":
-                create_warning(
-                    self.document,
-                    f"Local link target 'myst:anchor:{ref.name}' "
-                    "is auto-generated, so may change unexpectedly",
-                    MystWarnings.XREF_NOT_EXPLICIT,
-                    line=link_node.line,
-                )
 
             reference = nodes.reference(
                 refid=ref.anchor,

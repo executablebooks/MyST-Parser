@@ -490,10 +490,6 @@ Also see <project:#syntax/html-admonition>.
 
 ## Auto-generated header anchors
 
-```{versionchanged} 0.19.0
-Referencing a heading anchor will now issue a `myst.xref_not_explicit` warning.
-```
-
 To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
 
 [gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
@@ -503,8 +499,7 @@ To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, wh
 For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
 
 ```python
-myst_heading_anchors = 3
-suppress_warnings = ["myst.xref_not_explicit"]
+myst_heading_anchors = 2
 ```
 
 You can then insert markdown links directly to anchors that are generated from your header titles in your documentation.
@@ -513,16 +508,11 @@ For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anch
 Anchors in other files should be relative to the current file, for example
 `[**link text**](syntax.md#core-syntax)`: [**link text**](syntax.md#core-syntax).
 
-For more details see: <project:#syntax/referencing>.
+:::{important}
+When resolving references, heading anchors will take precedence over any other targets with the same name.
 
-By default, links to these "implicit" headings will issue a warning, like:
-
-```
-WARNING: Local link target 'myst:anchor:title' is auto-generated, so may change unexpectedly [myst.xref_not_explicit]
-```
-
-Where possible it is advised to avoid linking to these headings, since they are liable to change, if one changes the heading text.
-But otherwise, suppress the warning with: `suppress_warnings = ["myst.xref_not_explicit"]`.
+For more details on referencing see: <project:#syntax/referencing>.
+:::
 
 ### Anchor slug structure
 

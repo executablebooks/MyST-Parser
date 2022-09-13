@@ -167,6 +167,39 @@ class MystDomain(Domain):
                     "docname": docname,
                 }
 
+    def get_anchor_matches(
+        self,
+        ref_domain: str | None,
+        ref_object_type: str | None,
+        docname: str,
+        name: str,
+        match_end: bool,
+    ) -> list[LocalInvMatch]:
+        """Get the anchor matches for a given reference."""
+        if ref_domain is not None and ref_domain != "myst":
+            return []
+        if ref_object_type is not None and ref_object_type != "anchor":
+            return []
+
+        matches: list[LocalInvMatch] = []
+        for anchor_name, anchor_data in self.anchors.get(docname, {}).items():
+            if (match_end and anchor_name.endswith(name)) or (
+                not match_end and anchor_name == name
+            ):
+                matches.append(
+                    LocalInvMatch(
+                        "myst",
+                        "anchor",
+                        anchor_name,
+                        {
+                            "docname": docname,
+                            "id": anchor_data["id"],
+                            "text": anchor_data["text"],
+                        },
+                    )
+                )
+        return matches
+
 
 class MystRefrenceResolver(SphinxPostTransform):
     """A post-transform for overriding the behaviour of myst reference resolution."""
@@ -232,46 +265,30 @@ class MystRefrenceResolver(SphinxPostTransform):
         ref_target, ref_domain, ref_object_type, match_end = inventory_search_args(
             node["reftarget"], node.get("refquery", "")
         )
-
-        # get matches from the project inventory
         loc_str = ":".join(
             [ref_domain or "*", ref_object_type or "*", node["reftarget"]]
         )
-        matches = resolve_myst_inventory(
-            inventory,
-            ref_target,
-            has_domain=ref_domain,
-            has_type=ref_object_type,
-            has_docname=ref_docname,
-            match_end=match_end,
-        )
 
-        # if there are no inventory matches, look at any auto-generated (implicit) labels
-        if (
-            not matches
-            and (ref_domain is None or ref_domain == "myst")
-            and (ref_object_type is None or ref_object_type == "anchor")
-        ):
-            anchor_docname = ref_docname or node["refdoc"]
-            myst_domain: MystDomain = self.env.get_domain("myst")  # type: ignore
-            for anchor_name, anchor_data in myst_domain.anchors.get(
-                anchor_docname, {}
-            ).items():
-                if (match_end and anchor_name.endswith(ref_target)) or (
-                    not match_end and anchor_name == ref_target
-                ):
-                    matches.append(
-                        LocalInvMatch(
-                            "myst",
-                            "anchor",
-                            anchor_name,
-                            {
-                                "docname": anchor_docname,
-                                "id": anchor_data["id"],
-                                "text": anchor_data["text"],
-                            },
-                        )
-                    )
+        # look at any auto-generated heading anchors for the target/local doc first
+        # these take priority over any other matches
+        myst_domain: MystDomain = self.env.get_domain("myst")  # type: ignore
+        matches = myst_domain.get_anchor_matches(
+            ref_domain,
+            ref_object_type,
+            ref_docname or node["refdoc"],
+            ref_target,
+            match_end,
+        )
+        if not matches:
+            # if none, get matches from the project inventory
+            matches = resolve_myst_inventory(
+                inventory,
+                ref_target,
+                has_domain=ref_domain,
+                has_type=ref_object_type,
+                has_docname=ref_docname,
+                match_end=match_end,
+            )
 
         # handle none or multiple matches
         doc_str = f" in doc {ref_docname!r}" if ref_docname else ""
@@ -295,14 +312,6 @@ class MystRefrenceResolver(SphinxPostTransform):
 
         # TODO sort multiple matches by priority (e.g. local first, std domain)
         target = matches[0]
-
-        if target.domain == "myst" and target.otype == "anchor":
-            log_warning(
-                f"Link target 'myst:anchor:{target.name}' in doc {anchor_docname!r} "
-                f"is auto-generated, so may change unexpectedly",
-                subtype=MystWarnings.XREF_NOT_EXPLICIT,
-                location=node,
-            )
 
         ref_node = nodes.reference(
             "", "", internal=True, classes=[f"{target.domain}-{target.otype}"]
