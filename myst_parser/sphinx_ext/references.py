@@ -38,6 +38,7 @@ from myst_parser.mdit_to_docutils.local_links import (
     LocalAnchorType,
     gather_anchors,
     inventory_search_args,
+    truncated_join,
 )
 from myst_parser.warnings import MystWarnings
 
@@ -269,26 +270,40 @@ class MystRefrenceResolver(SphinxPostTransform):
             [ref_domain or "*", ref_object_type or "*", node["reftarget"]]
         )
 
-        # look at any auto-generated heading anchors for the target/local doc first
-        # these take priority over any other matches
+        # match auto-generated heading anchors for the target/local doc
         myst_domain: MystDomain = self.env.get_domain("myst")  # type: ignore
-        matches = myst_domain.get_anchor_matches(
+        anchor_matches = myst_domain.get_anchor_matches(
             ref_domain,
             ref_object_type,
             ref_docname or node["refdoc"],
             ref_target,
             match_end,
         )
-        if not matches:
-            # if none, get matches from the project inventory
-            matches = resolve_myst_inventory(
-                inventory,
-                ref_target,
-                has_domain=ref_domain,
-                has_type=ref_object_type,
-                has_docname=ref_docname,
-                match_end=match_end,
-            )
+        # match all other objects in the inventory
+        matches = resolve_myst_inventory(
+            inventory,
+            ref_target,
+            has_domain=ref_domain,
+            has_type=ref_object_type,
+            has_docname=ref_docname,
+            match_end=match_end,
+        )
+
+        # if there are anchor matches, then these take priority
+        # but warn if there are also other matches, so the user knows,
+        # and can choose to ignore
+        if anchor_matches:
+            if matches:
+                match_str = truncated_join(
+                    ",", [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches], 4
+                )
+                log_warning(
+                    f"{anchor_matches[0].name!r} anchor superseding other matches: "
+                    f"{match_str}",
+                    location=node,
+                    subtype=MystWarnings.XREF_ANCHOR,
+                )
+            matches = anchor_matches
 
         # handle none or multiple matches
         doc_str = f" in doc {ref_docname!r}" if ref_docname else ""
@@ -300,17 +315,15 @@ class MystRefrenceResolver(SphinxPostTransform):
             )
             return None
         if len(matches) > 1:
-            match_items = [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches]
-            if len(match_items) > 4:
-                match_items = match_items[:4] + ["..."]
+            match_str = truncated_join(
+                ",", [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches], 4
+            )
             log_warning(
-                f"Multiple targets found for {loc_str!r}{doc_str}: "
-                f"{','.join(match_items)}",
-                subtype=MystWarnings.XREF_DUPLICATE,
+                f"Multiple targets found for {loc_str!r}{doc_str}: {match_str}",
+                subtype=MystWarnings.XREF_AMBIGUOUS,
                 location=node,
             )
 
-        # TODO sort multiple matches by priority (e.g. local first, std domain)
         target = matches[0]
 
         ref_node = nodes.reference(
@@ -551,7 +564,7 @@ class MystRefrenceResolver(SphinxPostTransform):
                 matches = matches[:4] + ["..."]
             log_warning(
                 f"Multiple targets found for {loc!r}: {','.join(matches)}",
-                subtype=MystWarnings.IREF_DUPLICATE,
+                subtype=MystWarnings.IREF_AMBIGUOUS,
                 location=node,
             )
             return None

@@ -62,6 +62,13 @@ def inventory_search_args(
     return ref_target, ref_domain, ref_object_type, match_end
 
 
+def truncated_join(delimiter: str, lst: list[str], max_items: int = 3) -> str:
+    """Join a list of strings, truncating if it exceeds a maximum length."""
+    if len(lst) > max_items:
+        lst = lst[:max_items] + ["..."]
+    return delimiter.join(lst)
+
+
 class MdDocumentLinks(Transform):
     """Replace markdown links [text](#ref "title").
 
@@ -87,23 +94,38 @@ class MdDocumentLinks(Transform):
                 [ref_domain or "*", ref_object_type or "*", link_node.refname]
             )
 
-            # look at anchors first
-            matches = resolve_myst_inventory(
+            # match auto-generated heading anchors
+            anchor_matches = resolve_myst_inventory(
                 {"myst": {"anchor": heading_anchors}},  # type: ignore
                 ref_target,
                 has_domain=ref_domain,
                 has_type=ref_object_type,
                 match_end=match_end,
             )
-            if not matches:
-                # if no anchors, then look at std refs
-                matches = resolve_myst_inventory(
-                    {"std": {"label": std_refs}},  # type: ignore
-                    ref_target,
-                    has_domain=ref_domain,
-                    has_type=ref_object_type,
-                    match_end=match_end,
-                )
+            matches = resolve_myst_inventory(
+                {"std": {"label": std_refs}},  # type: ignore
+                ref_target,
+                has_domain=ref_domain,
+                has_type=ref_object_type,
+                match_end=match_end,
+            )
+
+            # if there are anchor matches, then these take priority
+            # but warn if there are also other matches, so the user knows,
+            # and can choose to ignore
+            if anchor_matches:
+                if matches:
+                    match_str = truncated_join(
+                        ",", [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches], 4
+                    )
+                    create_warning(
+                        self.document,
+                        f"{anchor_matches[0].name!r} anchor superseding other matches: "
+                        f"{match_str}",
+                        subtype=MystWarnings.XREF_ANCHOR,
+                        line=link_node.line,
+                    )
+                matches = anchor_matches
 
             if not matches:
                 create_warning(
@@ -123,22 +145,13 @@ class MdDocumentLinks(Transform):
                 continue
 
             if len(matches) > 1:
-                # filter out matches to anchors
-                matches = [
-                    m
-                    for m in matches
-                    if not (m.domain == "myst" and m.otype == "anchor")
-                ]
-
-            if len(matches) > 1:
-                match_items = [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches]
-                if len(match_items) > 4:
-                    match_items = match_items[:4] + ["..."]
+                match_str = truncated_join(
+                    ",", [f"'{r.domain}:{r.otype}:{r.name}'" for r in matches], 4
+                )
                 create_warning(
                     self.document,
-                    f"Multiple targets found for {loc_str!r}: "
-                    f"{','.join(match_items)}",
-                    subtype=MystWarnings.XREF_DUPLICATE,
+                    f"Multiple targets found for {loc_str!r}: {match_str}",
+                    subtype=MystWarnings.XREF_AMBIGUOUS,
                     line=link_node.line,
                 )
 

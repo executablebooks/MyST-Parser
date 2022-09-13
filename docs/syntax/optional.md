@@ -509,8 +509,20 @@ Anchors in other files should be relative to the current file, for example
 `[**link text**](syntax.md#core-syntax)`: [**link text**](syntax.md#core-syntax).
 
 :::{important}
-When resolving references, heading anchors will take precedence over any other targets with the same name.
+When resolving references, heading anchors will take precedence over any other targets with the same name, and a warning will be emitted, such as:
 
+```
+WARNING: 'a-title' anchor superseding other matches: 'std:label:a-title' [myst.xref_anchor]
+```
+
+To suppress these warnings, use the `suppress_warnings` configuration option:
+
+```python
+suppress_warnings = ["myst.xref_anchor"]
+```
+:::
+
+:::{seealso}
 For more details on referencing see: <project:#syntax/referencing>.
 :::
 

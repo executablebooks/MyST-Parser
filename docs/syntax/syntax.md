@@ -433,7 +433,7 @@ This is useful for long API names, where you may wish to specify the class, but 
 If a referenced target is present in multiple domains and/or object types, then you will see a warning such as:
 
 ```
-<src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
+<src>/test.md:2: WARNING: Multiple matches found for target '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_ambiguous]
 ```
 
 In this case, you can use the query string to filter matches by `domain:object_type`.

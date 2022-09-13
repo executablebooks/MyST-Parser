@@ -413,7 +413,7 @@ project_duplicate_local_first
             <reference classes="std-label myst-project" internal="True" refid="index">
                 text
 
-<src>/test.md:3: WARNING: Multiple targets found for '*:*:index': 'std:label:index','std:doc:index' [myst.xref_duplicate]
+<src>/test.md:3: WARNING: Multiple targets found for '*:*:index': 'std:label:index','std:doc:index' [myst.xref_ambiguous]
 .
 
 project_duplicate_non_local
@@ -429,7 +429,7 @@ project_duplicate_non_local
             <reference classes="std-label myst-project" internal="True" refuri="other.html#duplicate">
                 Other
 
-<src>/test.md:2: WARNING: Multiple targets found for '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_duplicate]
+<src>/test.md:2: WARNING: Multiple targets found for '*:*:duplicate': 'std:label:duplicate','std:term:duplicate' [myst.xref_ambiguous]
 .
 
 project_filter
@@ -566,7 +566,7 @@ myst_inv_duplicate [LOAD_INV]
                 <emphasis>
                     text
 
-<src>/test.md:2: WARNING: Multiple targets found for '*:*:*:*modindex': 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_duplicate]
+<src>/test.md:2: WARNING: Multiple targets found for '*:*:*:*modindex': 'project:std:label:modindex','project:std:label:py-modindex' [myst.iref_ambiguous]
 .
 
 implicit_anchors [ADD_ANCHORS]
@@ -589,6 +589,8 @@ implicit_anchors [ADD_ANCHORS]
             <paragraph>
                 <reference classes="myst-anchor myst-project" internal="True" refid="a-title">
                     A Title
+
+<src>/test.md:6: WARNING: 'a-title' anchor superseding other matches: 'std:label:a-title' [myst.xref_anchor]
 .
 
 unknown_uri
