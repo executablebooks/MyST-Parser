@@ -89,7 +89,7 @@ to modify parsing behaviour and access extended syntax features.
 : For MyST extended syntax highlighting and authoring tools.
 
 [Convert existing ReStructuredText files to Markdown][rst-to-myst]
-: Use the [rst-to-myst] CLI or [the MySTyc interactive web interface](https://mystyc.herokuapp.com)
+: Use the [rst-to-myst] CLI or [the MySTyc interactive web interface](https://astrojuanlu.github.io/mystyc/)
 
 [MyST-NB](https://myst-nb.readthedocs.io)
 : A Sphinx and Docutils extension for compiling Jupyter Notebooks into high quality documentation formats, built on top of the MyST-Parser.
