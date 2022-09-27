@@ -31,4 +31,8 @@ def test_cmdline(file_params):
         parser=Parser(),
         settings_overrides=settings,
     )
-    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+    output = doctree.pformat()
+    warnings = report_stream.getvalue()
+    if warnings:
+        output += "\n" + warnings
+    file_params.assert_expected(output, rstrip_lines=True)

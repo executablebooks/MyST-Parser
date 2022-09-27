@@ -49,6 +49,8 @@ www.example.com
         strike
         <raw format="html" xml:space="preserve">
             </s>
+
+<string>:1: (WARNING/2) Strikethrough is currently only supported in HTML output [myst.strikethrough]
 .
 
 [gfm-disallowed-html] --myst-gfm-only="yes"
@@ -140,4 +142,35 @@ www.commonmark.org/he<lp
         <reference refuri="http://www.commonmark.org/he">
             www.commonmark.org/he
         <lp
+.
+
+[attrs_image] --myst-enable-extensions=attrs_image
+.
+![a](b){#id .a width="100%" align=center height=20px}{.b}
+.
+<document source="<string>">
+    <paragraph>
+        <image align="center" alt="a" classes="a b" height="20px" ids="id" names="id" uri="b" width="100%">
+.
+
+[attrs_image_warnings] --myst-enable-extensions=attrs_image
+.
+![a](b){width=1x height=2x align=other }
+.
+<document source="<string>">
+    <paragraph>
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Invalid width value for image: '1x' [myst.image]
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Invalid height value for image: '2x' [myst.image]
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Invalid align value for image: 'other' [myst.image]
+        <image alt="a" uri="b">
+
+<string>:1: (WARNING/2) Invalid width value for image: '1x' [myst.image]
+<string>:1: (WARNING/2) Invalid height value for image: '2x' [myst.image]
+<string>:1: (WARNING/2) Invalid align value for image: 'other' [myst.image]
 .
