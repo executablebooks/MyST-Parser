@@ -785,6 +785,51 @@ class DocutilsRenderer(RendererProtocol):
         title = token.attrGet("title")
         if title:
             img_node["title"] = token.attrGet("title")
+
+        # apply other attributes that can be set on the image
+        if "class" in token.attrs:
+            img_node["classes"].extend(str(token.attrs["class"]).split())
+        if "width" in token.attrs:
+            try:
+                width = directives.length_or_percentage_or_unitless(
+                    str(token.attrs["width"])
+                )
+            except ValueError:
+                self.create_warning(
+                    f"Invalid width value for image: {token.attrs['width']!r}",
+                    line=token_line(token, default=0),
+                    subtype="image",
+                    append_to=self.current_node,
+                )
+            else:
+                img_node["width"] = width
+        if "height" in token.attrs:
+            try:
+                height = directives.length_or_unitless(str(token.attrs["height"]))
+            except ValueError:
+                self.create_warning(
+                    f"Invalid height value for image: {token.attrs['height']!r}",
+                    line=token_line(token, default=0),
+                    subtype="image",
+                    append_to=self.current_node,
+                )
+            else:
+                img_node["height"] = height
+        if "align" in token.attrs:
+            if token.attrs["align"] not in ("left", "center", "right"):
+                self.create_warning(
+                    f"Invalid align value for image: {token.attrs['align']!r}",
+                    line=token_line(token, default=0),
+                    subtype="image",
+                    append_to=self.current_node,
+                )
+            else:
+                img_node["align"] = token.attrs["align"]
+        if "id" in token.attrs:
+            name = nodes.fully_normalize_name(str(token.attrs["id"]))
+            img_node["names"].append(name)
+            self.document.note_explicit_target(img_node, img_node)
+
         self.current_node.append(img_node)
 
     # ### render methods for plugin tokens

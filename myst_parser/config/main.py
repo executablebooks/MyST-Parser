@@ -31,6 +31,7 @@ def check_extensions(_, __, value):
     diff = set(value).difference(
         [
             "amsmath",
+            "attrs_image",
             "colon_fence",
             "deflist",
             "dollarmath",

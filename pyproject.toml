@@ -37,7 +37,7 @@ dependencies = [
     "docutils>=0.15,<0.20",
     "jinja2", # required for substitutions, but let sphinx choose version
     "markdown-it-py>=1.0.0,<3.0.0",
-    "mdit-py-plugins~=0.3.0",
+    "mdit-py-plugins~=0.3.1",
     "pyyaml",
     "sphinx>=4,<6",
     "typing-extensions",
@@ -68,6 +68,7 @@ testing = [
     "pytest-regressions",
     "pytest-param-files~=0.3.4",
     "sphinx-pytest",
+    "sphinx<5.2",  # TODO 5.2 changes the attributes of desc/desc_signature nodes
 ]
 
 [project.scripts]

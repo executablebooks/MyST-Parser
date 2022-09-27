@@ -786,6 +786,42 @@ HTML image can also be used inline!
 
 I'm an inline image: <img src="img/fun-fish.png" height="20px">
 
+### Inline attributes
+
+:::{warning}
+This extension is currently experimental, and may change in future versions.
+:::
+
+By adding `"attrs_image"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+you can enable parsing of inline attributes for images.
+
+For example, the following Markdown:
+
+```md
+![image attrs](img/fun-fish.png){#imgattr .bg-primary width="100px" align=center}
+
+{ref}`a reference to the image <imgattr>`
+```
+
+will be parsed as:
+
+![image attrs](img/fun-fish.png){#imgattr .bg-primary width="100px" align=center}
+
+{ref}`a reference to the image <imgattr>`
+
+Inside the curly braces, the following syntax is possible:
+
+- `.foo` specifies `foo` as a class.
+  Multiple classes may be given in this way; they will be combined.
+- `#foo` specifies `foo` as an identifier.
+  An element may have only one identifier;
+  if multiple identifiers are given, the last one is used.
+- `key="value"` or `key=value` specifies a key-value attribute.
+    Quotes are not needed when the value consists entirely of
+    ASCII alphanumeric characters or `_` or `:` or `-`.
+    Backslash escapes may be used inside quoted values.
+- `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
+
 (syntax/figures)=
 
 ## Markdown Figures

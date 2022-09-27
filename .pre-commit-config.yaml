@@ -20,7 +20,7 @@ repos:
     - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.3
+    rev: v2.38.2
     hooks:
     - id: pyupgrade
       args: [--py37-plus]
@@ -31,7 +31,7 @@ repos:
     - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 22.6.0
+    rev: 22.8.0
     hooks:
     - id: black
 
@@ -52,7 +52,7 @@ repos:
       additional_dependencies:
       - sphinx~=5.0
       - markdown-it-py>=1.0.0,<3.0.0
-      - mdit-py-plugins~=0.3.0
+      - mdit-py-plugins~=0.3.1
       files: >
         (?x)^(
             myst_parser/.*py|
