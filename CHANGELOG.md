@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.18.1 - 2022-27-09
+
+Full Changelog: [v0.18.0...v0.18.1](https://github.com/executablebooks/MyST-Parser/compare/v0.18.0...v0.18.1)
+
+- ⬆️ UPGRADE: docutils 0.19 support (#611)
+- ✨ NEW: Add `attrs_image` (experimental) extension (#620)
+  - e.g. `![image](image.png){#id .class width=100px}`
+  - See: [Optional syntax section](docs/syntax/optional.md)
+  - **Important**: This is an experimental extension, and may change in future releases
+
 ## 0.18.0 - 2022-06-07
 
 Full Changelog: [v0.17.2...v0.18.0](https://github.com/executablebooks/MyST-Parser/compare/v0.17.2...v0.18.0)

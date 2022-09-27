@@ -1,5 +1,5 @@
 """An extended commonmark compliant parser, with bridges to docutils & sphinx."""
-__version__ = "0.18.0"
+__version__ = "0.18.1"
 
 
 def setup(app):
