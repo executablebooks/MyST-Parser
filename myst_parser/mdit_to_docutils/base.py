@@ -439,8 +439,8 @@ class DocutilsRenderer(RendererProtocol):
     # ### render methods for commonmark tokens
 
     def render_paragraph(self, token: SyntaxTreeNode) -> None:
-        if (token.children):
-            if (token.children[0].children and len(token.children[0].children) == 1):
+        if token.children:
+            if token.children[0].children and len(token.children[0].children) == 1:
                 para = nodes.paragraph("")
             else:
                 para = nodes.paragraph(token.children[0].content)
