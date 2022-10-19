@@ -36,6 +36,12 @@ jobs:
           python-version: "3.8"
           sphinx: ">=5,<6"
 
+    continue-on-error: >-
+      ${{
+        (matrix.python-version == '3.8' && matrix.sphinx == '>=5,<6')
+        && true || false
+      }}
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -101,10 +107,29 @@ jobs:
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 
+  # https://github.com/marketplace/actions/alls-green#why
+  check:  # This job does nothing and is only used for the branch protection
+
+    if: always()
+
+    needs:
+    - pre-commit
+    - tests
+    - check-myst-docutils
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
+
   publish:
 
     name: Publish myst-parser to PyPi
-    needs: [pre-commit, tests, check-myst-docutils]
+    needs:
+    - check
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
