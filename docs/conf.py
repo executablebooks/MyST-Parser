@@ -18,8 +18,8 @@ get_scm_version = partial(get_version, root=PROJECT_ROOT_DIR)
 # -- Project information -----------------------------------------------------
 
 github_url = "https://github.com"
-github_repo_org = "ansible"
-github_repo_name = "ansible-language-server"
+github_repo_org = "executablebooks"
+github_repo_name = "MyST-Parser"
 github_repo_slug = f"{github_repo_org}/{github_repo_name}"
 github_repo_url = f"{github_url}/{github_repo_slug}"
 github_sponsors_url = f"{github_url}/sponsors"
