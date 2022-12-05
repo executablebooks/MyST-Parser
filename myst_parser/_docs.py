@@ -10,8 +10,8 @@ from docutils.parsers.rst import directives
 from sphinx.directives import other
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
-from typing_extensions import get_args, get_origin
 
+from ._compat import get_args, get_origin
 from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
 
