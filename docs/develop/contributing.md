@@ -71,6 +71,9 @@ For documentation build tests:
 >> make html-strict
 ```
 
+```{include} ../changelog-fragments.d/README.md
+```
+
 ```{seealso}
 {ref}`develop/testing`
 ```
