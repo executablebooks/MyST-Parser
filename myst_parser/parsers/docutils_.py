@@ -5,8 +5,8 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tupl
 from docutils import frontend, nodes
 from docutils.core import default_description, publish_cmdline
 from docutils.parsers.rst import Parser as RstParser
-from typing_extensions import Literal, get_args, get_origin
 
+from myst_parser._compat import Literal, get_args, get_origin
 from myst_parser.config.main import (
     MdParserConfig,
     TopmatterReadError,
