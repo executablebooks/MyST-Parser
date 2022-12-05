@@ -96,8 +96,8 @@ class MystReferenceResolver(ReferencesResolver):
           ``[**nested**](reference)``
 
         """
-        target = node["reftarget"]  # type: str
-        results = []  # type: List[Tuple[str, Element]]
+        target: str = node["reftarget"]
+        results: List[Tuple[str, Element]] = []
 
         res_anchor = self._resolve_anchor(node, refdoc)
         if res_anchor:
@@ -205,7 +205,7 @@ class MystReferenceResolver(ReferencesResolver):
         if self.env.config.myst_heading_anchors is None:
             # no target anchors will have been created, so we don't look for them
             return None
-        target = node["reftarget"]  # type: str
+        target: str = node["reftarget"]
         if "#" not in target:
             return None
         # the link may be a heading anchor; we need to first get the relative path
