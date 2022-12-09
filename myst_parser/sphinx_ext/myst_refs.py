@@ -17,6 +17,7 @@ from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
 
 from myst_parser._compat import findall
+from myst_parser.warnings_ import MystWarnings
 
 try:
     from sphinx.errors import NoUri
@@ -156,7 +157,7 @@ class MystReferenceResolver(ReferencesResolver):
                         f"Domain '{domain.__module__}::{domain.name}' has not "
                         "implemented a `resolve_any_xref` method [myst.domains]",
                         type="myst",
-                        subtype="domains",
+                        subtype=MystWarnings.LEGACY_DOMAIN.value,
                         once=True,
                     )
                 for role in domain.roles:
@@ -183,7 +184,7 @@ class MystReferenceResolver(ReferencesResolver):
                 ),
                 location=node,
                 type="myst",
-                subtype="ref",
+                subtype=MystWarnings.XREF_AMBIGUOUS.value,
             )
 
         res_role, newnode = results[0]

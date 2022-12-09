@@ -1,3 +1,15 @@
+[suppress-warnings] --myst-suppress-warnings="myst.header"
+.
+# A
+### B
+.
+<document ids="a" names="a" source="<string>" title="A">
+    <title>
+        A
+    <subtitle ids="b" names="b">
+        B
+.
+
 [title-to-header] --myst-title-to-header="yes"
 .
 ---
@@ -161,16 +173,16 @@ www.commonmark.org/he<lp
     <paragraph>
         <system_message level="2" line="1" source="<string>" type="WARNING">
             <paragraph>
-                Invalid width value for image: '1x' [myst.image]
+                Invalid width value for image: '1x' [myst.attribute]
         <system_message level="2" line="1" source="<string>" type="WARNING">
             <paragraph>
-                Invalid height value for image: '2x' [myst.image]
+                Invalid height value for image: '2x' [myst.attribute]
         <system_message level="2" line="1" source="<string>" type="WARNING">
             <paragraph>
-                Invalid align value for image: 'other' [myst.image]
+                Invalid align value for image: 'other' [myst.attribute]
         <image alt="a" uri="b">
 
-<string>:1: (WARNING/2) Invalid width value for image: '1x' [myst.image]
-<string>:1: (WARNING/2) Invalid height value for image: '2x' [myst.image]
-<string>:1: (WARNING/2) Invalid align value for image: 'other' [myst.image]
+<string>:1: (WARNING/2) Invalid width value for image: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid height value for image: '2x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid align value for image: 'other' [myst.attribute]
 .

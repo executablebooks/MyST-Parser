@@ -12,8 +12,9 @@ from myst_parser.config.main import (
     merge_file_level,
     read_topmatter,
 )
-from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer, create_warning
+from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
 from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.warnings_ import create_warning
 
 SPHINX_LOGGER = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class MystParser(SphinxParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document, msg, line=1, append_to=document, subtype=wtype
+                    document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
 
