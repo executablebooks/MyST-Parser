@@ -101,7 +101,15 @@ def create_md_parser(
         md.use(tasklists_plugin)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
-    if "attrs_image" in config.enable_extensions:
+    if "attrs_inline" in config.enable_extensions:
+        md.use(
+            attrs_plugin,
+            after=("image", "code_inline", "link_close", "span_close"),
+            spans=True,
+            span_after="footnote_ref",
+        )
+    elif "attrs_image" in config.enable_extensions:
+        # TODO deprecate
         md.use(attrs_plugin, after=("image",))
     if config.heading_anchors is not None:
         md.use(

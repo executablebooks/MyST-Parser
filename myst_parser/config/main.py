@@ -32,6 +32,7 @@ def check_extensions(_, __, value):
         [
             "amsmath",
             "attrs_image",
+            "attrs_inline",
             "colon_fence",
             "deflist",
             "dollarmath",

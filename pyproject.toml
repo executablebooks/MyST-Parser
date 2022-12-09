@@ -37,7 +37,7 @@ dependencies = [
     "docutils>=0.15,<0.20",
     "jinja2", # required for substitutions, but let sphinx choose version
     "markdown-it-py>=1.0.0,<3.0.0",
-    "mdit-py-plugins~=0.3.1",
+    "mdit-py-plugins~=0.3.3",
     "pyyaml",
     "sphinx>=4,<6",
     "typing-extensions",
@@ -54,7 +54,8 @@ linkify = ["linkify-it-py~=1.0"]
 # Note: This is only required for internal use
 rtd = [
     "ipython",
-    "sphinx-book-theme",
+    # currently required to get sphinx v5
+    "sphinx-book-theme @ git+https://github.com/executablebooks/sphinx-book-theme.git@8da268fce3159755041e8db93e132221a0b0def5#egg=sphinx-book-theme",
     "sphinx-design",
     "sphinxext-rediraffe~=0.2.7",
     "sphinxcontrib.mermaid~=0.7.1",

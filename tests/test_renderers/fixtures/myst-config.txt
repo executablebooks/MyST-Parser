@@ -144,7 +144,56 @@ www.commonmark.org/he<lp
         <lp
 .
 
-[attrs_image] --myst-enable-extensions=attrs_image
+[attrs_inline_span] --myst-enable-extensions=attrs_inline
+.
+[content]{#id .a .b}
+.
+<document source="<string>">
+    <paragraph>
+        <inline classes="a b" ids="id" names="id">
+            content
+.
+
+[attrs_inline_code] --myst-enable-extensions=attrs_inline
+.
+`content`{#id .a .b language=python}
+.
+<document source="<string>">
+    <paragraph>
+        <literal classes="a b code" ids="id" language="python" names="id">
+            content
+.
+
+[attrs_inline_links] --myst-enable-extensions=attrs_inline
+.
+<https://example.com>{.a .b}
+
+(other)=
+[text1](https://example.com){#id1 .a .b}
+
+[text2](other){#id2 .c .d}
+
+[ref]{#id3 .e .f}
+
+[ref]: https://example.com
+.
+<document source="<string>">
+    <paragraph>
+        <reference classes="a b" refuri="https://example.com">
+            https://example.com
+    <target refid="other">
+    <paragraph ids="other" names="other">
+        <reference classes="a b" ids="id1" names="id1" refuri="https://example.com">
+            text1
+    <paragraph>
+        <reference classes="c d" ids="id2" names="id2" refid="other">
+            text2
+    <paragraph>
+        <reference classes="e f" ids="id3" names="id3" refuri="https://example.com">
+            ref
+.
+
+[attrs_inline_image] --myst-enable-extensions=attrs_inline
 .
 ![a](b){#id .a width="100%" align=center height=20px}{.b}
 .
@@ -153,24 +202,24 @@ www.commonmark.org/he<lp
         <image align="center" alt="a" classes="a b" height="20px" ids="id" names="id" uri="b" width="100%">
 .
 
-[attrs_image_warnings] --myst-enable-extensions=attrs_image
+[attrs_inline_image_warnings] --myst-enable-extensions=attrs_inline
 .
 ![a](b){width=1x height=2x align=other }
 .
 <document source="<string>">
     <paragraph>
-        <system_message level="2" line="1" source="<string>" type="WARNING">
-            <paragraph>
-                Invalid width value for image: '1x' [myst.image]
-        <system_message level="2" line="1" source="<string>" type="WARNING">
-            <paragraph>
-                Invalid height value for image: '2x' [myst.image]
-        <system_message level="2" line="1" source="<string>" type="WARNING">
-            <paragraph>
-                Invalid align value for image: 'other' [myst.image]
         <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'height' attribute value: '2x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'align' attribute value: 'other' [myst.attribute]
 
-<string>:1: (WARNING/2) Invalid width value for image: '1x' [myst.image]
-<string>:1: (WARNING/2) Invalid height value for image: '2x' [myst.image]
-<string>:1: (WARNING/2) Invalid align value for image: 'other' [myst.image]
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'height' attribute value: '2x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .

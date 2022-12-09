@@ -90,7 +90,7 @@ myst_enable_extensions = [
     "strikethrough",
     "substitution",
     "tasklist",
-    "attrs_image",
+    "attrs_inline",
 ]
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2

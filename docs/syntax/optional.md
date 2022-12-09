@@ -28,6 +28,7 @@ To enable all the syntaxes explained below:
 ```python
 myst_enable_extensions = [
     "amsmath",
+    "attrs_inline",
     "colon_fence",
     "deflist",
     "dollarmath",
@@ -43,7 +44,7 @@ myst_enable_extensions = [
 ]
 ```
 
-:::{important}
+:::{versionchanged} 0.13.0
 `myst_enable_extensions` replaces previous configuration options:
 `admonition_enable`, `figure_enable`, `dmath_enable`, `amsmath_enable`, `deflist_enable`, `html_img_enable`
 :::
@@ -101,7 +102,7 @@ Math is parsed by adding to the `myst_enable_extensions` list option, in the sph
 
 These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
 
-:::{important}
+:::{versionchanged} 0.13.0
 `myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
 :::
 
@@ -484,7 +485,7 @@ This text is **standard** _Markdown_
 
 ## Admonition directives
 
-:::{important}
+:::{versionchanged} 0.13.0
 `myst_admonition_enable` is deprecated and replaced by `myst_enable_extensions = ["colon_fence"]` (see above).
 Also, classes should now be set with the `:class: myclass` option.
 
@@ -727,9 +728,90 @@ Send a message to a recipient
 Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 :::
 
+(syntax/attributes)=
+## Inline attributes
+
+By adding `"attrs_inline"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
+you can enable parsing of inline attributes after certain inline syntaxes.
+This is adapted from [djot inline attributes](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html#inline-attributes),
+and also related to [pandoc bracketed spans](https://pandoc.org/MANUAL.html#extension-bracketed_spans).
+
+:::{important}
+This feature is in beta, and may change in future versions.
+It replace the previous `attrs_image` extension, which is now deprecated.
+:::
+
+Attributes are specified in curly braces after the inline syntax.
+Inside the curly braces, the following syntax is recognised:
+
+- `.foo` specifies `foo` as a class.
+  Multiple classes may be given in this way; they will be combined.
+- `#foo` specifies `foo` as an identifier.
+  An element may have only one identifier;
+  if multiple identifiers are given, the last one is used.
+- `key="value"` or `key=value` specifies a key-value attribute.
+    Quotes are not needed when the value consists entirely of
+    ASCII alphanumeric characters or `_` or `:` or `-`.
+    Backslash escapes may be used inside quoted values.
+    **Note** only certain keys are supported, see below.
+- `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
+
+For example, the following Markdown:
+
+```md
+
+- [A span of text with attributes]{#spanid .bg-warning},
+  {ref}`a reference to the span <spanid>`
+
+- `A literal with attributes`{#literalid .bg-warning},
+  {ref}`a reference to the literal <literalid>
+
+- An autolink with attributes: <https://example.com>{.bg-warning}
+
+- [A link with attributes](syntax/attributes){#linkid .bg-warning},
+  {ref}`a reference to the link <linkid>`
+
+- ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w=100px align=center}
+  {ref}`a reference to the image <imgid>`
+
+```
+
+will be parsed as:
+
+- [A span of text with attributes]{#spanid .bg-warning},
+  {ref}`a reference to the span <spanid>`
+
+- `A literal with attributes`{#literalid .bg-warning},
+  {ref}`a reference to the literal <literalid>`
+
+- An autolink with attributes: <https://example.com>{.bg-warning}
+
+- [A link with attributes](syntax/attributes){#linkid .bg-warning},
+  {ref}`a reference to the link <linkid>`
+
+- ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w="100px" align=center}
+  {ref}`a reference to the image <imgid>`
+
+### key-value attributes
+
+`id` and `class` are supported for all inline syntaxes,
+but only certain key-value attributes are supported for each syntax.
+
+For **literals**, the following attributes are supported:
+
+- `language`/`lexer`/`l` defines the syntax lexer,
+  e.g. `` `a = "b"`{l=python} `` is displayed as `a = "b"`{l=python}.
+  Note, this is only supported in `sphinx >= 5`.
+
+For **images**, the following attributes are supported (equivalent to the `image` directive):
+
+- `width`/`w` defines the width of the image (in `%`, `px`, `em`, `cm`, etc)
+- `height`/`h` defines the height of the image (in `px`, `em`, `cm`, etc)
+- `align`/`a` defines the scale of the image (`left`, `center`, or `right`)
+
 (syntax/images)=
 
-## Images
+## HTML Images
 
 MyST provides a few different syntaxes for including images in your documentation, as explained below.
 
@@ -786,42 +868,6 @@ HTML image can also be used inline!
 
 I'm an inline image: <img src="img/fun-fish.png" height="20px">
 
-### Inline attributes
-
-:::{warning}
-This extension is currently experimental, and may change in future versions.
-:::
-
-By adding `"attrs_image"` to `myst_enable_extensions` (in the sphinx `conf.py` [configuration file](https://www.sphinx-doc.org/en/master/usage/configuration.html)),
-you can enable parsing of inline attributes for images.
-
-For example, the following Markdown:
-
-```md
-![image attrs](img/fun-fish.png){#imgattr .bg-primary width="100px" align=center}
-
-{ref}`a reference to the image <imgattr>`
-```
-
-will be parsed as:
-
-![image attrs](img/fun-fish.png){#imgattr .bg-primary width="100px" align=center}
-
-{ref}`a reference to the image <imgattr>`
-
-Inside the curly braces, the following syntax is possible:
-
-- `.foo` specifies `foo` as a class.
-  Multiple classes may be given in this way; they will be combined.
-- `#foo` specifies `foo` as an identifier.
-  An element may have only one identifier;
-  if multiple identifiers are given, the last one is used.
-- `key="value"` or `key=value` specifies a key-value attribute.
-    Quotes are not needed when the value consists entirely of
-    ASCII alphanumeric characters or `_` or `:` or `-`.
-    Backslash escapes may be used inside quoted values.
-- `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
-
 (syntax/figures)=
 
 ## Markdown Figures
@@ -830,7 +876,7 @@ By adding `"colon_fence"` to `myst_enable_extensions` (in the sphinx `conf.py` [
 we can combine the above two extended syntaxes,
 to create a fully Markdown compliant version of the `figure` directive named `figure-md`.
 
-:::{important}
+:::{versionchanged} 0.13.0
 `myst_figure_enable` with the `figure` directive is deprecated and replaced by `myst_enable_extensions = ["colon_fence"]` and `figure-md`.
 :::
 
