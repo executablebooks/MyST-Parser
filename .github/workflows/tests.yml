@@ -99,7 +99,7 @@ jobs:
         else:
             raise AssertionError()"
     - name: Run pytest for docutils-only tests
-      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py
+      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py tests/test_renderers/test_myst_config.py
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 
