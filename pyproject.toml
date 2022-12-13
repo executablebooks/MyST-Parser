@@ -40,7 +40,7 @@ dependencies = [
     "mdit-py-plugins~=0.3.3",
     "pyyaml",
     "sphinx>=4,<6",
-    "typing-extensions",
+    'typing-extensions; python_version < "3.8"',
 ]
 
 [project.urls]

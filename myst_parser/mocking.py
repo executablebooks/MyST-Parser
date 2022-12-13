@@ -45,7 +45,7 @@ class MockInliner:
 
         if not hasattr(self.reporter, "get_source_and_line"):
             # In docutils this is set by `RSTState.runtime_init`
-            self.reporter.get_source_and_line = lambda l: (self.document["source"], l)
+            self.reporter.get_source_and_line = lambda li: (self.document["source"], li)
 
         self.rfc_url = "rfc%d.html"
 
@@ -458,7 +458,7 @@ class MockIncludeDirective:
         try:
             self.renderer.document["source"] = str(path)
             self.renderer.reporter.source = str(path)
-            self.renderer.reporter.get_source_and_line = lambda l: (str(path), l)
+            self.renderer.reporter.get_source_and_line = lambda li: (str(path), li)
             if "relative-images" in self.options:
                 self.renderer.md_env["relative-images"] = os.path.relpath(
                     path.parent, source_dir
