@@ -17,7 +17,8 @@ from typing import IO, TYPE_CHECKING, Iterator
 from urllib.request import urlopen
 
 import yaml
-from typing_extensions import TypedDict
+
+from ._compat import TypedDict
 
 if TYPE_CHECKING:
     from sphinx.util.typing import Inventory
