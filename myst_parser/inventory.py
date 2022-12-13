@@ -11,7 +11,7 @@ import argparse
 import json
 import re
 import zlib
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from fnmatch import fnmatchcase
 from typing import IO, TYPE_CHECKING, Iterator
 from urllib.request import urlopen
@@ -44,7 +44,7 @@ class InventoryType(TypedDict):
     """Mapping of domain -> object type -> name -> item."""
 
 
-def format_inventory(inv: Inventory) -> InventoryType:
+def from_sphinx(inv: Inventory) -> InventoryType:
     """Convert a Sphinx inventory to one that is JSON compliant."""
     project = ""
     version = ""
@@ -67,6 +67,21 @@ def format_inventory(inv: Inventory) -> InventoryType:
         "version": version,
         "objects": objs,
     }
+
+
+def to_sphinx(inv: InventoryType) -> Inventory:
+    """Convert a JSON compliant inventory to one that is Sphinx compliant."""
+    objs: Inventory = {}
+    for domain_name, obj_types in inv["objects"].items():
+        for obj_type, refs in obj_types.items():
+            for refname, refdata in refs.items():
+                objs.setdefault(f"{domain_name}:{obj_type}", {})[refname] = (
+                    inv["name"],
+                    inv["version"],
+                    refdata["loc"],
+                    refdata["text"] or "-",
+                )
+    return objs
 
 
 def load(stream: IO) -> InventoryType:
@@ -223,16 +238,19 @@ class InvMatch:
     uri: str
     text: str
 
+    def asdict(self) -> dict[str, str]:
+        return asdict(self)
 
-def resolve_inventory(
+
+def filter_inventories(
     inventories: dict[str, Inventory],
     ref_target: str,
     *,
     ref_inv: None | str = None,
     ref_domain: None | str = None,
     ref_otype: None | str = None,
-    match_end=False,
-) -> list[InvMatch]:
+    fnmatch_target=False,
+) -> Iterator[InvMatch]:
     """Resolve a cross-reference in the loaded sphinx inventories.
 
     :param inventories: Mapping of inventory name to inventory data
@@ -242,11 +260,10 @@ def resolve_inventory(
     :param ref_domain: The name of the domain to search, if None then all domains
         will be searched
     :param ref_otype: The type of object to search for, if None then all types will be searched
-    :param match_end: Whether to match against targets that end with the ref_target
+    :param fnmatch_target: Whether to match ref_target using fnmatchcase
 
-    :returns: matching results
+    :yields: matching results
     """
-    results: list[InvMatch] = []
     for inv_name, inv_data in inventories.items():
 
         if ref_inv is not None and ref_inv != inv_name:
@@ -265,22 +282,20 @@ def resolve_inventory(
             if ref_otype is not None and ref_otype != obj_type:
                 continue
 
-            if not match_end and ref_target in data:
-                results.append(
+            if not fnmatch_target and ref_target in data:
+                yield (
                     InvMatch(
                         inv_name, domain_name, obj_type, ref_target, *data[ref_target]
                     )
                 )
-            elif match_end:
+            elif fnmatch_target:
                 for target in data:
-                    if target.endswith(ref_target):
-                        results.append(
+                    if fnmatchcase(target, ref_target):
+                        yield (
                             InvMatch(
                                 inv_name, domain_name, obj_type, target, *data[target]
                             )
                         )
-
-    return results
 
 
 def inventory_cli(inputs: None | list[str] = None):
