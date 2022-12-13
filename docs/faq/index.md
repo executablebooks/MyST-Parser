@@ -174,7 +174,7 @@ like so:
 
 ### Suppress warnings
 
-Move to [](myst-warnings)
+Moved to [](myst-warnings)
 
 ### Sphinx-specific page front matter
 
