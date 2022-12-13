@@ -737,7 +737,7 @@ This is adapted from [djot inline attributes](https://htmlpreview.github.io/?htt
 and also related to [pandoc bracketed spans](https://pandoc.org/MANUAL.html#extension-bracketed_spans).
 
 :::{important}
-This feature is in beta, and may change in future versions.
+This feature is in *beta*, and may change in future versions.
 It replace the previous `attrs_image` extension, which is now deprecated.
 :::
 
