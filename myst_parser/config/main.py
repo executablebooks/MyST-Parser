@@ -13,6 +13,7 @@ from typing import (
     cast,
 )
 
+from myst_parser.warnings_ import MystWarnings
 from .dc_validators import (
     deep_iterable,
     deep_mapping,
@@ -123,15 +124,6 @@ class MdParserConfig:
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
             "help": "Sphinx domain names to search in for link references",
-        },
-    )
-
-    highlight_code_blocks: bool = dc.field(
-        default=True,
-        metadata={
-            "validator": instance_of(bool),
-            "help": "Syntax highlight code blocks with pygments",
-            "docutils_only": True,
         },
     )
 
@@ -282,6 +274,27 @@ class MdParserConfig:
         },
     )
 
+    # docutils only (replicating aspects of sphinx config)
+
+    suppress_warnings: Sequence[str] = dc.field(
+        default_factory=list,
+        metadata={
+            "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
+            "help": "A list of warning types to suppress warning messages",
+            "docutils_only": True,
+            "global_only": True,
+        },
+    )
+
+    highlight_code_blocks: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Syntax highlight code blocks with pygments",
+            "docutils_only": True,
+        },
+    )
+
     def __post_init__(self):
         validate_fields(self)
 
@@ -311,7 +324,7 @@ class MdParserConfig:
 def merge_file_level(
     config: MdParserConfig,
     topmatter: Dict[str, Any],
-    warning: Callable[[str, str], None],
+    warning: Callable[[MystWarnings, str], None],
 ) -> MdParserConfig:
     """Merge the file-level topmatter with the global config.
 
@@ -324,21 +337,21 @@ def merge_file_level(
     updates: Dict[str, Any] = {}
     myst = topmatter.get("myst", {})
     if not isinstance(myst, dict):
-        warning("topmatter", f"'myst' key not a dict: {type(myst)}")
+        warning(MystWarnings.MD_TOPMATTER, f"'myst' key not a dict: {type(myst)}")
     else:
         updates = myst
 
     # allow html_meta and substitutions at top-level for back-compatibility
     if "html_meta" in topmatter:
         warning(
-            "topmatter",
+            MystWarnings.MD_TOPMATTER,
             "top-level 'html_meta' key is deprecated, "
             "place under 'myst' key instead",
         )
         updates["html_meta"] = topmatter["html_meta"]
     if "substitutions" in topmatter:
         warning(
-            "topmatter",
+            MystWarnings.MD_TOPMATTER,
             "top-level 'substitutions' key is deprecated, "
             "place under 'myst' key instead",
         )
@@ -351,7 +364,7 @@ def merge_file_level(
     for name, value in updates.items():
 
         if name not in fields:
-            warning("topmatter", f"Unknown field: {name}")
+            warning(MystWarnings.MD_TOPMATTER, f"Unknown field: {name}")
             continue
 
         old_value, field = fields[name]
@@ -359,7 +372,7 @@ def merge_file_level(
         try:
             validate_field(new, field, value)
         except Exception as exc:
-            warning("topmatter", str(exc))
+            warning(MystWarnings.MD_TOPMATTER, str(exc))
             continue
 
         if field.metadata.get("merge_topmatter"):

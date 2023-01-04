@@ -13,8 +13,9 @@ from myst_parser.config.main import (
     merge_file_level,
     read_topmatter,
 )
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer, create_warning
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.warnings_ import create_warning
 
 
 def _validate_int(
@@ -47,6 +48,10 @@ class Unset:
 
     def __repr__(self):
         return "UNSET"
+
+    def __bool__(self):
+        # this allows to check if the setting is unset/falsy
+        return False
 
 
 DOCUTILS_UNSET = Unset()
@@ -218,7 +223,7 @@ class Parser(RstParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document, msg, line=1, append_to=document, subtype=wtype
+                    document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
 
