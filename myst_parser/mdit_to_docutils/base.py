@@ -51,6 +51,7 @@ from myst_parser.mocking import (
     MockStateMachine,
 )
 from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
+from myst_parser.warnings_ import MystWarnings, create_warning
 from .html_to_nodes import html_to_nodes
 from .utils import is_external_url
 
@@ -74,27 +75,6 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
             return default
         raise ValueError(f"token map not set: {token}")
     return token.map[0]  # type: ignore[index]
-
-
-def create_warning(
-    document: nodes.document,
-    message: str,
-    *,
-    line: int | None = None,
-    append_to: nodes.Element | None = None,
-    wtype: str = "myst",
-    subtype: str = "other",
-) -> nodes.system_message | None:
-    """Generate a warning, logging if it is necessary.
-
-    Note this is overridden in the ``SphinxRenderer``,
-    to handle suppressed warning types.
-    """
-    kwargs = {"line": line} if line is not None else {}
-    msg_node = document.reporter.warning(f"{message} [{wtype}.{subtype}]", **kwargs)
-    if append_to is not None:
-        append_to.append(msg_node)
-    return msg_node
 
 
 class DocutilsRenderer(RendererProtocol):
@@ -164,24 +144,22 @@ class DocutilsRenderer(RendererProtocol):
     def create_warning(
         self,
         message: str,
+        subtype: MystWarnings,
         *,
         line: int | None = None,
         append_to: nodes.Element | None = None,
-        wtype: str = "myst",
-        subtype: str = "other",
     ) -> nodes.system_message | None:
         """Generate a warning, logging if it is necessary.
 
-        Note this is overridden in the ``SphinxRenderer``,
-        to handle suppressed warning types.
+        If the warning type is listed in the ``suppress_warnings`` configuration,
+        then ``None`` will be returned and no warning logged.
         """
         return create_warning(
             self.document,
             message,
+            subtype,
             line=line,
             append_to=append_to,
-            wtype=wtype,
-            subtype=subtype,
         )
 
     def _render_tokens(self, tokens: list[Token]) -> None:
@@ -219,8 +197,8 @@ class DocutilsRenderer(RendererProtocol):
             else:
                 self.create_warning(
                     f"No render method for: {child.type}",
+                    MystWarnings.RENDER_METHOD,
                     line=token_line(child, default=0),
-                    subtype="render",
                     append_to=self.current_node,
                 )
 
@@ -259,8 +237,8 @@ class DocutilsRenderer(RendererProtocol):
         for dup_ref in self.md_env.get("duplicate_refs", []):
             self.create_warning(
                 f"Duplicate reference definition: {dup_ref['label']}",
+                MystWarnings.MD_DEF_DUPE,
                 line=dup_ref["map"][0] + 1,
-                subtype="ref",
                 append_to=self.document,
             )
 
@@ -280,14 +258,14 @@ class DocutilsRenderer(RendererProtocol):
             if len(foot_ref_tokens) > 1:
                 self.create_warning(
                     f"Multiple footnote definitions found for label: '{footref}'",
-                    subtype="footnote",
+                    MystWarnings.MD_FOOTNOTE_DUPE,
                     append_to=self.current_node,
                 )
 
             if len(foot_ref_tokens) < 1:
                 self.create_warning(
                     f"No footnote definitions found for label: '{footref}'",
-                    subtype="footnote",
+                    MystWarnings.MD_FOOTNOTE_MISSING,
                     append_to=self.current_node,
                 )
             else:
@@ -368,8 +346,8 @@ class DocutilsRenderer(RendererProtocol):
             else:
                 self.create_warning(
                     f"No render method for: {child.type}",
+                    MystWarnings.RENDER_METHOD,
                     line=token_line(child, default=0),
-                    subtype="render",
                     append_to=self.current_node,
                 )
 
@@ -423,8 +401,8 @@ class DocutilsRenderer(RendererProtocol):
                     except ValueError:
                         self.create_warning(
                             f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            MystWarnings.INVALID_ATTRIBUTE,
                             line=token_line(token, default=0),
-                            subtype="attribute",
                             append_to=node,
                         )
                         continue
@@ -448,8 +426,8 @@ class DocutilsRenderer(RendererProtocol):
                 msg = f"Document headings start at H{level}, not H1"
             self.create_warning(
                 msg,
+                MystWarnings.MD_HEADING_NON_CONSECUTIVE,
                 line=section.line,
-                subtype="header",
                 append_to=self.current_node,
             )
 
@@ -692,8 +670,8 @@ class DocutilsRenderer(RendererProtocol):
             # this would break the document structure
             self.create_warning(
                 "Disallowed nested header found, converting to rubric",
+                MystWarnings.MD_HEADING_NESTED,
                 line=token_line(token, default=0),
-                subtype="nested_header",
                 append_to=self.current_node,
             )
             rubric = nodes.rubric(token.content, "")
@@ -868,9 +846,9 @@ class DocutilsRenderer(RendererProtocol):
             except (yaml.parser.ParserError, yaml.scanner.ScannerError):
                 self.create_warning(
                     "Malformed YAML",
+                    MystWarnings.MD_TOPMATTER,
                     line=position,
                     append_to=self.current_node,
-                    subtype="topmatter",
                 )
                 return
         else:
@@ -879,9 +857,9 @@ class DocutilsRenderer(RendererProtocol):
         if not isinstance(data, dict):
             self.create_warning(
                 f"YAML is not a dict: {type(data)}",
+                MystWarnings.MD_TOPMATTER,
                 line=position,
                 append_to=self.current_node,
-                subtype="topmatter",
             )
             return
 
@@ -1028,8 +1006,8 @@ class DocutilsRenderer(RendererProtocol):
         # TODO strikethrough not currently directly supported in docutils
         self.create_warning(
             "Strikethrough is currently only supported in HTML output",
+            MystWarnings.STRIKETHROUGH,
             line=token_line(token, 0),
-            subtype="strikethrough",
             append_to=self.current_node,
         )
         self.current_node.append(nodes.raw("", "<s>", format="html"))

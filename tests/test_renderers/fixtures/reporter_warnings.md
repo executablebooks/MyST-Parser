@@ -3,7 +3,7 @@ Duplicate Reference definitions:
 [a]: b
 [a]: c
 .
-<string>:2: (WARNING/2) Duplicate reference definition: A [myst.ref]
+<string>:2: (WARNING/2) Duplicate reference definition: A [myst.duplicate_def]
 .
 
 Missing Reference:

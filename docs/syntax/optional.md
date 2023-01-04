@@ -89,7 +89,7 @@ For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough wit
 :::{warning}
 This extension is currently only supported for HTML output,
 and you will need to suppress the `myst.strikethrough` warning
-(see [](howto/warnings))
+(see [](myst-warnings))
 :::
 
 (syntax/math)=

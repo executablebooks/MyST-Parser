@@ -14,8 +14,9 @@ from sphinx.util.docutils import SphinxDirective
 from ._compat import get_args, get_origin
 from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
+from .warnings_ import MystWarnings
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class _ConfigBase(SphinxDirective):
@@ -71,6 +72,9 @@ class MystConfigDirective(_ConfigBase):
         text = self.table_header()
         count = 0
         for name, value, field in config.as_triple():
+
+            if field.metadata.get("deprecated"):
+                continue
 
             # filter by sphinx options
             if "sphinx" in self.options and field.metadata.get("sphinx_exclude"):
@@ -146,7 +150,7 @@ class DirectiveDoc(SphinxDirective):
             name, self.state.memo.language, self.state.document
         )
         if klass is None:
-            logger.warning(f"Directive {name} not found.", line=self.lineno)
+            LOGGER.warning(f"Directive {name} not found.", line=self.lineno)
             return []
         content = " ".join(self.content)
         text = f"""\
@@ -196,3 +200,27 @@ def convert_opt(name, func):
     if func is other.int_or_nothing:
         return "integer"
     return ""
+
+
+class MystWarningsDirective(SphinxDirective):
+    """Directive to print all known warnings."""
+
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = False
+
+    def run(self):
+        """Run the directive."""
+        from sphinx.pycode import ModuleAnalyzer
+
+        analyzer = ModuleAnalyzer.for_module(MystWarnings.__module__)
+        qname = MystWarnings.__qualname__
+        analyzer.analyze()
+        warning_names = [
+            (e.value, analyzer.attr_docs[(qname, e.name)]) for e in MystWarnings
+        ]
+        text = [f"- `myst.{name}`: {' '.join(doc)}" for name, doc in warning_names]
+        node = nodes.Element()
+        self.state.nested_parse(text, 0, node)
+        return node.children

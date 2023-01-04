@@ -1,3 +1,15 @@
+[suppress-warnings] --myst-suppress-warnings="myst.header"
+.
+# A
+### B
+.
+<document ids="a" names="a" source="<string>" title="A">
+    <title>
+        A
+    <subtitle ids="b" names="b">
+        B
+.
+
 [title-to-header] --myst-title-to-header="yes"
 .
 ---

@@ -17,37 +17,9 @@ from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
-
-
-def create_warning(
-    document: nodes.document,
-    message: str,
-    *,
-    line: int | None = None,
-    append_to: nodes.Element | None = None,
-    wtype: str = "myst",
-    subtype: str = "other",
-) -> nodes.system_message | None:
-    """Generate a warning, logging it if necessary.
-
-    If the warning type is listed in the ``suppress_warnings`` configuration,
-    then ``None`` will be returned and no warning logged.
-    """
-    message = f"{message} [{wtype}.{subtype}]"
-    kwargs = {"line": line} if line is not None else {}
-
-    if logging.is_suppressed_warning(
-        wtype, subtype, document.settings.env.app.config.suppress_warnings
-    ):
-        return None
-
-    msg_node = document.reporter.warning(message, **kwargs)
-    if append_to is not None:
-        append_to.append(msg_node)
-
-    return None
 
 
 class SphinxRenderer(DocutilsRenderer):
@@ -60,29 +32,6 @@ class SphinxRenderer(DocutilsRenderer):
     @property
     def doc_env(self) -> BuildEnvironment:
         return self.document.settings.env
-
-    def create_warning(
-        self,
-        message: str,
-        *,
-        line: int | None = None,
-        append_to: nodes.Element | None = None,
-        wtype: str = "myst",
-        subtype: str = "other",
-    ) -> nodes.system_message | None:
-        """Generate a warning, logging it if necessary.
-
-        If the warning type is listed in the ``suppress_warnings`` configuration,
-        then ``None`` will be returned and no warning logged.
-        """
-        return create_warning(
-            self.document,
-            message,
-            line=line,
-            append_to=append_to,
-            wtype=wtype,
-            subtype=subtype,
-        )
 
     def render_internal_link(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
@@ -169,8 +118,8 @@ class SphinxRenderer(DocutilsRenderer):
             other_doc = self.doc_env.doc2path(domain.labels[doc_slug][0])
             self.create_warning(
                 f"duplicate label {doc_slug}, other instance in {other_doc}",
+                MystWarnings.ANCHOR_DUPE,
                 line=section.line,
-                subtype="anchor",
             )
         labelid = section["ids"][0]
         domain.anonlabels[doc_slug] = self.doc_env.docname, labelid
