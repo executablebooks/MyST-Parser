@@ -414,7 +414,6 @@ def read_topmatter(text: Union[str, Iterator[str]]) -> Optional[Dict[str, Any]]:
         top_matter.append(line.rstrip() + "\n")
     try:
         metadata = yaml.safe_load("".join(top_matter))
-        assert isinstance(metadata, dict)
     except (yaml.parser.ParserError, yaml.scanner.ScannerError) as err:
         raise TopmatterReadError("Malformed YAML") from err
     if not isinstance(metadata, dict):
