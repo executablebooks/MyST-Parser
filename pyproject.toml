@@ -68,7 +68,6 @@ testing = [
     "pytest-regressions",
     "pytest-param-files~=0.3.4",
     "sphinx-pytest",
-    "sphinx<5.2",  # TODO 5.2 changes the attributes of desc/desc_signature nodes
 ]
 
 [project.scripts]

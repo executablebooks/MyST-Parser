@@ -101,6 +101,7 @@ def get_sphinx_app_doctree(file_regression):
         resolve=False,
         regress=False,
         replace=None,
+        rstrip_lines=False,
         regress_ext=".xml",
     ):
         if resolve:
@@ -120,6 +121,8 @@ def get_sphinx_app_doctree(file_regression):
             text = doctree.pformat()  # type: str
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
+            if rstrip_lines:
+                text = "\n".join([li.rstrip() for li in text.splitlines()])
             file_regression.check(text, extension=extension)
 
         return doctree
