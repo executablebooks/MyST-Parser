@@ -5,9 +5,15 @@ from typing import Callable, Iterable
 from docutils.nodes import Element
 
 if sys.version_info >= (3, 8):
-    from typing import Literal, Protocol, get_args, get_origin  # noqa: F401
+    from typing import Literal, Protocol, TypedDict, get_args, get_origin  # noqa: F401
 else:
-    from typing_extensions import Literal, Protocol, get_args, get_origin  # noqa: F401
+    from typing_extensions import (  # noqa: F401
+        Literal,
+        Protocol,
+        TypedDict,
+        get_args,
+        get_origin,
+    )
 
 
 def findall(node: Element) -> Callable[..., Iterable[Element]]:

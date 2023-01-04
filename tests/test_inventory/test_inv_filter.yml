@@ -1,0 +1,8 @@
+- domain: std
+  inv: inv
+  name: index
+  otype: doc
+  proj: Python
+  text: Title
+  uri: index.html
+  version: ''
