@@ -24,6 +24,11 @@ def test_render(file_params, tmp_path, monkeypatch):
     )
 
     doctree["source"] = "tmpdir/test.md"
+    if file_params.title.startswith("Include code:"):
+        # from sphinx 5.3 whitespace nodes are now present
+        for node in doctree.traverse():
+            if node.tagname == "inline" and node["classes"] == ["whitespace"]:
+                node.parent.remove(node)
     output = doctree.pformat().replace(str(tmp_path) + os.sep, "tmpdir" + "/").rstrip()
 
     file_params.assert_expected(output, rstrip=True)

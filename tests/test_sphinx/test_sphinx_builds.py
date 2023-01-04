@@ -248,11 +248,14 @@ def test_includes(
             app,
             docname="index",
             regress=True,
+            rstrip_lines=True,
             # fix for Windows CI
             replace={
                 r"subfolder\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\\\example2.jpg": "subfolder/example2.jpg",
+                # in sphinx 5.3 whitespace nodes were added
+                '                <inline classes="whitespace">\n    ': "",
             },
         )
     finally:
@@ -265,6 +268,9 @@ def test_includes(
                 r"'subfolder\\example2'": "'subfolder/example2'",
                 r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
                 "_images/example21.jpg": "_images/example2.jpg",
+                # in sphinx 5.3 whitespace nodes were added
+                '<span class="whitespace"></span>': "",
+                '<span class="whitespace">\n</span>': "\n",
             },
         )
 
@@ -530,13 +536,18 @@ def test_fieldlist_extension(
             app,
             docname="index",
             regress=True,
-            # changed in:
-            # https://www.sphinx-doc.org/en/master/changes.html#release-4-4-0-released-jan-17-2022
             replace={
+                # changed in:
+                # https://www.sphinx-doc.org/en/master/changes.html#release-4-4-0-released-jan-17-2022
                 (
                     '<literal_strong py:class="True" '
                     'py:module="True" refspecific="True">'
-                ): "<literal_strong>"
+                ): "<literal_strong>",
+                # changed in sphinx 5.3, for `desc` node
+                'nocontentsentry="False" ': "",
+                'noindexentry="False" ': "",
+                # changed in sphinx 5.3, for `desc_signature` node
+                '_toc_name="send_message()" _toc_parts="(\'send_message\',)" ': "",
             },
         )
     finally:
