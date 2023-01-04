@@ -1,0 +1,5 @@
+# Sphinx inventory version 1
+# Project: foo
+# Version: 1.0
+module mod foo.html
+module.cls class foo.html

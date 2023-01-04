@@ -1,0 +1,32 @@
+- domain: std
+  inv: inv
+  name: genindex
+  otype: label
+  proj: Python
+  text: Index
+  uri: genindex.html
+  version: ''
+- domain: std
+  inv: inv
+  name: modindex
+  otype: label
+  proj: Python
+  text: Module Index
+  uri: py-modindex.html
+  version: ''
+- domain: std
+  inv: inv
+  name: py-modindex
+  otype: label
+  proj: Python
+  text: Python Module Index
+  uri: py-modindex.html
+  version: ''
+- domain: std
+  inv: inv
+  name: index
+  otype: doc
+  proj: Python
+  text: Title
+  uri: index.html
+  version: ''
