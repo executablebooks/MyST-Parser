@@ -1,11 +1,10 @@
+from io import StringIO
 from unittest import mock
 
 from myst_parser.cli import print_anchors
 
 
 def test_print_anchors():
-    from io import StringIO
-
     in_stream = StringIO("# a\n\n## b\n\ntext")
     out_stream = StringIO()
     with mock.patch("sys.stdin", in_stream):

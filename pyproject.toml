@@ -74,6 +74,7 @@ testing = [
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
+myst-inv = "myst_parser.inventory:inventory_cli"
 myst-docutils-html = "myst_parser.parsers.docutils_:cli_html"
 myst-docutils-html5 = "myst_parser.parsers.docutils_:cli_html5"
 myst-docutils-latex = "myst_parser.parsers.docutils_:cli_latex"

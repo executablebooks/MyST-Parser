@@ -1,0 +1,24 @@
+name: Python
+version: ''
+objects:
+  std:
+    label:
+      genindex:
+        loc: genindex.html
+        text: Index
+      modindex:
+        loc: py-modindex.html
+        text: Module Index
+      py-modindex:
+        loc: py-modindex.html
+        text: Python Module Index
+      ref:
+        loc: index.html#ref
+        text: Title
+      search:
+        loc: search.html
+        text: Search Page
+    doc:
+      index:
+        loc: index.html
+        text: Title
