@@ -7,14 +7,14 @@
             <title>
                 A Sub-Heading in Include
             <paragraph>
-                Some text with 
+                Some text with
                 <emphasis>
                     syntax
         <section ids="a-sub-heading-in-nested-include" names="a\ sub-heading\ in\ nested\ include">
             <title>
                 A Sub-Heading in Nested Include
             <paragraph>
-                Some other text with 
+                Some other text with
                 <strong>
                     syntax
             <paragraph>
@@ -24,7 +24,7 @@
                 <caption>
                     Caption
             <paragraph>
-                This absolute path will refer to the project root (where the 
+                This absolute path will refer to the project root (where the
                 <literal>
                     conf.py
                  is):
@@ -47,7 +47,7 @@
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="keyword">
                     def
-                 
+
                 <inline classes="name function">
                     a_func
                 <inline classes="punctuation">
@@ -56,8 +56,8 @@
                     param
                 <inline classes="punctuation">
                     ):
-                
-                    
+
+
                 <inline classes="name builtin">
                     print
                 <inline classes="punctuation">
@@ -68,10 +68,10 @@
                     )
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="ln">
-                    0 
+                    0
                 <inline classes="keyword">
                     def
-                 
+
                 <inline classes="name function">
                     a_func
                 <inline classes="punctuation">
@@ -80,10 +80,10 @@
                     param
                 <inline classes="punctuation">
                     ):
-                
+
                 <inline classes="ln">
-                    1 
-                    
+                    1
+
                 <inline classes="name builtin">
                     print
                 <inline classes="punctuation">
@@ -94,17 +94,17 @@
                     )
             <literal_block source="include_literal.txt" xml:space="preserve">
                 This should be *literal*
-                
+
                 Lots
                 of
                 lines
                 so we can select some
             <literal_block ids="literal-ref" names="literal_ref" source="include_literal.txt" xml:space="preserve">
                 <inline classes="ln">
-                    0 
+                    0
                 Lots
                 <inline classes="ln">
-                    1 
+                    1
                 of
             <section ids="a-sub-sub-heading" names="a\ sub-sub-heading">
                 <title>
