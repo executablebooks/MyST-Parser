@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    "sphinx.ext.imgconverter",
     "sphinx_design",
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
@@ -121,14 +122,6 @@ intersphinx_mapping = {
     "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
 }
 
-# autodoc_default_options = {
-#     "show-inheritance": True,
-#     "special-members": "__init__, __enter__, __exit__",
-#     "members": True,
-#     # 'exclude-members': '',
-#     "undoc-members": True,
-#     # 'inherited-members': True
-# }
 autodoc_member_order = "bysource"
 nitpicky = True
 nitpick_ignore = [
