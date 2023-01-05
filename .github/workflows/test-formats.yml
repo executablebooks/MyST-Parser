@@ -31,6 +31,15 @@ jobs:
       run: |
         sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
 
+    - if: matrix.format == 'latex'
+      name: Make PDF
+      uses: xu-cheng/latex-action@v2
+      with:
+        working_directory: docs/_build/latex
+        root_file: "mystparser.tex"
+      env:
+        XINDYOPTS: -L english -C utf8  -M sphinx.xdy
+
   # doc-build-pdf:
 
   #   name: Documentation PDF build
