@@ -7,6 +7,7 @@
 from datetime import date
 
 from sphinx.application import Sphinx
+from sphinx.transforms.post_transforms import SphinxPostTransform
 
 from myst_parser import __version__
 
@@ -44,12 +45,66 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+suppress_warnings = ["myst.strikethrough"]
 
-# -- Options for HTML output -------------------------------------------------
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.7", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+    "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
+}
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
+# -- Autodoc settings ---------------------------------------------------
+
+autodoc_member_order = "bysource"
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "docutils.nodes.document"),
+    ("py:class", "docutils.nodes.docinfo"),
+    ("py:class", "docutils.nodes.Element"),
+    ("py:class", "docutils.nodes.Node"),
+    ("py:class", "docutils.nodes.field_list"),
+    ("py:class", "docutils.nodes.problematic"),
+    ("py:class", "docutils.nodes.pending"),
+    ("py:class", "docutils.nodes.system_message"),
+    ("py:class", "docutils.statemachine.StringList"),
+    ("py:class", "docutils.parsers.rst.directives.misc.Include"),
+    ("py:class", "docutils.parsers.rst.Parser"),
+    ("py:class", "docutils.utils.Reporter"),
+    ("py:class", "nodes.Element"),
+    ("py:class", "nodes.Node"),
+    ("py:class", "nodes.system_message"),
+    ("py:class", "Directive"),
+    ("py:class", "Include"),
+    ("py:class", "StringList"),
+    ("py:class", "DocutilsRenderer"),
+    ("py:class", "MockStateMachine"),
+]
+
+# -- MyST settings ---------------------------------------------------
+
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "colon_fence",
+    "smartquotes",
+    "replacements",
+    "linkify",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+    "attrs_inline",
+]
+myst_number_code_blocks = ["typescript"]
+myst_heading_anchors = 2
+myst_footnote_transition = True
+myst_dmath_double_inline = True
+
+# -- HTML output -------------------------------------------------
+
 html_theme = "sphinx_book_theme"
 html_logo = "_static/logo-wide.svg"
 html_favicon = "_static/logo-square.svg"
@@ -76,27 +131,6 @@ ogp_custom_meta_tags = [
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-myst_enable_extensions = [
-    "dollarmath",
-    "amsmath",
-    "deflist",
-    "fieldlist",
-    "html_admonition",
-    "html_image",
-    "colon_fence",
-    "smartquotes",
-    "replacements",
-    "linkify",
-    "strikethrough",
-    "substitution",
-    "tasklist",
-    "attrs_inline",
-]
-myst_number_code_blocks = ["typescript"]
-myst_heading_anchors = 2
-myst_footnote_transition = True
-myst_dmath_double_inline = True
-
 rediraffe_redirects = {
     "using/intro.md": "sphinx/intro.md",
     "sphinx/intro.md": "intro.md",
@@ -112,47 +146,28 @@ rediraffe_redirects = {
     "explain/index.md": "develop/background.md",
 }
 
-suppress_warnings = ["myst.strikethrough"]
+# -- LaTeX output -------------------------------------------------
+
+latex_engine = "xelatex"
+
+# -- Local Sphinx extensions -------------------------------------------------
 
 
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
-    "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
-}
+class StripUnsupportedLatex(SphinxPostTransform):
+    """Remove unsupported nodes from the doctree."""
 
-# autodoc_default_options = {
-#     "show-inheritance": True,
-#     "special-members": "__init__, __enter__, __exit__",
-#     "members": True,
-#     # 'exclude-members': '',
-#     "undoc-members": True,
-#     # 'inherited-members': True
-# }
-autodoc_member_order = "bysource"
-nitpicky = True
-nitpick_ignore = [
-    ("py:class", "docutils.nodes.document"),
-    ("py:class", "docutils.nodes.docinfo"),
-    ("py:class", "docutils.nodes.Element"),
-    ("py:class", "docutils.nodes.Node"),
-    ("py:class", "docutils.nodes.field_list"),
-    ("py:class", "docutils.nodes.problematic"),
-    ("py:class", "docutils.nodes.pending"),
-    ("py:class", "docutils.nodes.system_message"),
-    ("py:class", "docutils.statemachine.StringList"),
-    ("py:class", "docutils.parsers.rst.directives.misc.Include"),
-    ("py:class", "docutils.parsers.rst.Parser"),
-    ("py:class", "docutils.utils.Reporter"),
-    ("py:class", "nodes.Element"),
-    ("py:class", "nodes.Node"),
-    ("py:class", "nodes.system_message"),
-    ("py:class", "Directive"),
-    ("py:class", "Include"),
-    ("py:class", "StringList"),
-    ("py:class", "DocutilsRenderer"),
-    ("py:class", "MockStateMachine"),
-]
+    default_priority = 900
+
+    def run(self):
+        if not self.app.builder.format == "latex":
+            return
+        from docutils import nodes
+
+        for node in self.document.findall():
+            if node.tagname == "image" and node["uri"].endswith(".svg"):
+                node.parent.replace(node, nodes.inline("", "Removed SVG image"))
+            if node.tagname == "mermaid":
+                node.parent.replace(node, nodes.inline("", "Removed Mermaid diagram"))
 
 
 def setup(app: Sphinx):
@@ -169,3 +184,4 @@ def setup(app: Sphinx):
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
+    app.add_post_transform(StripUnsupportedLatex)

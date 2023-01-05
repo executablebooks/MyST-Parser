@@ -138,30 +138,24 @@ For example:
 
 ```latex
 $$
-   \begin{eqnarray}
-      y    & = & ax^2 + bx + c \\
-      f(x) & = & x^2 + 2xy + y^2
-   \end{eqnarray}
+    y    & = ax^2 + bx + c \\
+    f(x) & = x^2 + 2xy + y^2
 $$
 ```
 
 becomes
 
 $$
-   \begin{eqnarray}
-      y    & = & ax^2 + bx + c \\
-      f(x) & = & x^2 + 2xy + y^2
-   \end{eqnarray}
+    y    & = ax^2 + bx + c \\
+    f(x) & = x^2 + 2xy + y^2
 $$
 
 This is equivalent to the following directive:
 
 ````md
 ```{math}
-   \begin{eqnarray}
-      y    & = & ax^2 + bx + c \\
-      f(x) & = & x^2 + 2xy + y^2
-   \end{eqnarray}
+    y    & = ax^2 + bx + c \\
+    f(x) & = x^2 + 2xy + y^2
 ```
 ````
 
