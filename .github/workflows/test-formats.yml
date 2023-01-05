@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        format: ["man", "text", "latex"]
+        format: ["man", "text"]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,8 +31,31 @@ jobs:
       run: |
         sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
 
-    - if: matrix.format == 'latex'
-      name: Make PDF
+  doc-builds-pdf:
+
+    name: Documentation builds
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        format: ["latex"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[linkify,rtd]
+    - name: Build docs
+      run: |
+        sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
+
+    - name: Make PDF
       uses: xu-cheng/latex-action@v2
       with:
         working_directory: docs/_build/latex
