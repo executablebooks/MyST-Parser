@@ -37,44 +37,17 @@ jobs:
       with:
         working_directory: docs/_build/latex
         root_file: "mystparser.tex"
+        # https://github.com/marketplace/actions/github-action-for-latex#it-fails-due-to-xindy-cannot-be-found
+        pre_compile: |
+          ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/xindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/xindy
+          ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/texindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/texindy
+          wget https://sourceforge.net/projects/xindy/files/xindy-source-components/2.4/xindy-kernel-3.0.tar.gz
+          tar xf xindy-kernel-3.0.tar.gz
+          cd xindy-kernel-3.0/src
+          apk add make
+          apk add clisp --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+          make
+          cp -f xindy.mem /opt/texlive/texdir/bin/x86_64-linuxmusl/
+          cd ../../
       env:
         XINDYOPTS: -L english -C utf8  -M sphinx.xdy
-
-  # doc-build-pdf:
-
-  #   name: Documentation PDF build
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.9
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.9
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install -e .[linkify,rtd]
-  #   - name: Build docs
-  #     run: |
-  #       sphinx-build -nW --keep-going -b latex docs/ docs/_build/latex
-
-  #   - name: Run PDF build
-  #     uses: xu-cheng/latex-action@v2
-  #     with:
-  #       working_directory: docs/_build/latex
-  #       root_file: "mystparser.tex"
-  #       # https://github.com/marketplace/actions/github-action-for-latex#it-fails-due-to-xindy-cannot-be-found
-  #       pre_compile: |
-  #         ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/xindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/xindy
-  #         ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/texindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/texindy
-  #         wget https://sourceforge.net/projects/xindy/files/xindy-source-components/2.4/xindy-kernel-3.0.tar.gz
-  #         tar xf xindy-kernel-3.0.tar.gz
-  #         cd xindy-kernel-3.0/src
-  #         apk add make
-  #         apk add clisp --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-  #         make
-  #         cp -f xindy.mem /opt/texlive/texdir/bin/x86_64-linuxmusl/
-  #         cd ../../
-  #     env:
-  #       XINDYOPTS: -L english -C utf8  -M sphinx.xdy
