@@ -7,6 +7,7 @@
 from datetime import date
 
 from sphinx.application import Sphinx
+from sphinx.transforms.post_transforms import SphinxPostTransform
 
 from myst_parser import __version__
 
@@ -30,7 +31,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx.ext.imgconverter",
     "sphinx_design",
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
@@ -148,6 +148,23 @@ nitpick_ignore = [
 ]
 
 
+class StripUnsupportedLatex(SphinxPostTransform):
+    """Remove unsupported nodes from the doctree."""
+
+    default_priority = 900
+
+    def run(self):
+        if not self.app.builder.format == "latex":
+            return
+        from docutils import nodes
+
+        for node in self.document.findall():
+            if node.tagname == "image" and node["uri"].endswith(".svg"):
+                node.parent.replace(node, nodes.inline("", "Removed SVG image"))
+            if node.tagname == "mermaid":
+                node.parent.replace(node, nodes.inline("", "Removed Mermaid diagram"))
+
+
 def setup(app: Sphinx):
     """Add functions to the Sphinx setup."""
     from myst_parser._docs import (
@@ -162,3 +179,4 @@ def setup(app: Sphinx):
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
+    app.add_post_transform(StripUnsupportedLatex)
