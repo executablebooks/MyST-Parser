@@ -25,16 +25,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
-        sphinx: [">=5,<6"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        sphinx: [">=6,<7"]
         os: [ubuntu-latest]
         include:
         - os: ubuntu-latest
           python-version: "3.8"
-          sphinx: ">=4,<5"
+          sphinx: ">=5,<6"
         - os: windows-latest
           python-version: "3.8"
-          sphinx: ">=4,<5"
+          sphinx: ">=5,<6"
 
     runs-on: ${{ matrix.os }}
 
@@ -47,8 +47,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[linkify,testing]
-        pip install --upgrade-strategy "only-if-needed" "sphinx${{ matrix.sphinx }}"
+        pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
       run: |
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
@@ -87,8 +86,7 @@ jobs:
       run: python .github/workflows/docutils_setup.py pyproject.toml README.md
     - name: Install dependencies
       run: |
-        pip install .
-        pip install pytest~=6.2 pytest-param-files~=0.3.3 pygments docutils==${{ matrix.docutils-version }}
+        pip install . pytest~=6.2 pytest-param-files~=0.3.3 pygments docutils==${{ matrix.docutils-version }}
     - name: ensure sphinx is not installed
       run: |
         python -c "\

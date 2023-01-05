@@ -11,7 +11,6 @@ import os
 import re
 
 import pytest
-import sphinx
 from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
@@ -54,7 +53,7 @@ def test_basic(
         app,
         filename="content.html",
         regress_html=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        regress_ext=".html",
     )
 
     assert app.env.metadata["content"] == {
@@ -333,7 +332,7 @@ def test_footnotes(
             app,
             filename="footnote_md.html",
             regress_html=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+            regress_ext=".html",
         )
 
 
@@ -454,7 +453,7 @@ def test_gettext_html(
         app,
         filename="index.html",
         regress_html=True,
-        regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+        regress_ext=".html",
     )
 
 
@@ -555,7 +554,7 @@ def test_fieldlist_extension(
             app,
             filename="index.html",
             regress_html=True,
-            regress_ext=f".sphinx{sphinx.version_info[0]}.html",
+            regress_ext=".html",
         )
 
 
