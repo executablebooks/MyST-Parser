@@ -1,9 +1,13 @@
 """The setup for the sphinx extension."""
-from typing import Any
+from typing import Any, Dict
 
 from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
 
+from myst_parser.sphinx_ext.references import MystDomain
 from myst_parser.warnings_ import MystWarnings
+
+DEPRECATED = "__deprecated__"
 
 
 def setup_sphinx(app: Sphinx, load_parser=False):
@@ -17,7 +21,11 @@ def setup_sphinx(app: Sphinx, load_parser=False):
         SubstitutionReferenceRole,
     )
     from myst_parser.sphinx_ext.mathjax import override_mathjax
-    from myst_parser.sphinx_ext.myst_refs import MystReferenceResolver
+    from myst_parser.sphinx_ext.references import (
+        MystDomain,
+        MystReferencesBuilder,
+        MystRefrenceResolver,
+    )
 
     if load_parser:
         app.add_source_suffix(".md", "markdown")
@@ -26,12 +34,18 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_role("sub-ref", SubstitutionReferenceRole())
     app.add_directive("figure-md", FigureMarkdown)
 
-    app.add_post_transform(MystReferenceResolver)
+    app.add_domain(MystDomain)
+    app.add_post_transform(MystRefrenceResolver)
+    app.add_builder(MystReferencesBuilder)
+    app.connect("env-check-consistency", load_project_inventory)
 
     for name, default, field in MdParserConfig().as_triple():
         if not field.metadata.get("docutils_only", False):
             # TODO add types?
-            app.add_config_value(f"myst_{name}", default, "env", types=Any)
+            if field.metadata.get("deprecated"):
+                app.add_config_value(f"myst_{name}", DEPRECATED, "env", types=Any)
+            else:
+                app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
@@ -48,11 +62,21 @@ def create_myst_config(app):
 
     logger = logging.getLogger(__name__)
 
-    values = {
-        name: app.config[f"myst_{name}"]
-        for name, _, field in MdParserConfig().as_triple()
-        if not field.metadata.get("docutils_only", False)
-    }
+    values: Dict[str, Any] = {}
+
+    for name, _, field in MdParserConfig().as_triple():
+        if not field.metadata.get("docutils_only", False):
+            if field.metadata.get("deprecated"):
+                if app.config[f"myst_{name}"] != DEPRECATED:
+                    logger.warning(
+                        f"'myst_{name}' is deprecated, "
+                        f"{field.metadata.get('deprecated')} "
+                        f"[myst.{MystWarnings.DEPRECATED.value}]",
+                        type="myst",
+                        subtype=MystWarnings.DEPRECATED.value,
+                    )
+                continue
+            values[name] = app.config[f"myst_{name}"]
 
     try:
         app.env.myst_config = MdParserConfig(**values)
@@ -68,3 +92,9 @@ def create_myst_config(app):
             type="myst",
             subtype=MystWarnings.DEPRECATED.value,
         )
+
+
+def load_project_inventory(_, env: BuildEnvironment):
+    """Load the project inventory into the myst domain."""
+    myst_domain: MystDomain = env.get_domain("myst")  # type: ignore
+    myst_domain.update_project_inventory()

@@ -11,8 +11,8 @@ For more description and explanation of MyST syntax, see the [syntax guide](synt
 
 Block tokens span multiple lines of content. They are broken down into two sections:
 
-- {ref}`extended-block-tokens` contains *extra* tokens that are not in CommonMark.
-- {ref}`commonmark-block-tokens` contains CommonMark tokens that also work, for reference.
+- [](#extended-block-tokens) contains *extra* tokens that are not in CommonMark.
+- [](#commonmark-block-tokens) contains CommonMark tokens that also work, for reference.
 
 :::{note}
 Because MyST markdown was inspired by functionality that exists in reStructuredText,
@@ -79,7 +79,7 @@ we have shown equivalent rST syntax for many MyST markdown features below.
     ```
 * - Admonitions (optional)
   - An alternative approach for admonition style directives only, which has the benefit of allowing the content to be rendered in standard markdown editors.
-    See [admonition directives](syntax/admonitions) for more details.
+    See [admonition directives](#syntax/admonitions) for more details.
   - ````md
     :::{note}
     *content*
@@ -234,7 +234,7 @@ sections below:
     ```
 * - Image
   - Link to an image.
-    You can also use HTML syntax, to include image size etc, [see here](syntax/images) for details
+    You can also use HTML syntax, to include image size etc, [see here](#syntax/images) for details
   - ```md
     ![alt](src "title")
     ```

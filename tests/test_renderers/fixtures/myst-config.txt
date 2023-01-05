@@ -183,7 +183,7 @@ www.commonmark.org/he<lp
 (other)=
 [text1](https://example.com){#id1 .a .b}
 
-[text2](other){#id2 .c .d}
+[text2](#other){#id2 .c .d}
 
 [ref]{#id3 .e .f}
 
@@ -198,7 +198,7 @@ www.commonmark.org/he<lp
         <reference classes="a b" ids="id1" names="id1" refuri="https://example.com">
             text1
     <paragraph>
-        <reference classes="c d" ids="id2" names="id2" refid="other">
+        <reference classes="std-label myst-project c d" ids="id2" internal="True" names="id2" refid="other">
             text2
     <paragraph>
         <reference classes="e f" ids="id3" names="id3" refuri="https://example.com">

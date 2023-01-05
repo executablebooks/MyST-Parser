@@ -6,11 +6,26 @@ Duplicate Reference definitions:
 <string>:2: (WARNING/2) Duplicate reference definition: A [myst.duplicate_def]
 .
 
-Missing Reference:
+Unhandled URI:
 .
 [a](b)
 .
-<string>:1: (ERROR/3) Unknown target name: "b".
+<string>:1: (WARNING/2) Unknown link URI (implicitly prepending with '#'): 'b' [myst.invalid_uri]
+<string>:1: (WARNING/2) Unmatched local target '*:*:b' [myst.xref_missing]
+.
+
+Missing local reference:
+.
+[a](#b)
+.
+<string>:1: (WARNING/2) Unmatched local target '*:*:b' [myst.xref_missing]
+.
+
+Unsupported myst link
+.
+[a](myst:link)
+.
+<string>:1: (WARNING/2) docutils only parsing does not support myst links [myst.xref_unsupported]
 .
 
 Unknown role:

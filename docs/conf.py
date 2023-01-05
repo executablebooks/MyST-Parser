@@ -45,13 +45,16 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-suppress_warnings = ["myst.strikethrough"]
+suppress_warnings = ["myst.strikethrough", "myst.xref_not_explicit"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.7", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
     "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
 }
+
+numfig = True
+numfig_secnum_depth = 2
 
 # -- Autodoc settings ---------------------------------------------------
 
@@ -102,6 +105,7 @@ myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
+myst_link_placeholders = True
 
 # -- HTML output -------------------------------------------------
 

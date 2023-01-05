@@ -14,6 +14,7 @@ from myst_parser.config.main import (
     read_topmatter,
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.mdit_to_docutils.local_links import MdDocumentLinks
 from myst_parser.parsers.mdit import create_md_parser
 from myst_parser.warnings_ import create_warning
 
@@ -67,10 +68,11 @@ DOCUTILS_EXCLUDED_ARGS = (
     # we can't add substitutions so not needed
     "sub_delimiters",
     # sphinx only options
-    "heading_anchors",
     "ref_domains",
     "update_mathjax",
     "mathjax_classes",
+    "link_placeholders",
+    "link_prefixes",
 )
 """Names of settings that cannot be set in docutils.conf."""
 
@@ -186,6 +188,9 @@ class Parser(RstParser):
     config_section = "myst parser"
     config_section_dependencies = ("parsers",)
     translate_section_name = None
+
+    def get_transforms(self):
+        return super().get_transforms() + [MdDocumentLinks]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.

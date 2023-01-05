@@ -107,6 +107,31 @@ class MdParserConfig:
         },
     )
 
+    link_prefixes: Dict[str, str] = dc.field(
+        default_factory=lambda: {
+            "equation": "eq.",
+            "table": "tbl.",
+            "figure": "fig.",
+            "code-block": "code",
+        },
+        metadata={
+            "validator": deep_mapping(
+                instance_of(str), instance_of(str), instance_of(dict)
+            ),
+            "help": "Enable replacement of {name} and {number} in link text",
+            "global_only": True,
+        },
+    )
+
+    link_placeholders: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Enable replacement of {name} and {number} in link text",
+            "global_only": True,
+        },
+    )
+
     # see https://en.wikipedia.org/wiki/List_of_URI_schemes
     url_schemes: Optional[Iterable[str]] = dc.field(
         default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
@@ -121,6 +146,7 @@ class MdParserConfig:
     ref_domains: Optional[Iterable[str]] = dc.field(
         default=None,
         metadata={
+            "deprecated": "use `[](?name#target)` instead",
             "validator": optional(
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
@@ -369,6 +395,12 @@ def merge_file_level(
             continue
 
         old_value, field = fields[name]
+        if field.metadata.get("deprecated"):
+            warning(
+                MystWarnings.MD_TOPMATTER,
+                f"{name!r} is deprecated and will be removed in a future release.",
+            )
+            continue
 
         try:
             validate_field(new, field, value)

@@ -36,7 +36,7 @@ abcd *abc* [google](https://www.google.com)
 
 ````
 
-```{admonition} Title with [link](target2)
+```{admonition} Title with [link](#target2)
 Content
 ```
 

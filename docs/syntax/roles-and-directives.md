@@ -8,8 +8,8 @@ by interpreting a chuck of text as a specific type of markup, according to its n
 Mostly all
 [docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html),
 [docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html),
-{external+sphinx:std:doc}`Sphinx roles <usage/restructuredtext/roles>`, or
-{external+sphinx:std:doc}`Sphinx directives <usage/restructuredtext/directives>`
+[sphinx roles](myst:sphinx#usage/restructuredtext/roles), or
+[sphinx directives](myst:sphinx#usage/restructuredtext/directives)
 can be used in MyST.
 
 ## Syntax
@@ -178,7 +178,7 @@ A reference from inside: :ref:`rst-fun-fish`
 A reference from outside: :ref:`syntax/directives/parsing`
 ```
 
-Note how the text is integrated into the rest of the document, so we can also reference [party fish](rst-fun-fish) anywhere else in the documentation.
+Note how the text is integrated into the rest of the document, so we can also reference [party fish](#rst-fun-fish) anywhere else in the documentation.
 
 #### Nesting directives
 
@@ -255,7 +255,7 @@ print('yep!')
 #### Markdown-friendly directives
 
 Want to use syntax that renders correctly in standard Markdown editors?
-See [the extended syntax option](syntax/colon_fence).
+See [the extended syntax option](#syntax/colon_fence).
 
 ```md
 :::{note}
@@ -421,6 +421,6 @@ For example:
 
 > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
 
-`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-today_fmt), or the `today` variable if set in the configuration file.
+`today` is replaced by either the date on which the document is parsed, with the format set by [`today_fmt`](myst:sphinx#today_fmt), or the `today` variable if set in the configuration file.
 
-The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](sphinx/config-options)).
+The reading speed is computed using the `myst_words_per_minute` configuration (see the [Sphinx configuration options](#sphinx/config-options)).

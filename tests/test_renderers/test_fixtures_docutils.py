@@ -7,6 +7,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from docutils import __version_info__
 from docutils.core import Publisher, publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
@@ -87,6 +88,8 @@ def test_docutils_directives(file_params, monkeypatch):
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_extensions.txt")
 def test_syntax_extensions(file_params):
     """The description is parsed as a docutils commandline"""
+    if "anchors-precedence" in file_params.title and __version_info__ < (0, 18):
+        pytest.skip("output AST has different section ids in docutils < 0.18")
     pub = Publisher(parser=Parser())
     option_parser = pub.setup_option_parser()
     try:

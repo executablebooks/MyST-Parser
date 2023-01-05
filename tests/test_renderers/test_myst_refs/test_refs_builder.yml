@@ -1,0 +1,72 @@
+anchors.yaml:
+  index:
+    head:
+      id: head
+      line: 2
+      text: Head
+  page:
+    head:
+      enumtype: section
+      id: head
+      line: 2
+      number: '1'
+      text: Head
+inv.other.yaml:
+  name: Python
+  objects:
+    std:
+      doc:
+        index:
+          loc: https://project.com/index.html
+          text: Title
+      label:
+        genindex:
+          loc: https://project.com/genindex.html
+          text: Index
+        modindex:
+          loc: https://project.com/py-modindex.html
+          text: Module Index
+        py-modindex:
+          loc: https://project.com/py-modindex.html
+          text: Python Module Index
+        ref:
+          loc: https://project.com/index.html#ref
+          text: Title
+        search:
+          loc: https://project.com/search.html
+          text: Search Page
+  version: ''
+project.yaml:
+  name: test
+  objects:
+    std:
+      doc:
+        index:
+          docname: index
+          id: ''
+          text: Head
+        page:
+          docname: page
+          id: ''
+          text: Head
+      label:
+        genindex:
+          docname: genindex
+          id: ''
+        modindex:
+          docname: py-modindex
+          id: ''
+        py-modindex:
+          docname: py-modindex
+          id: ''
+          text: Python Module Index
+        search:
+          docname: search
+          id: ''
+        target:
+          docname: page
+          enumtype: section
+          id: target
+          number: '1'
+          text: Head
+  version: 0.0.1

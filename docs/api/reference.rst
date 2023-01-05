@@ -56,7 +56,6 @@ Sphinx
 
 .. autoclass:: myst_parser.mdit_to_docutils.sphinx_.SphinxRenderer
     :special-members: __output__
-    :members: render_internal_link, render_math_block_label
     :undoc-members:
     :member-order: alphabetical
     :show-inheritance:

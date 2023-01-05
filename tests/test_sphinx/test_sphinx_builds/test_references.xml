@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" myst-anchor="index.md#title-with-nested" names="title\ with\ nested\ a=1 title">
+    <section anchor_id="title-with-nested" classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title title-with-nested" names="title\ with\ nested\ a=1 title">
         <title>
             Title with 
             <strong>
@@ -19,41 +19,34 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="title" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title" reftype="project">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    plain text
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="title" reftype="project">
+                plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    nested 
-                    <emphasis>
-                        syntax
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="title" reftype="project">
+                nested 
+                <emphasis>
+                    syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="index.md" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="" reftargetdoc="index" reftype="project">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    plain text
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="" reftargetdoc="index" reftype="project">
+                plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    nested 
-                    <emphasis>
-                        syntax
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="" reftargetdoc="index" reftype="project">
+                nested 
+                <emphasis>
+                    syntax
         <paragraph>
-            <download_reference filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="file_link.txt" reftype="myst" refwarn="False">
-                <inline classes="xref download myst">
-                    download 
-                    <strong>
-                        link
+            <download_reference classes="myst-file" filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" reftarget="/file_link.txt">
+                download 
+                <strong>
+                    link
         <paragraph>
-            <download_reference filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/file_link2.txt" reftype="myst" refwarn="False">
-                <inline classes="xref download myst">
-                    subfolder/file_link2.txt
+            <download_reference classes="myst-file" filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" reftarget="/subfolder/file_link2.txt">
+                <literal>
+                    /subfolder/file_link2.txt
         <target refid="insidecodeblock">
         <paragraph ids="insidecodeblock" names="insidecodeblock">
             I am inside the eval-rst fence
@@ -68,10 +61,9 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    fence
-        <section ids="title-anchors" myst-anchor="index.md#title-anchors" names="title\ anchors">
+            <pending_xref refdoc="index" refdomain="myst" refexplicit="True" refquery="" reftarget="insidecodeblock" reftype="project">
+                fence
+        <section anchor_id="title-anchors" ids="title-anchors" names="title\ anchors">
             <title>
                 Title 
                 <emphasis>
@@ -79,17 +71,10 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="./#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="./other.md#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="other" reftype="project">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="other.md#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
-            <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/other2.md#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
+                <pending_xref refdoc="index" refdomain="myst" refexplicit="False" refquery="" reftarget="title-anchors" reftargetdoc="subfolder/other2" reftype="project">

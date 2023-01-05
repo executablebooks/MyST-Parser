@@ -13,16 +13,16 @@ myst:
       :width: 200px
       ```
     key4: example
-    confpy: sphinx `conf.py` {external+sphinx:std:doc}`configuration file <usage/configuration>`
+    confpy: "sphinx `conf.py` [configuration file](myst:sphinx#usage/configuration)"
 ---
 
 (syntax/extensions)=
 
 # Syntax Extensions
 
-MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](markdown_it:index) parser.
-The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](sphinx/config-options)).
-Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](markdown_it:md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
+MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](myst:markdown_it#index) parser.
+The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also <project:#sphinx/config-options>).
+Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](myst:markdown_it#md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:
 
@@ -90,7 +90,7 @@ For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough wit
 :::{warning}
 This extension is currently only supported for HTML output,
 and you will need to suppress the `myst.strikethrough` warning
-(see [](myst-warnings))
+(see <project:#myst-warnings>)
 :::
 
 (syntax/math)=
@@ -101,7 +101,7 @@ Math is parsed by adding to the `myst_enable_extensions` list option, in the {{ 
 - `"dollarmath"` for parsing of dollar `$` and `$$` encapsulated math.
 - `"amsmath"` for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
-These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](myst:markdown_it#md/plugins).
 
 :::{versionchanged} 0.13.0
 `myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
@@ -223,15 +223,15 @@ Math will also work when nested in other block elements, like lists or quotes:
 > A block quote
 > $$ a = 1 $$
 
-### Direct LaTeX Math
+### Using LaTeX Math Directly
 
 Want to use [amsmath](https://ctan.org/pkg/amsmath) LaTeX directly, with no dollars?
-See [the extended syntax option](syntax/amsmath).
+See [the extended syntax option](#syntax/amsmath).
 
 (syntax/mathjax)=
 ### Mathjax and math parsing
 
-When building HTML using the {external+sphinx:mod}`sphinx.ext.mathjax <sphinx.ext.mathjax>` extension (enabled by default),
+When building HTML using the [sphinx.ext.mathjax](myst:sphinx#sphinx.ext.mathjax) extension (enabled by default),
 If `dollarmath` is enabled, Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
 MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
@@ -276,7 +276,7 @@ myst_substitutions = {
 }
 ```
 
-or at the top of the file, in the front-matter section (see [this section](syntax/frontmatter)):
+or at the top of the file, in the front-matter section (see [this section](#syntax/frontmatter)):
 
 ````yaml
 ---
@@ -353,7 +353,7 @@ This may lead to unexpected outcomes.
 
 :::
 
-Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the {external+sphinx:std:doc}`Sphinx Environment <extdev/envapi>` in the context (as `env`).
+Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](myst:sphinx#extdev/envapi) in the context (as `env`).
 Therefore you can do things like:
 
 ```md
@@ -405,7 +405,7 @@ By adding `"colon_fence"` to `myst_enable_extensions` (in the {{ confpy }}),
 you can also use `:::` delimiters to denote code fences, instead of ```` ``` ````.
 
 Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
-It is ideal for admonition type directives (as documented in [Directives](syntax/directives)) or tables with titles, for example:
+It is ideal for admonition type directives (as documented in [Directives](#syntax/directives)) or tables with titles, for example:
 
 ::::::{tab-set}
 :::::{tab-item} Markdown Input
@@ -484,29 +484,48 @@ This text is **standard** _Markdown_
 `myst_admonition_enable` is deprecated and replaced by `myst_enable_extensions = ["colon_fence"]` (see above).
 Also, classes should now be set with the `:class: myclass` option.
 
-Also see [](syntax/html-admonition).
+Also see <project:#syntax/html-admonition>.
 :::
 
 (syntax/header-anchors)=
 
 ## Auto-generated header anchors
 
-The MyST Parser can automatically generate label "slugs" for header anchors so that you can reference them from markdown links.
-For example, you can use header bookmark links, locally; `[](#header-anchor)`, or cross-file `[](path/to/file.md#header-anchor)`.
+To mimic the behaviour of platforms such as [GitHub][gh-section-links], MyST allows for the auto-generation of targets for headings.
+
+[gh-section-links]: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
+
 To achieve this, use the `myst_heading_anchors = DEPTH` configuration option, where `DEPTH` is the depth of header levels for which you wish to generate links.
 
 For example, the following configuration in `conf.py` tells the `myst_parser` to generate labels for heading anchors for `h1`, `h2`, and `h3` level headings (corresponding to `#`, `##`, and `###` in markdown).
 
 ```python
-myst_heading_anchors = 3
+myst_heading_anchors = 2
 ```
 
 You can then insert markdown links directly to anchors that are generated from your header titles in your documentation.
 For example `[](#auto-generated-header-anchors)`: [](#auto-generated-header-anchors).
 
-The paths to other files should be relative to the current file, for example
-`[**link text**](./syntax.md#core-syntax)`: [**link text**](./syntax.md#core-syntax).
+Anchors in other files should be relative to the current file, for example
+`[**link text**](syntax.md#core-syntax)`: [**link text**](syntax.md#core-syntax).
 
+:::{important}
+When resolving references, heading anchors will take precedence over any other targets with the same name, and a warning will be emitted, such as:
+
+```
+WARNING: 'a-title' anchor superseding other matches: 'std:label:a-title' [myst.xref_anchor]
+```
+
+To suppress these warnings, use the `suppress_warnings` configuration option:
+
+```python
+suppress_warnings = ["myst.xref_anchor"]
+```
+:::
+
+:::{seealso}
+For more details on referencing see: <project:#syntax/referencing>.
+:::
 
 ### Anchor slug structure
 
@@ -516,6 +535,8 @@ The anchor "slugs" created aim to follow the [GitHub implementation](https://git
 - remove punctuation
 - replace spaces with `-`
 - enforce uniqueness *via* suffix enumeration `-1`
+
+For example, `## Links and Referencing` can then be referenced as `[](#links-and-referencing)`
 
 To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 
@@ -540,7 +561,7 @@ $ myst-anchors -l 2 docs/syntax/optional.md
 
 By adding `"deflist"` to `myst_enable_extensions` (in the {{ confpy }}),
 you will be able to utilise definition lists.
-Definition lists utilise the [markdown-it-py deflist plugin](markdown_it:md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
+Definition lists utilise the [markdown-it-py deflist plugin](myst:markdown_it#md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
 
 This syntax can be useful, for example, as an alternative to nested bullet-lists:
 
@@ -575,7 +596,7 @@ From the Pandoc documentation:
 Here is a more complex example, demonstrating some of these features:
 
 Term *with Markdown*
-: Definition [with reference](syntax/definition-lists)
+: Definition [with reference](#syntax/definition-lists)
 
   A second paragraph
 : A second definition
@@ -595,7 +616,7 @@ This was created from:
 
 ```md
 Term *with Markdown*
-: Definition [with reference](syntax/definition-lists)
+: Definition [with reference](#syntax/definition-lists)
 
   A second paragraph
 : A second definition
@@ -619,7 +640,7 @@ Term 3
 
 By adding `"tasklist"` to `myst_enable_extensions` (in the {{ confpy }}),
 you will be able to utilise task lists.
-Task lists utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins),
+Task lists utilise the [markdown-it-py tasklists plugin](myst:markdown_it#md/plugins),
 and are applied to markdown list items starting with `[ ]` or `[x]`:
 
 ```markdown
@@ -691,7 +712,7 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
   print("Hello, world!")
   ```
 
-A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](sphinx:python-domain):
+A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](myst:sphinx#python-domain):
 
 ````md
 ```{py:function} send_message(sender, priority)
@@ -720,7 +741,7 @@ Send a message to a recipient
 ```
 
 :::{note}
-Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
+Currently `sphinx.ext.autodoc` does not support MyST, see <project:#howto/autodoc>.
 :::
 
 (syntax/attributes)=
@@ -756,36 +777,36 @@ For example, the following Markdown:
 ```md
 
 - [A span of text with attributes]{#spanid .bg-warning},
-  {ref}`a reference to the span <spanid>`
+  [a reference to the span](#spanid)
 
 - `A literal with attributes`{#literalid .bg-warning},
-  {ref}`a reference to the literal <literalid>
+  [a reference to the literal](#literalid)
 
 - An autolink with attributes: <https://example.com>{.bg-warning title="a title"}
 
-- [A link with attributes](syntax/attributes){#linkid .bg-warning},
-  {ref}`a reference to the link <linkid>`
+- [A link with attributes](#syntax/attributes){#linkid .bg-warning},
+  [a reference to the link](#linkid)
 
-- ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w=100px align=center}
-  {ref}`a reference to the image <imgid>`
+- ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w="100px" align=center}
+  [a reference to the image](#imgid)
 
 ```
 
 will be parsed as:
 
 - [A span of text with attributes]{#spanid .bg-warning},
-  {ref}`a reference to the span <spanid>`
+  [a reference to the span](#spanid)
 
 - `A literal with attributes`{#literalid .bg-warning},
-  {ref}`a reference to the literal <literalid>`
+  [a reference to the literal](#literalid)
 
 - An autolink with attributes: <https://example.com>{.bg-warning title="a title"}
 
-- [A link with attributes](syntax/attributes){#linkid .bg-warning},
-  {ref}`a reference to the link <linkid>`
+- [A link with attributes](#syntax/attributes){#linkid .bg-warning},
+  [a reference to the link](#linkid)
 
 - ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w="100px" align=center}
-  {ref}`a reference to the image <imgid>`
+  [a reference to the image](#imgid)
 
 ### key-value attributes
 
@@ -821,7 +842,7 @@ The first is the standard Markdown syntax:
 This will correctly copy the image to the build folder and will render it in all output formats (HTML, TeX, etc).
 However, it is limited in the configuration that can be applied, for example setting a width.
 
-As discussed [above](syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see {ref}`the sphinx documentation <sphinx:rst-primer>`):
+As discussed [above](#syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see [the sphinx documentation](myst:sphinx#rst-primer):
 
 ````md
 ```{image} img/fun-fish.png
@@ -900,10 +921,10 @@ This is a caption in **Markdown**
 As we see here, the target we set can be referenced:
 
 ```md
-[Go to the fish!](fig-target)
+[Go to the fish!](#fig-target)
 ```
 
-[Go to the fish!](fig-target)
+[Go to the fish!](#fig-target)
 
 (syntax/html-admonition)=
 
@@ -1015,7 +1036,7 @@ We hope to implement this in a future update (see [executablebooks/MyST-Parser#2
 :::
 
 :::{important}
-See also [how Mathjax is configured with MyST-Parser](syntax/mathjax).
+See also [how Mathjax is configured with MyST-Parser](#syntax/mathjax).
 :::
 
 This syntax will also work when nested in other block elements, like lists or quotes:

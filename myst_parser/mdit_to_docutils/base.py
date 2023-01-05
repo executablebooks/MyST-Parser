@@ -4,10 +4,12 @@ from __future__ import annotations
 import inspect
 import json
 import os
+import posixpath
 import re
 from collections import OrderedDict
 from contextlib import contextmanager
 from datetime import date, datetime
+from pathlib import Path, PurePosixPath
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -15,10 +17,11 @@ from typing import (
     Callable,
     Iterator,
     MutableMapping,
+    Optional,
     Sequence,
     cast,
 )
-from urllib.parse import urlparse
+from urllib.parse import unquote
 
 import jinja2
 import yaml
@@ -42,6 +45,7 @@ from markdown_it.tree import SyntaxTreeNode
 
 from myst_parser._compat import findall
 from myst_parser.config.main import MdParserConfig
+from myst_parser.mdit_to_docutils.local_links import MystProjectLink
 from myst_parser.mocking import (
     MockIncludeDirective,
     MockingError,
@@ -65,6 +69,8 @@ def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     return new_document(source_path, settings=settings)
 
 
+# https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+REGEX_URL_SCHEMA = re.compile(r"^(?P<schema>[a-zA-Z][a-zA-Z0-9+.-]*):(?P<body>.*)")
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
@@ -712,89 +718,289 @@ class DocutilsRenderer(RendererProtocol):
         # create a target reference for the section, based on the heading text
         name = nodes.fully_normalize_name(title_node.astext())
         new_section["names"].append(name)
+        # a header reference is implicit, meaning that if duplicate names are found,
+        # a warning will not be immediately emitted.
+        # Only if the name is referenced, then a duplicate target warning will be emitted.
+        # Sections with duplicate names will have an id set with an integer prefix.
+        # Additionally, if an explicit target is created with the same name,
+        # this will be used for any reference, and no warning will be emitted.
         self.document.note_implicit_target(new_section, new_section)
+
+        # Add specific anchor ID created by the Markdown parse (optional)
+        # Note, we do not use the docutils name/id mechanism here (as an explicit target),
+        # since (a) the id format may not comply with docutils one,
+        # and (b) we don't want sphinx to pick up these as project wide targets
+        # (which could lead to many name clashes)
+        # we handle it in a specific transform.
+        anchor_id = cast(Optional[str], token.attrGet("id"))
+        if anchor_id:
+            new_section["anchor_id"] = anchor_id
 
         # set the section as the current node for subsequent rendering
         self.current_node = new_section
 
     def render_link(self, token: SyntaxTreeNode) -> None:
-        """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
+        """Parse `<link>` or `[text](link "title")` syntax to docutils AST.
 
-        - If `<>` autolink, forward to `render_autolink`
-        - If `myst_all_links_external` is True, forward to `render_external_url`
-        - If link is an external URL, forward to `render_external_url`
-          - External URLs start with a scheme (e.g. `http:`) in `myst_url_schemes`,
-            or any scheme if  `myst_url_schemes` is None.
-        - Otherwise, forward to `render_internal_link`
+        First the link type is identified, then forwarded to the appropriate method:
+
+        - `add_external_ref`: create a reference to an external URL
+        - `add_myst_ref`: create an internal reference to a reference within the project
+        - `add_local_file_ref`: create a reference to a local file
         """
-        if token.info == "auto":  # handles both autolink and linkify
-            return self.render_autolink(token)
+        # Note: autolink has token.info="auto" and token.markup="autolink"
+        #       linkify has token.info="auto" and token.markup="linkify"
+        # these will both always have a single text child
+
+        uri = cast(str, token.attrGet("href") or "")
+        is_auto = token.info == "auto"
 
         if (
-            self.md_config.commonmark_only
+            self.md_config.all_links_external
+            or self.md_config.commonmark_only
             or self.md_config.gfm_only
-            or self.md_config.all_links_external
         ):
-            return self.render_external_url(token)
+            return self.add_ref_external(token, uri)
 
-        # Check for external URL
-        url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
-        allowed_url_schemes = self.md_config.url_schemes
-        if (allowed_url_schemes is None and url_scheme) or (
-            allowed_url_schemes is not None and url_scheme in allowed_url_schemes
+        # if the link starts with #, then it is a project fragment,
+        # i.e. a reference to a target id in the project
+        if (
+            uri.startswith("#")
+            or uri.startswith(".#")
+            or uri.startswith("?")
+            or uri.startswith(".?")
         ):
-            return self.render_external_url(token)
+            key, target, query = parse_uri(unquote(uri))
+            return self.add_ref_project(token, key, target, query)
 
-        return self.render_internal_link(token)
+        # if the link has a scheme, split it into the scheme and the rest of the link
+        scheme: None | str = None
+        body: str = uri
+        schema_match = REGEX_URL_SCHEMA.fullmatch(uri)
+        if schema_match:
+            scheme = schema_match.groupdict()["schema"].lower()
+            body = schema_match.groupdict()["body"]
 
-    def render_external_url(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has been identified as an external URL::
+        # note: we cannot call this scheme "file" since markdown-it will not validate it
+        if scheme == "path":
+            path, target, query = parse_uri(unquote(body))
+            return self.add_ref_path(
+                token,
+                path,
+                target,
+                query,
+            )
 
-            <reference refuri="link" title="title">
-                text
+        if scheme == "project":
+            path, target, query = parse_uri(unquote(body))
+            return self.add_ref_project(
+                token,
+                path,
+                target,
+                query,
+            )
 
-        `text` can contain nested syntax, e.g. `[**bold**](url "title")`.
+        if scheme == "myst":
+            key, target, query = parse_uri(unquote(body))
+            return self.add_ref_inventory(
+                token,
+                key,
+                target,
+                query,
+            )
+
+        # if its a known external URL scheme, then render that
+        if scheme and (
+            self.md_config.url_schemes is None or scheme in self.md_config.url_schemes
+        ):
+            return self.add_ref_external(token, uri)
+
+        # If no scheme, check if the path is to a local file
+        if not scheme and not is_auto:
+
+            result = self._check_for_path_link(uri)
+
+            if result is not None:
+                rel_path, fragment, query_dict, docname = result
+                if docname is not None:
+                    return self.add_ref_project(
+                        token, "/" + rel_path.as_posix(), fragment, query_dict
+                    )
+                return self.add_ref_path(
+                    token, "/" + rel_path.as_posix(), fragment, query_dict
+                )
+
+        # otherwise create warning and default to a project reference
+        # TODO in the future we will remove this default behaviour,
+        # and instead just warn that the link path could not be found or is unsupported
+        self.create_warning(
+            f"Unknown link URI (implicitly prepending with '#'): {uri!r}",
+            MystWarnings.MD_INVALID_URI,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
+        )
+        return self.add_ref_project(token, "", unquote(uri), "")
+
+    def _check_for_path_link(
+        self, uri: str
+    ) -> None | tuple[Path, str, str, None | str]:
+        """Check if the uri is a path to an existing file.
+
+        return: (relative path to source directory, fragment, query, docname)
+        """
+        if not self.sphinx_env:
+            # TODO allow docutils to match paths relative to the current file
+            # (if self.document["source"] is set) so we can have a better degradation
+            # TODO allow docutils to define a root path?
+            return None
+
+        uri = unquote(uri)
+
+        # split the URI into its components
+        posix_path_str, fragment, query = parse_uri(uri)
+
+        # ensure it is normalised
+        posix_path = posixpath.normpath(posix_path_str)
+
+        # make the path relative to an "including" document, this is set
+        # when using the `relative-docs` option of the MyST `include` directive
+        relative_include: None | tuple[str, Path, Path] = self.md_env.get(
+            "relative-docs", None
+        )
+        if relative_include is not None and posix_path.startswith(relative_include[0]):
+            source_dir, include_dir = relative_include[1:]
+            posix_path = posixpath.relpath(
+                posixpath.join(include_dir.as_posix(), posix_path),
+                source_dir.as_posix(),
+            )
+
+        src_path = Path(self.sphinx_env.srcdir)
+        if posix_path.startswith("/"):
+            # this is a path to a file, relative to the root of the project
+            abs_path = src_path / PurePosixPath(posix_path[1:])
+        else:
+            # this is a path to a file, relative to the current document
+            abs_path = Path(
+                self.sphinx_env.doc2path(self.sphinx_env.docname)
+            ).parent / PurePosixPath(posix_path)
+
+        if abs_path.is_file():
+            docname = self.sphinx_env.path2doc(str(abs_path))
+            return abs_path.relative_to(src_path), fragment, query, docname
+
+        return None
+
+    def add_ref_external(self, token: SyntaxTreeNode, uri: str) -> None:
+        """Render link token `[text](schema:path "title")`,
+        where the link has been identified as an external URL.
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        ref_node["refuri"] = cast(str, token.attrGet("href") or "")
+        ref_node["refuri"] = escapeHtml(uri)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def render_internal_link(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has not been identified as an external URL::
+    def add_ref_project(
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
+    ) -> None:
+        """Add a reference to a target within the project.
 
-            <reference refname="link" title="title">
-                text
-
-        `text` can contain nested syntax, e.g. `[**bold**](link "title")`.
-
-        Note, this is overridden by `SphinxRenderer`, to use `pending_xref` nodes.
+        :param token: The markdown-it token
+        :param path: If not empty, restrict the reference to a certain document.
+            This should be a POSIX style path, relative to the current document or,
+            if the path startswith "/", relative to the project root.
+            "." is a special case, which refers to the current document.
+        :param target: The target reference name
+        :param query: query keywords,
+            potentially including "d" for domain filter, and "o" for object type filter,
+            and "pat" to flag the target should be treated as a unix-style pattern.
         """
-        ref_node = nodes.reference()
-        self.add_line_and_source_path(ref_node, token)
-        self.copy_attributes(
-            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        if not (path or target):
+            self.create_warning(
+                "No path or target given for project reference",
+                MystWarnings.XREF_ERROR,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+            warn_node = nodes.inline(classes=["myst-ref-error"])
+            with self.current_node_context(warn_node, append=True):
+                self.render_children(token)
+            return
+
+        if path and path != ".":
+            self.create_warning(
+                "docutils only parsing does not support inter-document links",
+                MystWarnings.XREF_UNSUPPORTED,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+            warn_node = nodes.inline(classes=["myst-ref-error"])
+            with self.current_node_context(warn_node, append=True):
+                self.render_children(token)
+            return
+
+        refexplicit = True if (token.info != "auto" and token.children) else False
+        ref_node = MystProjectLink(
+            refname=target,
+            refexplicit=refexplicit,
+            refquery=query,
         )
-        ref_node["refname"] = cast(str, token.attrGet("href") or "")
-        self.document.note_refname(ref_node)
+        ref_node["classes"].append("myst-project")
+        self.copy_attributes(token, ref_node, ("class", "id", "title"))
+        self.add_line_and_source_path(ref_node, token)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def render_autolink(self, token: SyntaxTreeNode) -> None:
-        refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
-        ref_node = nodes.reference()
-        self.copy_attributes(
-            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+    def add_ref_inventory(
+        self, token: SyntaxTreeNode, key: str, target: str, query: str
+    ) -> None:
+        """Add a reference to external inventories.
+
+        An inventory is a mapping of `domain` -> `object type` -> `target` -> `data`.
+        Where `data` is a dictionary containing
+
+        - the "endpoint" path (relative to the base URL).
+        - the "title" of the object, to use for implicit reference text.
+
+        :param token: The markdown-it token
+        :param key: The inventory key
+        :param target: The target within the inventory
+        :param query: query keywords,
+            potentially including "d" for domain filter, and "o" for object type filter,
+            and "pat" to flag the target should be treated as a unix-style pattern.
+        """
+        self.create_warning(
+            "docutils only parsing does not support myst links",
+            MystWarnings.XREF_UNSUPPORTED,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
         )
-        ref_node["refuri"] = refuri
-        self.add_line_and_source_path(ref_node, token)
-        with self.current_node_context(ref_node, append=True):
+        warn_node = nodes.inline(classes=["myst-ref-error"])
+        with self.current_node_context(warn_node, append=True):
+            self.render_children(token)
+
+    def add_ref_path(
+        self, token: SyntaxTreeNode, path: str, target: str, query: str
+    ) -> None:
+        """Add a reference to a file path in the project.
+
+        :param token: The markdown-it token
+        :param path: The POSIX path to the file, relative to the current document or,
+            if the path startswith "/", relative to the project root.
+        :param target: The target within the file (currently ignored)
+        :param query: query keywords (currently ignored)
+        """
+        self.create_warning(
+            "docutils only parsing does not support local file links",
+            MystWarnings.XREF_UNSUPPORTED,
+            line=token_line(token, default=0),
+            append_to=self.current_node,
+        )
+        warn_node = nodes.inline(classes=["myst-ref-error"])
+        with self.current_node_context(warn_node, append=True):
             self.render_children(token)
 
     def render_html_inline(self, token: SyntaxTreeNode) -> None:
@@ -1446,6 +1652,20 @@ class DocutilsRenderer(RendererProtocol):
                 self.nested_render_text(rendered, position, allow_headings=False)
         finally:
             self.document.sub_references.difference_update(references)
+
+
+def parse_uri(uri: str) -> tuple[str, str, str]:
+    """Split a myst uri (without the scheme prefix) <type>?<query>#<target>.
+
+    :returns: (type, target, query)
+    """
+    _front, *_target = uri.split("#", 1)
+    reftype, *_query = _front.split("?", 1)
+
+    target = _target[0] if _target else ""
+    query_string = _query[0] if _query else ""
+
+    return reftype, target, query_string
 
 
 def html_meta_to_nodes(

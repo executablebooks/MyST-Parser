@@ -1,0 +1,78 @@
+anchors.yaml:
+  index:
+    head:
+      id: head
+      line: 2
+      text: Head
+  page:
+    section:
+      enumtype: section
+      id: section
+      line: 2
+      number: '1'
+      text: Section
+    sub-section-1:
+      enumtype: section
+      id: sub-section-1
+      line: 4
+      number: '1.1'
+      text: Sub-section 1
+    sub-section-2:
+      enumtype: section
+      id: sub-section-2
+      line: 6
+      number: '1.2'
+      text: Sub-section 2
+project.yaml:
+  name: Python
+  objects:
+    math:
+      label:
+        eq1:
+          docname: page
+          enumtype: equation
+          id: equation-eq1
+          number: 1.2.1
+    std:
+      doc:
+        index:
+          docname: index
+          id: ''
+          text: Head
+        page:
+          docname: page
+          id: ''
+          text: Section
+      label:
+        code1:
+          docname: page
+          enumtype: code-block
+          id: code1
+          number: 1.2.1
+          text: Caption
+        figure1:
+          docname: page
+          enumtype: figure
+          id: figure1
+          number: 1.2.1
+          text: Caption
+        genindex:
+          docname: genindex
+          id: ''
+        modindex:
+          docname: py-modindex
+          id: ''
+        py-modindex:
+          docname: py-modindex
+          id: ''
+          text: Python Module Index
+        search:
+          docname: search
+          id: ''
+        table1:
+          docname: page
+          enumtype: table
+          id: table1
+          number: 1.2.1
+          text: Caption
+  version: ''
