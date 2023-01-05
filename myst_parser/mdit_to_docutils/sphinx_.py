@@ -84,9 +84,7 @@ class SphinxRenderer(DocutilsRenderer):
             text = ""
 
         self.add_line_and_source_path(wrap_node, token)
-        title = token.attrGet("title")
-        if title:
-            wrap_node["title"] = title
+        self.copy_attributes(token, wrap_node, ("class", "id", "title"))
         self.current_node.append(wrap_node)
 
         inner_node = nodes.inline("", text, classes=classes)

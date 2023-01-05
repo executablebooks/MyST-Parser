@@ -9,7 +9,15 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from datetime import date, datetime
 from types import ModuleType
-from typing import TYPE_CHECKING, Any, Iterator, MutableMapping, Sequence, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    MutableMapping,
+    Sequence,
+    cast,
+)
 from urllib.parse import urlparse
 
 import jinja2
@@ -362,6 +370,44 @@ class DocutilsRenderer(RendererProtocol):
             for child in findall(node)():
                 self.add_line_and_source_path(child, token)
 
+    def copy_attributes(
+        self,
+        token: SyntaxTreeNode,
+        node: nodes.Element,
+        keys: Sequence[str] = ("class",),
+        *,
+        converters: dict[str, Callable[[str], Any]] | None = None,
+        aliases: dict[str, str] | None = None,
+    ) -> None:
+        """Copy attributes on the token to the docutils node."""
+        if converters is None:
+            converters = {}
+        if aliases is None:
+            aliases = {}
+        for key, value in token.attrs.items():
+            key = aliases.get(key, key)
+            if key not in keys:
+                continue
+            if key == "class":
+                node["classes"].extend(str(value).split())
+            elif key == "id":
+                name = nodes.fully_normalize_name(str(value))
+                node["names"].append(name)
+                self.document.note_explicit_target(node, node)
+            else:
+                if key in converters:
+                    try:
+                        value = converters[key](str(value))
+                    except ValueError:
+                        self.create_warning(
+                            f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            MystWarnings.INVALID_ATTRIBUTE,
+                            line=token_line(token, default=0),
+                            append_to=node,
+                        )
+                        continue
+                node[key] = value
+
     def update_section_level_state(self, section: nodes.section, level: int) -> None:
         """Update the section level state, with the new current section and level."""
         # find the closest parent section
@@ -490,6 +536,14 @@ class DocutilsRenderer(RendererProtocol):
     def render_code_inline(self, token: SyntaxTreeNode) -> None:
         node = nodes.literal(token.content, token.content)
         self.add_line_and_source_path(node, token)
+        self.copy_attributes(
+            token,
+            node,
+            ("class", "id", "language"),
+            aliases={"lexer": "language", "l": "language"},
+        )
+        if "language" in node and "code" not in node["classes"]:
+            node["classes"].append("code")
         self.current_node.append(node)
 
     def create_highlighted_code_block(
@@ -697,10 +751,8 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
+        self.copy_attributes(token, ref_node, ("class", "id", "title"))
         ref_node["refuri"] = cast(str, token.attrGet("href") or "")
-        title = token.attrGet("title")
-        if title:
-            ref_node["title"] = title
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
@@ -717,17 +769,16 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
+        self.copy_attributes(token, ref_node, ("class", "id", "title"))
         ref_node["refname"] = cast(str, token.attrGet("href") or "")
         self.document.note_refname(ref_node)
-        title = token.attrGet("title")
-        if title:
-            ref_node["title"] = title
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
     def render_autolink(self, token: SyntaxTreeNode) -> None:
         refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
         ref_node = nodes.reference()
+        self.copy_attributes(token, ref_node, ("class", "id"))
         ref_node["refuri"] = refuri
         self.add_line_and_source_path(ref_node, token)
         with self.current_node_context(ref_node, append=True):
@@ -760,57 +811,30 @@ class DocutilsRenderer(RendererProtocol):
         img_node["uri"] = destination
 
         img_node["alt"] = self.renderInlineAsText(token.children or [])
-        title = token.attrGet("title")
-        if title:
-            img_node["title"] = token.attrGet("title")
 
-        # apply other attributes that can be set on the image
-        if "class" in token.attrs:
-            img_node["classes"].extend(str(token.attrs["class"]).split())
-        if "width" in token.attrs:
-            try:
-                width = directives.length_or_percentage_or_unitless(
-                    str(token.attrs["width"])
-                )
-            except ValueError:
-                self.create_warning(
-                    f"Invalid width value for image: {token.attrs['width']!r}",
-                    MystWarnings.INVALID_ATTRIBUTE,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
-            else:
-                img_node["width"] = width
-        if "height" in token.attrs:
-            try:
-                height = directives.length_or_unitless(str(token.attrs["height"]))
-            except ValueError:
-                self.create_warning(
-                    f"Invalid height value for image: {token.attrs['height']!r}",
-                    MystWarnings.INVALID_ATTRIBUTE,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
-            else:
-                img_node["height"] = height
-        if "align" in token.attrs:
-            if token.attrs["align"] not in ("left", "center", "right"):
-                self.create_warning(
-                    f"Invalid align value for image: {token.attrs['align']!r}",
-                    MystWarnings.INVALID_ATTRIBUTE,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
-            else:
-                img_node["align"] = token.attrs["align"]
-        if "id" in token.attrs:
-            name = nodes.fully_normalize_name(str(token.attrs["id"]))
-            img_node["names"].append(name)
-            self.document.note_explicit_target(img_node, img_node)
+        self.copy_attributes(
+            token,
+            img_node,
+            ("class", "id", "title", "width", "height", "align"),
+            converters={
+                "width": directives.length_or_percentage_or_unitless,
+                "height": directives.length_or_unitless,
+                "align": lambda x: directives.choice(x, ("left", "center", "right")),
+            },
+            aliases={"w": "width", "h": "height", "a": "align"},
+        )
 
         self.current_node.append(img_node)
 
     # ### render methods for plugin tokens
+
+    def render_span(self, token: SyntaxTreeNode) -> None:
+        """Render an inline span token."""
+        node = nodes.inline()
+        self.add_line_and_source_path(node, token)
+        self.copy_attributes(token, node, ("class", "id"))
+        with self.current_node_context(node, append=True):
+            self.render_children(token)
 
     def render_front_matter(self, token: SyntaxTreeNode) -> None:
         """Pass document front matter data."""

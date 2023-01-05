@@ -3,6 +3,8 @@ from typing import Any
 
 from sphinx.application import Sphinx
 
+from myst_parser.warnings_ import MystWarnings
+
 
 def setup_sphinx(app: Sphinx, load_parser=False):
     """Initialize all settings and transforms in Sphinx."""
@@ -58,3 +60,11 @@ def create_myst_config(app):
     except (TypeError, ValueError) as error:
         logger.error("myst configuration invalid: %s", error.args[0])
         app.env.myst_config = MdParserConfig()
+
+    if "attrs_image" in app.env.myst_config.enable_extensions:
+        logger.warning(
+            "The `attrs_image` extension is deprecated, "
+            "please use `attrs_inline` instead.",
+            type="myst",
+            subtype=MystWarnings.DEPRECATED.value,
+        )
