@@ -10,6 +10,9 @@ from docutils import nodes
 class MystWarnings(Enum):
     """MyST warning types."""
 
+    DEPRECATED = "deprecated"
+    """Deprecated usage."""
+
     RENDER_METHOD = "render"
     """The render method is not implemented."""
 
