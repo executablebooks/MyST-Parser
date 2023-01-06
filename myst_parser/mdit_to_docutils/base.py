@@ -789,7 +789,9 @@ class DocutilsRenderer(RendererProtocol):
     def render_autolink(self, token: SyntaxTreeNode) -> None:
         refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
         ref_node = nodes.reference()
-        self.copy_attributes(token, ref_node, ("class", "id"))
+        self.copy_attributes(
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         ref_node["refuri"] = refuri
         self.add_line_and_source_path(ref_node, token)
         with self.current_node_context(ref_node, append=True):

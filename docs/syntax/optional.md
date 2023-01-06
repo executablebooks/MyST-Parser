@@ -760,7 +760,7 @@ For example, the following Markdown:
 - `A literal with attributes`{#literalid .bg-warning},
   {ref}`a reference to the literal <literalid>
 
-- An autolink with attributes: <https://example.com>{.bg-warning}
+- An autolink with attributes: <https://example.com>{.bg-warning title="a title"}
 
 - [A link with attributes](syntax/attributes){#linkid .bg-warning},
   {ref}`a reference to the link <linkid>`
@@ -778,7 +778,7 @@ will be parsed as:
 - `A literal with attributes`{#literalid .bg-warning},
   {ref}`a reference to the literal <literalid>`
 
-- An autolink with attributes: <https://example.com>{.bg-warning}
+- An autolink with attributes: <https://example.com>{.bg-warning title="a title"}
 
 - [A link with attributes](syntax/attributes){#linkid .bg-warning},
   {ref}`a reference to the link <linkid>`
