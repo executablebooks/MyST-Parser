@@ -30,7 +30,7 @@ class SphinxRenderer(DocutilsRenderer):
     """
 
     @property
-    def doc_env(self) -> BuildEnvironment:
+    def sphinx_env(self) -> BuildEnvironment:
         return self.document.settings.env
 
     def render_internal_link(self, token: SyntaxTreeNode) -> None:
@@ -49,8 +49,8 @@ class SphinxRenderer(DocutilsRenderer):
             )
 
         potential_path = (
-            Path(self.doc_env.doc2path(self.doc_env.docname)).parent / destination
-            if self.doc_env.srcdir  # not set in some test situations
+            Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent / destination
+            if self.sphinx_env.srcdir  # not set in some test situations
             else None
         )
         if (
@@ -58,11 +58,11 @@ class SphinxRenderer(DocutilsRenderer):
             and potential_path.is_file()
             and not any(
                 destination.endswith(suffix)
-                for suffix in self.doc_env.config.source_suffix
+                for suffix in self.sphinx_env.config.source_suffix
             )
         ):
             wrap_node = addnodes.download_reference(
-                refdoc=self.doc_env.docname,
+                refdoc=self.sphinx_env.docname,
                 reftarget=destination,
                 reftype="myst",
                 refdomain=None,  # Added to enable cross-linking
@@ -73,7 +73,7 @@ class SphinxRenderer(DocutilsRenderer):
             text = destination if not token.children else ""
         else:
             wrap_node = addnodes.pending_xref(
-                refdoc=self.doc_env.docname,
+                refdoc=self.sphinx_env.docname,
                 reftarget=destination,
                 reftype="myst",
                 refdomain=None,  # Added to enable cross-linking
@@ -110,26 +110,28 @@ class SphinxRenderer(DocutilsRenderer):
             return
 
         section = self.current_node
-        doc_slug = self.doc_env.doc2path(self.doc_env.docname, base=False) + "#" + slug
+        doc_slug = (
+            self.sphinx_env.doc2path(self.sphinx_env.docname, base=False) + "#" + slug
+        )
 
         # save the reference in the standard domain, so that it can be handled properly
-        domain = cast(StandardDomain, self.doc_env.get_domain("std"))
+        domain = cast(StandardDomain, self.sphinx_env.get_domain("std"))
         if doc_slug in domain.labels:
-            other_doc = self.doc_env.doc2path(domain.labels[doc_slug][0])
+            other_doc = self.sphinx_env.doc2path(domain.labels[doc_slug][0])
             self.create_warning(
                 f"duplicate label {doc_slug}, other instance in {other_doc}",
                 MystWarnings.ANCHOR_DUPE,
                 line=section.line,
             )
         labelid = section["ids"][0]
-        domain.anonlabels[doc_slug] = self.doc_env.docname, labelid
+        domain.anonlabels[doc_slug] = self.sphinx_env.docname, labelid
         domain.labels[doc_slug] = (
-            self.doc_env.docname,
+            self.sphinx_env.docname,
             labelid,
             clean_astext(section[0]),
         )
 
-        self.doc_env.metadata[self.doc_env.docname]["myst_anchors"] = True
+        self.sphinx_env.metadata[self.sphinx_env.docname]["myst_anchors"] = True
         section["myst-anchor"] = doc_slug
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
@@ -180,10 +182,10 @@ class SphinxRenderer(DocutilsRenderer):
         # Code mainly copied from sphinx.directives.patches.MathDirective
 
         # register label to domain
-        domain = cast(MathDomain, self.doc_env.get_domain("math"))
-        domain.note_equation(self.doc_env.docname, node["label"], location=node)
+        domain = cast(MathDomain, self.sphinx_env.get_domain("math"))
+        domain.note_equation(self.sphinx_env.docname, node["label"], location=node)
         node["number"] = domain.get_equation_number_for(node["label"])
-        node["docname"] = self.doc_env.docname
+        node["docname"] = self.sphinx_env.docname
 
         # create target node
         node_id = nodes.make_id("equation-%s" % node["label"])
