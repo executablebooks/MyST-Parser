@@ -1051,6 +1051,16 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
+    def render_math_block_label(self, token: SyntaxTreeNode) -> None:
+        content = token.content
+        label = token.info
+        node = nodes.math_block(content, content, nowrap=False, number=None)
+        self.add_line_and_source_path(node, token)
+        name = nodes.fully_normalize_name(label)
+        node["names"].append(name)
+        self.document.note_explicit_target(node, node)
+        self.current_node.append(node)
+
     def render_amsmath(self, token: SyntaxTreeNode) -> None:
         # note docutils does not currently support the nowrap attribute
         # or equation numbering, so this is overridden in the sphinx renderer
@@ -1125,9 +1135,9 @@ class DocutilsRenderer(RendererProtocol):
         )
         inliner = MockInliner(self)
         if role_func:
-            nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
+            _nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
             # return nodes, messages + messages2
-            self.current_node += nodes
+            self.current_node += _nodes
         else:
             message = self.reporter.error(
                 f'Unknown interpreted text role "{name}".', line=lineno

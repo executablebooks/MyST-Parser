@@ -10,6 +10,10 @@ $$foo$$
 $$
 a = 1
 $$
+
+$$
+b = 2
+$$ (label)
 .
 <document source="<string>">
     <paragraph>
@@ -26,6 +30,9 @@ $$
     <math_block nowrap="False" number="True" xml:space="preserve">
 
         a = 1
+    <math_block ids="label" names="label" nowrap="False" number="True" xml:space="preserve">
+
+        b = 2
 .
 
 [amsmath] --myst-enable-extensions=amsmath
