@@ -85,7 +85,7 @@ would be equivalent to:
 ### Setting HTML Metadata
 
 The front-matter can contain the special key `html_meta`; a dict with data to add to the generated HTML as [`<meta>` elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta).
-This is equivalent to using the [RST `meta` directive](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#html-metadata).
+This is equivalent to using the {external+sphinx:ref}`meta directive <html-meta>`.
 
 HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
 For each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
@@ -257,7 +257,8 @@ Target headers are defined with this syntax:
 (header_target)=
 ```
 
-They can then be referred to with the [ref inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref):
+They can then be referred to with the
+{external+sphinx:ref}`ref inline role <ref-role>`:
 
 ```md
 {ref}`header_target`
@@ -277,7 +278,7 @@ Alternatively using the markdown syntax:
 [my text](header_target)
 ```
 
-is equivalent to using the [any inline role](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-any):
+is equivalent to using the {external+sphinx:ref}`any inline role <any-role>`:
 
 ```md
 {any}`my text <header_target>`

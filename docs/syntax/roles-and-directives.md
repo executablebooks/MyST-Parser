@@ -5,7 +5,12 @@
 Roles and directives provide a way to extend the syntax of MyST in an unbound manner,
 by interpreting a chuck of text as a specific type of markup, according to its name.
 
-Mostly all [docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html), [docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html), [sphinx roles](https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html), or [sphinx directives](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html) can be used in MyST.
+Mostly all
+[docutils roles](https://docutils.sourceforge.io/docs/ref/rst/roles.html),
+[docutils directives](https://docutils.sourceforge.io/docs/ref/rst/directives.html),
+{external+sphinx:std:doc}`Sphinx roles <usage/restructuredtext/roles>`, or
+{external+sphinx:std:doc}`Sphinx directives <usage/restructuredtext/directives>`
+can be used in MyST.
 
 ## Syntax
 

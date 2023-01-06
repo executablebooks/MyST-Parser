@@ -321,6 +321,12 @@ def inventory_cli(inputs: None | list[str] = None):
         help="Filter the inventory by reference name pattern",
     )
     parser.add_argument(
+        "-l",
+        "--loc",
+        metavar="LOC",
+        help="Filter the inventory by reference location pattern",
+    )
+    parser.add_argument(
         "-f",
         "--format",
         choices=["yaml", "json"],
@@ -361,6 +367,15 @@ def inventory_cli(inputs: None | list[str] = None):
                     n: invdata["objects"][domain][otype][n]
                     for n in invdata["objects"][domain][otype]
                     if fnmatchcase(n, args.name)
+                }
+
+    if args.loc:
+        for domain in invdata["objects"]:
+            for otype in list(invdata["objects"][domain]):
+                invdata["objects"][domain][otype] = {
+                    n: i
+                    for n, i in invdata["objects"][domain][otype].items()
+                    if fnmatchcase(i["loc"], args.loc)
                 }
 
     # clean up empty items
