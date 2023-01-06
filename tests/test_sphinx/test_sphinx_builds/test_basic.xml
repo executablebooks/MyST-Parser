@@ -141,7 +141,7 @@
         <comment classes="block_break" xml:space="preserve">
             a block break
         <paragraph>
-            <reference refuri="https://www.google.com" title="a title">
+            <reference reftitle="a title" refuri="https://www.google.com">
                 name
         <literal_block language="default" xml:space="preserve">
             def func(a, b=1):

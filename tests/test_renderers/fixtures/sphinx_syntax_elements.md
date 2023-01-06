@@ -379,7 +379,7 @@ Link Reference:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <reference refuri="https://www.google.com" title="a title">
+        <reference reftitle="a title" refuri="https://www.google.com">
             name
 .
 
@@ -391,7 +391,7 @@ Link Reference short version:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <reference refuri="https://www.google.com" title="a title">
+        <reference reftitle="a title" refuri="https://www.google.com">
             name
 .
 
