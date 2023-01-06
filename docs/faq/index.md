@@ -142,7 +142,7 @@ See the [](syntax/header-anchors) section of extended syntaxes.
 :::
 
 If you'd like to *automatically* generate targets for each of your section headers,
-check out the [`autosectionlabel`](https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html)
+check out the {external+sphinx:std:doc}`autosectionlabel <usage/extensions/autosectionlabel>`
 sphinx feature. You can activate it in your Sphinx site by adding the following to your
 `conf.py` file:
 
@@ -179,7 +179,7 @@ Moved to [](myst-warnings)
 ### Sphinx-specific page front matter
 
 Sphinx intercepts front matter and stores them within the global environment
-(as discussed [in the deflists documentation](https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html)).
+(as discussed in the {external+sphinx:std:doc}`sphinx documentation <usage/restructuredtext/field-lists>`.
 There are certain front-matter keys (or their translations) that are also recognised specifically by docutils and parsed to inline Markdown:
 
 - `author`
