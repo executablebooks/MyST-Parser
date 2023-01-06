@@ -379,7 +379,14 @@ class DocutilsRenderer(RendererProtocol):
         converters: dict[str, Callable[[str], Any]] | None = None,
         aliases: dict[str, str] | None = None,
     ) -> None:
-        """Copy attributes on the token to the docutils node."""
+        """Copy attributes on the token to the docutils node.
+
+        :param token: the token to copy attributes from
+        :param node: the node to copy attributes to
+        :param keys: the keys to copy from the token (after aliasing)
+        :param converters: a dictionary of converters for the attributes
+        :param aliases: a dictionary mapping the token key name to the node key name
+        """
         if converters is None:
             converters = {}
         if aliases is None:
@@ -751,7 +758,9 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        self.copy_attributes(token, ref_node, ("class", "id", "title"))
+        self.copy_attributes(
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         ref_node["refuri"] = cast(str, token.attrGet("href") or "")
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
@@ -769,7 +778,9 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
-        self.copy_attributes(token, ref_node, ("class", "id", "title"))
+        self.copy_attributes(
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         ref_node["refname"] = cast(str, token.attrGet("href") or "")
         self.document.note_refname(ref_node)
         with self.current_node_context(ref_node, append=True):
