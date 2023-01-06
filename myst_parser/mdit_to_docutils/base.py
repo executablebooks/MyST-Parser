@@ -1135,9 +1135,9 @@ class DocutilsRenderer(RendererProtocol):
         )
         inliner = MockInliner(self)
         if role_func:
-            nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
+            _nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
             # return nodes, messages + messages2
-            self.current_node += nodes
+            self.current_node += _nodes
         else:
             message = self.reporter.error(
                 f'Unknown interpreted text role "{name}".', line=lineno
