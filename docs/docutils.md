@@ -46,6 +46,9 @@ The CLI commands can also utilise the [`docutils.conf` configuration file](https
 [general]
 myst-enable-extensions: deflist,linkify
 myst-footnote-transition: no
+myst-substitutions:
+    key1: value1
+    key2: value2
 
 # These entries affect specific HTML output:
 [html writers]
