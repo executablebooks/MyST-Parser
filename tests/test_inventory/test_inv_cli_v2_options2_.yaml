@@ -1,5 +1,6 @@
 name: Python
 version: ''
+base_url: null
 objects:
   std:
     doc:

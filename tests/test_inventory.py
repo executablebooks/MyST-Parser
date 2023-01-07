@@ -22,18 +22,15 @@ def test_convert_roundtrip():
 
 def test_inv_filter(data_regression):
     with (STATIC / "objects_v2.inv").open("rb") as f:
-        inv = to_sphinx(load(f))
-    output = [m.asdict() for m in filter_inventories({"inv": inv}, "index")]
+        inv = load(f)
+    output = [m.asdict() for m in filter_inventories({"inv": inv}, targets="index")]
     data_regression.check(output)
 
 
-def test_inv_filter_fnmatch(data_regression):
+def test_inv_filter_wildcard(data_regression):
     with (STATIC / "objects_v2.inv").open("rb") as f:
-        inv = to_sphinx(load(f))
-    output = [
-        m.asdict()
-        for m in filter_inventories({"inv": inv}, "*index", fnmatch_target=True)
-    ]
+        inv = load(f)
+    output = [m.asdict() for m in filter_inventories({"inv": inv}, targets="*index")]
     data_regression.check(output)
 
 
