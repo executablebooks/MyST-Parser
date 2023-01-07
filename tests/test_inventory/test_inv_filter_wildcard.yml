@@ -1,32 +1,36 @@
-- domain: std
+- base_url: null
+  domain: std
   inv: inv
+  loc: genindex.html
   name: genindex
   otype: label
-  proj: Python
+  project: Python
   text: Index
-  uri: genindex.html
   version: ''
-- domain: std
+- base_url: null
+  domain: std
   inv: inv
+  loc: py-modindex.html
   name: modindex
   otype: label
-  proj: Python
+  project: Python
   text: Module Index
-  uri: py-modindex.html
   version: ''
-- domain: std
+- base_url: null
+  domain: std
   inv: inv
+  loc: py-modindex.html
   name: py-modindex
   otype: label
-  proj: Python
+  project: Python
   text: Python Module Index
-  uri: py-modindex.html
   version: ''
-- domain: std
+- base_url: null
+  domain: std
   inv: inv
+  loc: index.html
   name: index
   otype: doc
-  proj: Python
+  project: Python
   text: Title
-  uri: index.html
   version: ''
