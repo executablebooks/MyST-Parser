@@ -70,6 +70,11 @@ testing = [
     "pytest-param-files~=0.3.4",
     "sphinx-pytest",
 ]
+testing-docutils = [
+    "pygments",
+    "pytest>=6,<7",
+    "pytest-param-files~=0.3.4",
+]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
