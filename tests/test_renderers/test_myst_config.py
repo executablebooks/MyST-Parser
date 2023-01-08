@@ -4,7 +4,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from docutils.core import Publisher, publish_doctree
+from docutils.core import Publisher, publish_string
 
 from myst_parser.parsers.docutils_ import Parser
 
@@ -25,13 +25,14 @@ def test_cmdline(file_params):
             f"Failed to parse commandline: {file_params.description}\n{err}"
         )
     report_stream = StringIO()
+    settings["output_encoding"] = "unicode"
     settings["warning_stream"] = report_stream
-    doctree = publish_doctree(
+    output = publish_string(
         file_params.content,
         parser=Parser(),
+        writer_name="pseudoxml",
         settings_overrides=settings,
     )
-    output = doctree.pformat()
     warnings = report_stream.getvalue()
     if warnings:
         output += "\n" + warnings

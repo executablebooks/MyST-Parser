@@ -156,6 +156,27 @@ www.commonmark.org/he<lp
         <lp
 .
 
+[html_meta] --myst-html-meta='{"keywords": "Sphinx, MyST"}'
+.
+text
+.
+<document source="<string>">
+    <meta content="Sphinx, MyST" name="keywords">
+    <paragraph>
+        text
+.
+
+[substitutions] --myst-enable-extensions=substitution --myst-substitutions='{"a": "b", "c": "d"}'
+.
+{{a}} {{c}}
+.
+<document source="<string>">
+    <paragraph>
+        b
+
+        d
+.
+
 [attrs_inline_span] --myst-enable-extensions=attrs_inline
 .
 [content]{#id .a .b}
