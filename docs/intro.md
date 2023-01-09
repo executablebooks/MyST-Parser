@@ -28,7 +28,7 @@ conda install -c conda-forge myst-parser
 (intro/sphinx)=
 ## Enable MyST in Sphinx
 
-To get started with Sphinx, see their {external+sphinx:std:doc}`quick-start guide <usage/quickstart>`.
+To get started with Sphinx, see their [quick-start guide](inv:sphinx#usage/quickstart).
 
 To use the MyST parser in Sphinx, simply add the following to your `conf.py` file:
 
@@ -80,7 +80,7 @@ $ myst-docutils-html5 --stylesheet= myfile.md
 ```
 
 To include this document within a Sphinx project,
-include `myfile.md` in a [`toctree` directive](sphinx:toctree-directive) on an index page.
+include `myfile.md` in a [`toctree` directive](inv:sphinx#toctree-directive) on an index page.
 
 ## Extend CommonMark with roles and directives
 

@@ -41,6 +41,7 @@ def check_extensions(_, field: dc.Field, value: Any):
             "fieldlist",
             "html_admonition",
             "html_image",
+            "inv_link",
             "linkify",
             "replacements",
             "smartquotes",
@@ -62,6 +63,23 @@ def check_sub_delimiters(_, field: dc.Field, value: Any):
             raise TypeError(
                 f"'{field.name}' does not contain strings of length 1: {value}"
             )
+
+
+def check_inventories(_, field: dc.Field, value: Any):
+    """Check that the inventories are a dict of {str: (str, Optional[str])}"""
+    if not isinstance(value, dict):
+        raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
+    for key, val in value.items():
+        if not isinstance(key, str):
+            raise TypeError(f"'{field.name}' key is not a string: {key!r}")
+        if not isinstance(val, (tuple, list)) or len(val) != 2:
+            raise TypeError(
+                f"'{field.name}[{key}]' value is not a 2-item list: {val!r}"
+            )
+        if not isinstance(val[0], str):
+            raise TypeError(f"'{field.name}[{key}][0]' is not a string: {val[0]}")
+        if not (val[1] is None or isinstance(val[1], str)):
+            raise TypeError(f"'{field.name}[{key}][1]' is not a null/string: {val[1]}")
 
 
 @dc.dataclass()
@@ -301,6 +319,17 @@ class MdParserConfig:
             "validator": instance_of(bool),
             "help": "Syntax highlight code blocks with pygments",
             "docutils_only": True,
+        },
+    )
+
+    inventories: Dict[str, Tuple[str, Optional[str]]] = dc.field(
+        default_factory=dict,
+        repr=False,
+        metadata={
+            "validator": check_inventories,
+            "help": "Mapping of key to (url, inv file), for intra-project referencing",
+            "docutils_only": True,
+            "global_only": True,
         },
     )
 

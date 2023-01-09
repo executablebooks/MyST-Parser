@@ -102,7 +102,7 @@ If you encounter any issues with this feature, please don't hesitate to report i
 (howto/autodoc)=
 ### Use `sphinx.ext.autodoc` in Markdown files
 
-The [Sphinx extension `autodoc`](sphinx:sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
+The [Sphinx extension `autodoc`](inv:sphinx#sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
 It is therefore incompatible with MyST's Markdown parser.
 However, the special [`eval-rst` directive](syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
 
@@ -142,7 +142,7 @@ See the [](syntax/header-anchors) section of extended syntaxes.
 :::
 
 If you'd like to *automatically* generate targets for each of your section headers,
-check out the {external+sphinx:std:doc}`autosectionlabel <usage/extensions/autosectionlabel>`
+check out the [autosectionlabel](inv:sphinx#usage/*/autosectionlabel)
 sphinx feature. You can activate it in your Sphinx site by adding the following to your
 `conf.py` file:
 
@@ -179,7 +179,7 @@ Moved to [](myst-warnings)
 ### Sphinx-specific page front matter
 
 Sphinx intercepts front matter and stores them within the global environment
-(as discussed in the {external+sphinx:std:doc}`sphinx documentation <usage/restructuredtext/field-lists>`.
+(as discussed in the [sphinx documentation](inv:sphinx#usage/*/field-lists)).
 There are certain front-matter keys (or their translations) that are also recognised specifically by docutils and parsed to inline Markdown:
 
 - `author`
@@ -228,7 +228,7 @@ emphasis syntax will now be disabled. For example, the following will be rendere
 *emphasis is now disabled*
 ```
 
-For a list of all the syntax elements you can disable, see the [markdown-it parser guide](markdown_it:using).
+For a list of all the syntax elements you can disable, see the [markdown-it parser guide](inv:markdown_it#using).
 
 ## Common errors and questions
 

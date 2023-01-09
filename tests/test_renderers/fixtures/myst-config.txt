@@ -256,3 +256,76 @@ text
 <string>:1: (WARNING/2) Invalid 'height' attribute value: '2x' [myst.attribute]
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .
+
+[inv_link] --myst-enable-extensions=inv_link
+.
+<inv:#index>
+[](inv:#index)
+[*explicit*](inv:#index)
+<inv:key#index>
+[](inv:key#index)
+<inv:key:std:label#search>
+[](inv:key:std:label#search)
+<inv:#in*>
+[](inv:#in*)
+<inv:key:*:doc#index>
+[](inv:key:*:doc#index)
+.
+<document source="<string>">
+    <paragraph>
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            <emphasis>
+                explicit
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:label:search" reftitle="Python" refuri="https://example.com/search.html">
+            Search Page
+
+        <reference internal="False" inv_match="key:std:label:search" reftitle="Python" refuri="https://example.com/search.html">
+            Search Page
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+
+        <reference internal="False" inv_match="key:std:doc:index" reftitle="Python" refuri="https://example.com/index.html">
+            Title
+.
+
+[inv_link_error] --myst-enable-extensions=inv_link
+.
+<inv:#other>
+
+<inv:*:*:*#*index>
+.
+<document source="<string>">
+    <paragraph>
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                No matches for '*:*:*:other' [myst.iref_missing]
+    <paragraph>
+        <system_message level="2" line="3" source="<string>" type="WARNING">
+            <paragraph>
+                Multiple matches for '*:*:*:*index': key:std:label:genindex, key:std:label:modindex, key:std:label:py-modindex, ... [myst.iref_ambiguous]
+        <reference internal="False" inv_match="key:std:label:genindex" reftitle="Python" refuri="https://example.com/genindex.html">
+            Index
+
+<string>:1: (WARNING/2) No matches for '*:*:*:other' [myst.iref_missing]
+<string>:3: (WARNING/2) Multiple matches for '*:*:*:*index': key:std:label:genindex, key:std:label:modindex, key:std:label:py-modindex, ... [myst.iref_ambiguous]
+.
