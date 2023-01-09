@@ -5,14 +5,16 @@ from pathlib import Path
 
 import pytest
 from docutils.core import Publisher, publish_string
+from pytest_param_files import ParamTestData
 
 from myst_parser.parsers.docutils_ import Parser
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
+INV_PATH = Path(__file__).parent.parent.absolute() / "static" / "objects_v2.inv"
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "myst-config.txt")
-def test_cmdline(file_params):
+def test_cmdline(file_params: ParamTestData):
     """The description is parsed as a docutils commandline"""
     pub = Publisher(parser=Parser())
     option_parser = pub.setup_option_parser()
@@ -27,6 +29,8 @@ def test_cmdline(file_params):
     report_stream = StringIO()
     settings["output_encoding"] = "unicode"
     settings["warning_stream"] = report_stream
+    if "inv_" in file_params.title:
+        settings["myst_inventories"] = {"key": ["https://example.com", str(INV_PATH)]}
     output = publish_string(
         file_params.content,
         parser=Parser(),

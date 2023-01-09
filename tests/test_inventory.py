@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from myst_parser.config.main import MdParserConfig
 from myst_parser.inventory import (
     filter_inventories,
     from_sphinx,
@@ -12,6 +13,21 @@ from myst_parser.inventory import (
 )
 
 STATIC = Path(__file__).parent.absolute() / "static"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        {1: 2},
+        {"key": 1},
+        {"key": [1, 2]},
+        {"key": ["a", 1]},
+    ],
+)
+def test_docutils_config_invalid(value):
+    with pytest.raises((TypeError, ValueError)):
+        MdParserConfig(inventories=value)
 
 
 def test_convert_roundtrip():

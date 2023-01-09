@@ -363,7 +363,7 @@ In particular for users, this update alters the parsing of tables to be consiste
 
 ### New Features ✨
 
-- **Task lists** utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
+- **Task lists** utilise the [markdown-it-py tasklists plugin](inv:markdown_it#md/plugins), and are applied to Markdown list items starting with `[ ]` or `[x]`.
 
   ```markdown
   - [ ] An item that needs doing
@@ -541,7 +541,7 @@ substitutions:
 {{ key1 }}
 ```
 
-The substitutions are assessed as [jinja2 expressions](http://jinja.palletsprojects.com/) and includes the [Sphinx Environment](https://www.sphinx-doc.org/en/master/extdev/envapi.html) as `env`, so you can do powerful thinks like:
+The substitutions are assessed as [jinja2 expressions](http://jinja.palletsprojects.com/) and includes the [Sphinx Environment](inv:sphinx#extdev/envapi) as `env`, so you can do powerful thinks like:
 
 ```
 {{ [key1, env.docname] | join('/') }}

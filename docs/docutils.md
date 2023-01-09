@@ -36,7 +36,7 @@ The commands are based on the [Docutils Front-End Tools](https://docutils.source
 :::
 
 :::{versionadded} 0.19.0
-`myst-suppress-warnings` replicates the functionality of sphinx's [`suppress_warnings`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-suppress_warnings) for `myst.` warnings in the `docutils` CLI.
+`myst-suppress-warnings` replicates the functionality of sphinx's <inv:sphinx#suppress_warnings> for `myst.` warnings in the `docutils` CLI.
 :::
 
 The CLI commands can also utilise the [`docutils.conf` configuration file](https://docutils.sourceforge.io/docs/user/config.html) to configure the behaviour of the CLI commands. For example:

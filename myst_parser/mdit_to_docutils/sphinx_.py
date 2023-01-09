@@ -13,9 +13,11 @@ from sphinx import addnodes
 from sphinx.domains.math import MathDomain
 from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
+from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
 
+from myst_parser import inventory
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 from myst_parser.warnings_ import MystWarnings
 
@@ -91,6 +93,24 @@ class SphinxRenderer(DocutilsRenderer):
         wrap_node.append(inner_node)
         with self.current_node_context(inner_node):
             self.render_children(token)
+
+    def get_inventory_matches(
+        self,
+        *,
+        invs: str | None,
+        domains: str | None,
+        otypes: str | None,
+        target: str | None,
+    ) -> list[inventory.InvMatch]:
+        return list(
+            inventory.filter_sphinx_inventories(
+                InventoryAdapter(self.sphinx_env).named_inventory,
+                invs=invs,
+                domains=domains,
+                otypes=otypes,
+                targets=target,
+            )
+        )
 
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """This extends the docutils method, to allow for the addition of heading ids.
