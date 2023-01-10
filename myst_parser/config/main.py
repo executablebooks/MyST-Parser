@@ -26,9 +26,10 @@ from .dc_validators import (
 )
 
 
-def check_extensions(_, __, value):
+def check_extensions(_, field: dc.Field, value: Any):
+    """Check that the extensions are a list of known strings"""
     if not isinstance(value, Iterable):
-        raise TypeError(f"'enable_extensions' not iterable: {value}")
+        raise TypeError(f"'{field.name}' not iterable: {value}")
     diff = set(value).difference(
         [
             "amsmath",
@@ -40,6 +41,7 @@ def check_extensions(_, __, value):
             "fieldlist",
             "html_admonition",
             "html_image",
+            "inv_link",
             "linkify",
             "replacements",
             "smartquotes",
@@ -49,17 +51,35 @@ def check_extensions(_, __, value):
         ]
     )
     if diff:
-        raise ValueError(f"'enable_extensions' items not recognised: {diff}")
+        raise ValueError(f"'{field.name}' items not recognised: {diff}")
 
 
-def check_sub_delimiters(_, __, value):
+def check_sub_delimiters(_, field: dc.Field, value: Any):
+    """Check that the sub_delimiters are a tuple of length 2 of strings of length 1"""
     if (not isinstance(value, (tuple, list))) or len(value) != 2:
-        raise TypeError(f"myst_sub_delimiters is not a tuple of length 2: {value}")
+        raise TypeError(f"'{field.name}' is not a tuple of length 2: {value}")
     for delim in value:
         if (not isinstance(delim, str)) or len(delim) != 1:
             raise TypeError(
-                f"myst_sub_delimiters does not contain strings of length 1: {value}"
+                f"'{field.name}' does not contain strings of length 1: {value}"
             )
+
+
+def check_inventories(_, field: dc.Field, value: Any):
+    """Check that the inventories are a dict of {str: (str, Optional[str])}"""
+    if not isinstance(value, dict):
+        raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
+    for key, val in value.items():
+        if not isinstance(key, str):
+            raise TypeError(f"'{field.name}' key is not a string: {key!r}")
+        if not isinstance(val, (tuple, list)) or len(val) != 2:
+            raise TypeError(
+                f"'{field.name}[{key}]' value is not a 2-item list: {val!r}"
+            )
+        if not isinstance(val[0], str):
+            raise TypeError(f"'{field.name}[{key}][0]' is not a string: {val[0]}")
+        if not (val[1] is None or isinstance(val[1], str)):
+            raise TypeError(f"'{field.name}[{key}][1]' is not a null/string: {val[1]}")
 
 
 @dc.dataclass()
@@ -125,6 +145,7 @@ class MdParserConfig:
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
             "help": "Sphinx domain names to search in for link references",
+            "sphinx_only": True,
         },
     )
 
@@ -149,6 +170,7 @@ class MdParserConfig:
         metadata={
             "validator": optional(in_([1, 2, 3, 4, 5, 6, 7])),
             "help": "Heading level depth to assign HTML anchors",
+            "sphinx_only": True,
         },
     )
 
@@ -158,6 +180,7 @@ class MdParserConfig:
             "validator": optional(is_callable),
             "help": "Function for creating heading anchors",
             "global_only": True,
+            "sphinx_only": True,
         },
     )
 
@@ -210,6 +233,7 @@ class MdParserConfig:
             "validator": check_sub_delimiters,
             "help": "Substitution delimiters",
             "extension": "substitutions",
+            "sphinx_only": True,
         },
     )
 
@@ -262,6 +286,7 @@ class MdParserConfig:
             "help": "Update sphinx.ext.mathjax configuration to ignore `$` delimiters",
             "extension": "dollarmath",
             "global_only": True,
+            "sphinx_only": True,
         },
     )
 
@@ -272,6 +297,7 @@ class MdParserConfig:
             "help": "MathJax classes to add to math HTML",
             "extension": "dollarmath",
             "global_only": True,
+            "sphinx_only": True,
         },
     )
 
@@ -293,6 +319,17 @@ class MdParserConfig:
             "validator": instance_of(bool),
             "help": "Syntax highlight code blocks with pygments",
             "docutils_only": True,
+        },
+    )
+
+    inventories: Dict[str, Tuple[str, Optional[str]]] = dc.field(
+        default_factory=dict,
+        repr=False,
+        metadata={
+            "validator": check_inventories,
+            "help": "Mapping of key to (url, inv file), for intra-project referencing",
+            "docutils_only": True,
+            "global_only": True,
         },
     )
 

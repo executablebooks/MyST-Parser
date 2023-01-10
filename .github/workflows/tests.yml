@@ -86,7 +86,7 @@ jobs:
       run: python .github/workflows/docutils_setup.py pyproject.toml README.md
     - name: Install dependencies
       run: |
-        pip install . pytest~=6.2 pytest-param-files~=0.3.3 pygments docutils==${{ matrix.docutils-version }}
+        pip install .[linkify,testing-docutils] docutils==${{ matrix.docutils-version }}
     - name: ensure sphinx is not installed
       run: |
         python -c "\
@@ -97,7 +97,7 @@ jobs:
         else:
             raise AssertionError()"
     - name: Run pytest for docutils-only tests
-      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py
+      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py tests/test_renderers/test_myst_config.py
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 

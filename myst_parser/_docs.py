@@ -77,7 +77,7 @@ class MystConfigDirective(_ConfigBase):
                 continue
 
             # filter by sphinx options
-            if "sphinx" in self.options and field.metadata.get("sphinx_exclude"):
+            if "sphinx" in self.options and field.metadata.get("docutils_only"):
                 continue
 
             if "extensions" in self.options:

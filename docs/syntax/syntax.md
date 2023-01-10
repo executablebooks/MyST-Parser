@@ -85,7 +85,7 @@ would be equivalent to:
 ### Setting HTML Metadata
 
 The front-matter can contain the special key `html_meta`; a dict with data to add to the generated HTML as [`<meta>` elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta).
-This is equivalent to using the {external+sphinx:ref}`meta directive <html-meta>`.
+This is equivalent to using the [meta directive](inv:sphinx#html-meta).
 
 HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
 For each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
@@ -207,34 +207,203 @@ Is below, but it won't be parsed into the document.
 
 ## Markdown Links and Referencing
 
-Markdown links are of the form: `[text](link)`.
+### CommonMark link format
 
-If you set the configuration `myst_all_links_external = True` (`False` by default),
-then all links will be treated simply as "external" links.
-For example, in HTML outputs, `[text](link)` will be rendered as `<a href="link">text</a>`.
+CommonMark links come in three forms ([see the spec](https://spec.commonmark.org/0.30/#links)):
 
-Otherwise, links will only be treated as "external" links if they are prefixed with a scheme,
-configured with `myst_url_schemes` (by default, `http`, `https`, `ftp`, or `mailto`).
-For example, `[example.com](https://example.com)` becomes [example.com](https://example.com).
+*Autolinks* are [URIs][uri] surrounded by `<` and `>`, which must always have a scheme:
 
-:::{note}
-The `text` will be parsed as nested Markdown, for example `[here's some *emphasised text*](https://example.com)` will be parsed as [here's some *emphasised text*](https://example.com).
+```md
+<scheme:path?query#fragment>
+```
+
+*Inline links* allow for optional explicit text and titles (in HTML titles are rendered as tooltips):
+
+```md
+[Explicit *Markdown* text](destination "optional explicit title")
+```
+
+or, if the destination contains spaces,
+
+```md
+[Explicit *Markdown* text](<a destination> "optional explicit title")
+```
+
+*Reference links* define the destination separately in the document, and can be used multiple times:
+
+```md
+[Explicit *Markdown* text][label]
+[Another link][label]
+
+[label]: destination "optional explicit title"
+```
+
+[uri]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+[url]: https://en.wikipedia.org/wiki/URL
+
+### Default destination resolution
+
+The destination of a link can resolve to either an **external** target, such as a [URL] to another website,
+or an **internal** target, such as a file, heading or figure within the same project.
+
+By default, MyST will resolve link destinations according to the following rules:
+
+1. All autolinks will be treated as external [URL] links.
+
+2. Destinations beginning with  `http:`, `https:`, `ftp:`, or `mailto:` will be treated as external [URL] links.
+
+3. Destinations which point to a local file path are treated as links to that file.
+   - The path must be relative and in [POSIX format](https://en.wikipedia.org/wiki/Path_(computing)#POSIX_and_Unix_paths) (i.e. `/` separators).
+   - If the path is to another source file in the project (e.g. a `.md` or `.rst` file),
+    then the link will be to the initial heading in that file.
+   - If the path is to a non-source file (e.g. a `.png` or `.pdf` file),
+    then the link will be to the file itself, e.g. to download it.
+
+4. Destinations beginning with `#` will be treated as a link to a heading "slug" in the same file.
+   - This requires the `myst_heading_anchors` configuration be set.
+   - For more details see [](syntax/header-anchors).
+
+5. All other destinations are treated as internal references, which can link to any type of target within the project (see [](syntax/targets)).
+
+Here are some examples:
+
+:::{list-table}
+:header-rows: 1
+
+* - Type
+  - Syntax
+  - Rendered
+
+* - Autolink
+  - `<https://example.com>`
+  - <https://example.com>
+
+* - External URL
+  - `[example.com](https://example.com)`
+  - [example.com](https://example.com)
+
+* - Internal source file
+  - `[Source file](syntax.md)`
+  - [Source file](syntax.md)
+
+* - Internal non-source file
+  - `[Non-source file](example.txt)`
+  - [Non-source file](example.txt)
+
+* - Internal heading
+  - `[Heading](#markdown-links-and-referencing)`
+  - [Heading](#markdown-links-and-referencing)
+
 :::
 
-For "internal" links, myst-parser in Sphinx will attempt to resolve the reference to either a relative document path, or a cross-reference to a target (see [](syntax/targets)):
+### Customising destination resolution
 
-- `[this doc](syntax.md)` will link to a rendered source document: [this doc](syntax.md)
-  - This is similar to `` {doc}`this doc <syntax>` ``; {doc}`this doc <syntax>`, but allows for document extensions, and parses nested Markdown text.
-- `[example text](example.txt)` will link to a non-source (downloadable) file: [example text](example.txt)
-  - The linked document itself will be copied to the build directory.
-  - This is similar to `` {download}`example text <example.txt>` ``; {download}`example text <example.txt>`, but parses nested Markdown text.
-- `[reference](syntax/referencing)` will link to an internal cross-reference: [reference](syntax/referencing)
-  - This is similar to `` {any}`reference <syntax/referencing>` ``; {any}`reference <syntax/referencing>`, but parses nested Markdown text.
-  - You can limit the scope of the cross-reference to specific [sphinx domains](sphinx:domain), by using the `myst_ref_domains` configuration.
-    For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
+You can customise the default destination resolution rules by setting the following [configuration options](../configuration.md):
 
-Additionally, only if [](syntax/header-anchors) are enabled, then internal links to document headers can be used.
-For example `[a header](syntax.md#markdown-links-and-referencing)` will link to a header anchor: [a header](syntax.md#markdown-links-and-referencing).
+`myst_all_links_external` (default: `False`)
+:   If `True`, then all links will be treated as external links.
+
+`myst_url_schemes` (default: `["http", "https", "ftp", "mailto"]`)
+: A list of [URL] schemes which will be treated as external links.
+
+`myst_ref_domains` (default: `[]`)
+: A list of [sphinx domains](inv:sphinx#domain) which will be allowed for internal links.
+  For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
+  If the list is empty, then all domains will be allowed.
+
+(syntax/inv_links)=
+### Cross-project (inventory) links
+
+:::{versionadded} 0.19
+This functionality is currently in *beta*.
+It is intended that eventually it will be part of the core syntax.
+:::
+
+Each Sphinx HTML build creates a file named `objects.inv` that contains a mapping from referenceable objects to [URIs][uri] relative to the HTML set’s root.
+Each object is uniquely identified by a `domain`, `type`, and `name`.
+As well as the relative location, the object can also include implicit `text` for the reference (like the text for a heading).
+
+You can use the `myst-inv` command line tool (installed with `myst_parser`) to visualise and filter any remote URL or local file path to this inventory file (or its parent):
+
+```yaml
+# $ myst-inv https://www.sphinx-doc.org/en/master -n index
+name: Sphinx
+version: 6.2.0
+base_url: https://www.sphinx-doc.org/en/master
+objects:
+  rst:
+    role:
+      index:
+        loc: usage/restructuredtext/directives.html#role-index
+        text: null
+  std:
+    doc:
+      index:
+        loc: index.html
+        text: Welcome
+```
+
+To load external inventories into your Sphinx project, you must load the [`sphinx.ext.intersphinx` extension](inv:sphinx#usage/*/intersphinx), and set the `intersphinx_mapping` configuration option.
+Then also enable the `inv_link` MyST extension e.g.:
+
+```python
+extensions = ["myst_parser", "sphinx.ext.intersphinx"]
+intersphinx_mapping = {
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
+myst_enable_extensions = ["inv_link"]
+```
+
+:::{dropdown} Docutils configuration
+
+Use the `docutils.conf` configuration file, for more details see [](myst-docutils).
+
+```ini
+[general]
+myst-inventories:
+  sphinx: ["https://www.sphinx-doc.org/en/master", null]
+myst-enable-extensions: inv_link
+```
+
+:::
+
+you can then reference inventory objects by prefixing the `inv` schema to the destination [URI]: `inv:key:domain:type#name`.
+
+`key`, `domain` and `type` are optional, e.g. for `inv:#name`, all inventories, domains and types will be searched, with a [warning emitted](myst-warnings) if multiple matches are found.
+
+Additionally, `*` is a wildcard which matches zero or characters, e.g. `inv:*:std:doc#a*` will match all `std:doc` objects in all inventories, with a `name` beginning with `a`.
+Note, to match to a literal `*` use `\*`.
+
+Here are some examples:
+
+:::{list-table}
+:header-rows: 1
+
+* - Type
+  - Syntax
+  - Rendered
+
+* - Autolink, full
+  - `<inv:sphinx:std:doc#index>`
+  - <inv:sphinx:std:doc#index>
+
+* - Link, full
+  - `[Sphinx](inv:sphinx:std:doc#index)`
+  - [Sphinx](inv:sphinx:std:doc#index)
+
+* - Autolink, no type
+  - `<inv:sphinx:std#index>`
+  - <inv:sphinx:std#index>
+
+* - Autolink, no domain
+  - `<inv:sphinx:*:doc#index>`
+  - <inv:sphinx:*:doc#index>
+
+* - Autolink, only name
+  - `<inv:#*.Sphinx>`
+  - <inv:#*.Sphinx>
+
+:::
 
 (syntax/targets)=
 
@@ -258,7 +427,7 @@ Target headers are defined with this syntax:
 ```
 
 They can then be referred to with the
-{external+sphinx:ref}`ref inline role <ref-role>`:
+[`ref` inline role](inv:sphinx#ref-role):
 
 ```md
 {ref}`header_target`
@@ -278,7 +447,7 @@ Alternatively using the markdown syntax:
 [my text](header_target)
 ```
 
-is equivalent to using the {external+sphinx:ref}`any inline role <any-role>`:
+is equivalent to using the [`any` inline role](inv:sphinx#any-role):
 
 ```md
 {any}`my text <header_target>`
@@ -314,7 +483,7 @@ c = "string"
 ```
 
 You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
-or within a sphinx extension, with the [`app.add_lexer` method](sphinx:sphinx.application.Sphinx.add_lexer).
+or within a sphinx extension, with the [`app.add_lexer` method](inv:sphinx#*.Sphinx.add_lexer).
 
 Using the `myst_number_code_blocks` configuration option, you can also control whether code blocks are numbered by line.
 For example, using `myst_number_code_blocks = ["typescript"]`:

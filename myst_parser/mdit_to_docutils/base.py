@@ -4,9 +4,10 @@ from __future__ import annotations
 import inspect
 import json
 import os
+import posixpath
 import re
 from collections import OrderedDict
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import date, datetime
 from types import ModuleType
 from typing import (
@@ -40,6 +41,7 @@ from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
 
+from myst_parser import inventory
 from myst_parser._compat import findall
 from myst_parser.config.main import MdParserConfig
 from myst_parser.mocking import (
@@ -93,6 +95,8 @@ class DocutilsRenderer(RendererProtocol):
             for k, v in inspect.getmembers(self, predicate=inspect.ismethod)
             if k.startswith("render_") and k != "render_children"
         }
+        # these are lazy loaded, when needed
+        self._inventories: None | dict[str, inventory.InventoryType] = None
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -727,18 +731,27 @@ class DocutilsRenderer(RendererProtocol):
             or any scheme if  `myst_url_schemes` is None.
         - Otherwise, forward to `render_internal_link`
         """
-        if token.info == "auto":  # handles both autolink and linkify
-            return self.render_autolink(token)
-
         if (
             self.md_config.commonmark_only
             or self.md_config.gfm_only
             or self.md_config.all_links_external
         ):
-            return self.render_external_url(token)
+            if token.info == "auto":  # handles both autolink and linkify
+                return self.render_autolink(token)
+            else:
+                return self.render_external_url(token)
+
+        href = cast(str, token.attrGet("href") or "")
+
+        # TODO ideally whether inv_link is enabled could be precomputed
+        if "inv_link" in self.md_config.enable_extensions and href.startswith("inv:"):
+            return self.create_inventory_link(token)
+
+        if token.info == "auto":  # handles both autolink and linkify
+            return self.render_autolink(token)
 
         # Check for external URL
-        url_scheme = urlparse(cast(str, token.attrGet("href") or "")).scheme
+        url_scheme = urlparse(href).scheme
         allowed_url_schemes = self.md_config.url_schemes
         if (allowed_url_schemes is None and url_scheme) or (
             allowed_url_schemes is not None and url_scheme in allowed_url_schemes
@@ -796,6 +809,132 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(ref_node, token)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
+
+    def create_inventory_link(self, token: SyntaxTreeNode) -> None:
+        r"""Create a link to an inventory object.
+
+        This assumes the href is of the form `<scheme>:<path>#<target>`.
+        The path is of the form `<invs>:<domains>:<otypes>`,
+        where each of the parts is optional, hence `<scheme>:#<target>` is also valid.
+        Each of the path parts can contain the `*` wildcard, for example:
+        `<scheme>:key:*:obj#targe*`.
+        `\*` is treated as a plain `*`.
+        """
+
+        # account for autolinks
+        if token.info == "auto":
+            # autolinks escape the HTML, which we don't want
+            href = token.children[0].content
+            explicit = False
+        else:
+            href = cast(str, token.attrGet("href") or "")
+            explicit = bool(token.children)
+
+        # split the href up into parts
+        uri_parts = urlparse(href)
+        target = uri_parts.fragment
+        invs, domains, otypes = None, None, None
+        if uri_parts.path:
+            path_parts = uri_parts.path.split(":")
+            with suppress(IndexError):
+                invs = path_parts[0]
+                domains = path_parts[1]
+                otypes = path_parts[2]
+
+        # find the matches
+        matches = self.get_inventory_matches(
+            target=target, invs=invs, domains=domains, otypes=otypes
+        )
+
+        # warn for 0 or >1 matches
+        if not matches:
+            filter_str = inventory.filter_string(invs, domains, otypes, target)
+            self.create_warning(
+                f"No matches for {filter_str!r}",
+                MystWarnings.IREF_MISSING,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+            return
+        if len(matches) > 1:
+            show_num = 3
+            filter_str = inventory.filter_string(invs, domains, otypes, target)
+            matches_str = ", ".join(
+                [
+                    inventory.filter_string(m.inv, m.domain, m.otype, m.name)
+                    for m in matches[:show_num]
+                ]
+            )
+            if len(matches) > show_num:
+                matches_str += ", ..."
+            self.create_warning(
+                f"Multiple matches for {filter_str!r}: {matches_str}",
+                MystWarnings.IREF_AMBIGUOUS,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+
+        # create the docutils node
+        match = matches[0]
+        ref_node = nodes.reference()
+        ref_node["internal"] = False
+        ref_node["inv_match"] = inventory.filter_string(
+            match.inv, match.domain, match.otype, match.name
+        )
+        self.add_line_and_source_path(ref_node, token)
+        self.copy_attributes(
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
+        ref_node["refuri"] = (
+            posixpath.join(match.base_url, match.loc) if match.base_url else match.loc
+        )
+        if "reftitle" not in ref_node:
+            ref_node["reftitle"] = f"{match.project} {match.version}".strip()
+        self.current_node.append(ref_node)
+        if explicit:
+            with self.current_node_context(ref_node):
+                self.render_children(token)
+        elif match.text:
+            ref_node.append(nodes.Text(match.text))
+        else:
+            ref_node.append(nodes.Text(match.name))
+
+    def get_inventory_matches(
+        self,
+        *,
+        invs: str | None,
+        domains: str | None,
+        otypes: str | None,
+        target: str | None,
+    ) -> list[inventory.InvMatch]:
+        """Return inventory matches.
+
+        This will be overridden for sphinx, to use intersphinx config.
+        """
+        if self._inventories is None:
+            self._inventories = {}
+            for key, (uri, path) in self.md_config.inventories.items():
+                load_path = posixpath.join(uri, "objects.inv") if path is None else path
+                self.reporter.info(f"Loading inventory {key!r}: {load_path}")
+                try:
+                    inv = inventory.fetch_inventory(load_path, base_url=uri)
+                except Exception as exc:
+                    self.create_warning(
+                        f"Failed to load inventory {key!r}: {exc}",
+                        MystWarnings.INV_LOAD,
+                    )
+                else:
+                    self._inventories[key] = inv
+
+        return list(
+            inventory.filter_inventories(
+                self._inventories,
+                invs=invs,
+                domains=domains,
+                otypes=otypes,
+                targets=target,
+            )
+        )
 
     def render_html_inline(self, token: SyntaxTreeNode) -> None:
         self.render_html_block(token)
@@ -1461,16 +1600,12 @@ def html_meta_to_nodes(
         return []
 
     try:
-        # if sphinx available
-        from sphinx.addnodes import meta as meta_cls
-    except ImportError:
-        try:
-            # docutils >= 0.19
-            meta_cls = nodes.meta  # type: ignore
-        except AttributeError:
-            from docutils.parsers.rst.directives.html import MetaBody
+        meta_cls = nodes.meta
+    except AttributeError:
+        # docutils-0.17 or older
+        from docutils.parsers.rst.directives.html import MetaBody
 
-            meta_cls = MetaBody.meta  # type: ignore
+        meta_cls = MetaBody.meta
 
     output = []
 

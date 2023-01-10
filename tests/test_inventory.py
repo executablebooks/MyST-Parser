@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from myst_parser.config.main import MdParserConfig
 from myst_parser.inventory import (
     filter_inventories,
     from_sphinx,
@@ -14,6 +15,21 @@ from myst_parser.inventory import (
 STATIC = Path(__file__).parent.absolute() / "static"
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        {1: 2},
+        {"key": 1},
+        {"key": [1, 2]},
+        {"key": ["a", 1]},
+    ],
+)
+def test_docutils_config_invalid(value):
+    with pytest.raises((TypeError, ValueError)):
+        MdParserConfig(inventories=value)
+
+
 def test_convert_roundtrip():
     with (STATIC / "objects_v2.inv").open("rb") as f:
         inv = load(f)
@@ -22,18 +38,15 @@ def test_convert_roundtrip():
 
 def test_inv_filter(data_regression):
     with (STATIC / "objects_v2.inv").open("rb") as f:
-        inv = to_sphinx(load(f))
-    output = [m.asdict() for m in filter_inventories({"inv": inv}, "index")]
+        inv = load(f)
+    output = [m.asdict() for m in filter_inventories({"inv": inv}, targets="index")]
     data_regression.check(output)
 
 
-def test_inv_filter_fnmatch(data_regression):
+def test_inv_filter_wildcard(data_regression):
     with (STATIC / "objects_v2.inv").open("rb") as f:
-        inv = to_sphinx(load(f))
-    output = [
-        m.asdict()
-        for m in filter_inventories({"inv": inv}, "*index", fnmatch_target=True)
-    ]
+        inv = load(f)
+    output = [m.asdict() for m in filter_inventories({"inv": inv}, targets="*index")]
     data_regression.check(output)
 
 

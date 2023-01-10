@@ -38,7 +38,7 @@ def validate_fields(inst: Any) -> None:
 
 class ValidatorType(Protocol):
     def __call__(
-        self, inst: bytes, field: dc.Field, value: Any, suffix: str = ""
+        self, inst: Any, field: dc.Field, value: Any, suffix: str = ""
     ) -> None:
         ...
 

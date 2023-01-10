@@ -13,16 +13,16 @@ myst:
       :width: 200px
       ```
     key4: example
-    confpy: sphinx `conf.py` {external+sphinx:std:doc}`configuration file <usage/configuration>`
+    confpy: sphinx `conf.py` [configuration file](inv:sphinx#usage/configuration)
 ---
 
 (syntax/extensions)=
 
 # Syntax Extensions
 
-MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](markdown_it:index) parser.
+MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](inv:markdown_it#index) parser.
 The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](sphinx/config-options)).
-Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](markdown_it:md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
+Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](inv:markdown_it#md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:
 
@@ -36,6 +36,7 @@ myst_enable_extensions = [
     "fieldlist",
     "html_admonition",
     "html_image",
+    "inv_link",
     "linkify",
     "replacements",
     "smartquotes",
@@ -101,7 +102,7 @@ Math is parsed by adding to the `myst_enable_extensions` list option, in the {{ 
 - `"dollarmath"` for parsing of dollar `$` and `$$` encapsulated math.
 - `"amsmath"` for direct parsing of [amsmath LaTeX environments](https://ctan.org/pkg/amsmath).
 
-These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](markdown_it:md/plugins).
+These options enable their respective Markdown parser plugins, as detailed in the [markdown-it plugin guide](inv:markdown_it#md/plugins).
 
 :::{versionchanged} 0.13.0
 `myst_dmath_enable=True` and `myst_amsmath_enable=True` are deprecated, and replaced by `myst_enable_extensions = ["dollarmath", "amsmath"]`
@@ -231,7 +232,7 @@ See [the extended syntax option](syntax/amsmath).
 (syntax/mathjax)=
 ### Mathjax and math parsing
 
-When building HTML using the {external+sphinx:mod}`sphinx.ext.mathjax <sphinx.ext.mathjax>` extension (enabled by default),
+When building HTML using the <inv:sphinx#sphinx.ext.mathjax> extension (enabled by default),
 If `dollarmath` is enabled, Myst-Parser injects the `tex2jax_ignore` (MathJax v2) and  `mathjax_ignore` (MathJax v3) classes in to the top-level section of each MyST document, and adds the following default MathJax configuration:
 
 MathJax version 2 (see [the tex2jax preprocessor](https://docs.mathjax.org/en/v2.7-latest/options/preprocessors/tex2jax.html#configure-tex2jax):
@@ -353,7 +354,7 @@ This may lead to unexpected outcomes.
 
 :::
 
-Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the {external+sphinx:std:doc}`Sphinx Environment <extdev/envapi>` in the context (as `env`).
+Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](inv:sphinx#extdev/envapi) in the context (as `env`).
 Therefore you can do things like:
 
 ```md
@@ -540,7 +541,7 @@ $ myst-anchors -l 2 docs/syntax/optional.md
 
 By adding `"deflist"` to `myst_enable_extensions` (in the {{ confpy }}),
 you will be able to utilise definition lists.
-Definition lists utilise the [markdown-it-py deflist plugin](markdown_it:md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
+Definition lists utilise the [markdown-it-py deflist plugin](inv:markdown_it#md/plugins), which itself is based on the [Pandoc definition list specification](http://johnmacfarlane.net/pandoc/README.html#definition-lists).
 
 This syntax can be useful, for example, as an alternative to nested bullet-lists:
 
@@ -619,7 +620,7 @@ Term 3
 
 By adding `"tasklist"` to `myst_enable_extensions` (in the {{ confpy }}),
 you will be able to utilise task lists.
-Task lists utilise the [markdown-it-py tasklists plugin](markdown_it:md/plugins),
+Task lists utilise the [markdown-it-py tasklists plugin](inv:markdown_it#md/plugins),
 and are applied to markdown list items starting with `[ ]` or `[x]`:
 
 ```markdown
@@ -691,7 +692,7 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
   print("Hello, world!")
   ```
 
-A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](sphinx:python-domain):
+A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](inv:sphinx#python-domain):
 
 ````md
 ```{py:function} send_message(sender, priority)
@@ -726,15 +727,15 @@ Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 (syntax/attributes)=
 ## Inline attributes
 
+:::{versionadded} 0.19
+This feature is in *beta*, and may change in future versions.
+It replace the previous `attrs_image` extension, which is now deprecated.
+:::
+
 By adding `"attrs_inline"` to `myst_enable_extensions` (in the {{ confpy }}),
 you can enable parsing of inline attributes after certain inline syntaxes.
 This is adapted from [djot inline attributes](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html#inline-attributes),
 and also related to [pandoc bracketed spans](https://pandoc.org/MANUAL.html#extension-bracketed_spans).
-
-:::{important}
-This feature is in *beta*, and may change in future versions.
-It replace the previous `attrs_image` extension, which is now deprecated.
-:::
 
 Attributes are specified in curly braces after the inline syntax.
 Inside the curly braces, the following syntax is recognised:

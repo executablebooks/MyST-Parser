@@ -97,6 +97,7 @@ myst_enable_extensions = [
     "substitution",
     "tasklist",
     "attrs_inline",
+    "inv_link",
 ]
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2

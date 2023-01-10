@@ -69,6 +69,9 @@ Full details in the [](syntax/extensions) section.
 amsmath
 : enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations
 
+attrs_inline
+: Enable inline attribute parsing, [see here](syntax/attributes) for details
+
 colon_fence
 : Enable code fences using `:::` delimiters, [see here](syntax/colon_fence) for details
 
@@ -86,6 +89,9 @@ html_admonition
 
 html_image
 : Convert HTML `<img>` elements to sphinx image nodes, [see here](syntax/images) for details
+
+inv_link
+: Enable the `inv:` schema for Markdown link destinations, [see here](syntax/inv_links) for details
 
 linkify
 : Automatically identify "bare" web URLs and add hyperlinks
@@ -117,7 +123,7 @@ WARNING: Non-consecutive header level increase; H1 to H3 [myst.header]
 
 **In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.**
 
-However, in some circumstances if you wish to suppress the warning you can use the [`suppress_warnings`](https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-suppress_warnings) configuration option, e.g.
+However, in some circumstances if you wish to suppress the warning you can use the <inv:sphinx#suppress_warnings> configuration option, e.g.
 
 ```python
 suppress_warnings = ["myst.header"]
