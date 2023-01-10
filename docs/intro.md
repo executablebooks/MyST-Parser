@@ -46,7 +46,7 @@ To parse single documents, see the [](docutils.md) section
 ## Write a CommonMark document
 
 MyST is an extension of [CommonMark Markdown](https://commonmark.org/),
-that includes [additional syntax](../syntax/syntax.md) for technical authoring,
+that includes [additional syntax](syntax/syntax.md) for technical authoring,
 which integrates with Docutils and Sphinx.
 
 To start off, create an empty file called `myfile.md` and give it a markdown title and text.

@@ -32,6 +32,8 @@ class MystWarnings(Enum):
     # cross-reference resolution
     XREF_AMBIGUOUS = "xref_ambiguous"
     """Multiple targets were found for a cross-reference."""
+    XREF_MISSING = "xref_missing"
+    """A target was not found for a cross-reference."""
     INV_LOAD = "inv_retrieval"
     """Failure to retrieve or load an inventory."""
     IREF_MISSING = "iref_missing"

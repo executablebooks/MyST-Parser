@@ -136,6 +136,8 @@ class DocutilsRenderer(RendererProtocol):
         self._level_to_elem: dict[int, nodes.document | nodes.section] = {
             0: self.document
         }
+        # mapping of section slug to section node
+        self._slug_to_section: dict[str, nodes.section] = {}
 
     @property
     def sphinx_env(self) -> BuildEnvironment | None:
@@ -235,6 +237,37 @@ class DocutilsRenderer(RendererProtocol):
 
     def _render_finalise(self) -> None:
         """Finalise the render of the document."""
+
+        # attempt to replace id_link references with internal links
+        for refnode in findall(self.document)(nodes.reference):
+            if not refnode.get("id_link"):
+                continue
+            target = refnode["refuri"][1:]
+            if target in self._slug_to_section:
+                section_node = self._slug_to_section[target]
+                refnode["refid"] = section_node["ids"][0]
+
+                if not refnode.children:
+                    implicit_text = clean_astext(section_node[0])
+                    refnode += nodes.inline(
+                        implicit_text, implicit_text, classes=["std", "std-ref"]
+                    )
+            else:
+                self.create_warning(
+                    f"local id not found: {refnode['refuri']!r}",
+                    MystWarnings.XREF_MISSING,
+                    line=refnode.line,
+                    append_to=refnode,
+                )
+                refnode["refid"] = target
+            del refnode["refuri"]
+
+        if self._slug_to_section and self.sphinx_env:
+            # save for later reference resolution
+            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = {
+                slug: (snode["ids"][0], clean_astext(snode[0]))
+                for slug, snode in self._slug_to_section.items()
+            }
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -713,10 +746,28 @@ class DocutilsRenderer(RendererProtocol):
         with self.current_node_context(title_node):
             self.render_children(token)
 
-        # create a target reference for the section, based on the heading text
+        # create a target reference for the section, based on the heading text.
+        # Note, this is an implicit target, meaning that it is not prioritised,
+        # and is not stored by sphinx for ref resolution
         name = nodes.fully_normalize_name(title_node.astext())
         new_section["names"].append(name)
         self.document.note_implicit_target(new_section, new_section)
+
+        # add possible reference slug, this may be different to the standard name above,
+        # and does not have to be normalised, so we treat it separately
+        if "id" in token.attrs:
+            slug = str(token.attrs["id"])
+            new_section["slug"] = slug
+            if slug in self._slug_to_section:
+                other_node = self._slug_to_section[slug]
+                self.create_warning(
+                    f"duplicate heading slug {slug!r}, other at line {other_node.line}",
+                    MystWarnings.ANCHOR_DUPE,
+                    line=new_section.line,
+                )
+            else:
+                # we store this for later processing on finalise
+                self._slug_to_section[slug] = new_section
 
         # set the section as the current node for subsequent rendering
         self.current_node = new_section
@@ -736,19 +787,19 @@ class DocutilsRenderer(RendererProtocol):
             or self.md_config.gfm_only
             or self.md_config.all_links_external
         ):
-            if token.info == "auto":  # handles both autolink and linkify
-                return self.render_autolink(token)
-            else:
-                return self.render_external_url(token)
+            return self.render_external_url(token)
 
         href = cast(str, token.attrGet("href") or "")
+
+        if href.startswith("#"):
+            return self.render_id_link(token)
 
         # TODO ideally whether inv_link is enabled could be precomputed
         if "inv_link" in self.md_config.enable_extensions and href.startswith("inv:"):
             return self.create_inventory_link(token)
 
         if token.info == "auto":  # handles both autolink and linkify
-            return self.render_autolink(token)
+            return self.render_external_url(token)
 
         # Check for external URL
         url_scheme = urlparse(href).scheme
@@ -761,20 +812,27 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_internal_link(token)
 
     def render_external_url(self, token: SyntaxTreeNode) -> None:
-        """Render link token `[text](link "title")`,
-        where the link has been identified as an external URL::
-
-            <reference refuri="link" title="title">
-                text
-
-        `text` can contain nested syntax, e.g. `[**bold**](url "title")`.
+        """Render link token (including autolink and linkify),
+        where the link has been identified as an external URL.
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        ref_node["refuri"] = cast(str, token.attrGet("href") or "")
+        ref_node["refuri"] = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
+        with self.current_node_context(ref_node, append=True):
+            self.render_children(token)
+
+    def render_id_link(self, token: SyntaxTreeNode) -> None:
+        """Render link token like `[text](#id)`, to a local target."""
+        ref_node = nodes.reference()
+        self.add_line_and_source_path(ref_node, token)
+        ref_node["id_link"] = True
+        ref_node["refuri"] = token.attrGet("href") or ""
+        self.copy_attributes(
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
@@ -796,17 +854,6 @@ class DocutilsRenderer(RendererProtocol):
         )
         ref_node["refname"] = cast(str, token.attrGet("href") or "")
         self.document.note_refname(ref_node)
-        with self.current_node_context(ref_node, append=True):
-            self.render_children(token)
-
-    def render_autolink(self, token: SyntaxTreeNode) -> None:
-        refuri = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
-        ref_node = nodes.reference()
-        self.copy_attributes(
-            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
-        )
-        ref_node["refuri"] = refuri
-        self.add_line_and_source_path(ref_node, token)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
@@ -1641,3 +1688,15 @@ def html_meta_to_nodes(
         output.append(pending)
 
     return output
+
+
+def clean_astext(node: nodes.Element) -> str:
+    """Like node.astext(), but ignore images.
+    Copied from sphinx.
+    """
+    node = node.deepcopy()
+    for img in node.findall(nodes.image):
+        img["alt"] = ""
+    for raw in list(node.findall(nodes.raw)):
+        raw.parent.remove(raw)
+    return node.astext()
