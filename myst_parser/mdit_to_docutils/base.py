@@ -1695,8 +1695,8 @@ def clean_astext(node: nodes.Element) -> str:
     Copied from sphinx.
     """
     node = node.deepcopy()
-    for img in node.findall(nodes.image):
+    for img in findall(node)(nodes.image):
         img["alt"] = ""
-    for raw in list(node.findall(nodes.raw)):
+    for raw in list(findall(node)(nodes.raw)):
         raw.parent.remove(raw)
     return node.astext()
