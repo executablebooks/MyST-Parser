@@ -11,15 +11,12 @@ from docutils import nodes
 from markdown_it.tree import SyntaxTreeNode
 from sphinx import addnodes
 from sphinx.domains.math import MathDomain
-from sphinx.domains.std import StandardDomain
 from sphinx.environment import BuildEnvironment
 from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.util import logging
-from sphinx.util.nodes import clean_astext
 
 from myst_parser import inventory
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
-from myst_parser.warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -49,38 +46,42 @@ class SphinxRenderer(DocutilsRenderer):
             destination = os.path.relpath(
                 os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
-
+        kwargs = {
+            "refdoc": self.sphinx_env.docname,
+            "reftype": "myst",
+            "refexplicit": len(token.children or []) > 0,
+        }
+        path_dest, *_path_ids = destination.split("#", maxsplit=1)
+        path_id = _path_ids[0] if _path_ids else None
         potential_path = (
-            Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent / destination
+            Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent / path_dest
             if self.sphinx_env.srcdir  # not set in some test situations
             else None
         )
-        if (
-            potential_path
-            and potential_path.is_file()
-            and not any(
-                destination.endswith(suffix)
-                for suffix in self.sphinx_env.config.source_suffix
+        if path_dest == "./":
+            # this is a special case, where we want to reference the current document
+            potential_path = (
+                Path(self.sphinx_env.doc2path(self.sphinx_env.docname))
+                if self.sphinx_env.srcdir
+                else None
             )
-        ):
-            wrap_node = addnodes.download_reference(
-                refdoc=self.sphinx_env.docname,
-                reftarget=destination,
-                reftype="myst",
-                refdomain=None,  # Added to enable cross-linking
-                refexplicit=len(token.children or []) > 0,
-                refwarn=False,
-            )
-            classes = ["xref", "download", "myst"]
-            text = destination if not token.children else ""
+        if potential_path and potential_path.is_file():
+            docname = self.sphinx_env.path2doc(str(potential_path))
+            if docname:
+                wrap_node = addnodes.pending_xref(
+                    refdomain="doc", reftarget=docname, reftargetid=path_id, **kwargs
+                )
+                classes = ["xref", "myst"]
+                text = ""
+            else:
+                wrap_node = addnodes.download_reference(
+                    refdomain=None, reftarget=path_dest, refwarn=False, **kwargs
+                )
+                classes = ["xref", "download", "myst"]
+                text = destination if not token.children else ""
         else:
             wrap_node = addnodes.pending_xref(
-                refdoc=self.sphinx_env.docname,
-                reftarget=destination,
-                reftype="myst",
-                refdomain=None,  # Added to enable cross-linking
-                refexplicit=len(token.children or []) > 0,
-                refwarn=True,
+                refdomain=None, reftarget=destination, refwarn=True, **kwargs
             )
             classes = ["xref", "myst"]
             text = ""
@@ -111,48 +112,6 @@ class SphinxRenderer(DocutilsRenderer):
                 targets=target,
             )
         )
-
-    def render_heading(self, token: SyntaxTreeNode) -> None:
-        """This extends the docutils method, to allow for the addition of heading ids.
-        These ids are computed by the ``markdown-it-py`` ``anchors_plugin``
-        as "slugs" which are unique to a document.
-
-        The approach is similar to ``sphinx.ext.autosectionlabel``
-        """
-        super().render_heading(token)
-
-        if not isinstance(self.current_node, nodes.section):
-            return
-
-        # create the slug string
-        slug = cast(str, token.attrGet("id"))
-        if slug is None:
-            return
-
-        section = self.current_node
-        doc_slug = (
-            self.sphinx_env.doc2path(self.sphinx_env.docname, base=False) + "#" + slug
-        )
-
-        # save the reference in the standard domain, so that it can be handled properly
-        domain = cast(StandardDomain, self.sphinx_env.get_domain("std"))
-        if doc_slug in domain.labels:
-            other_doc = self.sphinx_env.doc2path(domain.labels[doc_slug][0])
-            self.create_warning(
-                f"duplicate label {doc_slug}, other instance in {other_doc}",
-                MystWarnings.ANCHOR_DUPE,
-                line=section.line,
-            )
-        labelid = section["ids"][0]
-        domain.anonlabels[doc_slug] = self.sphinx_env.docname, labelid
-        domain.labels[doc_slug] = (
-            self.sphinx_env.docname,
-            labelid,
-            clean_astext(section[0]),
-        )
-
-        self.sphinx_env.metadata[self.sphinx_env.docname]["myst_anchors"] = True
-        section["myst-anchor"] = doc_slug
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
