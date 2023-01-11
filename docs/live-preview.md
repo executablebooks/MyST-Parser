@@ -35,6 +35,12 @@ term
 * - Item 1
   - Item 2
 ```
+
+```{figure} https://via.placeholder.com/150
+:width: 100px
+
+Caption
+```
 </textarea>
 ````
 
