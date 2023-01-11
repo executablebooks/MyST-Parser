@@ -1,5 +1,5 @@
 <document source="other.md">
-    <section ids="other-title" myst-anchor="other/other.md#other-title" names="other\ title">
+    <section ids="other-title" names="other\ title" slug="other-title">
         <title>
             Other Title
         <paragraph>
@@ -11,8 +11,8 @@
                 <literal classes="xref any">
                     other2
         <paragraph>
-            <pending_xref refdoc="other/other" refdomain="True" refexplicit="False" reftarget="./other2.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="other/other" refdomain="doc" refexplicit="False" reftarget="other/other2" reftargetid="True" reftype="myst">
                 <inline classes="xref myst">
         <paragraph>
-            <pending_xref refdoc="other/other" refdomain="True" refexplicit="False" reftarget="../index.md#title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="other/other" refdomain="doc" refexplicit="False" reftarget="index" reftargetid="title" reftype="myst">
                 <inline classes="xref myst">

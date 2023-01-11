@@ -156,6 +156,20 @@ www.commonmark.org/he<lp
         <lp
 .
 
+[heading_anchors] --myst-heading-anchors=1
+.
+# My title
+[](#my-title)
+.
+<document ids="my-title" names="my\ title" slug="my-title" source="<string>" title="My title">
+    <title>
+        My title
+    <paragraph>
+        <reference id_link="True" refid="my-title">
+            <inline classes="std std-ref">
+                My title
+.
+
 [html_meta] --myst-html-meta='{"keywords": "Sphinx, MyST"}'
 .
 text

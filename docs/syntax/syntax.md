@@ -255,7 +255,8 @@ By default, MyST will resolve link destinations according to the following rules
 3. Destinations which point to a local file path are treated as links to that file.
    - The path must be relative and in [POSIX format](https://en.wikipedia.org/wiki/Path_(computing)#POSIX_and_Unix_paths) (i.e. `/` separators).
    - If the path is to another source file in the project (e.g. a `.md` or `.rst` file),
-    then the link will be to the initial heading in that file.
+    then the link will be to the initial heading in that file or,
+    if the path is appended by a `#target`, to the heading "slug" in that file.
    - If the path is to a non-source file (e.g. a `.png` or `.pdf` file),
     then the link will be to the file itself, e.g. to download it.
 
@@ -290,9 +291,13 @@ Here are some examples:
   - `[Non-source file](example.txt)`
   - [Non-source file](example.txt)
 
-* - Internal heading
+* - Local heading
   - `[Heading](#markdown-links-and-referencing)`
   - [Heading](#markdown-links-and-referencing)
+
+* - Heading in another file
+  - `[Heading](optional.md#auto-generated-header-anchors)`
+  - [Heading](optional.md#auto-generated-header-anchors)
 
 :::
 

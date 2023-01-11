@@ -324,7 +324,7 @@ Title
 
 [alt2](https://www.google.com)
 
-[alt3](#target3)
+[alt3](#title)
 .
 <document source="<src>/index.md">
     <target ids="target" names="target">
@@ -342,9 +342,11 @@ Title
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="#target3" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    alt3
+            <reference id_link="True" refid="title">
+                alt3
+                <system_message level="2" line="12" source="<src>/index.md" type="WARNING">
+                    <paragraph>
+                        local id not found: '#title' [myst.xref_missing]
 .
 
 Comments:

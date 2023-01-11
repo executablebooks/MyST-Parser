@@ -170,7 +170,6 @@ class MdParserConfig:
         metadata={
             "validator": optional(in_([1, 2, 3, 4, 5, 6, 7])),
             "help": "Heading level depth to assign HTML anchors",
-            "sphinx_only": True,
         },
     )
 
@@ -180,7 +179,7 @@ class MdParserConfig:
             "validator": optional(is_callable),
             "help": "Function for creating heading anchors",
             "global_only": True,
-            "sphinx_only": True,
+            "sphinx_only": True,  # TODO docutils config doesn't handle callables
         },
     )
 

@@ -340,8 +340,11 @@ Title
             <reference refuri="https://www.google.com">
                 alt2
         <paragraph>
-            <reference refname="#target3">
+            <reference id_link="True" refid="target3">
                 alt3
+                <system_message level="2" line="12" source="notset" type="WARNING">
+                    <paragraph>
+                        local id not found: '#target3' [myst.xref_missing]
 .
 
 Comments:

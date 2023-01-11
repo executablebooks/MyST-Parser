@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" myst-anchor="index.md#title-with-nested" names="title\ with\ nested\ a=1 title">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title" slug="title-with-nested">
         <title>
             Title with 
             <strong>
@@ -32,14 +32,14 @@
                     <emphasis>
                         syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="index" reftargetid="True" reftype="myst">
                 <inline classes="xref myst">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="doc" refexplicit="True" reftarget="index" reftargetid="True" reftype="myst">
                 <inline classes="xref myst">
                     plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="index.md" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="doc" refexplicit="True" reftarget="index" reftargetid="True" reftype="myst">
                 <inline classes="xref myst">
                     nested 
                     <emphasis>
@@ -71,7 +71,7 @@
             <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
                 <inline classes="xref myst">
                     fence
-        <section ids="title-anchors" myst-anchor="index.md#title-anchors" names="title\ anchors">
+        <section ids="title-anchors" names="title\ anchors" slug="title-anchors">
             <title>
                 Title 
                 <emphasis>
@@ -79,17 +79,18 @@
             <compound classes="toctree-wrapper">
                 <toctree caption="True" entries="(None,\ 'other') (None,\ 'subfolder/other2')" glob="False" hidden="False" includefiles="other subfolder/other2" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="#title-anchors" reftype="myst" refwarn="True">
+                <reference id_link="True" refid="title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
+            <paragraph>
+                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="index" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="./#title-anchors" reftype="myst" refwarn="True">
+                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="other" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="./other.md#title-anchors" reftype="myst" refwarn="True">
+                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="other" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
             <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="other.md#title-anchors" reftype="myst" refwarn="True">
-                    <inline classes="xref myst">
-            <paragraph>
-                <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/other2.md#title-anchors" reftype="myst" refwarn="True">
+                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="subfolder/other2" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
