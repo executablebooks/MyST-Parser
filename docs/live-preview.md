@@ -12,6 +12,7 @@ py-config:
 
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
 You can edit the text/configuration below and see the live output.
+Note that there is no styling applied (that is usually provided by Sphinx themes).
 
 ```{py-script}
 :file: live_preview.py
@@ -33,6 +34,10 @@ You can edit the text/configuration below and see the live output.
 # Heading 1
 
 Hallo world!
+
+```{note}
+An admonition note!
+```
 
 term
 : definition
