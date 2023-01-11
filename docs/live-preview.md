@@ -43,21 +43,24 @@ term
 <textarea class="pyscript" id="input_config">
 myst_enable_extensions: [colon_fence, deflist, dollarmath]
 myst_highlight_code_blocks: false
-embed_stylesheet: false
+embed_stylesheet: true
 </textarea>
 ::::
 :::::
 
 <label for="output_format">Output Format:</label>
 <select id="output_format">
-  <option value="pseudoxml" selected>AST</option>
-  <option value="html5">HTML</option>
+  <option value="pseudoxml">AST</option>
+  <option value="html5" selected>HTML</option>
   <option value="latex">LaTeX</option>
 </select>
 
 ::::{tab-set}
-:::{tab-item} Rendered Output
-<textarea class="pyscript" id="output_render" readonly="true"></textarea>
+:::{tab-item} Rendered HTML
+<iframe class="pyscript" id="output_html" readonly="true"></iframe>
+:::
+:::{tab-item} Raw Output
+<textarea class="pyscript" id="output_raw" readonly="true"></textarea>
 :::
 :::{tab-item} Render Warnings
 <textarea class="pyscript" id="output_warnings" readonly="true"></textarea>

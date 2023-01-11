@@ -32,14 +32,21 @@ def convert(input_config: str, input_myst: str, writer_name: str) -> dict:
 
 config_textarea = document.querySelector("textarea#input_config")
 input_textarea = document.querySelector("textarea#input_myst")
-output_textarea = document.querySelector("textarea#output_render")
+output_iframe = document.querySelector("iframe#output_html")
+output_raw = document.querySelector("textarea#output_raw")
 warnings_textarea = document.querySelector("textarea#output_warnings")
 oformat_select = document.querySelector("select#output_format")
 
 
 def do_convert(event=None):
     result = convert(config_textarea.value, input_textarea.value, oformat_select.value)
-    output_textarea.value = result["output"]
+    output_raw.value = result["output"]
+    if "html" in oformat_select.value:
+        output_iframe.contentDocument.body.innerHTML = result["output"]
+    else:
+        output_iframe.contentDocument.body.innerHTML = (
+            "Change output format to HTML to see output"
+        )
     warnings_textarea.value = result["warnings"]
 
 
