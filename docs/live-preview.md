@@ -17,6 +17,11 @@ You can edit the text/configuration below and see the live output.
 :file: live_preview.py
 ```
 
+::::::::{grid} 1 1 1 2
+
+:::::::{grid-item}
+:child-align: end
+
 :::::{tab-set}
 ::::{tab-item} Input text
 ````{raw} html
@@ -47,28 +52,41 @@ Caption
 ::::
 ::::{tab-item} Configuration (YAML)
 <textarea class="pyscript" id="input_config">
-myst_enable_extensions: [colon_fence, deflist, dollarmath]
+myst_enable_extensions:
+- colon_fence
+- deflist
+- dollarmath
 myst_highlight_code_blocks: false
 embed_stylesheet: true
 </textarea>
 ::::
 :::::
 
-<label for="output_format">Output Format:</label>
-<select id="output_format">
+:::::::
+:::::::{grid-item}
+:child-align: end
+
+```{raw} html
+<div class="display-flex">
+<label for="output_format" class="display-inline-block">Output Format:</label>
+<select id="output_format" class="display-inline-block">
   <option value="pseudoxml">AST</option>
   <option value="html5" selected>HTML</option>
   <option value="latex">LaTeX</option>
 </select>
+</div>
+```
 
 ::::{tab-set}
-:::{tab-item} Rendered HTML
+:::{tab-item} HTML Render
 <iframe class="pyscript" id="output_html" readonly="true"></iframe>
 :::
 :::{tab-item} Raw Output
 <textarea class="pyscript" id="output_raw" readonly="true"></textarea>
 :::
-:::{tab-item} Render Warnings
+:::{tab-item} Warnings
 <textarea class="pyscript" id="output_warnings" readonly="true"></textarea>
 :::
 ::::
+:::::::
+::::::::

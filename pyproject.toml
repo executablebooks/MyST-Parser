@@ -55,7 +55,7 @@ linkify = ["linkify-it-py~=1.0"]
 rtd = [
     "ipython",
     # currently required to get sphinx v5
-    "sphinx-book-theme @ git+https://github.com/executablebooks/sphinx-book-theme.git@8da268fce3159755041e8db93e132221a0b0def5#egg=sphinx-book-theme",
+    "sphinx-book-theme==0.4.0rc1",
     "sphinx-design",
     "sphinxext-rediraffe~=0.2.7",
     "sphinxcontrib.mermaid~=0.7.1",
