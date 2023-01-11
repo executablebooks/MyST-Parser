@@ -1,18 +1,19 @@
 ---
 py-config:
+  splashscreen:
+    autoclose: true
   packages:
     - myst-docutils
     - docutils==0.19
     - pygments
-  splashscreen:
-    autoclose: true
 ---
 
 # Live Preview
 
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
-You can edit the text/configuration below and see the live output.
-Note that there is no styling applied (that is usually provided by Sphinx themes).
+You can edit the text/configuration below and see the live output.[^note]
+
+[^note]: Additional styling is usually provided by Sphinx themes.
 
 ```{py-script}
 :file: live_preview.py
@@ -42,8 +43,12 @@ An admonition note!
 term
 : definition
 
+$$\pi = 3.14159$$
+
 ```{list-table}
 :header-rows: 1
+:align: center
+
 * - Header 1
   - Header 2
 * - Item 1
@@ -52,8 +57,9 @@ term
 
 ```{figure} https://via.placeholder.com/150
 :width: 100px
+:align: center
 
-Caption
+Figure caption
 ```
 </textarea>
 ````
@@ -61,12 +67,15 @@ Caption
 ::::
 ::::{tab-item} Configuration (YAML)
 <textarea class="pyscript" id="input_config">
+# see: https://docutils.sourceforge.io/docs/user/config.html
 myst_enable_extensions:
 - colon_fence
 - deflist
 - dollarmath
 myst_highlight_code_blocks: false
 embed_stylesheet: true
+stylesheet_path:
+- minimal.css
 </textarea>
 ::::
 :::::

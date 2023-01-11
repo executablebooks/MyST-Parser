@@ -22,12 +22,15 @@ def convert(input_config: str, input_myst: str, writer_name: str) -> dict:
             "warning_stream": warning_stream,
         }
     )
-    output = publish_string(
-        input_myst,
-        parser=Parser(),
-        writer_name=writer_name,
-        settings_overrides=settings,
-    )
+    try:
+        output = publish_string(
+            input_myst,
+            parser=Parser(),
+            writer_name=writer_name,
+            settings_overrides=settings,
+        )
+    except Exception as exc:
+        output = f"ERROR: conversion:\n{exc}"
     return {"output": output, "warnings": warning_stream.getvalue()}
 
 
