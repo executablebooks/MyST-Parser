@@ -60,6 +60,7 @@ rtd = [
     "sphinxext-rediraffe~=0.2.7",
     "sphinxcontrib.mermaid~=0.7.1",
     "sphinxext-opengraph~=0.6.3",
+    "sphinx-pyscript",
 ]
 testing = [
     "beautifulsoup4",

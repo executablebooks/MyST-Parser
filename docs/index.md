@@ -115,6 +115,7 @@ The MyST markdown language and MyST parser are both supported by the open commun
 ```{toctree}
 :hidden:
 intro.md
+live-preview.md
 ```
 
 ```{toctree}

@@ -35,6 +35,7 @@ extensions = [
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
+    "sphinx_pyscript",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
