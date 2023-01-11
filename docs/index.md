@@ -30,13 +30,23 @@ sd_hide_title: true
 A Sphinx and Docutils extension to parse MyST,
 a rich and extensible flavour of Markdown for authoring technical and scientific documentation.
 
+````{div} sd-d-flex-row
 ```{button-ref} intro
 :ref-type: doc
 :color: primary
-:class: sd-rounded-pill
+:class: sd-rounded-pill sd-mr-3
 
 Get Started
 ```
+
+```{button-ref} live-preview
+:ref-type: doc
+:color: secondary
+:class: sd-rounded-pill
+
+Live Demo
+```
+````
 
 :::
 
@@ -115,6 +125,7 @@ The MyST markdown language and MyST parser are both supported by the open commun
 ```{toctree}
 :hidden:
 intro.md
+live-preview.md
 ```
 
 ```{toctree}
