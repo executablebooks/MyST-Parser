@@ -41,7 +41,7 @@ term
 ::::
 ::::{tab-item} Configuration (YAML)
 <textarea class="pyscript" id="input_config">
-myst_enable_extensions: [deflist, colon_fence]
+myst_enable_extensions: [colon_fence, deflist, dollarmath]
 myst_highlight_code_blocks: false
 embed_stylesheet: false
 </textarea>
