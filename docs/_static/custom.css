@@ -41,4 +41,5 @@ textarea.pyscript {
 .display-inline-block {
     display: inline-block;
     margin-right: 1rem;
+    margin-bottom: 0;
 }
