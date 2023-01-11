@@ -4,6 +4,7 @@ import yaml
 from docutils.core import publish_string
 from js import document
 
+from myst_parser import __version__
 from myst_parser.parsers.docutils_ import Parser
 
 
@@ -30,6 +31,7 @@ def convert(input_config: str, input_myst: str, writer_name: str) -> dict:
     return {"output": output, "warnings": warning_stream.getvalue()}
 
 
+version_label = document.querySelector("span#myst-version")
 config_textarea = document.querySelector("textarea#input_config")
 input_textarea = document.querySelector("textarea#input_myst")
 output_iframe = document.querySelector("iframe#output_html")
@@ -50,6 +52,7 @@ def do_convert(event=None):
     warnings_textarea.value = result["warnings"]
 
 
+version_label.textContent = f"myst-parser v{__version__}"
 config_textarea.oninput = do_convert
 input_textarea.oninput = do_convert
 oformat_select.onchange = do_convert

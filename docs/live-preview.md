@@ -22,6 +22,10 @@ You can edit the text/configuration below and see the live output.
 :::::::{grid-item}
 :child-align: end
 
+```{raw} html
+<div><u><span id="myst-version"></span></u></div>
+```
+
 :::::{tab-set}
 ::::{tab-item} Input text
 ````{raw} html
