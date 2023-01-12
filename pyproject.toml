@@ -102,6 +102,10 @@ known_third_party = ["docutils", "markdown_it", "sphinx"]
 # Group first party and local folder imports together
 no_lines_before = "LOCALFOLDER"
 
+[tool.ruff]
+line-length = 100
+extend-select = ["B0", "C4", "ICN", "ISC", "N", "RUF", "SIM"]
+
 [tool.mypy]
 show_error_codes = true
 check_untyped_defs = true
@@ -112,6 +116,9 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = ["docutils.*", "yaml.*"]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+filterwarnings = []
 
 [tool.coverage.run]
 omit = ["*/_docs.py"]

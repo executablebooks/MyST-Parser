@@ -29,8 +29,9 @@ def is_external_url(
 
     """
     url_check = urlparse(reference)
-    if known_url_schemes is not None:
-        scheme_known = url_check.scheme in known_url_schemes
-    else:
-        scheme_known = bool(url_check.scheme)
+    scheme_known = (
+        url_check.scheme in known_url_schemes
+        if known_url_schemes is not None
+        else bool(url_check.scheme)
+    )
     return scheme_known or (match_fragment and url_check.fragment != "")
