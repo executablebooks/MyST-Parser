@@ -42,10 +42,9 @@ class _ConfigBase(SphinxDirective):
     @staticmethod
     def field_type(field):
         ftypes: Sequence[str]
-        if get_origin(field.type) is Union:
-            ftypes = get_args(field.type)
-        else:
-            ftypes = [field.type]
+        ftypes = (
+            get_args(field.type) if get_origin(field.type) is Union else [field.type]
+        )
         ctype = " | ".join(
             str("None" if ftype == type(None) else ftype)  # type: ignore
             for ftype in ftypes
@@ -87,9 +86,10 @@ class MystConfigDirective(_ConfigBase):
                 if field.metadata.get("extension"):
                     continue
 
-            if self.options.get("scope") == "local":
-                if field.metadata.get("global_only"):
-                    continue
+            if self.options.get("scope") == "local" and field.metadata.get(
+                "global_only"
+            ):
+                continue
 
             if self.options.get("scope") == "global":
                 name = f"myst_{name}"

@@ -342,10 +342,11 @@ class DocutilsRenderer(RendererProtocol):
         :param inline: whether the text is inline or block
         :param allow_headings: whether to allow headings in the text
         """
-        if inline:
-            tokens = self.md.parseInline(text, self.md_env)
-        else:
-            tokens = self.md.parse(text + "\n", self.md_env)
+        tokens = (
+            self.md.parseInline(text, self.md_env)
+            if inline
+            else self.md.parse(text + "\n", self.md_env)
+        )
 
         # remove front matter, if present, e.g. from included documents
         if tokens and tokens[0].type == "front_matter":
@@ -390,10 +391,8 @@ class DocutilsRenderer(RendererProtocol):
 
     def add_line_and_source_path(self, node, token: SyntaxTreeNode) -> None:
         """Copy the line number and document source path to the docutils node."""
-        try:
+        with suppress(ValueError):
             node.line = token_line(token)
-        except ValueError:
-            pass
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
@@ -1196,9 +1195,10 @@ class DocutilsRenderer(RendererProtocol):
                     "text-align:center",
                 ):
                     entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
-                with self.current_node_context(entry, append=True):
-                    with self.current_node_context(para, append=True):
-                        self.render_children(child)
+                with self.current_node_context(
+                    entry, append=True
+                ), self.current_node_context(para, append=True):
+                    self.render_children(child)
 
     def render_s(self, token: SyntaxTreeNode) -> None:
         """Render a strikethrough token."""
@@ -1397,7 +1397,7 @@ class DocutilsRenderer(RendererProtocol):
             children = (token.children or [])[:]
             while children:
                 child = children.pop(0)
-                if not child.type == "fieldlist_name":
+                if child.type != "fieldlist_name":
                     error_msg = self.reporter.error(
                         (
                             "Expected a fieldlist_name as a child of a field_list"
