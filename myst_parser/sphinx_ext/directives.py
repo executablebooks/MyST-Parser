@@ -79,7 +79,7 @@ class FigureMarkdown(SphinxDirective):
         finally:
             state._renderer.md_config.enable_extensions = myst_extensions
 
-        if not len(node.children) == 2:
+        if len(node.children) != 2:
             return [
                 self.figure_error(
                     "content should be one image, "

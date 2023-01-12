@@ -162,7 +162,7 @@ class StripUnsupportedLatex(SphinxPostTransform):
     default_priority = 900
 
     def run(self):
-        if not self.app.builder.format == "latex":
+        if self.app.builder.format != "latex":
             return
         from docutils import nodes
 

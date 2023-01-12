@@ -29,7 +29,7 @@ def test_render(file_params, tmp_path, monkeypatch):
         for node in doctree.traverse():
             if node.tagname == "inline" and node["classes"] == ["whitespace"]:
                 node.parent.remove(node)
-    output = doctree.pformat().replace(str(tmp_path) + os.sep, "tmpdir" + "/").rstrip()
+    output = doctree.pformat().replace(str(tmp_path) + os.sep, "tmpdir/").rstrip()
 
     file_params.assert_expected(output, rstrip=True)
 
@@ -52,6 +52,6 @@ def test_errors(file_params, tmp_path, monkeypatch):
     )
 
     file_params.assert_expected(
-        report_stream.getvalue().replace(str(tmp_path) + os.sep, "tmpdir" + "/"),
+        report_stream.getvalue().replace(str(tmp_path) + os.sep, "tmpdir/"),
         rstrip=True,
     )

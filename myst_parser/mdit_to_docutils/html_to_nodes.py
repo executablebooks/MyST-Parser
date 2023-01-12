@@ -103,17 +103,16 @@ def html_to_nodes(
 
         else:
             children = child.strip().children
-            if (
-                children
+            title = (
+                "".join(child.render() for child in children.pop(0))
+                if children
                 and children[0].name in ("div", "p")
                 and (
                     "title" in children[0].attrs.classes
                     or "admonition-title" in children[0].attrs.classes
                 )
-            ):
-                title = "".join(child.render() for child in children.pop(0))
-            else:
-                title = "Note"
+                else "Note"
+            )
 
             options = "\n".join(
                 f":{k}: {v}"

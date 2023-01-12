@@ -178,10 +178,11 @@ class Element(abc.MutableSequence):
         iterator = self.walk() if recurse else self
         if include_self:
             iterator = itertools.chain([self], iterator)
-        if inspect.isclass(identifier):
-            test_func = lambda c: isinstance(c, identifier)  # noqa: E731
-        else:
-            test_func = lambda c: c.name == identifier  # noqa: E731
+        test_func = (
+            (lambda c: isinstance(c, identifier))
+            if inspect.isclass(identifier)
+            else lambda c: c.name == identifier
+        )
         classes = set(classes) if classes is not None else classes
         for child in iterator:
             if test_func(child):
