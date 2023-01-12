@@ -6,7 +6,7 @@ from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
 from markdown_it import MarkdownIt
 
-from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
+from myst_parser.parsers.directives import MarkupError, parse_directive_text
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -23,18 +23,23 @@ def test_parsing(file_params):
         klass = Admonition
     else:
         raise AssertionError(f"Unknown directive: {name}")
-    arguments, options, body_lines, content_offset = parse_directive_text(
-        klass, first_line[0] if first_line else "", tokens[0].content
-    )
-    outcome = yaml.safe_dump(
-        {
-            "arguments": arguments,
-            "options": options,
-            "body": body_lines,
-            "content_offset": content_offset,
-        },
-        sort_keys=True,
-    )
+    try:
+        result = parse_directive_text(
+            klass, first_line[0] if first_line else "", tokens[0].content
+        )
+    except MarkupError as err:
+        outcome = f"error: {err}"
+    else:
+        outcome = yaml.safe_dump(
+            {
+                "arguments": result.arguments,
+                "options": result.options,
+                "body": result.body,
+                "content_offset": result.body_offset,
+                "warnings": result.warnings,
+            },
+            sort_keys=True,
+        )
     file_params.assert_expected(outcome, rstrip_lines=True)
 
 
@@ -42,5 +47,5 @@ def test_parsing(file_params):
     "descript,klass,arguments,content", [("no content", Rubric, "", "a")]
 )
 def test_parsing_errors(descript, klass, arguments, content):
-    with pytest.raises(DirectiveParsingError):
+    with pytest.raises(MarkupError):
         parse_directive_text(klass, arguments, content)

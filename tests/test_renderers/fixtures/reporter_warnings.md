@@ -150,10 +150,8 @@ bad-option-value
 :class: [1]
 ```
 .
-<string>:1: (ERROR/3) Directive 'note': option "class" value not string (enclose with ""): [1]
-
-:class: [1]
-
+<string>:1: (WARNING/2) 'note': option "class" value not string (enclose with ""): [1] [myst.directive_parse]
+<string>:1: (ERROR/3) Content block expected for the "note" directive; none found.
 .
 
 header nested in admonition

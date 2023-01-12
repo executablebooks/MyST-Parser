@@ -37,18 +37,28 @@ from __future__ import annotations
 
 import datetime
 import re
+from dataclasses import dataclass
 from textwrap import dedent
 from typing import Any, Callable
 
 import yaml
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.misc import TestDirective
+from docutils.parsers.rst.states import MarkupError
 
 
-class DirectiveParsingError(Exception):
-    """Raise on parsing/validation error."""
-
-    pass
+@dataclass
+class DirectiveParsingResult:
+    arguments: list[str]
+    """The arguments parsed from the first line."""
+    options: dict
+    """Options parsed from the YAML block."""
+    body: list[str]
+    """The lines of body content"""
+    body_offset: int
+    """The number of lines to the start of the body content."""
+    warnings: list[str]
+    """List of non-fatal errors encountered during parsing."""
 
 
 def parse_directive_text(
@@ -56,7 +66,7 @@ def parse_directive_text(
     first_line: str,
     content: str,
     validate_options: bool = True,
-) -> tuple[list[str], dict, list[str], int]:
+) -> DirectiveParsingResult:
     """Parse (and validate) the full directive text.
 
     :param first_line: The text on the same line as the directive name.
@@ -64,12 +74,14 @@ def parse_directive_text(
     :param content: All text after the first line. Can include options.
     :param validate_options: Whether to validate the values of options
 
-    :returns: (arguments, options, body_lines, content_offset)
+    :raises MarkupError: if there is a fatal parsing/validation error
     """
+    parse_errors: list[str] = []
     if directive_class.option_spec:
-        body, options = parse_directive_options(
+        body, options, option_errors = parse_directive_options(
             content, directive_class, validate=validate_options
         )
+        parse_errors.extend(option_errors)
         body_lines = body.splitlines()
         content_offset = len(content.splitlines()) - len(body_lines)
     else:
@@ -94,16 +106,22 @@ def parse_directive_text(
 
     # check for body content
     if body_lines and not directive_class.has_content:
-        raise DirectiveParsingError("No content permitted")
+        parse_errors.append("Has content, but none permitted")
 
-    return arguments, options, body_lines, content_offset
+    return DirectiveParsingResult(
+        arguments, options, body_lines, content_offset, parse_errors
+    )
 
 
 def parse_directive_options(
     content: str, directive_class: type[Directive], validate: bool = True
-):
-    """Parse (and validate) the directive option section."""
+) -> tuple[str, dict, list[str]]:
+    """Parse (and validate) the directive option section.
+
+    :returns: (content, options, validation_errors)
+    """
     options: dict[str, Any] = {}
+    validation_errors: list[str] = []
     if content.startswith("---"):
         content = "\n".join(content.splitlines()[1:])
         match = re.search(r"^-{3,}", content, re.MULTILINE)
@@ -116,8 +134,8 @@ def parse_directive_options(
         yaml_block = dedent(yaml_block)
         try:
             options = yaml.safe_load(yaml_block) or {}
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-            raise DirectiveParsingError("Invalid options YAML: " + str(error))
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+            validation_errors.append("Invalid options format (bad YAML)")
     elif content.lstrip().startswith(":"):
         content_lines = content.splitlines()  # type: list
         yaml_lines = []
@@ -129,23 +147,31 @@ def parse_directive_options(
         content = "\n".join(content_lines)
         try:
             options = yaml.safe_load(yaml_block) or {}
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError) as error:
-            raise DirectiveParsingError("Invalid options YAML: " + str(error))
-        if not isinstance(options, dict):
-            raise DirectiveParsingError(f"Invalid options (not dict): {options}")
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+            validation_errors.append("Invalid options format (bad YAML)")
+
+    if not isinstance(options, dict):
+        options = {}
+        validation_errors.append("Invalid options format (not a dict)")
+
+    if validation_errors:
+        return content, options, validation_errors
 
     if (not validate) or issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
-        return content, options
+        return content, options, validation_errors
 
     # check options against spec
     options_spec: dict[str, Callable] = directive_class.option_spec
-    for name, value in list(options.items()):
+    unknown_options: list[str] = []
+    new_options: dict[str, Any] = {}
+    for name, value in options.items():
         try:
             convertor = options_spec[name]
         except KeyError:
-            raise DirectiveParsingError(f"Unknown option: {name}")
+            unknown_options.append(name)
+            continue
         if not isinstance(value, str):
             if value is True or value is None:
                 value = None  # flag converter requires no argument
@@ -153,38 +179,43 @@ def parse_directive_options(
                 # convertor always requires string input
                 value = str(value)
             else:
-                raise DirectiveParsingError(
+                validation_errors.append(
                     f'option "{name}" value not string (enclose with ""): {value}'
                 )
+                continue
         try:
             converted_value = convertor(value)
         except (ValueError, TypeError) as error:
-            raise DirectiveParsingError(
-                "Invalid option value: (option: '{}'; value: {})\n{}".format(
-                    name, value, error
-                )
+            validation_errors.append(
+                f"Invalid option value for {name!r}: {value}: {error}"
             )
-        options[name] = converted_value
+        else:
+            new_options[name] = converted_value
 
-    return content, options
+    if unknown_options:
+        validation_errors.append(
+            f"Unknown option keys: {sorted(unknown_options)} "
+            f"(allowed: {sorted(options_spec)})"
+        )
+
+    return content, new_options, validation_errors
 
 
-def parse_directive_arguments(directive, arg_text):
+def parse_directive_arguments(
+    directive_cls: type[Directive], arg_text: str
+) -> list[str]:
     """Parse (and validate) the directive argument section."""
-    required = directive.required_arguments
-    optional = directive.optional_arguments
+    required = directive_cls.required_arguments
+    optional = directive_cls.optional_arguments
     arguments = arg_text.split()
     if len(arguments) < required:
-        raise DirectiveParsingError(
-            f"{required} argument(s) required, {len(arguments)} supplied"
-        )
+        raise MarkupError(f"{required} argument(s) required, {len(arguments)} supplied")
     elif len(arguments) > required + optional:
-        if directive.final_argument_whitespace:
+        if directive_cls.final_argument_whitespace:
             arguments = arg_text.split(None, required + optional - 1)
         else:
-            raise DirectiveParsingError(
-                "maximum {} argument(s) allowed, {} supplied".format(
-                    required + optional, len(arguments)
-                )
+            raise MarkupError(
+                f"maximum {required + optional} argument(s) allowed, "
+                f"{len(arguments)} supplied"
             )
     return arguments

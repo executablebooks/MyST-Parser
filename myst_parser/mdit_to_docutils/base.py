@@ -52,7 +52,7 @@ from myst_parser.mocking import (
     MockState,
     MockStateMachine,
 )
-from myst_parser.parsers.directives import DirectiveParsingError, parse_directive_text
+from myst_parser.parsers.directives import MarkupError, parse_directive_text
 from myst_parser.warnings_ import MystWarnings, create_warning
 from .html_to_nodes import html_to_nodes
 from .utils import is_external_url
@@ -1462,19 +1462,16 @@ class DocutilsRenderer(RendererProtocol):
         :param position: The line number of the first line
 
         """
-        # TODO directive name white/black lists
-
         self.document.current_line = position
 
         # get directive class
-        output: tuple[Directive, list] = directives.directive(
+        output: tuple[Directive | None, list] = directives.directive(
             name, self.language_module_rst, self.document
         )
         directive_class, messages = output
         if not directive_class:
             error = self.reporter.error(
                 f'Unknown directive type "{name}".\n',
-                # nodes.literal_block(content, content),
                 line=position,
             )
             return [error] + messages
@@ -1486,16 +1483,22 @@ class DocutilsRenderer(RendererProtocol):
             directive_class.option_spec["relative-docs"] = directives.path
 
         try:
-            arguments, options, body_lines, content_offset = parse_directive_text(
-                directive_class, first_line, content
-            )
-        except DirectiveParsingError as error:
+            parsed = parse_directive_text(directive_class, first_line, content)
+        except MarkupError as error:
             error = self.reporter.error(
                 f"Directive '{name}': {error}",
-                nodes.literal_block(content, content),
                 line=position,
             )
             return [error]
+
+        if parsed.warnings:
+            _errors = ",\n".join(parsed.warnings)
+            self.create_warning(
+                f"{name!r}: {_errors}",
+                MystWarnings.DIRECTIVE_PARSING,
+                line=position,
+                append_to=self.current_node,
+            )
 
         # initialise directive
         if issubclass(directive_class, Include):
@@ -1503,9 +1506,9 @@ class DocutilsRenderer(RendererProtocol):
                 self,
                 name=name,
                 klass=directive_class,
-                arguments=arguments,
-                options=options,
-                body=body_lines,
+                arguments=parsed.arguments,
+                options=parsed.options,
+                body=parsed.body,
                 lineno=position,
             )
         else:
@@ -1514,17 +1517,17 @@ class DocutilsRenderer(RendererProtocol):
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
-                arguments=arguments,
+                arguments=parsed.arguments,
                 # a dictionary mapping option names to values
-                options=options,
+                options=parsed.options,
                 # the directive content line by line
-                content=StringList(body_lines, self.document["source"]),
+                content=StringList(parsed.body, self.document["source"]),
                 # the absolute line number of the first line of the directive
                 lineno=position,
                 # the line offset of the first line of the content
-                content_offset=content_offset,
+                content_offset=parsed.body_offset,
                 # a string containing the entire directive
-                block_text="\n".join(body_lines),
+                block_text="\n".join(parsed.body),
                 state=state,
                 state_machine=state_machine,
             )
