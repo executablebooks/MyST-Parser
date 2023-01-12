@@ -47,7 +47,7 @@ class _ConfigBase(SphinxDirective):
         else:
             ftypes = [field.type]
         ctype = " | ".join(
-            str("None" if ftype == type(None) else ftype)  # type: ignore  # noqa: E721
+            str("None" if ftype == type(None) else ftype)  # type: ignore
             for ftype in ftypes
         )
         ctype = " ".join(ctype.splitlines())

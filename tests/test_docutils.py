@@ -21,7 +21,7 @@ from myst_parser.parsers.docutils_ import (
 def test_attr_to_optparse_option():
     @dataclass
     class Config:
-        name: Literal["a"] = field(default="default")
+        name: Literal["a"] = field(default="default")  # noqa: F821
 
     output = attr_to_optparse_option(fields(Config)[0], "default")
     assert len(output) == 3

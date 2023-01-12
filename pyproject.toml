@@ -102,6 +102,10 @@ known_third_party = ["docutils", "markdown_it", "sphinx"]
 # Group first party and local folder imports together
 no_lines_before = "LOCALFOLDER"
 
+[tool.ruff]
+line-length = 100
+extend-select = ["B0", "C4", "ICN", "ISC", "N", "RUF"]
+
 [tool.mypy]
 show_error_codes = true
 check_untyped_defs = true

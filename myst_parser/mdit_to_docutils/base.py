@@ -487,7 +487,7 @@ class DocutilsRenderer(RendererProtocol):
             if section_level <= level
         }
 
-    def renderInlineAsText(self, tokens: list[SyntaxTreeNode]) -> str:
+    def renderInlineAsText(self, tokens: list[SyntaxTreeNode]) -> str:  # noqa: N802
         """Special kludge for image `alt` attributes to conform CommonMark spec.
 
         Don't try to use it! Spec requires to show `alt` content with stripped markup,
