@@ -79,6 +79,7 @@ nitpick_ignore = [
     ("py:class", "StringList"),
     ("py:class", "DocutilsRenderer"),
     ("py:class", "MockStateMachine"),
+    ("py:exc", "MarkupError"),
 ]
 
 # -- MyST settings ---------------------------------------------------

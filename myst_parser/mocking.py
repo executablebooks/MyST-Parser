@@ -17,7 +17,7 @@ from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
 
-from .parsers.directives import parse_directive_text
+from .parsers.directives import MarkupError, parse_directive_text
 
 if TYPE_CHECKING:
     from .mdit_to_docutils.base import DocutilsRenderer
@@ -133,19 +133,21 @@ class MockState:
     ) -> tuple[list, dict, StringList, int]:
         """Parse the full directive text
 
+        :raises MarkupError: for errors in parsing the directive
         :returns: (arguments, options, content, content_offset)
         """
+        # note this is essentially only used by the docutils `role` directive
         if option_presets:
             raise MockingError("parse_directive_block: option_presets not implemented")
         # TODO should argument_str always be ""?
-        arguments, options, body_lines, content_offset = parse_directive_text(
-            directive, "", "\n".join(content)
-        )
+        parsed = parse_directive_text(directive, "", "\n".join(content))
+        if parsed.warnings:
+            raise MarkupError(",".join(parsed.warnings))
         return (
-            arguments,
-            options,
-            StringList(body_lines, source=content.source),
-            line_offset + content_offset,
+            parsed.arguments,
+            parsed.options,
+            StringList(parsed.body, source=content.source),
+            line_offset + parsed.body_offset,
         )
 
     def nested_parse(

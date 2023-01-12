@@ -8,6 +8,7 @@ body:
 - a
 content_offset: 0
 options: {}
+warnings: []
 .
 
 note: content in body only
@@ -21,6 +22,7 @@ body:
 - a
 content_offset: 0
 options: {}
+warnings: []
 .
 
 note: content after option
@@ -37,6 +39,7 @@ content_offset: 1
 options:
   class:
   - name
+warnings: []
 .
 
 note: content after option with new line
@@ -54,6 +57,7 @@ content_offset: 2
 options:
   class:
   - name
+warnings: []
 .
 
 note: content after yaml option
@@ -72,6 +76,7 @@ content_offset: 3
 options:
   class:
   - name
+warnings: []
 .
 
 note: content in first line and body
@@ -91,6 +96,7 @@ content_offset: 1
 options:
   class:
   - tip
+warnings: []
 .
 
 admonition: no options, no new line
@@ -105,6 +111,7 @@ body:
 - body line
 content_offset: 0
 options: {}
+warnings: []
 .
 
 admonition: no options, new line
@@ -120,6 +127,7 @@ body:
 - body line
 content_offset: 1
 options: {}
+warnings: []
 .
 
 admonition: with options
@@ -138,4 +146,73 @@ content_offset: 2
 options:
   class:
   - tip
+warnings: []
+.
+
+warning: bad yaml
+.
+```{note}
+---
+a: {
+---
+```
+.
+arguments: []
+body: []
+content_offset: 3
+options: {}
+warnings:
+- Invalid options format (bad YAML)
+.
+
+warning: yaml not a dict
+.
+```{note}
+---
+a
+---
+```
+.
+arguments: []
+body: []
+content_offset: 3
+options: {}
+warnings:
+- Invalid options format (not a dict)
+.
+
+warning: unknown option name
+.
+```{note}
+:unknown: name
+```
+.
+arguments: []
+body: []
+content_offset: 1
+options: {}
+warnings:
+- 'Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])'
+.
+
+warning: invalid option value
+.
+```{note}
+:class: 1
+```
+.
+arguments: []
+body: []
+content_offset: 1
+options: {}
+warnings:
+- 'Invalid option value for ''class'': 1: cannot make "1" into a class name'
+.
+
+error: missing argument
+.
+```{admonition}
+```
+.
+error: 1 argument(s) required, 0 supplied
 .

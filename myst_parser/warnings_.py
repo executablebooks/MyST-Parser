@@ -29,6 +29,9 @@ class MystWarnings(Enum):
     MD_HEADING_NESTED = "nested_header"
     """Header found nested in another element."""
 
+    DIRECTIVE_PARSING = "directive_parse"
+    """Issue parsing directive."""
+
     # cross-reference resolution
     XREF_AMBIGUOUS = "xref_ambiguous"
     """Multiple targets were found for a cross-reference."""

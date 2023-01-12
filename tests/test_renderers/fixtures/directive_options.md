@@ -131,15 +131,13 @@ foo
 ```
 .
 <document source="<src>/index.md">
-    <system_message level="3" line="1" source="<src>/index.md" type="ERROR">
+    <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
         <paragraph>
-            Directive 'restructuredtext-test-directive': Invalid options YAML: mapping values are not allowed here
-              in "<unicode string>", line 2, column 8:
-                option2: b
-                       ^
+            'restructuredtext-test-directive': Invalid options format (bad YAML) [myst.directive_parse]
+    <system_message level="1" line="1" source="<src>/index.md" type="INFO">
+        <paragraph>
+            Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content:
         <literal_block xml:space="preserve">
-            :option1
-            :option2: b
             foo
 .
 
