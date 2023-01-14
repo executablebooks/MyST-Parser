@@ -1,16 +1,16 @@
 /** Add a counter before subsections **/
-h1 {
+h1:not(.tippy-header) {
     counter-reset: subsection;
     text-decoration: underline;
 }
-h2 {
+h2:not(.tippy-header) {
     counter-reset: subsubsection;
 }
-h2::before {
+h2:not(.tippy-header)::before {
     counter-increment: subsection;
     content: counter(subsection) ". ";
 }
-h3::before {
+h3:not(.tippy-header)::before {
     counter-increment: subsubsection;
     content: counter(subsection) "." counter(subsubsection) ". ";
 }

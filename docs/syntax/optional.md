@@ -21,7 +21,7 @@ myst:
 # Syntax Extensions
 
 MyST-Parser is highly configurable, utilising the inherent "plugability" of the [markdown-it-py](inv:markdown_it#index) parser.
-The following syntaxes are optional (disabled by default) and can be enabled *via* the sphinx `conf.py` (see also [](sphinx/config-options)).
+The following syntaxes are optional (disabled by default) and can be enabled *via* the {{ confpy }} (see also [](sphinx/config-options)).
 Their goal is generally to add more *Markdown friendly* syntaxes; often enabling and rendering [markdown-it-py plugins](inv:markdown_it#md/plugins) that extend the [CommonMark specification](https://commonmark.org/).
 
 To enable all the syntaxes explained below:

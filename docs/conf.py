@@ -36,6 +36,7 @@ extensions = [
     "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
     "sphinx_pyscript",
+    "sphinx_tippy",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -147,6 +148,18 @@ rediraffe_redirects = {
     "sphinx/use.md": "faq/index.md",
     "sphinx/faq.md": "faq/index.md",
     "explain/index.md": "develop/background.md",
+}
+
+tippy_skip_anchor_classes = ("headerlink", "sd-stretched-link", "sd-rounded-pill")
+tippy_anchor_parent_selector = "article.bd-article"
+tippy_custom_tips = {
+    "https://www.sphinx-doc.org/en/master/usage/configuration.html": """
+<p>The configuration directory must contain a file named
+<code class="file docutils literal notranslate"><span class="pre">conf.py</span></code>.
+This file (containing Python code) is called the “build configuration file”
+and contains (almost) all configuration needed to customize Sphinx input
+and output behavior.</p>
+    """
 }
 
 # -- LaTeX output -------------------------------------------------
