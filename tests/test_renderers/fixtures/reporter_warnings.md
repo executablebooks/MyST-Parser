@@ -19,7 +19,7 @@ abc
 
 {xyz}`a`
 .
-<string>:3: (ERROR/3) Unknown interpreted text role "xyz".
+<string>:3: (WARNING/2) Unknown interpreted text role "xyz". [myst.role_unknown]
 .
 
 Unknown directive:
@@ -28,7 +28,7 @@ Unknown directive:
 ```{xyz}
 ```
 .
-<string>:2: (ERROR/3) Unknown directive type "xyz".
+<string>:2: (WARNING/2) Unknown directive type: 'xyz' [myst.directive_unknown]
 .
 
 Bad Front Matter:
@@ -174,5 +174,5 @@ Paragraph
 {unknown}`a`
 ```
 .
-<string>:7: (ERROR/3) Unknown interpreted text role "unknown".
+<string>:7: (WARNING/2) Unknown interpreted text role "unknown". [myst.role_unknown]
 .

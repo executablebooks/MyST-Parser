@@ -1,3 +1,4 @@
+import traceback
 from io import StringIO
 
 import yaml
@@ -30,7 +31,7 @@ def convert(input_config: str, input_myst: str, writer_name: str) -> dict:
             settings_overrides=settings,
         )
     except Exception as exc:
-        output = f"ERROR: conversion:\n{exc}"
+        output = f"ERROR: conversion:\n{exc}\n{traceback.format_exc()}"
     return {"output": output, "warnings": warning_stream.getvalue()}
 
 

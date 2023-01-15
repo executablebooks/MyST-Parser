@@ -147,9 +147,9 @@ Unknown Directive:
 ```
 .
 <document source="<src>/index.md">
-    <system_message level="3" line="1" source="<src>/index.md" type="ERROR">
+    <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
         <paragraph>
-            Unknown directive type "unknown".
+            Unknown directive type: 'unknown' [myst.directive_unknown]
     <system_message level="1" line="1" source="<src>/index.md" type="INFO">
         <paragraph>
             No directive entry for "unknown" in module "docutils.parsers.rst.languages.en".
