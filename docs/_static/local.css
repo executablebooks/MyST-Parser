@@ -50,3 +50,9 @@ span.label {
     /* pyscript changes this and it messes up footnote labels */
     all: unset;
 }
+
+.tippy-box {
+    background-color:var(--pst-color-surface);
+    color:var(--pst-color-text-base);
+    border: 1px solid var(--pst-color-border);
+}
