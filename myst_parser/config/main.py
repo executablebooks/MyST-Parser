@@ -301,7 +301,7 @@ class MdParserConfig:
     )
 
     enable_checkboxes: bool = dc.field(
-        default=True,
+        default=False,
         metadata={
             "validator": instance_of(bool),
             "help": "Enable checkboxes",
