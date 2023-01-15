@@ -48,7 +48,7 @@ def create_md_parser(
             # note, strikethrough currently only supported tentatively for HTML
             .enable("strikethrough")
             .enable("table")
-            .use(tasklists_plugin)
+            .use(tasklists_plugin, enabled=config.enable_checkboxes)
             .enable("linkify")
             .use(wordcount_plugin, per_minute=config.words_per_minute)
         )
