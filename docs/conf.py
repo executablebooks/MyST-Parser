@@ -152,15 +152,10 @@ rediraffe_redirects = {
 
 tippy_skip_anchor_classes = ("headerlink", "sd-stretched-link", "sd-rounded-pill")
 tippy_anchor_parent_selector = "article.bd-article"
-tippy_custom_tips = {
-    "https://www.sphinx-doc.org/en/master/usage/configuration.html": """
-<p>The configuration directory must contain a file named
-<code class="file docutils literal notranslate"><span class="pre">conf.py</span></code>.
-This file (containing Python code) is called the “build configuration file”
-and contains (almost) all configuration needed to customize Sphinx input
-and output behavior.</p>
-    """
-}
+tippy_rtd_urls = [
+    "https://www.sphinx-doc.org/en/master",
+    "https://markdown-it-py.readthedocs.io/en/latest",
+]
 
 # -- LaTeX output -------------------------------------------------
 
