@@ -134,6 +134,7 @@ ogp_custom_meta_tags = [
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = ["local.css"]
 
 rediraffe_redirects = {
     "using/intro.md": "sphinx/intro.md",
@@ -190,9 +191,18 @@ def setup(app: Sphinx):
         MystWarningsDirective,
     )
 
-    app.add_css_file("local.css")
     app.add_directive("myst-config", MystConfigDirective)
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
     app.add_post_transform(StripUnsupportedLatex)
+    app.connect("html-page-context", add_version_to_css)
+
+
+def add_version_to_css(app, pagename, templatename, context, doctree):
+    """Add the version number to the local.css file, to bust the cache for changes."""
+    if app.builder.name != "html":
+        return
+    if "_static/local.css" in context.get("css_files", {}):
+        index = context["css_files"].index("_static/local.css")
+        context["css_files"][index] = f"_static/local.css?v={__version__}"
