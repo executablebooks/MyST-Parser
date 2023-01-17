@@ -48,7 +48,7 @@ def create_md_parser(
             # note, strikethrough currently only supported tentatively for HTML
             .enable("strikethrough")
             .enable("table")
-            .use(tasklists_plugin)
+            .use(tasklists_plugin, enabled=config.enable_checkboxes)
             .enable("linkify")
             .use(wordcount_plugin, per_minute=config.words_per_minute)
         )
@@ -98,7 +98,7 @@ def create_md_parser(
     if "fieldlist" in config.enable_extensions:
         md.use(fieldlist_plugin)
     if "tasklist" in config.enable_extensions:
-        md.use(tasklists_plugin)
+        md.use(tasklists_plugin, enabled=config.enable_checkboxes)
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
     if "attrs_inline" in config.enable_extensions:

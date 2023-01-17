@@ -300,6 +300,15 @@ class MdParserConfig:
         },
     )
 
+    enable_checkboxes: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Enable checkboxes",
+            "extension": "tasklist",
+        },
+    )
+
     # docutils only (replicating aspects of sphinx config)
 
     suppress_warnings: Sequence[str] = dc.field(
