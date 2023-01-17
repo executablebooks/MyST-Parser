@@ -31,6 +31,10 @@ class MystWarnings(Enum):
 
     DIRECTIVE_PARSING = "directive_parse"
     """Issue parsing directive."""
+    UNKNOWN_DIRECTIVE = "directive_unknown"
+    """Unknown directive."""
+    UNKNOWN_ROLE = "role_unknown"
+    """Unknown role."""
 
     # cross-reference resolution
     XREF_AMBIGUOUS = "xref_ambiguous"

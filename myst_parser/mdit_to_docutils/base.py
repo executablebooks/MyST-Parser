@@ -1319,17 +1319,18 @@ class DocutilsRenderer(RendererProtocol):
         role_func, messages = roles.role(
             name, self.language_module_rst, lineno, self.reporter
         )
-        inliner = MockInliner(self)
-        if role_func:
-            _nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
-            # return nodes, messages + messages2
-            self.current_node += _nodes
-        else:
-            message = self.reporter.error(
-                f'Unknown interpreted text role "{name}".', line=lineno
+        if not role_func:
+            self.create_warning(
+                f'Unknown interpreted text role "{name}".',
+                MystWarnings.UNKNOWN_ROLE,
+                line=lineno,
+                append_to=self.current_node,
             )
-            problematic = inliner.problematic(text, rawsource, message)
-            self.current_node += problematic
+            self.current_node.extend(messages)
+            return
+        inliner = MockInliner(self)
+        _nodes, messages2 = role_func(name, rawsource, text, lineno, inliner)
+        self.current_node += _nodes + messages2
 
     def render_colon_fence(self, token: SyntaxTreeNode) -> None:
         """Render a code fence with ``:`` colon delimiters."""
@@ -1470,11 +1471,12 @@ class DocutilsRenderer(RendererProtocol):
         )
         directive_class, messages = output
         if not directive_class:
-            error = self.reporter.error(
-                f'Unknown directive type "{name}".\n',
+            warn_node = self.create_warning(
+                f"Unknown directive type: {name!r}",
+                MystWarnings.UNKNOWN_DIRECTIVE,
                 line=position,
             )
-            return [error] + messages
+            return ([warn_node] if warn_node else []) + messages
 
         if issubclass(directive_class, Include):
             # this is a Markdown only option,

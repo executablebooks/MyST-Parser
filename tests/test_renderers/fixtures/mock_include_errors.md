@@ -20,5 +20,5 @@ Error in include file:
 ```{include} bad.md
 ```
 .
-tmpdir/bad.md:2: (ERROR/3) Unknown interpreted text role "a".
+tmpdir/bad.md:2: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
 .
