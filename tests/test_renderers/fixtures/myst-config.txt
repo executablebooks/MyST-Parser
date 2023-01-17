@@ -156,6 +156,25 @@ www.commonmark.org/he<lp
         <lp
 .
 
+[tasklist] --myst-enable-extensions=tasklist --myst-enable-checkboxes="true"
+.
+- [ ] a
+- [x] b
+.
+<document source="<string>">
+    <bullet_list bullet="-" classes="contains-task-list">
+        <list_item classes="task-list-item enabled">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox"  type="checkbox">
+                 a
+        <list_item classes="task-list-item enabled">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox" checked="checked"  type="checkbox">
+                 b
+.
+
 [heading_anchors] --myst-heading-anchors=1
 .
 # My title
