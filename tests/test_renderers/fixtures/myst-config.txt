@@ -175,6 +175,41 @@ www.commonmark.org/he<lp
                  b
 .
 
+[url_schemes] --myst-url-schemes="{'ab': null, 'cd': '{{path}}', 'ef': {'url': 'https://{{path}}#{{fragment}}', 'title': 'My {{query}}', 'classes': ['xyz']}}"
+.
+<ab:xyz> <cd:xyz> <ef:xyz?text#other>
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="ab:xyz">
+            ab:xyz
+
+        <reference refuri="xyz">
+            cd:xyz
+
+        <reference classes="xyz" refuri="https://xyz#other">
+            My text
+.
+
+[url_schemes_list] --myst-url-schemes=ab
+.
+[](ab:c) [](http:c)
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="ab:c">
+
+        <problematic ids="problematic-1" refid="system-message-1">
+    <section classes="system-messages">
+        <title>
+            Docutils System Messages
+        <system_message backrefs="problematic-1" ids="system-message-1" level="3" line="1" source="<string>" type="ERROR">
+            <paragraph>
+                Unknown target name: "http:c".
+
+<string>:1: (ERROR/3) Unknown target name: "http:c".
+.
+
 [heading_anchors] --myst-heading-anchors=1
 .
 # My title
@@ -210,6 +245,17 @@ text
         d
 .
 
+[attrs_image] --myst-enable-extensions=attrs_image
+.
+a
+.
+<document source="<string>">
+    <paragraph>
+        a
+
+<string>:: (WARNING/2) The `attrs_image` extension is deprecated, please use `attrs_inline` instead. [myst.deprecated]
+.
+
 [attrs_inline_span] --myst-enable-extensions=attrs_inline
 .
 [content]{#id .a .b}
@@ -234,6 +280,8 @@ text
 .
 <https://example.com>{.a .b}
 
+[hi](abc){.external}
+
 (other)=
 [text1](https://example.com){#id1 .a .b}
 
@@ -247,6 +295,9 @@ text
     <paragraph>
         <reference classes="a b" refuri="https://example.com">
             https://example.com
+    <paragraph>
+        <reference classes="external" refuri="abc">
+            hi
     <target refid="other">
     <paragraph ids="other" names="other">
         <reference classes="a b" ids="id1" names="id1" refuri="https://example.com">

@@ -76,7 +76,7 @@ class MystConfigDirective(_ConfigBase):
                 continue
 
             # filter by sphinx options
-            if "sphinx" in self.options and field.metadata.get("docutils_only"):
+            if "sphinx" in self.options and "sphinx" in field.metadata.get("omit", []):
                 continue
 
             if "extensions" in self.options:
@@ -98,7 +98,7 @@ class MystConfigDirective(_ConfigBase):
             if field.metadata.get("extension"):
                 description = f"{field.metadata.get('extension')}: {description}"
             default = self.field_default(value)
-            ctype = self.field_type(field)
+            ctype = field.metadata.get("doc_type") or self.field_type(field)
             text.extend(
                 [
                     f"* - `{name}`",
