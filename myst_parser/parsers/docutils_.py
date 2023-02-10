@@ -136,7 +136,7 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
             "metavar": "<boolean>",
             "validator": frontend.validate_boolean,
         }, str(default)
-    if at.type is str:
+    if at.type is str or at.name == "heading_slug_func":
         return {
             "metavar": "<str>",
         }, f"(default: '{default}')"
