@@ -1,5 +1,6 @@
 """The configuration for the myst parser."""
 import dataclasses as dc
+from importlib import import_module
 from typing import (
     Any,
     Callable,
@@ -21,7 +22,6 @@ from .dc_validators import (
     deep_mapping,
     in_,
     instance_of,
-    is_callable,
     optional,
     validate_field,
     validate_fields,
@@ -139,6 +139,33 @@ def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
             raise TypeError(f"'{field.name}[{key}][1]' is not a null/string: {val[1]}")
 
 
+def check_heading_slug_func(
+    inst: "MdParserConfig", field: dc.Field, value: Any
+) -> None:
+    """Check that the heading_slug_func is a callable."""
+    if value is None:
+        return
+    if isinstance(value, str):
+        # attempt to load the function as a python import
+        try:
+            module_path, function_name = value.rsplit(".", 1)
+            mod = import_module(module_path)
+            value = getattr(mod, function_name)
+        except ImportError as exc:
+            raise TypeError(
+                f"'{field.name}' could not be loaded from string: {value!r}"
+            ) from exc
+        setattr(inst, field.name, value)
+    if not callable(value):
+        raise TypeError(f"'{field.name}' is not callable: {value!r}")
+
+
+def _test_slug_func(text: str) -> str:
+    """Dummy slug function, this is imported during testing."""
+    # reverse the text
+    return text[::-1]
+
+
 @dc.dataclass()
 class MdParserConfig:
     """Configuration options for the Markdown Parser.
@@ -250,10 +277,13 @@ class MdParserConfig:
     heading_slug_func: Optional[Callable[[str], str]] = dc.field(
         default=None,
         metadata={
-            "validator": optional(is_callable),
-            "help": "Function for creating heading anchors",
+            "validator": check_heading_slug_func,
+            "help": (
+                "Function for creating heading anchors, "
+                "or a python import path e.g. `my_package.my_module.my_function`"
+            ),
             "global_only": True,
-            "omit": ["docutils"],  # TODO docutils config doesn't handle callables
+            "doc_type": "None | Callable[[str], str] | str",
         },
     )
 

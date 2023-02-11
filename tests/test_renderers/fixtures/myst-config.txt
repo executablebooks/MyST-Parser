@@ -413,3 +413,17 @@ a
 <string>:1: (WARNING/2) No matches for '*:*:*:other' [myst.iref_missing]
 <string>:3: (WARNING/2) Multiple matches for '*:*:*:*index': key:std:label:genindex, key:std:label:modindex, key:std:label:py-modindex, ... [myst.iref_ambiguous]
 .
+
+[heading_slug_func] --myst-heading-anchors=1 --myst-heading-slug-func=myst_parser.config.main._test_slug_func
+.
+# title
+
+[reversed](#eltit)
+.
+<document ids="title" names="title" slug="eltit" source="<string>" title="title">
+    <title>
+        title
+    <paragraph>
+        <reference id_link="True" refid="title">
+            reversed
+.

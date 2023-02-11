@@ -520,6 +520,12 @@ The anchor "slugs" created aim to follow the [GitHub implementation](https://git
 
 To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
 
+:::{versionadded} 0.19.0
+`myst_heading_slug_func` can now also be set to a string,
+which will be interpreted as an import path to a function,
+e.g. `myst_heading_slug_func = "mypackage.mymodule.slugify"`.
+:::
+
 ### Inspect the links that will be created
 
 You can inspect the links that will be created using the command-line tool:
