@@ -73,7 +73,9 @@ and followed by any combination of letters, digits, plus (+), period (.), or hyp
 Although schemes are case-insensitive, the canonical form is lowercase
 and documents that specify schemes must do so with lowercase letters.
 """
-REGEX_URI_TEMPLATE = re.compile(r"{{\s*(scheme|netloc|path|params|query|fragment)\s*}}")
+REGEX_URI_TEMPLATE = re.compile(
+    r"{{\s*(uri|scheme|netloc|path|params|query|fragment)\s*}}"
+)
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
@@ -843,20 +845,30 @@ class DocutilsRenderer(RendererProtocol):
             # markdown-it encodes unsafe characters with percent-encoding
             # we want to get back the original, source input
             uri = self.md.normalizeLinkText(uri)
-            parsed = urlparse(uri)
+            _parsed = urlparse(uri)
+            parsed = {
+                "uri": uri,
+                "scheme": _parsed.scheme,
+                "netloc": _parsed.netloc,
+                "path": _parsed.path,
+                "params": _parsed.params,
+                "query": _parsed.query,
+                "fragment": _parsed.fragment,
+            }
             # Note we specifically do not use jinja2 here,
             # to restrict the scope of the templating language,
             # so that it can be used in a language agnostic way
-            uri = re.sub(
-                REGEX_URI_TEMPLATE,
-                lambda match: getattr(parsed, match.group(1), ""),
-                conversion["url"],
-            )
-            uri = self.md.normalizeLink(uri)
+            if "url" in conversion:
+                uri = re.sub(
+                    REGEX_URI_TEMPLATE,
+                    lambda match: parsed.get(match.group(1), ""),
+                    conversion["url"],
+                )
+                uri = self.md.normalizeLink(uri)
             if "title" in conversion and (token.info == "auto" or not token.children):
                 implicit_text = re.sub(
                     REGEX_URI_TEMPLATE,
-                    lambda match: getattr(parsed, match.group(1), ""),
+                    lambda match: parsed.get(match.group(1), ""),
                     conversion["title"],
                 )
             if "classes" in conversion:

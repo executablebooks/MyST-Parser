@@ -359,7 +359,7 @@ The value of each scheme can be:
   - The (optional) `title` key is a template for the link’s implicit title, i.e. it is used if the link has no explicit title.
   - The (optional) `classes` key is a list of classes to add to the link.
 
-The templates for `url` and `title` can use variables (enclosed by `{{ }}`), which are substituted for the corresponding parts of the link `<scheme>://<netloc>/<path>;<params>?<query>#<fragment>`.
+The templates for `url` and `title` can use variables (enclosed by `{{ }}`), which are substituted for the corresponding parts of the link `<scheme>://<netloc>/<path>;<params>?<query>#<fragment>` (or the full link using `uri`).
 For example:
 
 - `scheme`: the URL scheme, e.g. `wiki`.

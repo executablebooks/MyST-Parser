@@ -60,7 +60,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
 class UrlSchemeType(TypedDict, total=False):
     """Type of the external schemes dictionary."""
 
-    url: str  # TODO add Required when python version supports it
+    url: str
     title: str
     classes: List[str]
 
@@ -86,11 +86,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
         elif isinstance(val, dict):
             if not all(isinstance(k, str) for k in val):
                 raise TypeError(f"'{field.name}[{key}]' keys are not strings: {val!r}")
-            if "url" not in val:
-                raise TypeError(
-                    f"'{field.name}[{key}]' does not contain a 'url' key: {val!r}"
-                )
-            if not isinstance(val["url"], str):
+            if "url" in val and not isinstance(val["url"], str):
                 raise TypeError(
                     f"'{field.name}[{key}][url]' is not a string: {val['url']!r}"
                 )
