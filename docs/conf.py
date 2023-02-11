@@ -102,6 +102,29 @@ myst_enable_extensions = [
     "attrs_inline",
     "inv_link",
 ]
+myst_url_schemes = {
+    "http": None,
+    "https": None,
+    "mailto": None,
+    "ftp": None,
+    "wiki": "https://en.wikipedia.org/wiki/{{path}}#{{fragment}}",
+    "doi": "https://doi.org/{{path}}",
+    "gh-pr": {
+        "url": "https://github.com/executablebooks/MyST-Parser/pull/{{path}}#{{fragment}}",
+        "title": "PR #{{path}}",
+        "classes": ["github"],
+    },
+    "gh-issue": {
+        "url": "https://github.com/executablebooks/MyST-Parser/issue/{{path}}#{{fragment}}",
+        "title": "Issue #{{path}}",
+        "classes": ["github"],
+    },
+    "gh-user": {
+        "url": "https://github.com/{{path}}",
+        "title": "@{{path}}",
+        "classes": ["github"],
+    },
+}
 myst_number_code_blocks = ["typescript"]
 myst_heading_anchors = 2
 myst_footnote_transition = True

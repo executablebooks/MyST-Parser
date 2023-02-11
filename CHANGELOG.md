@@ -4,8 +4,8 @@
 
 Full Changelog: [v0.18.0...v0.18.1](https://github.com/executablebooks/MyST-Parser/compare/v0.18.0...v0.18.1)
 
-- ⬆️ UPGRADE: docutils 0.19 support (#611)
-- ✨ NEW: Add `attrs_image` (experimental) extension (#620)
+- ⬆️ UPGRADE: docutils 0.19 support in <gh-pr:611>
+- ✨ NEW: Add `attrs_image` (experimental) extension in <gh-pr:620>
   - e.g. `![image](image.png){#id .class width=100px}`
   - See: [Optional syntax section](docs/syntax/optional.md)
   - **Important**: This is an experimental extension, and may change in future releases
@@ -53,24 +53,24 @@ myst:
 
 ### Key PRs
 
-- ♻️📚 Restructure code base and documentation (#566)
-- ⬆️ Drop Sphinx 3 and add Sphinx 5 support (#579)
-- 🐛 FIX: `parse_directive_text` when body followed by options (#580)
-- 🐛 FIX: floor table column widths to integers (#568), thanks to @Jean-Abou-Samra!
+- ♻️📚 Restructure code base and documentation (<gh-pr:566>)
+- ⬆️ Drop Sphinx 3 and add Sphinx 5 support (<gh-pr:579>)
+- 🐛 FIX: `parse_directive_text` when body followed by options (<gh-pr:580>)
+- 🐛 FIX: floor table column widths to integers (<gh-pr:568>), thanks to <gh-user:Jean-Abou-Samra>!
 
 ## 0.17.2 - 2022-04-17
 
 Full Changelog: [v0.17.1...v0.17.2](https://github.com/executablebooks/MyST-Parser/compare/v0.17.1...v0.17.2)
 
-- ♻️ REFACTOR: Replace `attrs` by `dataclasses` for configuration (#557)
+- ♻️ REFACTOR: Replace `attrs` by `dataclasses` for configuration (<gh-pr:557>)
 
 ## 0.17.1 - 2022-04-15
 
 Full Changelog: [v0.17.0...v0.17.1](https://github.com/executablebooks/MyST-Parser/compare/v0.17.0...v0.17.1)
 
-- 🐛 FIX: Heading anchor resolution for parallel builds (#525)
-- 🔧 MAINTAIN: Move packaging from setuptools to flit (#553)
-- 🔧 MAINTAIN: Directly specify attrs dependency (#555)
+- 🐛 FIX: Heading anchor resolution for parallel builds (<gh-pr:525>)
+- 🔧 MAINTAIN: Move packaging from setuptools to flit (<gh-pr:553>)
+- 🔧 MAINTAIN: Directly specify attrs dependency (<gh-pr:555>)
 
 ## 0.17.0 - 2022-02-11
 
@@ -153,18 +153,18 @@ Now the warning is still emitted, but also the heading is rendered as a [rubric]
 
 Other internal improvements primarily focused in improving support for the for "docutils-only" use, introduced in `v0.16`:
 
-- ♻️ REFACTOR: `default_parser` -> `create_md_parser` in [#474](https://github.com/executablebooks/MyST-Parser/pull/474)
-- 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in [#465](https://github.com/executablebooks/MyST-Parser/pull/465)
-- 👌 IMPROVE: Use correct renderer for `state.inline_text` in [#466](https://github.com/executablebooks/MyST-Parser/pull/466)
-- 👌 IMPROVE: Docutils parser settings in [#476](https://github.com/executablebooks/MyST-Parser/pull/476)
-- 🐛 FIX: front-matter rendering with docutils in [#477](https://github.com/executablebooks/MyST-Parser/pull/477)
-- 👌 IMPROVE: Code block highlighting in [#478](https://github.com/executablebooks/MyST-Parser/pull/478)
-- 👌 IMPROVE: `note_refname` for docutils internal links in [#481](https://github.com/executablebooks/MyST-Parser/pull/481)
-- 🐛 FIX: Ordered list starting number in [#483](https://github.com/executablebooks/MyST-Parser/pull/483)
-- 👌 IMPROVE: Propagate enumerated list suffix in [#484](https://github.com/executablebooks/MyST-Parser/pull/484)
-- 👌 IMPROVE: `DocutilsRenderer.create_highlighted_code_block` in [#488](https://github.com/executablebooks/MyST-Parser/pull/488)
-- 🐛 FIX: Source line reporting for nested parsing in [#490](https://github.com/executablebooks/MyST-Parser/pull/490)
-- 🔧 MAINTAIN: Implement `MockInliner.parse` in [#504](https://github.com/executablebooks/MyST-Parser/pull/504)
+- ♻️ REFACTOR: `default_parser` -> `create_md_parser` in <gh-pr:474>
+- 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in <gh-pr:465>
+- 👌 IMPROVE: Use correct renderer for `state.inline_text` in <gh-pr:466>
+- 👌 IMPROVE: Docutils parser settings in <gh-pr:476>
+- 🐛 FIX: front-matter rendering with docutils in <gh-pr:477>
+- 👌 IMPROVE: Code block highlighting in <gh-pr:478>
+- 👌 IMPROVE: `note_refname` for docutils internal links in <gh-pr:481>
+- 🐛 FIX: Ordered list starting number in <gh-pr:483>
+- 👌 IMPROVE: Propagate enumerated list suffix in <gh-pr:484>
+- 👌 IMPROVE: `DocutilsRenderer.create_highlighted_code_block` in <gh-pr:488>
+- 🐛 FIX: Source line reporting for nested parsing in <gh-pr:490>
+- 🔧 MAINTAIN: Implement `MockInliner.parse` in <gh-pr:504>
 
 ## 0.16.1 - 2021-12-16
 
@@ -215,7 +215,7 @@ which includes no direct install requirements on docutils or sphinx.
 
 See [MyST with Docutils](docs/docutils.md) for more information.
 
-Thanks to help from [@cpitclaudel](https://github.com/cpitclaudel)!
+Thanks to help from <gh-user:cpitclaudel>!
 
 ### Include MyST files in RST files
 
@@ -295,23 +295,23 @@ See [Tables syntax](docs/syntax/syntax.md#tables) for more information.
 
 ### Pull Requests
 
-- 🐛 FIX: Add mandatory attributes on `enumerated_list` by @cpitclaudel in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-- 📚 DOCS: Add reference to MySTyc in landing page by @astrojuanlu in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
-- ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by @chrisjsewell in [#449](https://github.com/executablebooks/MyST-Parser/pull/449)
-- 👌 IMPROVE: Table rendering by @chrisjsewell in [#450](https://github.com/executablebooks/MyST-Parser/pull/450)
-- 🐛 FIX: Ensure parent files are re-built if `include` file changes by @chrisjsewell in [#451](https://github.com/executablebooks/MyST-Parser/pull/451)
-- 🐛 FIX: Convert empty directive option to `None` by @chrisjsewell in [#452](https://github.com/executablebooks/MyST-Parser/pull/452)
-- 👌 IMPROVE: Add `\\` for hard-breaks in latex by @chrisjsewell in [#453](https://github.com/executablebooks/MyST-Parser/pull/453)
-- 🔧 MAINTAIN: Remove empty "sphinx" extra by @hukkin in [#350](https://github.com/executablebooks/MyST-Parser/pull/350)
-- ✨ NEW: Add `fieldlist` extension by @chrisjsewell in [#455](https://github.com/executablebooks/MyST-Parser/pull/455)
-- ✨ NEW: Add Docutils MyST config and CLI by @cpitclaudel in [#426](https://github.com/executablebooks/MyST-Parser/pull/426)
-- 🔧 MAINTAIN: Add publishing job for `myst-docutils` by @chrisjsewell in [#456](https://github.com/executablebooks/MyST-Parser/pull/456)
-- 🧪 TESTS: Add for `gettext_additional_targets` by @jpmckinney in [#459](https://github.com/executablebooks/MyST-Parser/pull/459)
+- 🐛 FIX: Add mandatory attributes on `enumerated_list` by <gh-user:cpitclaudel> in <gh-pr:418>
+- 📚 DOCS: Add reference to MySTyc in landing page by <gh-user:astrojuanlu> in <gh-pr:413>
+- ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by <gh-user:chrisjsewell> in <gh-pr:449>
+- 👌 IMPROVE: Table rendering by <gh-user:chrisjsewell> in <gh-pr:450>
+- 🐛 FIX: Ensure parent files are re-built if `include` file changes by <gh-user:chrisjsewell> in <gh-pr:451>
+- 🐛 FIX: Convert empty directive option to `None` by <gh-user:chrisjsewell> in <gh-pr:452>
+- 👌 IMPROVE: Add `\\` for hard-breaks in latex by <gh-user:chrisjsewell> in <gh-pr:453>
+- 🔧 MAINTAIN: Remove empty "sphinx" extra by <gh-user:hukkin> in <gh-pr:350>
+- ✨ NEW: Add `fieldlist` extension by <gh-user:chrisjsewell> in <gh-pr:455>
+- ✨ NEW: Add Docutils MyST config and CLI by <gh-user:cpitclaudel> in <gh-pr:426>
+- 🔧 MAINTAIN: Add publishing job for `myst-docutils` by <gh-user:chrisjsewell> in <gh-pr:456>
+- 🧪 TESTS: Add for `gettext_additional_targets` by <gh-user:jpmckinney> in <gh-pr:459>
 
 ### New Contributors
 
-- @cpitclaudel made their first contribution in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-- @astrojuanlu made their first contribution in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+- <gh-user:cpitclaudel> made their first contribution in <gh-pr:418>
+- <gh-user:astrojuanlu> made their first contribution in <gh-pr:413>
 
 **Full Changelog**: <https://github.com/executablebooks/MyST-Parser/compare/v0.15.2...v0.16.0>
 
@@ -352,7 +352,7 @@ Set `myst_url_schemes = None`, to revert to the previous default.
 
 Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/syntax/optional.md#auto-generated-header-anchors)).
 
-Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+Thanks to <gh-user:jpmckinney>!
 
 ## 0.14.0 - 2021-05-04
 
@@ -433,7 +433,7 @@ A warning (of type `myst.nested_header`) is now emitted when this occurs.
 - 👌 IMPROVE: Store `rawtext` in AST nodes:
   We now ensure that the raw text is propagated from the Markdown tokens to the Sphinx AST.
   In particular, this is required by the `gettext` builder, to generate translation POT templates.
-  Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+  Thanks to <gh-user:jpmckinney>!
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
@@ -481,7 +481,7 @@ Minor fixes:
 
 : Add isort and mypy type checking to code base.
 
-(thanks to contributors @akhmerov, @tfiers)
+(thanks to contributors <gh-user:akhmerov>, <gh-user:tfiers>)
 
 ## 0.13.1 - 2020-12-31
 
@@ -576,7 +576,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ## 0.12.10 - 2020-09-21
 
 🐛 FIX: allow dates to be parsed in frontmatter.
-: This fixes a bug that would raise errors at parse time if non-string date objects were in front-matter YAML. See [#253](https://github.com/executablebooks/MyST-Parser/pull/253)
+: This fixes a bug that would raise errors at parse time if non-string date objects were in front-matter YAML. See <gh-pr:253>
 
 ## 0.12.9 - 2020-09-08
 
@@ -641,7 +641,7 @@ See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/l
   - How-to [include rST files into a Markdown file](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-rst-files-into-a-markdown-file)
   - How-to [Use sphinx.ext.autodoc in Markdown files](https://myst-parser.readthedocs.io/en/latest/using/howto.html#use-sphinx-ext-autodoc-in-markdown-files)
 
-  Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
+  Thanks to <gh-user:stephenroller> for the contribution 🎉
 
 ## 0.12.1 - 2020-08-19
 
@@ -709,9 +709,9 @@ More configuration options for math parsing (see [MyST configuration options](ht
 
 ### Improved 👌
 
-* Support Sphinx version 3 [#197](https://github.com/executablebooks/MyST-Parser/pull/197) ([@chrisjsewell](https://github.com/chrisjsewell))
-* Update Trove Classifiers [#192](https://github.com/executablebooks/MyST-Parser/pull/192) ([@chrisjsewell](https://github.com/chrisjsewell))
-* Add functionality to use docutils specialized role [#189](https://github.com/executablebooks/MyST-Parser/pull/189) ([@chrisjsewell](https://github.com/chrisjsewell))
+* Support Sphinx version 3 in <gh-pr:197> (<gh-user:chrisjsewell>)
+* Update Trove Classifiers in <gh-pr:192> (<gh-user:chrisjsewell>)
+* Add functionality to use docutils specialized role in <gh-pr:189> (<gh-user:chrisjsewell>)
 
 ### Contributors to this release
 

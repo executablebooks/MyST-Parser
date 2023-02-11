@@ -1,6 +1,17 @@
 """MyST Markdown parser for docutils."""
 from dataclasses import Field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 import yaml
 from docutils import frontend, nodes
@@ -16,7 +27,7 @@ from myst_parser.config.main import (
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 from myst_parser.parsers.mdit import create_md_parser
-from myst_parser.warnings_ import create_warning
+from myst_parser.warnings_ import MystWarnings, create_warning
 
 
 def _validate_int(
@@ -24,6 +35,16 @@ def _validate_int(
 ) -> int:
     """Validate an integer setting."""
     return int(value)
+
+
+def _validate_comma_separated_set(
+    setting, value, option_parser, config_parser=None, config_section=None
+) -> Set[str]:
+    """Validate an integer setting."""
+    value = frontend.validate_comma_separated_list(
+        setting, value, option_parser, config_parser, config_section
+    )
+    return set(value)
 
 
 def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
@@ -73,11 +94,29 @@ def _create_validate_yaml(field: Field):
             output = yaml.safe_load(value)
         except Exception:
             raise ValueError("Invalid YAML string")
-        if "validator" in field.metadata:
-            field.metadata["validator"](None, field, output)
+        if not isinstance(output, dict):
+            raise ValueError("Expecting a YAML dictionary")
         return output
 
     return _validate_yaml
+
+
+def _validate_url_schemes(
+    setting, value, option_parser, config_parser=None, config_section=None
+):
+    """Validate a url_schemes setting.
+
+    This is a tricky one, because it can be either a comma-separated list or a YAML dictionary.
+    """
+    try:
+        output = yaml.safe_load(value)
+    except Exception:
+        raise ValueError("Invalid YAML string")
+    if isinstance(output, str):
+        output = {k: None for k in output.split(",")}
+    if not isinstance(output, dict):
+        raise ValueError("Expecting a comma-delimited str or YAML dictionary")
+    return output
 
 
 def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
@@ -85,6 +124,11 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
 
     :returns: (option_dict, default)
     """
+    if at.name == "url_schemes":
+        return {
+            "metavar": "<comma-delimited>|<yaml-dict>",
+            "validator": _validate_url_schemes,
+        }, ",".join(default)
     if at.type is int:
         return {"metavar": "<int>", "validator": _validate_int}, str(default)
     if at.type is bool:
@@ -109,6 +153,11 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
         return {
             "metavar": "<comma-delimited>",
             "validator": frontend.validate_comma_separated_list,
+        }, ",".join(default)
+    if at.type == Set[str]:
+        return {
+            "metavar": "<comma-delimited>",
+            "validator": _validate_comma_separated_set,
         }, ",".join(default)
     if at.type == Tuple[str, str]:
         return {
@@ -159,7 +208,7 @@ def create_myst_settings_spec(config_cls=MdParserConfig, prefix: str = "myst_"):
     return tuple(
         attr_to_optparse_option(at, getattr(defaults, at.name), prefix)
         for at in config_cls.get_fields()
-        if (not at.metadata.get("sphinx_only", False))
+        if ("docutils" not in at.metadata.get("omit", []))
     )
 
 
@@ -171,7 +220,7 @@ def create_myst_config(
     """Create a configuration instance from the given settings."""
     values = {}
     for attribute in config_cls.get_fields():
-        if attribute.metadata.get("sphinx_only", False):
+        if "docutils" in attribute.metadata.get("omit", []):
             continue
         setting = f"{prefix}{attribute.name}"
         val = getattr(settings, setting, DOCUTILS_UNSET)
@@ -225,6 +274,14 @@ class Parser(RstParser):
             error = document.reporter.error(f"Global myst configuration invalid: {exc}")
             document.append(error)
             config = MdParserConfig()
+
+        if "attrs_image" in config.enable_extensions:
+            create_warning(
+                document,
+                "The `attrs_image` extension is deprecated, "
+                "please use `attrs_inline` instead.",
+                MystWarnings.DEPRECATED,
+            )
 
         # update the global config with the file-level config
         try:

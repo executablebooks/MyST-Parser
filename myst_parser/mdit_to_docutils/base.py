@@ -43,7 +43,7 @@ from markdown_it.tree import SyntaxTreeNode
 
 from myst_parser import inventory
 from myst_parser._compat import findall
-from myst_parser.config.main import MdParserConfig
+from myst_parser.config.main import MdParserConfig, UrlSchemeType
 from myst_parser.mocking import (
     MockIncludeDirective,
     MockingError,
@@ -55,7 +55,6 @@ from myst_parser.mocking import (
 from myst_parser.parsers.directives import MarkupError, parse_directive_text
 from myst_parser.warnings_ import MystWarnings, create_warning
 from .html_to_nodes import html_to_nodes
-from .utils import is_external_url
 
 if TYPE_CHECKING:
     from sphinx.environment import BuildEnvironment
@@ -67,6 +66,16 @@ def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     return new_document(source_path, settings=settings)
 
 
+REGEX_SCHEME = re.compile(r"^([a-zA-Z][a-zA-Z0-9+.-]*):")
+"""RFC 7595: A non-empty scheme component followed by a colon (:),
+consisting of a sequence of characters beginning with a letter
+and followed by any combination of letters, digits, plus (+), period (.), or hyphen (-).
+Although schemes are case-insensitive, the canonical form is lowercase
+and documents that specify schemes must do so with lowercase letters.
+"""
+REGEX_URI_TEMPLATE = re.compile(
+    r"{{\s*(uri|scheme|netloc|path|params|query|fragment)\s*}}"
+)
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
 
@@ -774,11 +783,15 @@ class DocutilsRenderer(RendererProtocol):
     def render_link(self, token: SyntaxTreeNode) -> None:
         """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
 
-        - If `<>` autolink, forward to `render_autolink`
         - If `myst_all_links_external` is True, forward to `render_external_url`
-        - If link is an external URL, forward to `render_external_url`
-          - External URLs start with a scheme (e.g. `http:`) in `myst_url_schemes`,
-            or any scheme if  `myst_url_schemes` is None.
+        - If the link token has a class attribute containing `external`,
+            forward to `render_external_url`
+        - If the link is an id link (e.g. `#id`), forward to `render_id_link`
+        - If the link has a schema, and the schema is in `url_schemes` (e.g. `http:`),
+          forward to `render_external_url`
+        - If the link has an `inv:` schema, and `inv_link` is enabled,
+          forward to `render_inventory_link`
+        - If the link is an autolink/linkify type link, forward to `render_external_url`
         - Otherwise, forward to `render_internal_link`
         """
         if (
@@ -788,29 +801,30 @@ class DocutilsRenderer(RendererProtocol):
         ):
             return self.render_external_url(token)
 
-        href = cast(str, token.attrGet("href") or "")
+        if "class" in token.attrs and "external" in str(token.attrs["class"]).split():
+            return self.render_external_url(token)
 
+        href = cast(str, token.attrGet("href") or "")
         if href.startswith("#"):
             return self.render_id_link(token)
 
-        # TODO ideally whether inv_link is enabled could be precomputed
-        if "inv_link" in self.md_config.enable_extensions and href.startswith("inv:"):
-            return self.create_inventory_link(token)
+        scheme_match = REGEX_SCHEME.match(href)
+        scheme = None if scheme_match is None else scheme_match.group(1)
+        if scheme in self.md_config.url_schemes:
+            return self.render_external_url(token, self.md_config.url_schemes[scheme])
 
-        if token.info == "auto":  # handles both autolink and linkify
-            return self.render_external_url(token)
+        if scheme == "inv" and "inv_link" in self.md_config.enable_extensions:
+            return self.render_inventory_link(token)
 
-        # Check for external URL
-        url_scheme = urlparse(href).scheme
-        allowed_url_schemes = self.md_config.url_schemes
-        if (allowed_url_schemes is None and url_scheme) or (
-            allowed_url_schemes is not None and url_scheme in allowed_url_schemes
-        ):
+        if token.info == "auto":
+            # handles both autolink and linkify, these are currently never internal
             return self.render_external_url(token)
 
         return self.render_internal_link(token)
 
-    def render_external_url(self, token: SyntaxTreeNode) -> None:
+    def render_external_url(
+        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
+    ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
         """
@@ -819,9 +833,54 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        ref_node["refuri"] = escapeHtml(token.attrGet("href") or "")  # type: ignore[arg-type]
-        with self.current_node_context(ref_node, append=True):
-            self.render_children(token)
+        uri = cast(str, token.attrGet("href") or "")
+        implicit_text: str | None = None
+
+        if conversion is not None:
+            # implicit_template: str | None = None
+            # if isinstance(conversion, (list, tuple)):
+            #     href_template, implicit_template = conversion
+            # else:
+            #     href_template = conversion
+            # markdown-it encodes unsafe characters with percent-encoding
+            # we want to get back the original, source input
+            uri = self.md.normalizeLinkText(uri)
+            _parsed = urlparse(uri)
+            parsed = {
+                "uri": uri,
+                "scheme": _parsed.scheme,
+                "netloc": _parsed.netloc,
+                "path": _parsed.path,
+                "params": _parsed.params,
+                "query": _parsed.query,
+                "fragment": _parsed.fragment,
+            }
+            # Note we specifically do not use jinja2 here,
+            # to restrict the scope of the templating language,
+            # so that it can be used in a language agnostic way
+            if "url" in conversion:
+                uri = re.sub(
+                    REGEX_URI_TEMPLATE,
+                    lambda match: parsed.get(match.group(1), ""),
+                    conversion["url"],
+                )
+                uri = self.md.normalizeLink(uri)
+            if "title" in conversion and (token.info == "auto" or not token.children):
+                implicit_text = re.sub(
+                    REGEX_URI_TEMPLATE,
+                    lambda match: parsed.get(match.group(1), ""),
+                    conversion["title"],
+                )
+            if "classes" in conversion:
+                ref_node["classes"].extend(conversion["classes"])
+
+        ref_node["refuri"] = escapeHtml(uri)
+        if implicit_text is not None:
+            with self.current_node_context(ref_node, append=True):
+                self.current_node.append(nodes.Text(implicit_text))
+        else:
+            with self.current_node_context(ref_node, append=True):
+                self.render_children(token)
 
     def render_id_link(self, token: SyntaxTreeNode) -> None:
         """Render link token like `[text](#id)`, to a local target."""
@@ -856,7 +915,7 @@ class DocutilsRenderer(RendererProtocol):
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def create_inventory_link(self, token: SyntaxTreeNode) -> None:
+    def render_inventory_link(self, token: SyntaxTreeNode) -> None:
         r"""Create a link to an inventory object.
 
         This assumes the href is of the form `<scheme>:<path>#<target>`.
@@ -867,14 +926,12 @@ class DocutilsRenderer(RendererProtocol):
         `\*` is treated as a plain `*`.
         """
 
-        # account for autolinks
-        if token.info == "auto":
-            # autolinks escape the HTML, which we don't want
-            href = token.children[0].content
-            explicit = False
-        else:
-            href = cast(str, token.attrGet("href") or "")
-            explicit = bool(token.children)
+        # markdown-it encodes unsafe characters with percent-encoding
+        # we want to get back the original, source input
+        href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
+
+        # note if the link had explicit text or not (autolinks are always implicit)
+        explicit = False if token.info == "auto" else bool(token.children)
 
         # split the href up into parts
         uri_parts = urlparse(href)
@@ -994,9 +1051,9 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(img_node, token)
         destination = cast(str, token.attrGet("src") or "")
 
-        if self.md_env.get("relative-images", None) is not None and not is_external_url(
-            destination, None, True
-        ):
+        if self.md_env.get(
+            "relative-images", None
+        ) is not None and not REGEX_SCHEME.match(destination):
             # make the path relative to an "including" document
             # this is set when using the `relative-images` option of the MyST `include` directive
             destination = os.path.normpath(

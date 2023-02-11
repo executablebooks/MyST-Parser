@@ -376,12 +376,13 @@ class MockIncludeDirective:
         # tab_width = self.options.get("tab-width", self.document.settings.tab_width)
         try:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
+        except FileNotFoundError:
+            raise DirectiveError(
+                4, f'Directive "{self.name}": file not found: {str(path)!r}'
+            )
         except Exception as error:
             raise DirectiveError(
-                4,
-                'Directive "{}": error reading file: {}\n{}.'.format(
-                    self.name, path, error
-                ),
+                4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
             )
 
         # get required section of text

@@ -6,13 +6,15 @@ from typing import (
     Dict,
     Iterable,
     Iterator,
+    List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
-    cast,
 )
 
+from myst_parser._compat import TypedDict
 from myst_parser.warnings_ import MystWarnings
 from .dc_validators import (
     deep_iterable,
@@ -26,7 +28,7 @@ from .dc_validators import (
 )
 
 
-def check_extensions(_, field: dc.Field, value: Any):
+def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> None:
     """Check that the extensions are a list of known strings"""
     if not isinstance(value, Iterable):
         raise TypeError(f"'{field.name}' not iterable: {value}")
@@ -52,9 +54,64 @@ def check_extensions(_, field: dc.Field, value: Any):
     )
     if diff:
         raise ValueError(f"'{field.name}' items not recognised: {diff}")
+    setattr(inst, field.name, set(value))
 
 
-def check_sub_delimiters(_, field: dc.Field, value: Any):
+class UrlSchemeType(TypedDict, total=False):
+    """Type of the external schemes dictionary."""
+
+    url: str
+    title: str
+    classes: List[str]
+
+
+def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> None:
+    """Check that the external schemes are of the right format."""
+    if isinstance(value, (list, tuple)):
+        if not all(isinstance(v, str) for v in value):
+            raise TypeError(f"'{field.name}' is not a list of strings: {value!r}")
+        value = {v: None for v in value}
+
+    if not isinstance(value, dict):
+        raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
+
+    new_dict: Dict[str, Optional[UrlSchemeType]] = {}
+    for key, val in value.items():
+        if not isinstance(key, str):
+            raise TypeError(f"'{field.name}' key is not a string: {key!r}")
+        if val is None:
+            new_dict[key] = val
+        elif isinstance(val, str):
+            new_dict[key] = {"url": val}
+        elif isinstance(val, dict):
+            if not all(isinstance(k, str) for k in val):
+                raise TypeError(f"'{field.name}[{key}]' keys are not strings: {val!r}")
+            if "url" in val and not isinstance(val["url"], str):
+                raise TypeError(
+                    f"'{field.name}[{key}][url]' is not a string: {val['url']!r}"
+                )
+            if "title" in val and not isinstance(val["title"], str):
+                raise TypeError(
+                    f"'{field.name}[{key}][title]' is not a string: {val['title']!r}"
+                )
+            if (
+                "classes" in val
+                and not isinstance(val["classes"], list)
+                and not all(isinstance(c, str) for c in val["classes"])
+            ):
+                raise TypeError(
+                    f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}"
+                )
+            new_dict[key] = val  # type: ignore
+        else:
+            raise TypeError(
+                f"'{field.name}[{key}]' value is not a string or dict: {val!r}"
+            )
+
+    setattr(inst, field.name, new_dict)
+
+
+def check_sub_delimiters(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
     """Check that the sub_delimiters are a tuple of length 2 of strings of length 1"""
     if (not isinstance(value, (tuple, list))) or len(value) != 2:
         raise TypeError(f"'{field.name}' is not a tuple of length 2: {value}")
@@ -65,7 +122,7 @@ def check_sub_delimiters(_, field: dc.Field, value: Any):
             )
 
 
-def check_inventories(_, field: dc.Field, value: Any):
+def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
     """Check that the inventories are a dict of {str: (str, Optional[str])}"""
     if not isinstance(value, dict):
         raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
@@ -89,6 +146,18 @@ class MdParserConfig:
     Note in the sphinx configuration these option names are prepended with ``myst_``
     """
 
+    def __repr__(self) -> str:
+        """Return a string representation of the config."""
+        # this replicates the auto-generated __repr__,
+        # but also allows for a repr function to be defined on the field
+        attributes: List[str] = []
+        for name, val, f in self.as_triple():
+            if not f.repr:
+                continue
+            val_str = f.metadata.get("repr_func", repr)(val)
+            attributes.append(f"{name}={val_str}")
+        return f"{self.__class__.__name__}({', '.join(attributes)})"
+
     # TODO replace commonmark_only, gfm_only with a single option
 
     commonmark_only: bool = dc.field(
@@ -106,8 +175,8 @@ class MdParserConfig:
         },
     )
 
-    enable_extensions: Sequence[str] = dc.field(
-        default_factory=list,
+    enable_extensions: Set[str] = dc.field(
+        default_factory=set,
         metadata={"validator": check_extensions, "help": "Enable syntax extensions"},
     )
 
@@ -127,14 +196,19 @@ class MdParserConfig:
         },
     )
 
-    # see https://en.wikipedia.org/wiki/List_of_URI_schemes
-    url_schemes: Optional[Iterable[str]] = dc.field(
-        default=cast(Optional[Iterable[str]], ("http", "https", "mailto", "ftp")),
+    url_schemes: Dict[str, Optional[UrlSchemeType]] = dc.field(
+        default_factory=lambda: {
+            "http": None,
+            "https": None,
+            "mailto": None,
+            "ftp": None,
+        },
         metadata={
-            "validator": optional(
-                deep_iterable(instance_of(str), instance_of((list, tuple)))
-            ),
-            "help": "URL scheme prefixes identified as external links",
+            "validator": check_url_schemes,
+            "help": "URI schemes that are converted to external links",
+            "repr_func": lambda v: repr(tuple(v)),
+            # Note, lists of strings will be coerced to dicts in the validator
+            "doc_type": "list[str] | dict[str, None | str | dict]",
         },
     )
 
@@ -145,7 +219,7 @@ class MdParserConfig:
                 deep_iterable(instance_of(str), instance_of((list, tuple)))
             ),
             "help": "Sphinx domain names to search in for link references",
-            "sphinx_only": True,
+            "omit": ["docutils"],
         },
     )
 
@@ -179,19 +253,19 @@ class MdParserConfig:
             "validator": optional(is_callable),
             "help": "Function for creating heading anchors",
             "global_only": True,
-            "sphinx_only": True,  # TODO docutils config doesn't handle callables
+            "omit": ["docutils"],  # TODO docutils config doesn't handle callables
         },
     )
 
     html_meta: Dict[str, str] = dc.field(
         default_factory=dict,
-        repr=False,
         metadata={
             "validator": deep_mapping(
                 instance_of(str), instance_of(str), instance_of(dict)
             ),
             "merge_topmatter": True,
             "help": "HTML meta tags",
+            "repr_func": lambda v: f"{{{', '.join(f'{k}: ...' for k in v)}}}",
         },
     )
 
@@ -215,7 +289,6 @@ class MdParserConfig:
 
     substitutions: Dict[str, Union[str, int, float]] = dc.field(
         default_factory=dict,
-        repr=False,
         metadata={
             "validator": deep_mapping(
                 instance_of(str), instance_of((str, int, float)), instance_of(dict)
@@ -223,16 +296,18 @@ class MdParserConfig:
             "merge_topmatter": True,
             "help": "Substitutions mapping",
             "extension": "substitutions",
+            "repr_func": lambda v: f"{{{', '.join(f'{k}: ...' for k in v)}}}",
         },
     )
 
     sub_delimiters: Tuple[str, str] = dc.field(
         default=("{", "}"),
+        repr=False,
         metadata={
             "validator": check_sub_delimiters,
             "help": "Substitution delimiters",
             "extension": "substitutions",
-            "sphinx_only": True,
+            "omit": ["docutils"],
         },
     )
 
@@ -285,7 +360,7 @@ class MdParserConfig:
             "help": "Update sphinx.ext.mathjax configuration to ignore `$` delimiters",
             "extension": "dollarmath",
             "global_only": True,
-            "sphinx_only": True,
+            "omit": ["docutils"],
         },
     )
 
@@ -296,7 +371,7 @@ class MdParserConfig:
             "help": "MathJax classes to add to math HTML",
             "extension": "dollarmath",
             "global_only": True,
-            "sphinx_only": True,
+            "omit": ["docutils"],
         },
     )
 
@@ -316,7 +391,7 @@ class MdParserConfig:
         metadata={
             "validator": deep_iterable(instance_of(str), instance_of((list, tuple))),
             "help": "A list of warning types to suppress warning messages",
-            "docutils_only": True,
+            "omit": ["sphinx"],
             "global_only": True,
         },
     )
@@ -326,7 +401,7 @@ class MdParserConfig:
         metadata={
             "validator": instance_of(bool),
             "help": "Syntax highlight code blocks with pygments",
-            "docutils_only": True,
+            "omit": ["sphinx"],
         },
     )
 
@@ -336,7 +411,7 @@ class MdParserConfig:
         metadata={
             "validator": check_inventories,
             "help": "Mapping of key to (url, inv file), for intra-project referencing",
-            "docutils_only": True,
+            "omit": ["sphinx"],
             "global_only": True,
         },
     )

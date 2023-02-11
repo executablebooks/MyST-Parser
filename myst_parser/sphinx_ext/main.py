@@ -29,7 +29,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_post_transform(MystReferenceResolver)
 
     for name, default, field in MdParserConfig().as_triple():
-        if not field.metadata.get("docutils_only", False):
+        if "sphinx" not in field.metadata.get("omit", []):
             # TODO add types?
             app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
@@ -51,7 +51,7 @@ def create_myst_config(app):
     values = {
         name: app.config[f"myst_{name}"]
         for name, _, field in MdParserConfig().as_triple()
-        if not field.metadata.get("docutils_only", False)
+        if "sphinx" not in field.metadata.get("omit", [])
     }
 
     try:
