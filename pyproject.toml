@@ -119,7 +119,9 @@ module = ["docutils.*", "yaml.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-filterwarnings = []
+filterwarnings = [
+    "ignore:.*The default for the setting.*:FutureWarning",
+]
 
 [tool.coverage.run]
 omit = ["*/_docs.py"]

@@ -11,8 +11,7 @@ Non-existent path:
 ```{include} other.md
 ```
 .
-tmpdir/test.md:1: (SEVERE/4) Directive "include": error reading file: tmpdir/other.md
-[Errno 2] No such file or directory: 'tmpdir/other.md'.
+tmpdir/test.md:1: (SEVERE/4) Directive "include": file not found: 'tmpdir/other.md'
 .
 
 Error in include file:

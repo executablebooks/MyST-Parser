@@ -301,20 +301,70 @@ Here are some examples:
 
 :::
 
-### Customising destination resolution
+### Customising external URL resolution
 
-You can customise the default destination resolution rules by setting the following [configuration options](../configuration.md):
+:::{versionadded} 0.19
+`myst_url_schemes` now allows for customising how the links are converted to URLs,
+and the `attrs_inline` extension can be used to specify certain links as external.
+:::
 
-`myst_all_links_external` (default: `False`)
-:   If `True`, then all links will be treated as external links.
+By default, all links which begin with `http:`, `https:`, `ftp:`, or `mailto:` will be treated as external [URL] links.
+You can customise this behaviour in a number of ways using [configuration options](../configuration.md).
 
-`myst_url_schemes` (default: `["http", "https", "ftp", "mailto"]`)
-: A list of [URL] schemes which will be treated as external links.
+Most simply, by setting the `myst_all_links_external` configuration option to `True`,
+all links will be treated as external [URL] links.
 
-`myst_ref_domains` (default: `[]`)
-: A list of [sphinx domains](inv:sphinx#domain) which will be allowed for internal links.
-  For example, `myst_ref_domains = ("std", "py")` will only allow cross-references to `std` and `py` domains.
-  If the list is empty, then all domains will be allowed.
+To apply selectively to specific links, you can enable the [attrs_inline](optional.md#inline-attributes) extension,
+then add an `external` class to the link.\
+For example, `[my-external-link](my-external-link){.external}` becomes [my-external-link](my-external-link){.external}.
+
+To specify a custom list of URL schemes, you can set the `myst_url_schemes` configuration option.
+By default this is set to `["http", "https", "ftp", "mailto"]`.
+
+As well as being a list of strings, `myst_url_schemes` can also be a dictionary,
+where the keys are the URL schemes, and the values define how the links are converted to URLs.
+This allows you to customise the conversion of links to URLs for specific schemes, for example:
+
+```python
+myst_url_schemes = {
+    "http": None,
+    "https": None,
+    "wiki": "https://en.wikipedia.org/wiki/{{path}}#{{fragment}}",
+    "doi": "https://doi.org/{{path}}",
+    "gh-issue": {
+        "url": "https://github.com/executablebooks/MyST-Parser/issue/{{path}}#{{fragment}}",
+        "title": "Issue #{{path}}",
+        "classes": ["github"],
+    },
+}
+```
+
+Allows for links such as:
+
+- `[URI](wiki:Uniform_Resource_Identifier#URI_references)` is converted to [URI](wiki:Uniform_Resource_Identifier#URI_references)
+- `<doi:10.1186/gm483>` is converted to <doi:10.1186/gm483>
+- `<gh-issue:639>` is converted to <gh-issue:639>
+
+:::{tip}
+You can also use the [sphinx-tippy](https://sphinx-tippy.readthedocs.io) extension to add rich "hover" tooltips to links.
+
+Adding the `github` class above integrates well the [pydata-sphinx-theme's GitHub link formatting](https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/theme-elements.html#link-shortening-for-git-repository-services)
+:::
+
+The value of each scheme can be:
+
+- `None`: the link is converted directly to an external URL.
+- A string: the link is converted to an external URL using the string as a template.
+- A dictionary: the link is converted to an external URL using the dictionary’s `url` key as a template.
+  - The (optional) `title` key is a template for the link’s implicit title, i.e. it is used if the link has no explicit title.
+  - The (optional) `classes` key is a list of classes to add to the link.
+
+The templates for `url` and `title` can use variables (enclosed by `{{ }}`), which are substituted for the corresponding parts of the link `<scheme>://<netloc>/<path>;<params>?<query>#<fragment>` (or the full link using `uri`).
+For example:
+
+- `scheme`: the URL scheme, e.g. `wiki`.
+- `path`: the path part of the URL, e.g. `Uniform_Resource_Identifier`.
+- `fragment`: the fragment part of the URL, e.g. `URI_references`.
 
 (syntax/inv_links)=
 ### Cross-project (inventory) links
