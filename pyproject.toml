@@ -48,7 +48,7 @@ Homepage = "https://github.com/executablebooks/MyST-Parser"
 Documentation = "https://myst-parser.readthedocs.io"
 
 [project.optional-dependencies]
-code_style = ["pre-commit~=2.12"]
+code_style = ["pre-commit~=3.0"]
 # for use with "linkify" extension
 linkify = ["linkify-it-py~=1.0"]
 # Note: This is only required for internal use
