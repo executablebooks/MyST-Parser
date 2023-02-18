@@ -124,3 +124,15 @@ def test_definition_lists(file_params, sphinx_doctree_no_tr: CreateDoctree):
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+
+
+@pytest.mark.param_file(FIXTURE_PATH / "attributes.md")
+def test_attributes(file_params, sphinx_doctree_no_tr: CreateDoctree):
+    sphinx_doctree_no_tr.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "myst_enable_extensions": ["attrs_inline", "attrs_block"],
+        }
+    )
+    result = sphinx_doctree_no_tr(file_params.content, "index.md")
+    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)

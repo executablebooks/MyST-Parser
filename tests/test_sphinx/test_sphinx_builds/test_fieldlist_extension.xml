@@ -2,7 +2,7 @@
     <section ids="test" names="test">
         <title>
             Test
-        <field_list classes="myst">
+        <field_list classes="myst field-list">
             <field>
                 <field_name>
                     field
@@ -29,7 +29,7 @@
             <desc_content>
                 <paragraph>
                     Send a message to a recipient
-                <field_list classes="myst">
+                <field_list classes="myst field-list">
                     <field>
                         <field_name>
                             Parameters

@@ -9,7 +9,7 @@ from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererProtocol
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.anchors import anchors_plugin
-from mdit_py_plugins.attrs import attrs_plugin
+from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
 from mdit_py_plugins.colon_fence import colon_fence_plugin
 from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
@@ -111,6 +111,8 @@ def create_md_parser(
     elif "attrs_image" in config.enable_extensions:
         # TODO deprecate
         md.use(attrs_plugin, after=("image",))
+    if "attrs_block" in config.enable_extensions:
+        md.use(attrs_block_plugin)
     if config.heading_anchors is not None:
         md.use(
             anchors_plugin,

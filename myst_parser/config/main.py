@@ -37,6 +37,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "amsmath",
             "attrs_image",
             "attrs_inline",
+            "attrs_block",
             "colon_fence",
             "deflist",
             "dollarmath",
