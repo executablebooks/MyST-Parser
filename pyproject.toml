@@ -62,6 +62,7 @@ rtd = [
     "sphinxext-opengraph~=0.7.5",
     "sphinx-pyscript",
     "sphinx-tippy>=0.3.1",
+    "sphinx-autodoc2>=0.3.0"
 ]
 testing = [
     "beautifulsoup4",
