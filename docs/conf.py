@@ -100,6 +100,7 @@ myst_enable_extensions = [
     "substitution",
     "tasklist",
     "attrs_inline",
+    "attrs_block",
     "inv_link",
 ]
 myst_url_schemes = {

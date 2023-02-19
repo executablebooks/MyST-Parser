@@ -32,6 +32,7 @@ def test_syntax_elements(file_params, monkeypatch):
 
     # in docutils 0.18 footnote ids have changed
     outcome = doctree.pformat().replace('"footnote-reference-1"', '"id1"')
+    outcome = outcome.replace(' language=""', "")
     file_params.assert_expected(outcome, rstrip_lines=True)
 
 

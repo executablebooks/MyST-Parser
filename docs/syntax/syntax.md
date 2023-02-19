@@ -38,6 +38,10 @@ Ordered List    | `1. item`
 Unordered List  | `- item`
 Code Fence      | opening ```` ```lang ```` to closing ```` ``` ````
 
+:::{tip}
+The {ref}`attribute extensions <syntax/attributes>` allow you to enrich these syntaxes with additional information.
+:::
+
 (syntax/frontmatter)=
 
 ## Front Matter
@@ -314,7 +318,7 @@ You can customise this behaviour in a number of ways using [configuration option
 Most simply, by setting the `myst_all_links_external` configuration option to `True`,
 all links will be treated as external [URL] links.
 
-To apply selectively to specific links, you can enable the [attrs_inline](optional.md#inline-attributes) extension,
+To apply selectively to specific links, you can enable the [attrs_inline](syntax/attributes/inline) extension,
 then add an `external` class to the link.\
 For example, `[my-external-link](my-external-link){.external}` becomes [my-external-link](my-external-link){.external}.
 

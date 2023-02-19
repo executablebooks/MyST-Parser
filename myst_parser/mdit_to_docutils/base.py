@@ -516,6 +516,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_paragraph(self, token: SyntaxTreeNode) -> None:
         para = nodes.paragraph(token.children[0].content if token.children else "")
+        self.copy_attributes(token, para, keys=("class", "id"))
         self.add_line_and_source_path(para, token)
         with self.current_node_context(para, append=True):
             self.render_children(token)
@@ -530,27 +531,32 @@ class DocutilsRenderer(RendererProtocol):
         list_node = nodes.bullet_list()
         if token.markup:
             list_node["bullet"] = token.markup
-        if token.attrs.get("class"):
-            # this is used e.g. by tasklist
-            list_node["classes"] = str(token.attrs["class"]).split()
+        self.copy_attributes(token, list_node, keys=("class", "id"))
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
 
     def render_ordered_list(self, token: SyntaxTreeNode) -> None:
-        list_node = nodes.enumerated_list(enumtype="arabic", prefix="")
+        style = "arabic"
+        if "style" in token.attrs:
+            style = {
+                "decimal": "arabic",
+                "lower-alpha": "loweralpha",
+                "upper-alpha": "upperalpha",
+                "lower-roman": "lowerroman",
+                "upper-roman": "upperroman",
+            }.get(str(token.attrs["style"]), style)
+        list_node = nodes.enumerated_list(enumtype=style, prefix="")
         list_node["suffix"] = token.markup  # for CommonMark, this should be "." or ")"
-        if "start" in token.attrs:  # starting number
-            list_node["start"] = token.attrs["start"]
+        # start is starting number
+        self.copy_attributes(token, list_node, keys=("class", "id", "start"))
         self.add_line_and_source_path(list_node, token)
         with self.current_node_context(list_node, append=True):
             self.render_children(token)
 
     def render_list_item(self, token: SyntaxTreeNode) -> None:
         item_node = nodes.list_item()
-        if token.attrs.get("class"):
-            # this is used e.g. by tasklist
-            item_node["classes"] = str(token.attrs["class"]).split()
+        self.copy_attributes(token, item_node, keys=("class", "id"))
         self.add_line_and_source_path(item_node, token)
         with self.current_node_context(item_node, append=True):
             self.render_children(token)
@@ -576,9 +582,16 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_blockquote(self, token: SyntaxTreeNode) -> None:
         quote = nodes.block_quote()
+        self.copy_attributes(token, quote, keys=("class", "id"))
         self.add_line_and_source_path(quote, token)
         with self.current_node_context(quote, append=True):
             self.render_children(token)
+        if "attribution" in token.attrs:
+            attribution = nodes.attribution(
+                token.attrs["attribution"], "", nodes.Text(token.attrs["attribution"])
+            )
+            self.add_line_and_source_path(attribution, token)
+            quote.append(attribution)
 
     def render_hr(self, token: SyntaxTreeNode) -> None:
         node = nodes.transition()
@@ -598,6 +611,20 @@ class DocutilsRenderer(RendererProtocol):
             node["classes"].append("code")
         self.current_node.append(node)
 
+    @staticmethod
+    def _parse_linenos(emphasize_lines: str, num_lines: int) -> list[int]:
+        """Parse the `emphasize_lines` argument.
+
+        Raises ValueError if the argument is invalid.
+        """
+        from sphinx.util import parselinenos
+
+        hl_lines = parselinenos(emphasize_lines, num_lines)
+        if any(i >= num_lines for i in hl_lines):
+            raise ValueError(f"out of range(1-{num_lines}")
+
+        return [x + 1 for x in hl_lines if x < num_lines]
+
     def create_highlighted_code_block(
         self,
         text: str,
@@ -607,6 +634,7 @@ class DocutilsRenderer(RendererProtocol):
         source: str | None = None,
         line: int | None = None,
         node_cls: type[nodes.Element] = nodes.literal_block,
+        emphasize_lines: list[int] | str | None = None,
     ) -> nodes.Element:
         """Create a literal block with syntax highlighting.
 
@@ -625,6 +653,22 @@ class DocutilsRenderer(RendererProtocol):
                 node["linenos"] = True
                 if lineno_start != 1:
                     node["highlight_args"] = {"linenostart": lineno_start}
+            if isinstance(emphasize_lines, str):
+                try:
+                    emphasize_lines = self._parse_linenos(
+                        emphasize_lines, len(text.splitlines())
+                    )
+                except ValueError as err:
+                    self.create_warning(
+                        f"emphasize_lines: {err}",
+                        MystWarnings.INVALID_ATTRIBUTE,
+                        line=line,
+                    )
+            if isinstance(emphasize_lines, (list, tuple)):
+                # TODO emphasize_lines in docutils?
+                if "highlight_args" not in node:
+                    node["highlight_args"] = {}
+                node["highlight_args"]["hl_lines"] = emphasize_lines
         else:
             node = node_cls(
                 text, classes=["code"] + ([lexer_name] if lexer_name else [])
@@ -666,12 +710,27 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_code_block(self, token: SyntaxTreeNode) -> None:
         lexer = token.info.split()[0] if token.info else None
+        lineno_start = 1
+        number_lines = False
+        emphasize_lines = (
+            str(token.attrs.get("emphasize-lines"))
+            if "emphasize-lines" in token.attrs
+            else None
+        )
+        if "lineno-start" in token.attrs:
+            with suppress(ValueError):
+                lineno_start = int(token.attrs["lineno-start"])
+                number_lines = True
         node = self.create_highlighted_code_block(
             token.content,
             lexer,
+            lineno_start=lineno_start,
+            number_lines=number_lines,
             source=self.document["source"],
             line=token_line(token, 0) or None,
+            emphasize_lines=emphasize_lines,
         )
+        self.copy_attributes(token, node, ("class", "id"))
         self.current_node.append(node)
 
     def render_fence(self, token: SyntaxTreeNode) -> None:
@@ -693,13 +752,28 @@ class DocutilsRenderer(RendererProtocol):
                 "highlight_language", self.sphinx_env.config.highlight_language
             )
 
+        lineno_start = 1
+        number_lines = language in self.md_config.number_code_blocks
+        emphasize_lines = (
+            str(token.attrs.get("emphasize-lines"))
+            if "emphasize-lines" in token.attrs
+            else None
+        )
+        if "lineno-start" in token.attrs:
+            with suppress(ValueError):
+                lineno_start = int(token.attrs["lineno-start"])
+                number_lines = True
+
         node = self.create_highlighted_code_block(
             text,
             language,
-            number_lines=language in self.md_config.number_code_blocks,
+            number_lines=number_lines,
+            lineno_start=lineno_start,
             source=self.document["source"],
             line=token_line(token, 0) or None,
+            emphasize_lines=emphasize_lines,
         )
+        self.copy_attributes(token, node, ("class", "id"))
         self.current_node.append(node)
 
     @property
@@ -763,6 +837,9 @@ class DocutilsRenderer(RendererProtocol):
 
         # add possible reference slug, this may be different to the standard name above,
         # and does not have to be normalised, so we treat it separately
+        # TODO this id can now come from attributes, which we actually want to be explicit
+        # I think rather than using the mdit anchors_plugin,
+        # we should just compute them here (with the same logic)
         if "id" in token.attrs:
             slug = str(token.attrs["id"])
             new_section["slug"] = slug
@@ -1210,6 +1287,7 @@ class DocutilsRenderer(RendererProtocol):
         # top-level element
         table = nodes.table()
         table["classes"] += ["colwidths-auto"]
+        self.copy_attributes(token, table, ("class", "id"))
         self.add_line_and_source_path(table, token)
         self.current_node.append(table)
 
@@ -1405,6 +1483,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_dl(self, token: SyntaxTreeNode) -> None:
         """Render a definition list."""
         node = nodes.definition_list(classes=["simple", "myst"])
+        self.copy_attributes(token, node, ("class", "id"))
         self.add_line_and_source_path(node, token)
         with self.current_node_context(node, append=True):
             item = None
@@ -1449,6 +1528,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_field_list(self, token: SyntaxTreeNode) -> None:
         """Render a field list."""
         field_list = nodes.field_list(classes=["myst"])
+        self.copy_attributes(token, field_list, ("class", "id"))
         self.add_line_and_source_path(field_list, token)
         with self.current_node_context(field_list, append=True):
             # raise ValueError(token.pretty(show_text=True))

@@ -341,6 +341,25 @@ a
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .
 
+[attr_block] --myst-enable-extensions=attrs_block
+.
+{#myid1 .class1 .class2}
+{#myid2 .class3}
+My paragraph
+
+{attribution="Chris Sewell"}
+> Hallo
+.
+<document source="<string>">
+    <paragraph classes="class1 class2 class3" ids="myid2" names="myid2">
+        My paragraph
+    <block_quote>
+        <paragraph>
+            Hallo
+        <attribution>
+            Chris Sewell
+.
+
 [inv_link] --myst-enable-extensions=inv_link
 .
 <inv:#index>

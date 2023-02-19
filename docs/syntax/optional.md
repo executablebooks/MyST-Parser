@@ -653,13 +653,6 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
 :Paragraphs: Since the field marker may be quite long, the second
    and subsequent lines of a paragraph do not have to line up
    with the first line.
-:Alignment 1: If the field body starts on the first line...
-
-              Then the entire field body must be indented the same.
-:Alignment 2:
-  If the field body starts on a subsequent line...
-
-  Then the indentation is always two spaces.
 :Blocks:
 
   As well as paragraphs, any block syntaxes may be used in a field body:
@@ -679,13 +672,6 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
 :Paragraphs: Since the field marker may be quite long, the second
    and subsequent lines of a paragraph do not have to line up
    with the first line.
-:Alignment 1: If the field body starts on the first line...
-
-              Then the entire field body must be indented the same.
-:Alignment 2:
-  If the field body starts on a subsequent line...
-
-  Then the indentation is always two spaces.
 :Blocks:
 
   As well as paragraphs, any block syntaxes may be used in a field body:
@@ -731,19 +717,20 @@ Currently `sphinx.ext.autodoc` does not support MyST, see [](howto/autodoc).
 :::
 
 (syntax/attributes)=
-## Inline attributes
+## Attributes
 
 :::{versionadded} 0.19
-This feature is in *beta*, and may change in future versions.
-It replace the previous `attrs_image` extension, which is now deprecated.
+This feature is in *beta*, and feedback is welcome.
+
+`attrs_inline` also replace the previous `attrs_image` extension, which is now deprecated.
 :::
 
-By adding `"attrs_inline"` to `myst_enable_extensions` (in the {{ confpy }}),
-you can enable parsing of inline attributes after certain inline syntaxes.
-This is adapted from [djot inline attributes](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html#inline-attributes),
-and also related to [pandoc bracketed spans](https://pandoc.org/MANUAL.html#extension-bracketed_spans).
+Attributes are a way of enriching standard CommonMark syntax, by adding additional information to elements.
 
-Attributes are specified in curly braces after the inline syntax.
+Attributes are specified inside curly braces `{}`,
+for example `{#my-id .my-class key="value"}`,
+and come before a block element or after an inline element.
+
 Inside the curly braces, the following syntax is recognised:
 
 - `.foo` specifies `foo` as a class.
@@ -757,6 +744,126 @@ Inside the curly braces, the following syntax is recognised:
     Backslash escapes may be used inside quoted values.
     **Note** only certain keys are supported, see below.
 - `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
+
+Attributes are cumulative, so that if multiple attributes follow each other, the inner attributes override the outer ones. One exception is that if multiple classes are given, they are combined.
+For example:
+
+```markdown
+{#id1 .class1 key1="value1"}
+{#id2 .class2 key2="value2"}
+block
+
+[inline]{#id2 .class2 key2="value2"}{#id1 .class1 key1="value1"}
+```
+
+is equivalent to:
+
+```markdown
+{#id2 .class1 .class2 key1="value1" key2="value2"}
+block
+
+[inline]{#id2 .class1 .class2 key1="value1" key2="value2"}
+```
+
+:::{seealso}
+This is adapted from [djot inline/block attributes](https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html#inline-attributes),
+and also related to [pandoc bracketed spans](https://pandoc.org/MANUAL.html#extension-bracketed_spans).
+:::
+
+(syntax/attributes/block)=
+### Block attributes
+
+By adding `"attrs_block"` to `myst_enable_extensions` (in the {{ confpy }}),
+you can enable parsing of block attributes before certain block syntaxes.
+
+For example, the following Markdown:
+
+```markdown
+{#mypara .bg-warning}
+Here is a paragraph with attributes.
+
+{ref}`A reference to my paragraph <mypara>`
+```
+
+will be rendered as:
+
+{#mypara .bg-warning}
+Here is a paragraph with attributes.
+
+{ref}`A reference to my paragraph <mypara>`
+
+`id` and `class` are supported for most block syntaxes,
+but only certain key-value attributes are supported for each syntax.
+
+For **ordered lists**, the `style` key is supported, and can be one of `decimal`, `lower-alpha`, `upper-alpha`, `lower-roman`, `upper-roman`:
+
+```markdown
+{style=lower-alpha}
+1. a
+2. b
+
+{style=upper-alpha}
+1. a
+2. b
+
+{style=lower-roman}
+1. a
+2. b
+
+{style=upper-roman}
+1. a
+2. b
+```
+
+{style=lower-alpha}
+1. a
+2. b
+
+{style=upper-alpha}
+1. a
+2. b
+
+{style=lower-roman}
+1. a
+2. b
+
+{style=upper-roman}
+1. a
+2. b
+
+For **code fences**, the `lineno-start` and `emphasize-lines` keys are supported:
+
+````md
+{lineno-start=1 emphasize-lines="2,3"}
+```python
+a = 1
+b = 2
+c = 3
+```
+````
+
+{lineno-start=1 emphasize-lines="2,3"}
+```python
+a = 1
+b = 2
+c = 3
+```
+
+For **block quotes**, the `attribution` key is supported:
+
+```markdown
+{attribution="Chris Sewell"}
+> Hallo
+```
+
+{attribution="Chris Sewell"}
+> Hallo
+
+(syntax/attributes/inline)=
+### Inline attributes
+
+By adding `"attrs_inline"` to `myst_enable_extensions` (in the {{ confpy }}),
+you can enable parsing of inline attributes after certain inline syntaxes.
 
 For example, the following Markdown:
 
@@ -794,9 +901,7 @@ will be parsed as:
 - ![An image with attribute](img/fun-fish.png){#imgid .bg-warning w="100px" align=center}
   {ref}`a reference to the image <imgid>`
 
-### key-value attributes
-
-`id` and `class` are supported for all inline syntaxes,
+`id` and `class` are supported for most inline syntaxes,
 but only certain key-value attributes are supported for each syntax.
 
 For **literals**, the following attributes are supported:
@@ -812,7 +917,6 @@ For **images**, the following attributes are supported (equivalent to the `image
 - `align`/`a` defines the scale of the image (`left`, `center`, or `right`)
 
 (syntax/images)=
-
 ## HTML Images
 
 MyST provides a few different syntaxes for including images in your documentation, as explained below.
