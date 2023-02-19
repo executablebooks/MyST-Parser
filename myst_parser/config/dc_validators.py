@@ -49,7 +49,7 @@ def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
     with a wrong type for this particular attribute (checks are performed using
     `isinstance` therefore it's also valid to pass a tuple of types).
 
-    :param type: The type to check for.
+    :param type_: The type to check for.
     """
 
     def _validator(inst, field, value, suffix=""):
