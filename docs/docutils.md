@@ -59,7 +59,7 @@ stylesheet-dirs: path/to/html5_polyglot/
 stylesheet-path: minimal.css, responsive.css
 ```
 
-You can also use the {py:class}`myst_parser.docutils_.Parser` class programmatically with the [Docutils publisher API](https://docutils.sourceforge.io/docs/api/publisher.html):
+You can also use the {py:class}`myst_parser.parsers.docutils_.Parser` class programmatically with the [Docutils publisher API](https://docutils.sourceforge.io/docs/api/publisher.html):
 
 ```python
 from docutils.core import publish_string

@@ -405,12 +405,12 @@ class DocutilsRenderer(RendererProtocol):
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
-        self, nodes: list[nodes.Element], token: SyntaxTreeNode
+        self, nodes_: list[nodes.Element], token: SyntaxTreeNode
     ) -> None:
         """Copy the line number and document source path to the docutils nodes,
         and recursively to all descendants.
         """
-        for node in nodes:
+        for node in nodes_:
             self.add_line_and_source_path(node, token)
             for child in findall(node)():
                 self.add_line_and_source_path(child, token)

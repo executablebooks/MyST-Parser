@@ -28,9 +28,10 @@ language = "en"
 # ones.
 extensions = [
     "myst_parser",
-    "sphinx.ext.autodoc",
+    "autodoc2",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    "sphinx.ext.autodoc",
     "sphinx_design",
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
@@ -57,30 +58,27 @@ intersphinx_mapping = {
 
 # -- Autodoc settings ---------------------------------------------------
 
-autodoc_member_order = "bysource"
+autodoc2_packages = ["../myst_parser"]
+autodoc2_hidden_objects = ["dunder", "private", "inherited"]
+autodoc2_replace_annotations = [
+    ("re.Pattern", "typing.Pattern"),
+    ("markdown_it.MarkdownIt", "markdown_it.main.MarkdownIt"),
+]
+autodoc2_replace_bases = [
+    ("myst_parser._compat.Protocol", "typing.Protocol"),
+    ("myst_parser._compat.TypedDict", "typing.TypedDict"),
+    ("sphinx.directives.SphinxDirective", "sphinx.util.docutils.SphinxDirective"),
+]
 nitpicky = True
+nitpick_ignore_regex = [
+    (r"py:.*", r"docutils\..*"),
+]
 nitpick_ignore = [
-    ("py:class", "docutils.nodes.document"),
-    ("py:class", "docutils.nodes.docinfo"),
-    ("py:class", "docutils.nodes.Element"),
-    ("py:class", "docutils.nodes.Node"),
-    ("py:class", "docutils.nodes.field_list"),
-    ("py:class", "docutils.nodes.problematic"),
-    ("py:class", "docutils.nodes.pending"),
-    ("py:class", "docutils.nodes.system_message"),
-    ("py:class", "docutils.statemachine.StringList"),
-    ("py:class", "docutils.parsers.rst.directives.misc.Include"),
-    ("py:class", "docutils.parsers.rst.Parser"),
-    ("py:class", "docutils.utils.Reporter"),
-    ("py:class", "nodes.Element"),
-    ("py:class", "nodes.Node"),
-    ("py:class", "nodes.system_message"),
-    ("py:class", "Directive"),
-    ("py:class", "Include"),
-    ("py:class", "StringList"),
-    ("py:class", "DocutilsRenderer"),
-    ("py:class", "MockStateMachine"),
+    ("py:obj", "myst_parser._docs._ConfigBase"),
     ("py:exc", "MarkupError"),
+    ("py:class", "sphinx.util.typing.Inventory"),
+    ("py:class", "sphinx.writers.html.HTMLTranslator"),
+    ("py:obj", "sphinx.transforms.post_transforms.ReferencesResolver"),
 ]
 
 # -- MyST settings ---------------------------------------------------
@@ -166,6 +164,7 @@ rediraffe_redirects = {
     "sphinx/intro.md": "intro.md",
     "using/use_api.md": "api/index.md",
     "api/index.md": "api/reference.rst",
+    "api/reference.rst": "apidocs/index.md",
     "using/syntax.md": "syntax/syntax.md",
     "using/syntax-optional.md": "syntax/optional.md",
     "using/reference.md": "syntax/reference.md",

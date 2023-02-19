@@ -118,6 +118,7 @@ However, the special [`eval-rst` directive](syntax/directives/parsing) can be us
 .. autoclass:: myst_parser.mocking.MockRSTParser
     :show-inheritance:
     :members: parse
+    :noindex:
 ```
 
 As with other objects in MyST, this can then be referenced:

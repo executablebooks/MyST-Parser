@@ -148,7 +148,7 @@ develop/index.md
 develop/_changelog.md
 syntax/reference
 develop/background.md
-api/reference.rst
+apidocs/index.rst
 ```
 
 [commonmark]: https://commonmark.org/
