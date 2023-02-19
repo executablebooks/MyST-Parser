@@ -15,6 +15,21 @@ h3:not(.tippy-header)::before {
     content: counter(subsection) "." counter(subsubsection) ". ";
 }
 
+/** MyST examples */
+.myst-example {
+    border: 1px solid var(--pst-color-border);
+    border-left-color: var(--pst-color-info);
+    border-left-width: .2em;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 15px;
+    margin-bottom: 1rem;
+}
+.myst-example-source > div[class*="highlight-"]{
+    margin: 0;
+}
+.myst-example-render {
+    padding: 0.5rem;
+}
+
 /** No icon for admonitions with no-icon class */
 .admonition > .admonition-title, div.admonition.no-icon > .admonition-title::before {
     content: "";
