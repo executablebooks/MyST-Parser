@@ -224,3 +224,35 @@ class MystWarningsDirective(SphinxDirective):
         node = nodes.Element()
         self.state.nested_parse(text, 0, node)
         return node.children
+
+
+class MystExampleDirective(SphinxDirective):
+    """Directive to print an example."""
+
+    has_content = True
+    option_spec = {
+        "html": directives.flag,
+    }
+
+    def run(self):
+        """Run the directive."""
+        content_str = "\n".join(self.content)
+        backticks = "```"
+        while backticks in content_str:
+            backticks += "`"
+        content = f"""
+{backticks}``{{div}} myst-example
+
+{backticks}`{{div}} myst-example-source
+{backticks}markdown
+{content_str}
+{backticks}
+{backticks}`
+{backticks}`{{div}} myst-example-render
+{content_str}
+{backticks}`
+{backticks}``
+"""
+        node_ = nodes.Element()
+        self.state.nested_parse(content.splitlines(), self.content_offset, node_)
+        return node_.children

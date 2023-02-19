@@ -157,15 +157,11 @@ myst:
 You may add comments by putting the `%` character at the beginning of a line. This will
 prevent the line from being parsed into the output document.
 
-For example, this code:
+For example, this won't be parsed into the document:
 
-```md
+:::{myst-example}
 % my comment
-```
-
-Is below, but it won't be parsed into the document.
-
-% my comment
+:::
 
 ````{important}
 Since comments are a block-level entity, they will terminate the previous block.
@@ -197,15 +193,11 @@ like [jupyter notebooks](https://jupyter.org/),
 to indicate a new text cell. It will not show up in the rendered text,
 but is stored in the internal document structure for use by developers.
 
-For example, this code:
+For example, this won't be parsed into the document:
 
-```md
+```{myst-example}
 +++ some text
 ```
-
-Is below, but it won't be parsed into the document.
-
-+++
 
 (syntax/referencing)=
 
@@ -529,17 +521,13 @@ markdown: `[](syntax.md)` will result in: [](syntax.md).
 Code blocks contain a language identifier, which is used to determine the language of the code.
 This language is used to determine the syntax highlighting, using an available [pygments lexer](https://pygments.org/docs/lexers/).
 
-````markdown
-```python
-from a import b
-c = "string"
-```
-````
 
+:::{myst-example}
 ```python
 from a import b
 c = "string"
 ```
+:::
 
 You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
 or within a sphinx extension, with the [`app.add_lexer` method](inv:sphinx#*.Sphinx.add_lexer).
@@ -547,6 +535,7 @@ or within a sphinx extension, with the [`app.add_lexer` method](inv:sphinx#*.Sph
 Using the `myst_number_code_blocks` configuration option, you can also control whether code blocks are numbered by line.
 For example, using `myst_number_code_blocks = ["typescript"]`:
 
+:::{myst-example}
 ```typescript
 type MyBool = true | false;
 
@@ -555,6 +544,7 @@ interface User {
   id: number;
 }
 ```
+:::
 
 ### Show backticks inside raw markdown blocks
 
@@ -562,51 +552,37 @@ If you'd like to show backticks inside of your markdown, you can do so by nestin
 in backticks of a greater length. Markdown will treat the outer-most backticks as the
 edges of the "raw" block and everything inside will show up. For example:
 
-``` `` `hi` `` ```  will be rendered as: `` `hi` ``
-
-and
-
-`````
-````
-```
-hi
-```
-````
-`````
-
-will be rendered as:
+:::{myst-example}
+`` `hi` ``
 
 ````
 ```
 hi
 ```
 ````
+:::
 
 ## Tables
 
 Tables can be written using the standard [Github Flavoured Markdown syntax](https://github.github.com/gfm/#tables-extension-):
 
+:::{myst-example}
 ```md
 | foo | bar |
 | --- | --- |
 | baz | bim |
 ```
-
-| foo | bar |
-| --- | --- |
-| baz | bim |
+:::
 
 Cells in a column can be aligned using the `:` character:
 
+:::{myst-example}
 ```md
 | left | center | right |
 | :--- | :----: | ----: |
 | a    | b      | c     |
 ```
-
-| left | center | right |
-| :--- | :----: | ----: |
-| a    | b      | c     |
+:::
 
 :::{note}
 
@@ -632,11 +608,9 @@ MyST provides a few different syntaxes for including images in your documentatio
 
 The standard Markdown syntax is:
 
-```md
+:::{myst-example}
 ![fishy](img/fun-fish.png)
-```
-
-![fishy](img/fun-fish.png)
+:::
 
 But you can also enable extended image syntaxes, to control attributes like width and captions.
 See the [extended image syntax guide](syntax/images).
@@ -653,24 +627,18 @@ Their labels **start with `^`** and can then be any alphanumeric string (no spac
 All footnote definitions are collected, and displayed at the bottom of the page (in the order they are referenced).
 Note that un-referenced footnote definitions will not be displayed.
 
-```md
+:::{myst-example}
 - This is a manually-numbered footnote reference.[^3]
 - This is an auto-numbered footnote reference.[^myref]
 
 [^myref]: This is an auto-numbered footnote definition.
 [^3]: This is a manually-numbered footnote definition.
-```
-
-- This is a manually-numbered footnote reference.[^3]
-- This is an auto-numbered footnote reference.[^myref]
-
-[^myref]: This is an auto-numbered footnote definition.
-[^3]: This is a manually-numbered footnote definition.
+:::
 
 Any preceding text after a footnote definitions, which is
 indented by four or more spaces, will also be included in the footnote definition, and the text is rendered as MyST Markdown, e.g.
 
-```md
+:::{myst-example}
 A longer footnote definition.[^mylongdef]
 
 [^mylongdef]: This is the _**footnote definition**_.
@@ -683,37 +651,14 @@ A longer footnote definition.[^mylongdef]
 that are not separated by a blank line
 
 This is not part of the footnote.
-```
-
-A longer footnote definition.[^mylongdef]
-
-[^mylongdef]: This is the _**footnote definition**_.
-
-    That continues for all indented lines
-
-    - even other block elements
-
-    Plus any subsequent unindented lines,
-that are not separated by a blank line
-
-This is not part of the footnote.
+:::
 
 ````{important}
 Although footnote references can be used just fine within directives, e.g.[^myref],
 it is recommended that footnote definitions are not set within directives,
 unless they will only be referenced within that same directive:
 
-```md
-[^other]
-
-[^other]: A definition within a directive
-```
-
-[^other]
-
-[^other]: A definition within a directive
-
-This is because, in the current implementation, they may not be available to reference in text above that particular directive.
+This is because, they may not be available to reference in text outside that particular directive.
 ````
 
 By default, a transition line (with a `footnotes` class) will be placed before any footnotes.

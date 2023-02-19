@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx_design",
+    "sphinx_copybutton",
     "sphinxext.rediraffe",
     "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
@@ -212,6 +213,7 @@ def setup(app: Sphinx):
         DirectiveDoc,
         DocutilsCliHelpDirective,
         MystConfigDirective,
+        MystExampleDirective,
         MystWarningsDirective,
     )
 
@@ -219,6 +221,7 @@ def setup(app: Sphinx):
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
+    app.add_directive("myst-example", MystExampleDirective)
     app.add_post_transform(StripUnsupportedLatex)
     app.connect("html-page-context", add_version_to_css)
 
