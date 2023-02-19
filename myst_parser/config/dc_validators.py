@@ -58,7 +58,7 @@ def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
         """
         if not isinstance(value, type_):
             raise TypeError(
-                f"'{field.name}{suffix}' must be of type {type!r} "
+                f"'{field.name}{suffix}' must be of type {type_!r} "
                 f"(got {value!r} that is a {value.__class__!r})."
             )
 
