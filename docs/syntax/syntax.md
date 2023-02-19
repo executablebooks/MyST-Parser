@@ -658,17 +658,7 @@ Although footnote references can be used just fine within directives, e.g.[^myre
 it is recommended that footnote definitions are not set within directives,
 unless they will only be referenced within that same directive:
 
-```md
-[^other]
-
-[^other]: A definition within a directive
-```
-
-[^other]
-
-[^other]: A definition within a directive
-
-This is because, in the current implementation, they may not be available to reference in text above that particular directive.
+This is because, they may not be available to reference in text outside that particular directive.
 ````
 
 By default, a transition line (with a `footnotes` class) will be placed before any footnotes.
