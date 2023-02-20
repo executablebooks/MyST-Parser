@@ -1529,8 +1529,21 @@ class DocutilsRenderer(RendererProtocol):
                             child.children[0].content if child.children else ""
                         )
                         self.add_line_and_source_path(term, child)
-                        with self.current_node_context(term, append=True):
+                        with self.current_node_context(term):
                             self.render_children(child)
+                        if "glossary" in node["classes"] and self.sphinx_env:
+                            from sphinx.domains.std import make_glossary_term
+
+                            term = make_glossary_term(
+                                self.sphinx_env,
+                                term.children,
+                                None,  # type: ignore
+                                term.source,
+                                term.line,
+                                node_id=None,  # type: ignore
+                                document=self.document,
+                            )
+                        self.current_node.append(term)
                 elif child.type == "dd":
                     if item is None:
                         error = self.reporter.error(

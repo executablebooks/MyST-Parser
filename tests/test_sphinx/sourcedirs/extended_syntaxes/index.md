@@ -39,6 +39,15 @@ Term 3
 
   : other
 
+{#myid1 .glossary}
+term
+:  definition
+
+other term
+:  other definition
+
+{term}`other term`
+
 :::{figure-md} target
 :class: other
 
