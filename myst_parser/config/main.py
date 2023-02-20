@@ -267,10 +267,10 @@ class MdParserConfig:
         },
     )
 
-    heading_anchors: Optional[int] = dc.field(
-        default=None,
+    heading_anchors: int = dc.field(
+        default=0,
         metadata={
-            "validator": optional(in_([1, 2, 3, 4, 5, 6, 7])),
+            "validator": optional(in_([0, 1, 2, 3, 4, 5, 6, 7])),
             "help": "Heading level depth to assign HTML anchors",
         },
     )
