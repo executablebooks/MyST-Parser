@@ -433,16 +433,38 @@ My paragraph
 <string>:3: (WARNING/2) Multiple matches for '*:*:*:*index': key:std:label:genindex, key:std:label:modindex, key:std:label:py-modindex, ... [myst.iref_ambiguous]
 .
 
-[heading_slug_func] --myst-heading-anchors=1 --myst-heading-slug-func=myst_parser.config.main._test_slug_func
+[heading_slug_func] --myst-heading-anchors=2 --myst-heading-slug-func=myst_parser.config.main._test_slug_func
 .
 # title
 
+## title
+
+## title a b c
+
+## title *nested syntax*
+
+### other
+
 [reversed](#eltit)
 .
-<document ids="title" names="title" slug="eltit" source="<string>" title="title">
+<document dupnames="title" ids="title" slug="eltit" source="<string>" title="title">
     <title>
         title
-    <paragraph>
-        <reference id_link="True" refid="title">
-            reversed
+    <section dupnames="title" ids="title-1" slug="eltit-1">
+        <title>
+            title
+    <section ids="title-a-b-c" names="title\ a\ b\ c" slug="c b a eltit">
+        <title>
+            title a b c
+    <section ids="title-nested-syntax" names="title\ nested\ syntax" slug="xatnys detsen eltit">
+        <title>
+            title
+            <emphasis>
+                nested syntax
+        <section ids="other" names="other">
+            <title>
+                other
+            <paragraph>
+                <reference id_link="True" refid="title">
+                    reversed
 .

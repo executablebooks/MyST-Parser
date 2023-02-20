@@ -51,8 +51,8 @@ class MystWarnings(Enum):
     """A legacy domain found, which does not support `resolve_any_xref`."""
 
     # extensions
-    ANCHOR_DUPE = "anchor_dupe"
-    """Duplicate heading anchors generated in same document."""
+    HEADING_SLUG = "heading_slug"
+    """An error occured computing a heading slug."""
     STRIKETHROUGH = "strikethrough"
     """Strikethrough warning, since only implemented in HTML."""
     HTML_PARSE = "html"

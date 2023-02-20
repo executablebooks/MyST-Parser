@@ -14,6 +14,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Iterable,
     Iterator,
     MutableMapping,
     Sequence,
@@ -790,18 +791,24 @@ class DocutilsRenderer(RendererProtocol):
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """Render a heading, e.g. `# Heading`."""
 
-        if self.md_env.get("match_titles", None) is False:
-            # this can occur if a nested parse is performed by a directive
-            # (such as an admonition) which contains a header.
-            # this would break the document structure
-            self.create_warning(
-                "Disallowed nested header found, converting to rubric",
-                MystWarnings.MD_HEADING_NESTED,
-                line=token_line(token, default=0),
-                append_to=self.current_node,
-            )
+        if (
+            token.attrs.get("toc", None) == "false"
+            or self.md_env.get("match_titles", None) is False
+        ):
+            if self.md_env.get("match_titles", None) is False:
+                # this can occur if a nested parse is performed by a directive
+                # (such as an admonition) which contains a header.
+                # this would break the document structure
+                self.create_warning(
+                    "Disallowed nested header found, converting to rubric",
+                    MystWarnings.MD_HEADING_NESTED,
+                    line=token_line(token, default=0),
+                    append_to=self.current_node,
+                )
+
             rubric = nodes.rubric(token.content, "")
             self.add_line_and_source_path(rubric, token)
+            self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
                 self.render_children(token)
             return
@@ -811,6 +818,7 @@ class DocutilsRenderer(RendererProtocol):
         # create the section node
         new_section = nodes.section()
         self.add_line_and_source_path(new_section, token)
+        self.copy_attributes(token, new_section, ("class", "id"))
         # if a top level section,
         # then add classes to set default mathjax processing to false
         # we then turn it back on, on a per-node basis
@@ -830,28 +838,36 @@ class DocutilsRenderer(RendererProtocol):
 
         # create a target reference for the section, based on the heading text.
         # Note, this is an implicit target, meaning that it is not prioritised,
-        # and is not stored by sphinx for ref resolution
+        # during ref resolution, and is not stored in the document.
+        # TODO this is purely to mimic docutils, but maybe we don't need it?
+        # (since we have the slugify logic below)
         name = nodes.fully_normalize_name(title_node.astext())
         new_section["names"].append(name)
         self.document.note_implicit_target(new_section, new_section)
 
-        # add possible reference slug, this may be different to the standard name above,
-        # and does not have to be normalised, so we treat it separately
-        # TODO this id can now come from attributes, which we actually want to be explicit
-        # I think rather than using the mdit anchors_plugin,
-        # we should just compute them here (with the same logic)
-        if "id" in token.attrs:
-            slug = str(token.attrs["id"])
-            new_section["slug"] = slug
-            if slug in self._slug_to_section:
-                other_node = self._slug_to_section[slug]
+        if level <= self.md_config.heading_anchors:
+
+            # Create an implicit reference slug.
+            # The problem with this reference slug,
+            # is that it might not be in the "normalised" format required by docutils,
+            # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#normalized-reference-names
+            # so we store it separately, and have separate logic than docutils
+            # TODO maybe revisit this assumption, or improve the logic
+            try:
+                slug = compute_unique_slug(
+                    token,
+                    self._slug_to_section,
+                    self.md_config.heading_slug_func,
+                )
+            except Exception as error:
                 self.create_warning(
-                    f"duplicate heading slug {slug!r}, other at line {other_node.line}",
-                    MystWarnings.ANCHOR_DUPE,
-                    line=new_section.line,
+                    str(error),
+                    MystWarnings.HEADING_SLUG,
+                    line=token_line(token, default=0),
+                    append_to=self.current_node,
                 )
             else:
-                # we store this for later processing on finalise
+                new_section["slug"] = slug
                 self._slug_to_section[slug] = new_section
 
         # set the section as the current node for subsequent rendering
@@ -1842,3 +1858,42 @@ def clean_astext(node: nodes.Element) -> str:
     for raw in list(findall(node)(nodes.raw)):
         raw.parent.remove(raw)
     return node.astext()
+
+
+_SLUGIFY_CLEAN_REGEX = re.compile(r"[^\w\u4e00-\u9fff\- ]")
+
+
+def default_slugify(title: str) -> str:
+    """Default slugify function.
+
+    This aims to mimic the GitHub Markdown format, see:
+
+    - https://github.com/jch/html-pipeline/blob/master/lib/html/pipeline/toc_filter.rb
+    - https://gist.github.com/asabaylus/3071099
+    """
+    return _SLUGIFY_CLEAN_REGEX.sub("", title.strip().lower().replace(" ", "-"))
+
+
+def compute_unique_slug(
+    token_tree: SyntaxTreeNode,
+    slugs: Iterable[str],
+    slug_func: None | Callable[[str], str] = None,
+) -> str:
+    """Compute the slug for a token.
+
+    This directly mirrors the logic in `mdit_py_plugins.anchors_plugin`
+    """
+    slug_func = default_slugify if slug_func is None else slug_func
+    tokens = token_tree.to_tokens()
+    inline_token = tokens[1]
+    title = "".join(
+        child.content
+        for child in (inline_token.children or [])
+        if child.type in ["text", "code_inline"]
+    )
+    slug = slug_func(title)
+    i = 1
+    while slug in slugs:
+        slug = f"{slug}-{i}"
+        i += 1
+    return slug
