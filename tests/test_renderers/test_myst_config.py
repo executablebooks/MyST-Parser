@@ -19,6 +19,8 @@ def test_cmdline(file_params: ParamTestData):
     """The description is parsed as a docutils commandline"""
     if "url_schemes_list" in file_params.title and __version_info__ < (0, 18):
         pytest.skip("problematic node ids changed in docutils 0.18")
+    if "heading_slug_func" in file_params.title and __version_info__ < (0, 18):
+        pytest.skip("dupnames ids changed in docutils 0.18")
     pub = Publisher(parser=Parser())
     option_parser = pub.setup_option_parser()
     try:
