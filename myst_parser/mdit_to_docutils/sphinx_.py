@@ -46,23 +46,35 @@ class SphinxRenderer(DocutilsRenderer):
             destination = os.path.relpath(
                 os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
+        explicit = len(token.children or []) > 0 and not (
+            len(token.children) == 1
+            and token.children[0].type == "text"
+            and token.children[0].content in ("...", "…")
+        )
         kwargs = {
             "refdoc": self.sphinx_env.docname,
             "reftype": "myst",
-            "refexplicit": len(token.children or []) > 0,
+            "refexplicit": explicit,
         }
         path_dest, *_path_ids = destination.split("#", maxsplit=1)
         path_id = _path_ids[0] if _path_ids else None
-        potential_path = (
-            Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent / path_dest
-            if self.sphinx_env.srcdir  # not set in some test situations
-            else None
-        )
-        if path_dest == "./":
+
+        potential_path: None | Path
+        if path_dest.startswith("/"):
+            # here we are referencing a file relative to the source directory
+            potential_path = Path(self.sphinx_env.srcdir) / path_dest[1:]
+        elif path_dest == "./":
             # this is a special case, where we want to reference the current document
             potential_path = (
                 Path(self.sphinx_env.doc2path(self.sphinx_env.docname))
                 if self.sphinx_env.srcdir
+                else None
+            )
+        else:
+            potential_path = (
+                Path(self.sphinx_env.doc2path(self.sphinx_env.docname)).parent
+                / path_dest
+                if self.sphinx_env.srcdir  # not set in some test situations
                 else None
             )
         if potential_path and potential_path.is_file():
@@ -92,8 +104,9 @@ class SphinxRenderer(DocutilsRenderer):
 
         inner_node = nodes.inline("", text, classes=classes)
         wrap_node.append(inner_node)
-        with self.current_node_context(inner_node):
-            self.render_children(token)
+        if explicit:
+            with self.current_node_context(inner_node):
+                self.render_children(token)
 
     def get_inventory_matches(
         self,

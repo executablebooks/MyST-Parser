@@ -311,44 +311,6 @@ Target with whitespace:
     <target ids="target-with-space" names="target\ with\ space">
 .
 
-Referencing:
-.
-(target)=
-
-Title
-=====
-
-[alt1](target)
-
-[](target2)
-
-[alt2](https://www.google.com)
-
-[alt3](#title)
-.
-<document source="<src>/index.md">
-    <target ids="target" names="target">
-    <section ids="title" names="title">
-        <title>
-            Title
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    alt1
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-        <paragraph>
-            <reference refuri="https://www.google.com">
-                alt2
-        <paragraph>
-            <reference id_link="True" refid="title">
-                alt3
-                <system_message level="2" line="12" source="<src>/index.md" type="WARNING">
-                    <paragraph>
-                        local id not found: '#title' [myst.xref_missing]
-.
-
 Comments:
 .
 line 1

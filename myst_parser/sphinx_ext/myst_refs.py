@@ -3,11 +3,12 @@
 This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
+import re
 from typing import Any, List, Optional, Tuple, cast
 
 from docutils import nodes
 from docutils.nodes import Element, document
-from sphinx import addnodes, version_info
+from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import NoUri
@@ -24,7 +25,9 @@ LOGGER = logging.getLogger(__name__)
 
 def log_warning(msg: str, subtype: MystWarnings, **kwargs: Any):
     """Log a warning, with a myst type and specific subtype."""
-    LOGGER.warning(msg, type="myst", subtype=subtype.value, **kwargs)
+    LOGGER.warning(
+        msg + f" [myst.{subtype.value}]", type="myst", subtype=subtype.value, **kwargs
+    )
 
 
 class MystReferenceResolver(ReferencesResolver):
@@ -50,7 +53,6 @@ class MystReferenceResolver(ReferencesResolver):
 
             target = node["reftarget"]
             refdoc = node.get("refdoc", self.env.docname)
-            domain = None
 
             try:
                 newnode = self.resolve_myst_ref_any(refdoc, node, contnode)
@@ -65,27 +67,62 @@ class MystReferenceResolver(ReferencesResolver):
                             self.env,
                             node,
                             contnode,
-                            **(
-                                {"allowed_exceptions": (NoUri,)}
-                                if version_info[0] > 2
-                                else {}
-                            ),
+                            allowed_exceptions=(NoUri,),
                         )
                     finally:
                         node["reftype"] = "myst"
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
                     if newnode is None:
-                        node["refdomain"] = ""
-                        # TODO ideally we would override the warning message here,
-                        # to show the [ref.myst] for suppressing warning
-                        self.warn_missing_reference(
-                            refdoc, node["reftype"], target, node, domain
-                        )
+                        # still not found? warn if node wishes to be warned about or
+                        # we are in nit-picky mode
+                        self._warn_missing_reference(target, node)
             except NoUri:
                 newnode = contnode
 
-            node.replace_self(newnode or contnode)
+            if not newnode:
+                newnode = nodes.reference()
+                newnode["refid"] = target
+                newnode.append(node[0].deepcopy())
+
+            if (
+                len(newnode.children) == 1
+                and isinstance(newnode[0], nodes.inline)
+                and not (newnode[0].children)
+            ):
+                newnode[0].replace_self(nodes.literal(target, target))
+            elif not newnode.children:
+                newnode.append(nodes.literal(target, target))
+
+            node.replace_self(newnode)
+
+    def _warn_missing_reference(self, target: str, node: pending_xref) -> None:
+        """Warn about a missing reference."""
+        dtype = "myst"
+        if not node.get("refwarn"):
+            return
+        if (
+            self.config.nitpicky
+            and self.config.nitpick_ignore
+            and (dtype, target) in self.config.nitpick_ignore
+        ):
+            return
+        if (
+            self.config.nitpicky
+            and self.config.nitpick_ignore_regex
+            and any(
+                (
+                    re.fullmatch(ignore_type, dtype)
+                    and re.fullmatch(ignore_target, target)
+                )
+                for ignore_type, ignore_target in self.config.nitpick_ignore_regex
+            )
+        ):
+            return
+
+        log_warning(
+            f"'myst' cross-reference target not found: {target!r}",
+            MystWarnings.XREF_MISSING,
+            location=node,
+        )
 
     def resolve_myst_ref_doc(self, node: pending_xref):
         """Resolve a reference, from a markdown link, to another document,
@@ -118,7 +155,7 @@ class MystReferenceResolver(ReferencesResolver):
                 )
                 targetid = ref_id
             else:
-                targetid, implicit_text = slug_to_section[ref_id]
+                _, targetid, implicit_text = slug_to_section[ref_id]
             inner_classes = ["std", "std-ref"]
         else:
             implicit_text = clean_astext(self.env.titles[ref_docname])
@@ -202,7 +239,7 @@ class MystReferenceResolver(ReferencesResolver):
                 if not (getattr(domain, "__module__", "").startswith("sphinx.")):
                     log_warning(
                         f"Domain '{domain.__module__}::{domain.name}' has not "
-                        "implemented a `resolve_any_xref` method [myst.domains]",
+                        "implemented a `resolve_any_xref` method",
                         MystWarnings.LEGACY_DOMAIN,
                         once=True,
                     )
@@ -226,7 +263,7 @@ class MystReferenceResolver(ReferencesResolver):
             log_warning(
                 __(
                     f"more than one target found for 'myst' cross-reference {target}: "
-                    f"could be {candidates} [myst.ref]"
+                    f"could be {candidates}"
                 ),
                 MystWarnings.XREF_AMBIGUOUS,
                 location=node,

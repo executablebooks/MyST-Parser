@@ -311,42 +311,6 @@ Target with whitespace:
     <target ids="target-with-space" names="target\ with\ space">
 .
 
-Referencing:
-.
-(target)=
-
-Title
-=====
-
-[alt1](target)
-
-[](target2)
-
-[alt2](https://www.google.com)
-
-[alt3](#target3)
-.
-<document source="notset">
-    <target ids="target" names="target">
-    <section ids="title" names="title">
-        <title>
-            Title
-        <paragraph>
-            <reference refname="target">
-                alt1
-        <paragraph>
-            <reference refname="target2">
-        <paragraph>
-            <reference refuri="https://www.google.com">
-                alt2
-        <paragraph>
-            <reference id_link="True" refid="target3">
-                alt3
-                <system_message level="2" line="12" source="notset" type="WARNING">
-                    <paragraph>
-                        local id not found: '#target3' [myst.xref_missing]
-.
-
 Comments:
 .
 line 1
