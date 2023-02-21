@@ -7,3 +7,6 @@
             <reference internal="True" refid="index">
                 <inline classes="std std-ref">
                     Title
+
+
+<src>/index.md:3: WARNING: more than one target found for 'myst' cross-reference index: could be :std:ref:`Title` or :std:doc:`Title` [myst.xref_ambiguous]

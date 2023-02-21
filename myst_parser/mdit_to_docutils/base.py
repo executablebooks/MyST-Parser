@@ -248,36 +248,14 @@ class DocutilsRenderer(RendererProtocol):
     def _render_finalise(self) -> None:
         """Finalise the render of the document."""
 
-        # attempt to replace id_link references with internal links
-        for refnode in findall(self.document)(nodes.reference):
-            if not refnode.get("id_link"):
-                continue
-            target = refnode["refuri"][1:]
-            if target in self._slug_to_section:
-                section_node = self._slug_to_section[target]
-                refnode["refid"] = section_node["ids"][0]
-
-                if not refnode.children:
-                    implicit_text = clean_astext(section_node[0])
-                    refnode += nodes.inline(
-                        implicit_text, implicit_text, classes=["std", "std-ref"]
-                    )
-            else:
-                self.create_warning(
-                    f"local id not found: {refnode['refuri']!r}",
-                    MystWarnings.XREF_MISSING,
-                    line=refnode.line,
-                    append_to=refnode,
-                )
-                refnode["refid"] = target
-            del refnode["refuri"]
-
-        if self._slug_to_section and self.sphinx_env:
-            # save for later reference resolution
-            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = {
-                slug: (snode["ids"][0], clean_astext(snode[0]))
-                for slug, snode in self._slug_to_section.items()
-            }
+        # save for later reference resolution
+        slugs = {
+            slug: (snode.line, snode["ids"][0], clean_astext(snode[0]))
+            for slug, snode in self._slug_to_section.items()
+        }
+        self.document.myst_slugs = slugs
+        if slugs and self.sphinx_env:
+            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = slugs
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -795,7 +773,7 @@ class DocutilsRenderer(RendererProtocol):
             token.attrs.get("toc", None) == "false"
             or self.md_env.get("match_titles", None) is False
         ):
-            if self.md_env.get("match_titles", None) is False:
+            if token.attrs.get("toc", None) != "false":
                 # this can occur if a nested parse is performed by a directive
                 # (such as an admonition) which contains a header.
                 # this would break the document structure
@@ -984,8 +962,10 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        with self.current_node_context(ref_node, append=True):
-            self.render_children(token)
+        self.current_node.append(ref_node)
+        if token.info != "auto" and not is_ellipsis(token):
+            with self.current_node_context(ref_node):
+                self.render_children(token)
 
     def render_internal_link(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
@@ -1024,7 +1004,9 @@ class DocutilsRenderer(RendererProtocol):
         href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
 
         # note if the link had explicit text or not (autolinks are always implicit)
-        explicit = False if token.info == "auto" else bool(token.children)
+        explicit = (
+            (token.info != "auto") and bool(token.children) and not is_ellipsis(token)
+        )
 
         # split the href up into parts
         uri_parts = urlparse(href)
@@ -1897,3 +1879,12 @@ def compute_unique_slug(
         slug = f"{slug}-{i}"
         i += 1
     return slug
+
+
+def is_ellipsis(token: SyntaxTreeNode) -> bool:
+    """Check if a token content only contains an ellipsis."""
+    return (
+        len(token.children) == 1
+        and token.children[0].type == "text"
+        and token.children[0].content in ("...", "…")
+    )
