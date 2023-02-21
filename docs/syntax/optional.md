@@ -859,6 +859,13 @@ For **block quotes**, the `attribution` key is supported:
 {attribution="Chris Sewell"}
 > Hallo
 
+For **headings**, the `toc` key marks the heading as not being included in the table of contents:
+
+:::{myst-example}
+{toc=false}
+# My Heading
+:::
+
 (syntax/attributes/inline)=
 ### Inline attributes
 
