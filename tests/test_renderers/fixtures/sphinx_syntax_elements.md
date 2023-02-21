@@ -117,9 +117,6 @@ Nested heading
 .
 <document source="<src>/index.md">
     <block_quote>
-        <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
-            <paragraph>
-                Nested header will not be included in the ToC [myst.nested_header]
         <rubric level="1">
             heading
 .

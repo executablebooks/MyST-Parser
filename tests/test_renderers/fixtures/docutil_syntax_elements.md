@@ -117,9 +117,6 @@ Nested heading
 .
 <document source="notset">
     <block_quote>
-        <system_message level="2" line="1" source="notset" type="WARNING">
-            <paragraph>
-                Nested header will not be included in the ToC [myst.nested_header]
         <rubric level="1">
             heading
 .
