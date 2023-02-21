@@ -504,11 +504,44 @@ class DocutilsRenderer(RendererProtocol):
 
     # ### render methods for commonmark tokens
 
+    def admonition_cls(self, token: SyntaxTreeNode) -> nodes.Element | None:
+        """Return an admonition class for a given name, or None if not found."""
+        classes = cast(str, token.attrs.get("class", "")).split()
+        if not classes:
+            return None
+        name = classes[0]
+        if name == "seealso" and self.sphinx_env:
+            from sphinx.addnodes import seealso
+            return seealso
+        return {
+            "attention": nodes.admonition,
+            "caution": nodes.caution,
+            "danger": nodes.danger,
+            "error": nodes.error,
+            "hint": nodes.hint,
+            "important": nodes.important,
+            "note": nodes.note,
+            "tip": nodes.tip,
+            "warning": nodes.warning,
+        }.get(name, None)
+
     def render_paragraph(self, token: SyntaxTreeNode) -> None:
         para = nodes.paragraph(token.children[0].content if token.children else "")
-        self.copy_attributes(token, para, keys=("class", "id"))
         self.add_line_and_source_path(para, token)
-        with self.current_node_context(para, append=True):
+
+        # allow for a paragraph to be wrapped in an admonition directive
+        admon_class = self.admonition_cls(token)
+        if admon_class:
+            admonition = admon_class("")
+            self.copy_attributes(token, admonition, keys=("class", "id"))
+            self.add_line_and_source_path(admonition, token)
+            admonition.append(para)
+            self.current_node.append(admonition)
+        else:
+            self.copy_attributes(token, para, keys=("class", "id"))
+            self.current_node.append(para)
+
+        with self.current_node_context(para):
             self.render_children(token)
 
     def render_inline(self, token: SyntaxTreeNode) -> None:

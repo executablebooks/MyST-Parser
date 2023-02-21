@@ -349,6 +349,9 @@ My paragraph
 
 {attribution="Chris Sewell"}
 > Hallo
+
+{.note}
+A short note
 .
 <document source="<string>">
     <paragraph classes="class1 class2 class3" ids="myid2" names="myid2">
@@ -358,6 +361,9 @@ My paragraph
             Hallo
         <attribution>
             Chris Sewell
+    <note classes="note">
+        <paragraph>
+            A short note
 .
 
 [inv_link] --myst-enable-extensions=inv_link
