@@ -361,26 +361,51 @@ def visit_rubric_html(self, node):
 
     docutils structures a document, based on the headings, into nested sections::
 
-        <heading 1>
-        <heading 2>
-            <heading 3>
+        # h1
+        ## h2
+        ### h3
+
+        <section>
+            <title>
+                h1
+            <section>
+                <title>
+                    h2
+                <section>
+                    <title>
+                        h3
 
     This means that it is not possible to have "standard" headings nested inside
-    other components, such as admonitions, because it would break the structure::
+    other components, such as blockquotes, because it would break the structure::
 
-        <heading 1>
-        <admonition>
-            <heading 2>
-        <heading 3>
+        # h1
+        > ## h2
+        ### h3
+
+        <section>
+            <title>
+                h1
+            <blockquote>
+                <section>
+                    <title>
+                        h2
+            <section>
+                <title>
+                    h3
 
     we work around this shortcoming, in `DocutilsRenderer.render_heading`,
-    by identifying if a heading is inside an another component
+    by identifying if a heading is inside another component
     and instead outputting it as a "non-structural" rubric node, and capture the level::
 
-        <heading 1>
-        <admonition>
-            <rubric level=2>
-        <heading 3>
+        <section>
+            <title>
+                h1
+            <blockquote>
+                <rubric level=2>
+                    h2
+            <section>
+                <title>
+                    h3
 
     However, docutils natively just outputs rubrics as <p> tags,
     and does not "honor" the heading level.
