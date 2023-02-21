@@ -69,6 +69,9 @@
             <image alt="fishy" candidates="{'*': 'fun-fish.png'}" classes="bg-primary mb-1" uri="fun-fish.png" width="200px">
             <caption>
                 This is a caption in **Markdown**
+        <container classes="other" is_div="True">
+        <paragraph>
+            Hallo *there*
         <paragraph>
             linkify URL: 
             <reference refuri="http://www.example.com">

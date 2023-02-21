@@ -4,7 +4,12 @@ from typing import Any
 from docutils import nodes
 from sphinx.application import Sphinx
 
-from myst_parser.parsers.docutils_ import depart_rubric_html, visit_rubric_html
+from myst_parser.parsers.docutils_ import (
+    depart_container_html,
+    depart_rubric_html,
+    visit_container_html,
+    visit_rubric_html,
+)
 from myst_parser.warnings_ import MystWarnings
 
 
@@ -31,8 +36,17 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_post_transform(MystReferenceResolver)
 
     # override only the html writer visit methods for rubric, to use the "level" attribute
+    # this allows for nested headers to be correctly rendered
     app.add_node(
         nodes.rubric, override=True, html=(visit_rubric_html, depart_rubric_html)
+    )
+    # override only the html writer visit methods for container,
+    # to remove the "container" class for divs
+    # this avoids CSS clashes with the bootstrap theme
+    app.add_node(
+        nodes.container,
+        override=True,
+        html=(visit_container_html, depart_container_html),
     )
 
     for name, default, field in MdParserConfig().as_triple():

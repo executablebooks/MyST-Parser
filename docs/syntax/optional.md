@@ -403,7 +403,7 @@ However, since Jinja2 substitutions allow for Python methods to be used, you can
 ## Code fences using colons
 
 By adding `"colon_fence"` to `myst_enable_extensions` (in the {{ confpy }}),
-you can also use `:::` delimiters to denote code fences, instead of ```` ``` ````.
+you can also use `:::` delimiters to denote directives, instead of ```` ``` ````.
 
 Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
 It is ideal for admonition type directives (as documented in [Directives](syntax/directives)) or tables with titles, for example:
@@ -476,6 +476,7 @@ This text is **standard** _Markdown_
 
 This text is **standard** _Markdown_
 :::
+
 
 (syntax/admonitions)=
 

@@ -261,6 +261,8 @@ class Parser(RstParser):
 
         HTMLTranslator.visit_rubric = visit_rubric_html
         HTMLTranslator.depart_rubric = depart_rubric_html
+        HTMLTranslator.visit_container = visit_container_html
+        HTMLTranslator.depart_container = depart_container_html
 
         self.setup_parse(inputstring, document)
 
@@ -426,3 +428,27 @@ def depart_rubric_html(self, node):
         self.body.append(f'</h{node["level"]}>\n')
     else:
         self.body.append("</p>\n")
+
+
+def visit_container_html(self, node: nodes.Node):
+    """Override the default HTML visit method for container nodes.
+
+    to remove the "container" class for divs
+    this avoids CSS clashes with the bootstrap theme
+    """
+    classes = "docutils container"
+    attrs = {}
+    if node.get("is_div", False):
+        # we don't want the CSS for container for these nodes
+        classes = "docutils"
+    if "style" in node:
+        attrs["style"] = node["style"]
+    self.body.append(self.starttag(node, "div", CLASS=classes, **attrs))
+
+
+def depart_container_html(self, node: nodes.Node):
+    """Override the default HTML depart method for container nodes.
+
+    See explanation in `visit_container_html`
+    """
+    self.body.append("</div>\n")
