@@ -477,6 +477,7 @@ This text is **standard** _Markdown_
 This text is **standard** _Markdown_
 :::
 
+
 (syntax/admonitions)=
 
 ## Admonition directives
