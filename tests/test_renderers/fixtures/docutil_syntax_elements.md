@@ -111,6 +111,16 @@ Heading Levels:
             d
 .
 
+Nested heading
+.
+> # heading
+.
+<document source="notset">
+    <block_quote>
+        <rubric level="1">
+            heading
+.
+
 Block Code:
 .
     foo

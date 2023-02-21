@@ -118,7 +118,7 @@ class MockState:
             reporter = self.document.reporter
             language = renderer.language_module_rst
             title_styles: list[str] = []
-            section_level = max(renderer._level_to_elem)
+            section_level = max(renderer._level_to_section)
             section_bubble_up_kludge = False
             inliner = self.inliner
 
@@ -174,7 +174,7 @@ class MockState:
             self._renderer.nested_render_text(
                 "\n".join(block),
                 self._lineno + input_offset,
-                allow_headings=match_titles,
+                temp_root_node=node if match_titles else None,
             )
         self.state_machine.match_titles = sm_match_titles
 
@@ -469,9 +469,7 @@ class MockIncludeDirective:
                     source_dir,
                     path.parent,
                 )
-            self.renderer.nested_render_text(
-                file_content, startline + 1, allow_headings=True
-            )
+            self.renderer.nested_render_text(file_content, startline + 1)
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource

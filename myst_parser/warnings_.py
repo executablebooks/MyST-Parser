@@ -26,8 +26,6 @@ class MystWarnings(Enum):
     """Missing Markdown footnote definition."""
     MD_HEADING_NON_CONSECUTIVE = "header"
     """Non-consecutive heading levels."""
-    MD_HEADING_NESTED = "nested_header"
-    """Header found nested in another element."""
 
     DIRECTIVE_PARSING = "directive_parse"
     """Issue parsing directive."""

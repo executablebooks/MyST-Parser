@@ -118,7 +118,7 @@ class DocutilsRenderer(RendererProtocol):
             "current_node",
             "reporter",
             "language_module_rst",
-            "_level_to_elem",
+            "_level_to_section",
         ):
             raise AttributeError(
                 f"'{name}' attribute is not available until setup_render() is called"
@@ -143,7 +143,7 @@ class DocutilsRenderer(RendererProtocol):
             self.document.settings.language_code
         )
         # a mapping of heading levels to its currently associated node
-        self._level_to_elem: dict[int, nodes.document | nodes.section] = {
+        self._level_to_section: dict[int, nodes.document | nodes.section] = {
             0: self.document
         }
         # mapping of section slug to section node
@@ -321,14 +321,18 @@ class DocutilsRenderer(RendererProtocol):
                 )
 
     def nested_render_text(
-        self, text: str, lineno: int, inline: bool = False, allow_headings: bool = True
+        self,
+        text: str,
+        lineno: int,
+        inline: bool = False,
+        temp_root_node: None | nodes.Element = None,
     ) -> None:
         """Render unparsed text (appending to the current node).
 
         :param text: the text to render
         :param lineno: the starting line number of the text, within the full source
         :param inline: whether the text is inline or block
-        :param allow_headings: whether to allow headings in the text
+        :param temp_root_node: If set, allow sections to be created as children of this node
         """
         tokens = (
             self.md.parseInline(text, self.md_env)
@@ -345,12 +349,21 @@ class DocutilsRenderer(RendererProtocol):
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
 
-        current_match_titles = self.md_env.get("match_titles", None)
-        try:
-            self.md_env["match_titles"] = allow_headings
+        if temp_root_node is None:
             self._render_tokens(tokens)
-        finally:
-            self.md_env["match_titles"] = current_match_titles
+        else:
+            # we need to temporarily set the root node,
+            # and we also want to restore the level_to_section mapping at the end
+            current_level_to_section = {
+                i: node for i, node in self._level_to_section.items()
+            }
+            current_root_node = self.md_env.get("temp_root_node", None)
+            try:
+                self.md_env["temp_root_node"] = temp_root_node
+                self._render_tokens(tokens)
+            finally:
+                self.md_env["temp_root_node"] = current_root_node
+                self._level_to_section = current_level_to_section
 
     @contextmanager
     def current_node_context(
@@ -444,10 +457,10 @@ class DocutilsRenderer(RendererProtocol):
         # find the closest parent section
         parent_level = max(
             section_level
-            for section_level in self._level_to_elem
+            for section_level in self._level_to_section
             if level > section_level
         )
-        parent = self._level_to_elem[parent_level]
+        parent = self._level_to_section[parent_level]
 
         # if we are jumping up to a non-consecutive level,
         # then warn about this, since this will not be propagated in the docutils AST
@@ -465,12 +478,12 @@ class DocutilsRenderer(RendererProtocol):
         # append the new section to the parent
         parent.append(section)
         # update the state for this section level
-        self._level_to_elem[level] = section
+        self._level_to_section[level] = section
 
         # Remove all descendant sections from the section level state
-        self._level_to_elem = {
+        self._level_to_section = {
             section_level: section
-            for section_level, section in self._level_to_elem.items()
+            for section_level, section in self._level_to_section.items()
             if section_level <= level
         }
 
@@ -769,29 +782,27 @@ class DocutilsRenderer(RendererProtocol):
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """Render a heading, e.g. `# Heading`."""
 
-        if (
-            token.attrs.get("toc", None) == "false"
-            or self.md_env.get("match_titles", None) is False
-        ):
-            if token.attrs.get("toc", None) != "false":
-                # this can occur if a nested parse is performed by a directive
-                # (such as an admonition) which contains a header.
-                # this would break the document structure
-                self.create_warning(
-                    "Disallowed nested header found, converting to rubric",
-                    MystWarnings.MD_HEADING_NESTED,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
+        level = int(token.tag[1])
 
-            rubric = nodes.rubric(token.content, "")
+        # sections are only allowed as a parent of a document or another section
+        # the only exception to this, is if a directive has called a nested parse,
+        # and specifically specified that sections are allowed to be created as children
+        # of its root node (a.k.a match_titles=True)
+        parent_of_temp_root = (
+            self.md_env.get("temp_root_node", None) is not None
+            and self.current_node == self.md_env["temp_root_node"]
+        )
+        if not (
+            parent_of_temp_root
+            or isinstance(self.current_node, (nodes.document, nodes.section))
+        ):
+            # if this is not the case, we create a rubric node instead
+            rubric = nodes.rubric(token.content, "", level=level)
             self.add_line_and_source_path(rubric, token)
             self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
                 self.render_children(token)
             return
-
-        level = int(token.tag[1])
 
         # create the section node
         new_section = nodes.section()
@@ -1769,7 +1780,7 @@ class DocutilsRenderer(RendererProtocol):
             if inline and not REGEX_DIRECTIVE_START.match(rendered):
                 self.nested_render_text(rendered, position, inline=True)
             else:
-                self.nested_render_text(rendered, position, allow_headings=False)
+                self.nested_render_text(rendered, position)
         finally:
             self.document.sub_references.difference_update(references)
 

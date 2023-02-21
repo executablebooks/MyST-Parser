@@ -160,7 +160,7 @@ header nested in admonition
 # Header
 ```
 .
-<string>:2: (WARNING/2) Disallowed nested header found, converting to rubric [myst.nested_header]
+
 .
 
 nested parse warning
