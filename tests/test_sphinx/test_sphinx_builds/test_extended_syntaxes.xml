@@ -70,8 +70,8 @@
             <caption>
                 This is a caption in **Markdown**
         <container classes="other" is_div="True">
-        <paragraph>
-            Hallo *there*
+            <paragraph>
+                Hallo *there*
         <paragraph>
             linkify URL: 
             <reference refuri="http://www.example.com">
