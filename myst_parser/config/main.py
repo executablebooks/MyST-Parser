@@ -263,7 +263,7 @@ class MdParserConfig:
         default=False,
         metadata={
             "validator": instance_of(bool),
-            "help": "Convert a `title` field in the top-matter to a H1 header",
+            "help": "Convert a `title` field in the front-matter to a H1 header",
         },
     )
 
