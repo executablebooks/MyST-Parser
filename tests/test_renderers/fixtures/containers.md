@@ -38,10 +38,10 @@ This is **content**
 .
 <document source="<src>/index.md">
     <container is_div="True">
-    <paragraph>
-        This is
-        <strong>
-            content
+        <paragraph>
+            This is
+            <strong>
+                content
 .
 
 has name:
@@ -52,8 +52,8 @@ This is **content**
 .
 <document source="<src>/index.md">
     <container classes="name" is_div="True">
-    <paragraph>
-        This is
-        <strong>
-            content
+        <paragraph>
+            This is
+            <strong>
+                content
 .

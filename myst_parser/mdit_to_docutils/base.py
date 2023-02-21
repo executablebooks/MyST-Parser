@@ -1498,8 +1498,8 @@ class DocutilsRenderer(RendererProtocol):
         if name:
             # note, as per djot, the name is added to the end of the classes
             container["classes"].append(name)
-        self.current_node.append(container)
-        self.nested_render_text(token.content, token_line(token, 0))
+        with self.current_node_context(container, append=True):
+            self.nested_render_text(token.content, token_line(token, 0))
 
     def render_dl(self, token: SyntaxTreeNode) -> None:
         """Render a definition list."""
