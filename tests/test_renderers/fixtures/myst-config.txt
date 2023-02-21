@@ -349,6 +349,11 @@ My paragraph
 
 {attribution="Chris Sewell"}
 > Hallo
+
+{toc=false}
+# Heading
+
+More text
 .
 <document source="<string>">
     <paragraph classes="class1 class2 class3" ids="myid2" names="myid2">
@@ -358,6 +363,10 @@ My paragraph
             Hallo
         <attribution>
             Chris Sewell
+    <rubric level="1">
+        Heading
+    <paragraph>
+        More text
 .
 
 [inv_link] --myst-enable-extensions=inv_link
