@@ -963,11 +963,7 @@ class DocutilsRenderer(RendererProtocol):
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         self.current_node.append(ref_node)
-        if token.info != "auto" and not (
-            len(token.children) == 1
-            and token.children[0].type == "text"
-            and token.children[0].content in ("...", "…")
-        ):
+        if token.info != "auto" and not is_ellipsis(token):
             with self.current_node_context(ref_node):
                 self.render_children(token)
 
@@ -1008,7 +1004,9 @@ class DocutilsRenderer(RendererProtocol):
         href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
 
         # note if the link had explicit text or not (autolinks are always implicit)
-        explicit = False if token.info == "auto" else bool(token.children)
+        explicit = (
+            (token.info != "auto") and bool(token.children) and not is_ellipsis(token)
+        )
 
         # split the href up into parts
         uri_parts = urlparse(href)
@@ -1881,3 +1879,12 @@ def compute_unique_slug(
         slug = f"{slug}-{i}"
         i += 1
     return slug
+
+
+def is_ellipsis(token: SyntaxTreeNode) -> bool:
+    """Check if a token content only contains an ellipsis."""
+    return (
+        len(token.children) == 1
+        and token.children[0].type == "text"
+        and token.children[0].content in ("...", "…")
+    )

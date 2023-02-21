@@ -16,7 +16,7 @@ from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.util import logging
 
 from myst_parser import inventory
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer, is_ellipsis
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,11 +46,7 @@ class SphinxRenderer(DocutilsRenderer):
             destination = os.path.relpath(
                 os.path.join(include_dir, os.path.normpath(destination)), source_dir
             )
-        explicit = len(token.children or []) > 0 and not (
-            len(token.children) == 1
-            and token.children[0].type == "text"
-            and token.children[0].content in ("...", "…")
-        )
+        explicit = len(token.children or []) > 0 and not is_ellipsis(token)
         kwargs = {
             "refdoc": self.sphinx_env.docname,
             "reftype": "myst",
