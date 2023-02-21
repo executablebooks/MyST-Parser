@@ -257,6 +257,10 @@ class Parser(RstParser):
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
+        from docutils.writers._html_base import HTMLTranslator
+
+        HTMLTranslator.visit_rubric = visit_rubric_html
+        HTMLTranslator.depart_rubric = depart_rubric_html
 
         self.setup_parse(inputstring, document)
 
@@ -350,3 +354,50 @@ def cli_xml(argv: Optional[List[str]] = None):
 def cli_pseudoxml(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to pseudo-XML."""
     _run_cli("pseudoxml", "pseudo-XML", argv)
+
+
+def visit_rubric_html(self, node):
+    """Override the default HTML visit method for rubric nodes.
+
+    docutils structures a document, based on the headings, into nested sections.
+
+    <heading 1>
+      <heading 2>
+        <heading 3>
+
+    This means that it is not possible to have "standard" headings nested inside
+    other components, such as admonitions, because it would break the structure.
+
+    <heading 1>
+      <admonition>
+        <heading 2>
+      <heading 3>
+
+    we work around this shortcoming, in `DocutilsRenderer.render_heading`,
+    by identifying if a heading is inside an another component
+    and instead outputting it as a "non-structural" rubric node, and capture the level.
+
+    <heading 1>
+      <admonition>
+        <rubric level=2>
+      <heading 3>
+
+    However, docutils natively just outputs rubrics as <p> tags,
+    and does not "honor" the heading level.
+    So here we override the visit/depart methods to output the correct <h> element
+    """
+    if "level" in node:
+        self.body.append(self.starttag(node, f'h{node["level"]}', "", CLASS="rubric"))
+    else:
+        self.body.append(self.starttag(node, "p", "", CLASS="rubric"))
+
+
+def depart_rubric_html(self, node):
+    """Override the default HTML visit method for rubric nodes.
+
+    See explanation in `visit_rubric_html`
+    """
+    if "level" in node:
+        self.body.append(f'</h{node["level"]}>\n')
+    else:
+        self.body.append("</p>\n")

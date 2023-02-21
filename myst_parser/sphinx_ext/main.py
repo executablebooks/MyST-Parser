@@ -1,8 +1,10 @@
 """The setup for the sphinx extension."""
 from typing import Any
 
+from docutils import nodes
 from sphinx.application import Sphinx
 
+from myst_parser.parsers.docutils_ import depart_rubric_html, visit_rubric_html
 from myst_parser.warnings_ import MystWarnings
 
 
@@ -27,6 +29,11 @@ def setup_sphinx(app: Sphinx, load_parser=False):
     app.add_directive("figure-md", FigureMarkdown)
 
     app.add_post_transform(MystReferenceResolver)
+
+    # override only the html writer visit methods for rubric, to use the "level" attribute
+    app.add_node(
+        nodes.rubric, override=True, html=(visit_rubric_html, depart_rubric_html)
+    )
 
     for name, default, field in MdParserConfig().as_triple():
         if "sphinx" not in field.metadata.get("omit", []):

@@ -769,29 +769,34 @@ class DocutilsRenderer(RendererProtocol):
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """Render a heading, e.g. `# Heading`."""
 
+        level = int(token.tag[1])
+
         if (
-            token.attrs.get("toc", None) == "false"
+            # the heading is not at the root level
+            (token.parent and token.parent.type != "root")
+            # the heading is specifically markded as not being included in the ToC
+            or token.attrs.get("toc", None) == "false"
+            # the heading is being passed within a nested parse
+            # which has not been specifically marked as allowing nested headers
             or self.md_env.get("match_titles", None) is False
         ):
+            # since this would break the document structure
+            # we instead create a rubric node, which is a "non-structural" heading
+
             if token.attrs.get("toc", None) != "false":
-                # this can occur if a nested parse is performed by a directive
-                # (such as an admonition) which contains a header.
-                # this would break the document structure
                 self.create_warning(
-                    "Disallowed nested header found, converting to rubric",
+                    "Nested header will not be included in the ToC",
                     MystWarnings.MD_HEADING_NESTED,
                     line=token_line(token, default=0),
                     append_to=self.current_node,
                 )
 
-            rubric = nodes.rubric(token.content, "")
+            rubric = nodes.rubric(token.content, "", level=level)
             self.add_line_and_source_path(rubric, token)
             self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
                 self.render_children(token)
             return
-
-        level = int(token.tag[1])
 
         # create the section node
         new_section = nodes.section()
