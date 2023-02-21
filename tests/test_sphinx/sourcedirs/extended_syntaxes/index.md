@@ -55,6 +55,10 @@ This is a caption in **Markdown**
 This is a caption in **Markdown**
 :::
 
+:::other
+Hallo *there*
+:::
+
 linkify URL: www.example.com
 
 - [ ] hallo

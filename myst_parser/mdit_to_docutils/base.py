@@ -1479,15 +1479,27 @@ class DocutilsRenderer(RendererProtocol):
     def render_colon_fence(self, token: SyntaxTreeNode) -> None:
         """Render a code fence with ``:`` colon delimiters."""
 
-        if token.content.startswith(":::"):
-            # the content starts with a nested fence block,
-            # but must distinguish between ``:options:``, so we add a new line
-            assert token.token is not None, '"colon_fence" must have a `token`'
-            linear_token = token.token.copy()
-            linear_token.content = "\n" + linear_token.content
-            token.token = linear_token
+        info = token.info.strip() if token.info else token.info
+        name = info.split()[0] if info else ""
 
-        return self.render_fence(token)
+        if name.startswith("{") and name.endswith("}"):
+            if token.content.startswith(":::"):
+                # the content starts with a nested fence block,
+                # but must distinguish between ``:options:``, so we add a new line
+                assert token.token is not None, '"colon_fence" must have a `token`'
+                linear_token = token.token.copy()
+                linear_token.content = "\n" + linear_token.content
+                token.token = linear_token
+            return self.render_directive(token)
+
+        container = nodes.container(is_div=True)
+        self.add_line_and_source_path(container, token)
+        self.copy_attributes(token, container, ("class", "id"))
+        if name:
+            # note, as per djot, the name is added to the end of the classes
+            container["classes"].append(name)
+        self.current_node.append(container)
+        self.nested_render_text(token.content, token_line(token, 0))
 
     def render_dl(self, token: SyntaxTreeNode) -> None:
         """Render a definition list."""
