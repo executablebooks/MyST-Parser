@@ -80,29 +80,31 @@ class SphinxRenderer(DocutilsRenderer):
                     refdomain="doc", reftarget=docname, reftargetid=path_id, **kwargs
                 )
                 classes = ["xref", "myst"]
-                text = ""
             else:
                 wrap_node = addnodes.download_reference(
                     refdomain=None, reftarget=path_dest, **kwargs
                 )
                 classes = ["xref", "download", "myst"]
-                text = destination if not token.children else ""
         else:
             wrap_node = addnodes.pending_xref(
                 refdomain=None, reftarget=destination, **kwargs
             )
             classes = ["xref", "myst"]
-            text = ""
 
         self.add_line_and_source_path(wrap_node, token)
         self.copy_attributes(token, wrap_node, ("class", "id", "title"))
         self.current_node.append(wrap_node)
 
-        inner_node = nodes.inline("", text, classes=classes)
-        wrap_node.append(inner_node)
         if explicit:
+            inner_node = nodes.inline("", "", classes=classes)
             with self.current_node_context(inner_node):
                 self.render_children(token)
+        elif isinstance(wrap_node, addnodes.download_reference):
+            inner_node = nodes.literal(path_dest, path_dest, classes=classes)
+        else:
+            inner_node = nodes.inline("", "", classes=classes)
+
+        wrap_node.append(inner_node)
 
     def get_inventory_matches(
         self,
