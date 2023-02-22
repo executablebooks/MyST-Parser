@@ -884,7 +884,7 @@ class DocutilsRenderer(RendererProtocol):
         - If the link is an id link (e.g. `#id`), forward to `render_id_link`
         - If the link has a schema, and the schema is in `url_schemes` (e.g. `http:`),
           forward to `render_external_url`
-        - If the link has an `inv:` schema, and `inv_link` is enabled,
+        - If the link has an `inv:` schema,
           forward to `render_inventory_link`
         - If the link is an autolink/linkify type link, forward to `render_external_url`
         - Otherwise, forward to `render_internal_link`
@@ -908,7 +908,7 @@ class DocutilsRenderer(RendererProtocol):
         if scheme in self.md_config.url_schemes:
             return self.render_external_url(token, self.md_config.url_schemes[scheme])
 
-        if scheme == "inv" and "inv_link" in self.md_config.enable_extensions:
+        if scheme == "inv":
             return self.render_inventory_link(token)
 
         if token.info == "auto":
