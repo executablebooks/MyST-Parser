@@ -54,7 +54,7 @@
                         link
         <paragraph>
             <download_reference filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/file_link2.txt" reftype="myst">
-                <inline classes="xref download myst">
+                <literal classes="xref download myst">
                     subfolder/file_link2.txt
         <target refid="insidecodeblock">
         <paragraph ids="insidecodeblock" names="insidecodeblock">
@@ -132,7 +132,7 @@
         <paragraph>
             Known no title 
             <reference internal="False" reftitle="Example 0.0.1" refuri="https://example.com/index.html#paragraph-target">
-                <inline classes="iref myst">
+                <literal classes="iref myst">
                     paragraph-target
         <paragraph>
             Known explicit 
@@ -148,5 +148,5 @@
         <paragraph>
             Ambiguous 
             <reference internal="False" reftitle="Example 0.0.1" refuri="https://example.com/index.html#module-duplicate">
-                <inline classes="iref myst">
+                <literal classes="iref myst">
                     duplicate

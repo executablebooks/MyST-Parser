@@ -392,7 +392,7 @@ class MystReferenceResolver(ReferencesResolver):
             )
         else:
             newnode.append(
-                contnode.__class__(match.name, match.name, classes=["iref", "myst"])
+                nodes.literal(match.name, match.name, classes=["iref", "myst"])
             )
 
         return newnode

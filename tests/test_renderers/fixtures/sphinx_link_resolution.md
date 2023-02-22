@@ -199,11 +199,12 @@ c  | d
 <document source="<src>/index.md">
     <paragraph>
         <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="test.txt" reftype="myst">
-            <inline classes="xref download myst">
+            <literal classes="xref download myst">
                 test.txt
 
         <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="./test.txt" reftype="myst">
-            <inline classes="xref download myst">
+            <literal classes="xref download myst">
+                ./test.txt
 
         <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="/test.txt" reftype="myst">
             <inline classes="xref download myst">

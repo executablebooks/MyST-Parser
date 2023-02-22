@@ -1098,7 +1098,7 @@ class DocutilsRenderer(RendererProtocol):
         elif match.text:
             ref_node.append(nodes.Text(match.text))
         else:
-            ref_node.append(nodes.Text(match.name))
+            ref_node.append(nodes.literal(match.name, match.name))
 
     def get_inventory_matches(
         self,
