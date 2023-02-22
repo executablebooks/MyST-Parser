@@ -52,3 +52,18 @@ subfolder/other2.md
 [](other.md#title-anchors)
 
 [](subfolder/other2.md#title-anchors)
+
+
+# Intersphinx via `#`
+
+Unknown [](#unknown)
+
+Unknown explicit [**hallo**](#unknown)
+
+Known no title [](#paragraph-target)
+
+Known explicit [**hallo**](#paragraph-target)
+
+Known with title [](#title-target)
+
+Ambiguous [](#duplicate)

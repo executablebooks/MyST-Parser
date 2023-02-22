@@ -1065,8 +1065,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # create the docutils node
         match = matches[0]
-        ref_node = nodes.reference()
-        ref_node["internal"] = False
+        ref_node = nodes.reference("", "", internal=False)
         ref_node["inv_match"] = inventory.filter_string(
             match.inv, match.domain, match.otype, match.name
         )

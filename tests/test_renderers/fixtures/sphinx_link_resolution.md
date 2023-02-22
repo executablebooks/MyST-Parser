@@ -23,13 +23,13 @@
 .
 <document source="<src>/index.md">
     <paragraph>
-        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst" refwarn="True">
+        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst">
             <inline classes="xref myst">
 
-        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst" refwarn="True">
+        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst">
             <inline classes="xref myst">
 
-        <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="test" reftype="myst" refwarn="True">
+        <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="test" reftype="myst">
             <inline classes="xref myst">
                 explicit
 .
@@ -97,7 +97,7 @@
             <reference id_link="True" refid="target">
                 explicit
 
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="name with spaces" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="name with spaces" reftype="myst">
                 <inline classes="xref myst">
 .
 
@@ -198,14 +198,14 @@ c  | d
 .
 <document source="<src>/index.md">
     <paragraph>
-        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="test.txt" reftype="myst" refwarn="False">
+        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="test.txt" reftype="myst">
             <inline classes="xref download myst">
                 test.txt
 
-        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="./test.txt" reftype="myst" refwarn="False">
+        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="./test.txt" reftype="myst">
             <inline classes="xref download myst">
 
-        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="/test.txt" reftype="myst" refwarn="False">
+        <download_reference filename="dd18bf3a8e0a2a3e53e2661c7fb53534/test.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="/test.txt" reftype="myst">
             <inline classes="xref download myst">
                 relative to source dir
 .

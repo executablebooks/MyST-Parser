@@ -35,7 +35,7 @@
         <admonition classes="admonition-title-with-link-target2">
             <title>
                 Title with 
-                <pending_xref refdoc="content" refdomain="True" refexplicit="True" reftarget="target2" reftype="myst" refwarn="True">
+                <pending_xref refdoc="content" refdomain="True" refexplicit="True" reftarget="target2" reftype="myst">
                     <inline classes="xref myst">
                         link
             <paragraph>
