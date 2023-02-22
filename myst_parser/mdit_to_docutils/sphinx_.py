@@ -83,13 +83,13 @@ class SphinxRenderer(DocutilsRenderer):
                 text = ""
             else:
                 wrap_node = addnodes.download_reference(
-                    refdomain=None, reftarget=path_dest, refwarn=False, **kwargs
+                    refdomain=None, reftarget=path_dest, **kwargs
                 )
                 classes = ["xref", "download", "myst"]
                 text = destination if not token.children else ""
         else:
             wrap_node = addnodes.pending_xref(
-                refdomain=None, reftarget=destination, refwarn=True, **kwargs
+                refdomain=None, reftarget=destination, **kwargs
             )
             classes = ["xref", "myst"]
             text = ""

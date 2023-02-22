@@ -116,7 +116,6 @@ class ResolveAnchorIds(Transform):
                     refdomain=None,
                     reftype="myst",
                     reftarget=target,
-                    refwarn=True,
                     refexplicit=bool(refnode.children),
                 )
                 inner_node = nodes.inline(

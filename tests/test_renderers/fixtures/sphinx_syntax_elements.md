@@ -400,7 +400,7 @@ Link Definition in directive:
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst">
                 <inline classes="xref myst">
                     a
 .
@@ -424,7 +424,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst">
                 <inline classes="xref myst">
                     ref1
 
@@ -769,6 +769,6 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst">
                 <inline classes="xref myst">
 .
