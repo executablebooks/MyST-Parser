@@ -117,7 +117,7 @@ Nested heading
 .
 <document source="<src>/index.md">
     <block_quote>
-        <rubric level="1">
+        <rubric ids="heading" level="1" names="heading">
             heading
 .
 
