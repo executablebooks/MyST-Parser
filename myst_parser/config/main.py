@@ -44,7 +44,6 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "fieldlist",
             "html_admonition",
             "html_image",
-            "inv_link",
             "linkify",
             "replacements",
             "smartquotes",
