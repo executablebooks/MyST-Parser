@@ -78,6 +78,7 @@
 [](#target)
 [...](#target)
 [explicit](#target)
+[](<#name with spaces>)
 .
 <document source="<src>/index.md">
     <target refid="target">
@@ -95,6 +96,9 @@
 
             <reference id_link="True" refid="target">
                 explicit
+
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="name with spaces" reftype="myst" refwarn="True">
+                <inline classes="xref myst">
 .
 
 [explicit>implicit] {"myst_heading_anchors": 1}
@@ -118,6 +122,23 @@
                 <reference id_link="True" refid="id1">
                     <inline classes="std std-ref">
                         Other
+.
+
+[id-with-spaces] 
+.
+(name with spaces)=
+Paragraph
+
+[](<#name with spaces>)
+.
+<document source="<src>/index.md">
+    <target refid="name-with-spaces">
+    <paragraph ids="name-with-spaces" names="name\ with\ spaces">
+        Paragraph
+    <paragraph>
+        <reference id_link="True" refid="name-with-spaces">
+            <inline classes="std std-ref">
+                #name with spaces
 .
 
 [ref-table] 
@@ -189,7 +210,7 @@ c  | d
                 relative to source dir
 .
 
-[source-file]
+[source-file] 
 .
 [](other.rst)
 [...](./other.rst)

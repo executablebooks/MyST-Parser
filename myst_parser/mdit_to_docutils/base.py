@@ -969,7 +969,7 @@ class DocutilsRenderer(RendererProtocol):
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         ref_node["id_link"] = True
-        ref_node["refuri"] = token.attrGet("href") or ""
+        ref_node["refuri"] = self.md.normalizeLinkText(str(token.attrGet("href") or ""))
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
