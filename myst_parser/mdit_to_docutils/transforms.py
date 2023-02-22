@@ -5,6 +5,7 @@ import typing as t
 
 from docutils import nodes
 from docutils.transforms import Transform
+from markdown_it.common.normalize_url import normalizeLink
 
 from myst_parser._compat import findall
 from myst_parser.mdit_to_docutils.base import clean_astext
@@ -138,7 +139,7 @@ class ResolveAnchorIds(Transform):
                 line=refnode.line,
                 append_to=refnode,
             )
-            refnode["refid"] = target
+            refnode["refid"] = normalizeLink(target)
             if not refnode.children:
                 refnode += nodes.inline(
                     "#" + target, "#" + target, classes=["std", "std-ref"]

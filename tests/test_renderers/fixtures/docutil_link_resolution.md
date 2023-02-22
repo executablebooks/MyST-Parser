@@ -15,11 +15,12 @@
             https://www.google.com
 .
 
-[missing]
+[missing] 
 .
 [](#test)
 [...](#test)
 [explicit](#test)
+[](<#name with spaces>)
 .
 <document source="<src>/index.md">
     <paragraph>
@@ -39,10 +40,16 @@
                 <paragraph>
                     'myst' reference target not found: 'test' [myst.xref_missing]
 
+        <reference id_link="True" refid="name%20with%20spaces">
+            <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
+                <paragraph>
+                    'myst' reference target not found: 'name with spaces' [myst.xref_missing]
+
 
 <src>/index.md:1: (WARNING/2) 'myst' reference target not found: 'test' [myst.xref_missing]
 <src>/index.md:1: (WARNING/2) 'myst' reference target not found: 'test' [myst.xref_missing]
 <src>/index.md:1: (WARNING/2) 'myst' reference target not found: 'test' [myst.xref_missing]
+<src>/index.md:1: (WARNING/2) 'myst' reference target not found: 'name with spaces' [myst.xref_missing]
 .
 
 [implicit_anchor] --myst-heading-anchors=1
@@ -129,6 +136,23 @@
         <reference id_link="True" refid="test-1">
             <inline classes="std std-ref">
                 Other
+.
+
+[id-with-spaces] 
+.
+(name with spaces)=
+Paragraph
+
+[](<#name with spaces>)
+.
+<document source="<src>/index.md">
+    <target refid="name-with-spaces">
+    <paragraph ids="name-with-spaces" names="name\ with\ spaces">
+        Paragraph
+    <paragraph>
+        <reference id_link="True" refid="name-with-spaces">
+            <inline classes="std std-ref">
+                #name with spaces
 .
 
 [ref-table] 
