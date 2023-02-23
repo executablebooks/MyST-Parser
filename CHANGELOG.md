@@ -16,7 +16,7 @@ Full Changelog: [v0.17.2...v0.18.0](https://github.com/executablebooks/MyST-Pars
 
 This release adds support for Sphinx v5 (dropping v3), restructures the code base into modules, and also restructures the documentation, to make it easier for developers/users to follow.
 
-It also introduces **document-level configuration**  *via* the Markdown top-matter, under the `myst` key.
+It also introduces **document-level configuration**  *via* the Markdown front-matter, under the `myst` key.
 See the [Local configuration](docs/configuration.md) section for more information.
 
 ### Breaking changes
@@ -28,7 +28,7 @@ The `to_docutils`, `to_html`, `to_tokens` (from `myst_parser/main.py`) and `mock
 Instead, for single page builds, users should use the docutils parser API/CLI (see [](docs/docutils.md)),
 and for testing, functionality has been moved to <https://github.com/chrisjsewell/sphinx-pytest>.
 
-The top-level `html_meta` and `substitutions` top-matter keys have also been deprecated (i.e. they will still work but will emit a warning), as they now form part of the `myst` config, e.g.
+The top-level `html_meta` and `substitutions` front-matter keys have also been deprecated (i.e. they will still work but will emit a warning), as they now form part of the `myst` config, e.g.
 
 ```yaml
 ---
@@ -100,7 +100,7 @@ In addition, configuration to more finely tune this behaviour has been added.
 - `myst_url_schemes=("http", "https")`, sets what URL schemes are treated as (1)
 - `myst_ref_domains=("std", "py")`, sets what Sphinx reference domains are checked, when handling (3)
 
-See [Markdown Links and Referencing](docs/syntax/syntax.md#markdown-links-and-referencing) for more information.
+See [Markdown Links and Referencing](docs/syntax/cross-referencing.md) for more information.
 
 ### ‼️ Dollarmath is now disabled by default
 
@@ -143,7 +143,7 @@ would be equivalent to:
 # My Title with *emphasis*
 ```
 
-See [Front matter](docs/syntax/syntax.md#front-matter) for more information.
+See [Front matter](docs/configuration.md) for more information.
 
 ### 👌 Internal improvements
 
@@ -291,7 +291,7 @@ is converted to:
 
 These classes should be supported by most sphinx HTML themes.
 
-See [Tables syntax](docs/syntax/syntax.md#tables) for more information.
+See [Tables syntax](docs/syntax/tables.md) for more information.
 
 ### Pull Requests
 
@@ -382,7 +382,7 @@ In particular for users, this update alters the parsing of tables to be consiste
   > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
   ```
 
-  See [the roles syntax guide](docs/syntax/syntax.md) for further information.
+  See [the roles syntax guide](docs/syntax/roles-and-directives.md) for further information.
 
 - The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
   See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
@@ -467,7 +467,7 @@ Minor fixes:
 : If the label is an integer, then it will always use this integer for the rendered label (i.e. they are manually numbered).
 : Add `myst_footnote_transition` configuration, to turn on/off transition line.
 : Add `footnotes` class to transition `<hr>` in HTML.
-: See [the syntax guide](docs/syntax/syntax.md) for further information.
+: See [the typography guide](docs/syntax/typography.md) for further information.
 
 👌 IMPROVE: `substitution` extension logic
 

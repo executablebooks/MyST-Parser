@@ -4,7 +4,7 @@
 This page serves as a reference for the syntax that makes of MyST Markdown.
 
 :::{seealso}
-For more description and explanation of MyST syntax, see the [syntax guide](syntax.md).
+For more description and explanation of MyST syntax, see the [syntax guide](typography.md).
 :::
 
 ## Block (Multi-line) Tokens
