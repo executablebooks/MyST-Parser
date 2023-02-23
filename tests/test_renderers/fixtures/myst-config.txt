@@ -341,7 +341,7 @@ a
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .
 
-[attr_block] --myst-enable-extensions=attrs_block
+[attrs_block] --myst-enable-extensions=attrs_block
 .
 {#myid1 .class1 .class2}
 {#myid2 .class3}
