@@ -118,6 +118,7 @@ class DocutilsRenderer(RendererProtocol):
             "current_node",
             "reporter",
             "language_module_rst",
+            "_heading_offset",
             "_level_to_section",
         ):
             raise AttributeError(
@@ -142,6 +143,7 @@ class DocutilsRenderer(RendererProtocol):
         self.language_module_rst: ModuleType = get_language_rst(
             self.document.settings.language_code
         )
+        self._heading_offset: int = 0
         # a mapping of heading levels to its currently associated node
         self._level_to_section: dict[int, nodes.document | nodes.section] = {
             0: self.document
@@ -324,6 +326,7 @@ class DocutilsRenderer(RendererProtocol):
         lineno: int,
         inline: bool = False,
         temp_root_node: None | nodes.Element = None,
+        heading_offset: int = 0,
     ) -> None:
         """Render unparsed text (appending to the current node).
 
@@ -331,6 +334,7 @@ class DocutilsRenderer(RendererProtocol):
         :param lineno: the starting line number of the text, within the full source
         :param inline: whether the text is inline or block
         :param temp_root_node: If set, allow sections to be created as children of this node
+        :param heading_offset: offset heading levels by this amount
         """
         tokens = (
             self.md.parseInline(text, self.md_env)
@@ -347,21 +351,26 @@ class DocutilsRenderer(RendererProtocol):
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
 
-        if temp_root_node is None:
-            self._render_tokens(tokens)
-        else:
-            # we need to temporarily set the root node,
-            # and we also want to restore the level_to_section mapping at the end
-            current_level_to_section = {
-                i: node for i, node in self._level_to_section.items()
-            }
-            current_root_node = self.md_env.get("temp_root_node", None)
-            try:
+        @contextmanager
+        def _restore():
+            current_heading_offset = self._heading_offset
+            self._heading_offset = heading_offset
+            if temp_root_node is not None:
+                # we need to temporarily set the root node,
+                # and we also want to restore the level_to_section mapping at the end
+                current_level_to_section = {
+                    i: node for i, node in self._level_to_section.items()
+                }
+                current_root_node = self.md_env.get("temp_root_node", None)
                 self.md_env["temp_root_node"] = temp_root_node
-                self._render_tokens(tokens)
-            finally:
+            yield
+            self._heading_offset = current_heading_offset
+            if temp_root_node is not None:
                 self.md_env["temp_root_node"] = current_root_node
                 self._level_to_section = current_level_to_section
+
+        with _restore():
+            self._render_tokens(tokens)
 
     @contextmanager
     def current_node_context(
@@ -826,7 +835,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """Render a heading, e.g. `# Heading`."""
 
-        level = int(token.tag[1])
+        level = int(token.tag[1]) + self._heading_offset
 
         # sections are only allowed as a parent of a document or another section
         # the only exception to this, is if a directive has called a nested parse,
@@ -1667,6 +1676,7 @@ class DocutilsRenderer(RendererProtocol):
             # to allow for altering relative image reference links
             directive_class.option_spec["relative-images"] = directives.flag
             directive_class.option_spec["relative-docs"] = directives.path
+            directive_class.option_spec["heading-offset"] = directives.nonnegative_int
 
         try:
             parsed = parse_directive_text(directive_class, first_line, content)
