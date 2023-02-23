@@ -1,0 +1,4 @@
+# My heading
+
+[](../typography.md)
+![alt](../img/fun-fish.png){w=50}

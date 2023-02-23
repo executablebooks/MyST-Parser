@@ -32,12 +32,29 @@ Configuration specific to syntax extensions:
 :scope: global
 ```
 
-## Local configuration
+(syntax/frontmatter)=
 
-```{versionadded} 0.18
+## Frontmatter (local) configuration
+
+Frontmatter allows you to specify metadata and options about how a single document should behave or render.
+It is a [YAML](https://en.wikipedia.org/wiki/YAML) block at the start of the document, as used for example in [jekyll](https://jekyllrb.com/docs/front-matter/).
+The document should start with three or more `---` markers, and YAML is parsed until a closing `---` marker is found:
+
+```yaml
+---
+key1: value
+key2: [value1, value2]
+key3:
+  subkey1: value
+---
 ```
 
-The following configuration variables are available at the document level.
+:::{seealso}
+Frontmatter is also used for the [substitution syntax extension](syntax/substitutions),
+and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/en/latest/manual/markdown/)).
+:::
+
+The following configuration variables are available to be set in the document frontmatter.
 These can be set in the document [front matter](syntax/frontmatter), under the `myst` key, e.g.
 
 ```yaml
@@ -51,6 +68,72 @@ myst:
 :sphinx:
 :scope: local
 ```
+
+(syntax/html_meta)=
+
+### Setting HTML Metadata
+
+The front-matter can contain the special key `html_meta`; a dict with data to add to the generated HTML as [`<meta>` elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta).
+This is equivalent to using the [meta directive](inv:sphinx#html-meta).
+
+HTML metadata can also be added globally in the `conf.py` *via* the `myst_html_meta` variable, in which case it will be added to all MyST documents.
+For each document, the `myst_html_meta` dict will be updated by the document level front-matter `html_meta`, with the front-matter taking precedence.
+
+::::{tab-set}
+:::{tab-item} Sphinx Configuration
+
+```python
+language = "en"
+myst_html_meta = {
+    "description lang=en": "metadata description",
+    "description lang=fr": "description des métadonnées",
+    "keywords": "Sphinx, MyST",
+    "property=og:locale":  "en_US"
+}
+```
+
+:::
+
+:::{tab-item} MyST Front-Matter
+
+```yaml
+---
+myst:
+  html_meta:
+    "description lang=en": "metadata description"
+    "description lang=fr": "description des métadonnées"
+    "keywords": "Sphinx, MyST"
+    "property=og:locale": "en_US"
+---
+```
+
+:::
+
+:::{tab-item} RestructuredText
+
+```restructuredtext
+.. meta::
+   :description lang=en: metadata description
+   :description lang=fr: description des métadonnées
+   :keywords: Sphinx, MyST
+   :property=og:locale: en_US
+```
+
+:::
+
+:::{tab-item} HTML Output
+
+```html
+<html lang="en">
+  <head>
+    <meta content="metadata description" lang="en" name="description" xml:lang="en" />
+    <meta content="description des métadonnées" lang="fr" name="description" xml:lang="fr" />
+    <meta name="keywords" content="Sphinx, MyST">
+    <meta content="en_US" property="og:locale" />
+```
+
+:::
+::::
 
 ### Extensions
 
@@ -89,9 +172,6 @@ html_admonition
 
 html_image
 : Convert HTML `<img>` elements to sphinx image nodes, [see here](syntax/images) for details
-
-inv_link
-: Enable the `inv:` schema for Markdown link destinations, [see here](syntax/inv_links) for details
 
 linkify
 : Automatically identify "bare" web URLs and add hyperlinks

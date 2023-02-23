@@ -8,15 +8,64 @@ from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.parsers.rst import directives
 from sphinx.directives import other
+from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
+from myst_parser.parsers.docutils_ import to_html5_demo
 from ._compat import get_args, get_origin
 from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
 from .warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
+
+
+class StripUnsupportedLatex(SphinxPostTransform):
+    """Remove unsupported nodes from the doctree."""
+
+    default_priority = 900
+
+    def run(self):
+        if self.app.builder.format != "latex":
+            return
+        from docutils import nodes
+
+        for node in self.document.findall():
+            if node.tagname == "image" and node["uri"].endswith(".svg"):
+                node.parent.replace(node, nodes.inline("", "Removed SVG image"))
+            if node.tagname == "mermaid":
+                node.parent.replace(node, nodes.inline("", "Removed Mermaid diagram"))
+
+
+class NumberSections(SphinxPostTransform):
+    """Number sections (html only)"""
+
+    default_priority = 710  # same as docutils.SectNum
+    formats = ("html",)
+
+    def run(self):
+        min_heading_level = 2
+        max_heading_level = 3
+        stack: list[tuple[list[int], nodes.Element]] = [([], self.document)]
+        while stack:
+            path, node = stack.pop()
+            if len(path) >= min_heading_level:
+                title = node[0]
+                text = (
+                    ".".join(str(i) for i in path[min_heading_level - 1 :])
+                    + "."
+                    + ("&nbsp;" * 2)
+                )
+                # docutils SectNum transform
+                title.insert(0, nodes.raw("", text, format="html"))
+                title["auto"] = 1
+            if len(path) < max_heading_level:
+                i = 0
+                for child in node.children:
+                    if isinstance(child, nodes.section):
+                        i += 1
+                        stack.append((path + [i], child))
 
 
 class _ConfigBase(SphinxDirective):
@@ -227,16 +276,20 @@ class MystWarningsDirective(SphinxDirective):
 
 
 class MystExampleDirective(SphinxDirective):
-    """Directive to print an example."""
+    """Directive to create an example, showing the source and output."""
 
     has_content = True
     option_spec = {
-        "html": directives.flag,
+        "alt-output": directives.unchanged,
+        "highlight": directives.unchanged,
+        # "html": directives.flag,
     }
 
     def run(self):
         """Run the directive."""
         content_str = "\n".join(self.content)
+        output_str = self.options.get("alt-output", content_str)
+        highlight = self.options.get("highlight", "myst")
         backticks = "```"
         while backticks in content_str:
             backticks += "`"
@@ -244,15 +297,140 @@ class MystExampleDirective(SphinxDirective):
 {backticks}``{{div}} myst-example
 
 {backticks}`{{div}} myst-example-source
-{backticks}markdown
+{backticks}{highlight}
 {content_str}
 {backticks}
 {backticks}`
 {backticks}`{{div}} myst-example-render
-{content_str}
+
+{output_str}
 {backticks}`
 {backticks}``
 """
         node_ = nodes.Element()
         self.state.nested_parse(content.splitlines(), self.content_offset, node_)
         return node_.children
+
+
+class MystAdmonitionDirective(SphinxDirective):
+    """Directive to show a set of admonitions, in a tab set."""
+
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        """Run the directive."""
+        types = [t.strip() for t in self.arguments[0].split(",")]
+        content = "::::{tab-set}"
+        for type_ in types:
+            content += f"""
+:::{{tab-item}} {type_}
+```{{{type_}}}
+This is a {type_}
+```
+:::
+"""
+        content += "::::"
+        node_ = nodes.Element()
+        self.state.nested_parse(content.splitlines(), self.content_offset, node_)
+        return node_.children
+
+
+class MystToHTMLDirective(SphinxDirective):
+    """Directive to convert MyST to HTML."""
+
+    has_content = True
+    optional_arguments = 1
+    final_argument_whitespace = True
+    option_spec = {
+        "extensions": directives.unchanged,
+    }
+
+    def run(self):
+        """Run the directive."""
+        content_str = "\n".join(self.content)
+        kwargs = {}
+        cli_opt = ""
+        if "extensions" in self.options:
+            ext = self.options["extensions"].split(",")
+            kwargs["myst_enable_extensions"] = ext
+            cli_opt += f"--myst-enable-extensions={self.options['extensions']}"
+        html = to_html5_demo(content_str, **kwargs)
+        content = f"""\
+::::myst-example
+```bash
+myst-docutils-demo example.md {cli_opt}
+```
+```myst
+{content_str}
+```
+```html
+{html}
+```
+::::
+"""
+        node_ = nodes.Element()
+        self.state.nested_parse(content.splitlines(), self.content_offset, node_)
+        return node_.children
+
+
+### MyST Lexer ###
+# TODO when some more work and testing, this should be made available publicly
+
+from pygments import token  # noqa: E402
+from pygments.lexer import bygroups, inherit  # noqa: E402
+from pygments.lexers.markup import MarkdownLexer  # noqa: E402
+
+
+class MystLexer(MarkdownLexer):
+    """A custom lexer for MyST Markdown."""
+
+    name = "MyST"
+    aliases = ["myst"]
+    filenames = ["*.myst"]
+    mimetypes = ["text/x-myst"]
+
+    tokens = {
+        "root": [
+            # (target)=
+            (
+                r"^(\()([^\n]+)(\)=)(\n)",
+                bygroups(
+                    token.Punctuation, token.Name.Label, token.Punctuation, token.Text
+                ),
+            ),
+            # :::
+            (r"^([\:]{3,})(\n)", bygroups(token.Punctuation, token.Text)),
+            # :::name other
+            # TODO this seems to "eat" the next line
+            # (r"^([\:]{3,})([^\s\n]+)(\s+)([^\n]+)(\n)",
+            # bygroups(token.Punctuation, token.Name.Tag, token.Whitespace, token.Text,token.Text)),
+            # :::name
+            (
+                r"^([\:]{3,})([^\n]+)(\n)",
+                bygroups(token.Punctuation, token.Name.Tag, token.Text),
+            ),
+            # :name: value
+            (
+                r"^(\:)([^\n]+)(\:)([^\n]+)(\n)",
+                bygroups(
+                    token.Punctuation,
+                    token.Name.Label,
+                    token.Punctuation,
+                    token.Text,
+                    token.Text,
+                ),
+            ),
+            inherit,
+        ],
+        "inline": [
+            # escape (we have to copy this from the parent class)
+            (r"\\.", token.Text),
+            # {name}
+            (
+                r"(\{)([a-zA-Z0-9+:-]+)(\})",
+                bygroups(token.Punctuation, token.Name.Label, token.Punctuation),
+            ),
+            inherit,
+        ],
+    }

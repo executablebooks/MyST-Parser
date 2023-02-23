@@ -8,7 +8,7 @@ py-config:
     - pygments
 ---
 
-# Live Preview
+# ⚡️ Live Preview
 
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
 You can edit the text/configuration below and see the live output.[^note]
