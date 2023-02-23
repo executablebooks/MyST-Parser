@@ -3,23 +3,21 @@ py-config:
   splashscreen:
     autoclose: true
   packages:
-    - myst-docutils
+    - myst-docutils==0.18
     - docutils==0.19
     - pygments
 ---
 
-# Live Preview
+# ⚡️ Live Preview
 
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
-You can edit the text/configuration below and see the live output.[^note]
-
-[^note]: Additional styling is usually provided by Sphinx themes.
+You can edit the text/configuration below and see the live output.
 
 ```{py-script}
 :file: live_preview.py
 ```
 
-::::::::{grid} 1 1 1 2
+::::::::{grid} 1 1 2 2
 
 :::::::{grid-item}
 :child-align: start
@@ -29,14 +27,14 @@ You can edit the text/configuration below and see the live output.[^note]
 ```
 
 :::::{tab-set}
-:class: sd-h-100
+:class: preview-input-tabs
 
 ::::{tab-item} Input text
 :class-container: sd-h-100
 :class-content: sd-h-100
 
 ````{raw} html
-<textarea class="pyscript" id="input_myst">
+<textarea class="pyscript input" id="input_myst">
 # Heading 1
 
 Hallo world!
@@ -91,8 +89,7 @@ Figure caption
 :class-container: sd-h-100
 :class-content: sd-h-100
 
-<textarea class="pyscript" id="input_config">
-# see: https://docutils.sourceforge.io/docs/user/config.html
+<textarea class="pyscript input" id="input_config">
 myst_enable_extensions:
 - colon_fence
 - deflist
@@ -122,10 +119,10 @@ myst_highlight_code_blocks: true
 <div class="pyscript" id="output_html"></div>
 :::
 :::{tab-item} Raw Output
-<textarea class="pyscript" id="output_raw" readonly="true"></textarea>
+<textarea class="pyscript output" id="output_raw" readonly="true"></textarea>
 :::
 :::{tab-item} Warnings
-<textarea class="pyscript" id="output_warnings" readonly="true"></textarea>
+<textarea class="pyscript output" id="output_warnings" readonly="true"></textarea>
 :::
 ::::
 :::::::

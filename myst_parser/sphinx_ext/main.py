@@ -13,8 +13,12 @@ from myst_parser.parsers.docutils_ import (
 from myst_parser.warnings_ import MystWarnings
 
 
-def setup_sphinx(app: Sphinx, load_parser=False):
-    """Initialize all settings and transforms in Sphinx."""
+def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
+    """Initialize all settings and transforms in Sphinx.
+
+    :param app: The Sphinx application object.
+    :param load_parser: Whether to load the parser.
+    """
     # we do this separately to setup,
     # so that it can be called by external packages like myst_nb
     from myst_parser.config.main import MdParserConfig
@@ -59,6 +63,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
 
 
 def create_myst_config(app):
+    """Create the myst config object and add it to the sphinx environment."""
     from sphinx.util import logging
 
     # Ignore type checkers because the attribute is dynamically assigned
