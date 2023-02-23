@@ -146,8 +146,8 @@ class DocutilsRenderer(RendererProtocol):
         self._level_to_section: dict[int, nodes.document | nodes.section] = {
             0: self.document
         }
-        # mapping of section slug to section node
-        self._slug_to_section: dict[str, nodes.section] = {}
+        # mapping of section slug to (line, id, implicit_text)
+        self._heading_slugs: dict[str, tuple[int | None, str, str]] = {}
 
     @property
     def sphinx_env(self) -> BuildEnvironment | None:
@@ -249,13 +249,11 @@ class DocutilsRenderer(RendererProtocol):
         """Finalise the render of the document."""
 
         # save for later reference resolution
-        slugs = {
-            slug: (snode.line, snode["ids"][0], clean_astext(snode[0]))
-            for slug, snode in self._slug_to_section.items()
-        }
-        self.document.myst_slugs = slugs
-        if slugs and self.sphinx_env:
-            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = slugs
+        self.document.myst_slugs = self._heading_slugs
+        if self._heading_slugs and self.sphinx_env:
+            self.sphinx_env.metadata[self.sphinx_env.docname][
+                "myst_slugs"
+            ] = self._heading_slugs
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -779,6 +777,52 @@ class DocutilsRenderer(RendererProtocol):
             and self.md_config.update_mathjax
         )
 
+    def generate_heading_target(
+        self,
+        token: SyntaxTreeNode,
+        level: int,
+        node: nodes.Element,
+        title_node: nodes.Element,
+    ) -> None:
+        """Generate a heading target, and add it to the document."""
+
+        implicit_text = clean_astext(title_node)
+
+        # create a target reference for the section, based on the heading text.
+        # Note, this is an implicit target, meaning that it is not prioritised,
+        # during ref resolution, and is not stored in the document.
+        # TODO this is purely to mimic docutils, but maybe we don't need it?
+        # (since we have the slugify logic below)
+        name = nodes.fully_normalize_name(implicit_text)
+        node["names"].append(name)
+        self.document.note_implicit_target(node, node)
+
+        if level > self.md_config.heading_anchors:
+            return
+
+        # Create an implicit reference slug.
+        # The problem with this reference slug,
+        # is that it might not be in the "normalised" format required by docutils,
+        # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#normalized-reference-names
+        # so we store it separately, and have separate logic than docutils
+        # TODO maybe revisit this assumption, or improve the logic
+        try:
+            slug = compute_unique_slug(
+                token,
+                self._heading_slugs,
+                self.md_config.heading_slug_func,
+            )
+        except Exception as error:
+            self.create_warning(
+                str(error),
+                MystWarnings.HEADING_SLUG,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
+        else:
+            node["slug"] = slug
+            self._heading_slugs[slug] = (node.line, node["ids"][0], implicit_text)
+
     def render_heading(self, token: SyntaxTreeNode) -> None:
         """Render a heading, e.g. `# Heading`."""
 
@@ -802,6 +846,7 @@ class DocutilsRenderer(RendererProtocol):
             self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
                 self.render_children(token)
+            self.generate_heading_target(token, level, rubric, rubric)
             return
 
         # create the section node
@@ -825,39 +870,7 @@ class DocutilsRenderer(RendererProtocol):
         with self.current_node_context(title_node):
             self.render_children(token)
 
-        # create a target reference for the section, based on the heading text.
-        # Note, this is an implicit target, meaning that it is not prioritised,
-        # during ref resolution, and is not stored in the document.
-        # TODO this is purely to mimic docutils, but maybe we don't need it?
-        # (since we have the slugify logic below)
-        name = nodes.fully_normalize_name(title_node.astext())
-        new_section["names"].append(name)
-        self.document.note_implicit_target(new_section, new_section)
-
-        if level <= self.md_config.heading_anchors:
-
-            # Create an implicit reference slug.
-            # The problem with this reference slug,
-            # is that it might not be in the "normalised" format required by docutils,
-            # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#normalized-reference-names
-            # so we store it separately, and have separate logic than docutils
-            # TODO maybe revisit this assumption, or improve the logic
-            try:
-                slug = compute_unique_slug(
-                    token,
-                    self._slug_to_section,
-                    self.md_config.heading_slug_func,
-                )
-            except Exception as error:
-                self.create_warning(
-                    str(error),
-                    MystWarnings.HEADING_SLUG,
-                    line=token_line(token, default=0),
-                    append_to=self.current_node,
-                )
-            else:
-                new_section["slug"] = slug
-                self._slug_to_section[slug] = new_section
+        self.generate_heading_target(token, level, new_section, title_node)
 
         # set the section as the current node for subsequent rendering
         self.current_node = new_section
