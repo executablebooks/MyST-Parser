@@ -1518,6 +1518,7 @@ class DocutilsRenderer(RendererProtocol):
         node = nodes.definition_list(classes=["simple", "myst"])
         self.copy_attributes(token, node, ("class", "id"))
         self.add_line_and_source_path(node, token)
+        make_terms = ("glossary" in node["classes"]) and (self.sphinx_env is not None)
         with self.current_node_context(node, append=True):
             item = None
             for child in token.children or []:
@@ -1531,11 +1532,11 @@ class DocutilsRenderer(RendererProtocol):
                         self.add_line_and_source_path(term, child)
                         with self.current_node_context(term):
                             self.render_children(child)
-                        if "glossary" in node["classes"] and self.sphinx_env:
+                        if make_terms:
                             from sphinx.domains.std import make_glossary_term
 
                             term = make_glossary_term(
-                                self.sphinx_env,
+                                self.sphinx_env,  # type: ignore
                                 term.children,
                                 None,  # type: ignore
                                 term.source,
