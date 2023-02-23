@@ -469,7 +469,11 @@ class MockIncludeDirective:
                     source_dir,
                     path.parent,
                 )
-            self.renderer.nested_render_text(file_content, startline + 1)
+            self.renderer.nested_render_text(
+                file_content,
+                startline + 1,
+                heading_offset=self.options.get("heading-offset", 0),
+            )
         finally:
             self.renderer.document["source"] = source
             self.renderer.reporter.source = rsource
