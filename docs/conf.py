@@ -224,7 +224,7 @@ def setup(app: Sphinx):
     app.add_directive("myst-example", MystExampleDirective)
     app.add_post_transform(StripUnsupportedLatex)
     app.connect("html-page-context", add_version_to_css)
-    app.connect("html-page-context", fix_landing_page_title)
+    app.connect("html-page-context", fix_page_titles)
 
 
 def add_version_to_css(app, pagename, templatename, context, doctree):
@@ -236,11 +236,9 @@ def add_version_to_css(app, pagename, templatename, context, doctree):
         context["css_files"][index] = f"_static/local.css?v={__version__}"
 
 
-def fix_landing_page_title(app, pagename, templatename, context, doctree):
-    """Fix the title of the landing page,
-    since we want the heading to be different to the title.
-    """
+def fix_page_titles(app, pagename, templatename, context, doctree):
+    """Prepend <title> tags with "MyST-Parser: " so they are more searchable."""
     if app.builder.name != "html":
         return
     if pagename == "index":
-        context["title"] = "MyST-Parser Documentation"
+        context["title"] = "MyST-Parser: " + context.get("title", "")
