@@ -240,5 +240,4 @@ def fix_page_titles(app, pagename, templatename, context, doctree):
     """Prepend <title> tags with "MyST-Parser: " so they are more searchable."""
     if app.builder.name != "html":
         return
-    if pagename == "index":
-        context["title"] = "MyST-Parser: " + context.get("title", "")
+    context["title"] = "MyST-Parser: " + context.get("title", "")
