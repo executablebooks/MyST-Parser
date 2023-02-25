@@ -224,6 +224,7 @@ def setup(app: Sphinx):
     app.add_directive("myst-example", MystExampleDirective)
     app.add_post_transform(StripUnsupportedLatex)
     app.connect("html-page-context", add_version_to_css)
+    app.connect("html-page-context", fix_page_titles)
 
 
 def add_version_to_css(app, pagename, templatename, context, doctree):
@@ -233,3 +234,10 @@ def add_version_to_css(app, pagename, templatename, context, doctree):
     if "_static/local.css" in context.get("css_files", {}):
         index = context["css_files"].index("_static/local.css")
         context["css_files"][index] = f"_static/local.css?v={__version__}"
+
+
+def fix_page_titles(app, pagename, templatename, context, doctree):
+    """Prepend <title> tags with "MyST-Parser: " so they are more searchable."""
+    if app.builder.name != "html":
+        return
+    context["title"] = "MyST-Parser: " + context.get("title", "")
