@@ -59,7 +59,7 @@ rtd = [
     "sphinx-design",
     "sphinx-copybutton",
     "sphinxext-rediraffe~=0.2.7",
-    "sphinxcontrib.mermaid~=0.7.1",
+    "sphinxcontrib.mermaid~=0.8.1",
     "sphinxext-opengraph~=0.7.5",
     "sphinx-pyscript",
     "sphinx-tippy>=0.3.1",
