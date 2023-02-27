@@ -343,7 +343,6 @@ class MockIncludeDirective:
         self.lineno = lineno
 
     def run(self) -> list[nodes.Element]:
-
         from docutils.parsers.rst.directives.body import CodeBlock, NumberLines
 
         if not self.document.settings.file_insertion_enabled:

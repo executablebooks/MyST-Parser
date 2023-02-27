@@ -58,7 +58,6 @@ class _ConfigBase(SphinxDirective):
 
 
 class MystConfigDirective(_ConfigBase):
-
     option_spec = {
         "sphinx": directives.flag,
         "extensions": directives.flag,
@@ -71,7 +70,6 @@ class MystConfigDirective(_ConfigBase):
         text = self.table_header()
         count = 0
         for name, value, field in config.as_triple():
-
             if field.metadata.get("deprecated"):
                 continue
 
