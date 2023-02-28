@@ -35,7 +35,8 @@ extensions = [
     "sphinx_design",
     "sphinx_copybutton",
     "sphinxext.rediraffe",
-    "sphinxcontrib.mermaid",
+    # disabled due to https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109
+    # "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
     "sphinx_pyscript",
     "sphinx_tippy",

@@ -22,14 +22,19 @@ You can edit the text/configuration below and see the live output.[^note]
 ::::::::{grid} 1 1 1 2
 
 :::::::{grid-item}
-:child-align: end
+:child-align: start
 
 ```{raw} html
-<div><u><span id="myst-version"></span></u></div>
+<div><u><span id="myst-version">myst-parser v</span></u></div>
 ```
 
 :::::{tab-set}
+:class: sd-h-100
+
 ::::{tab-item} Input text
+:class-container: sd-h-100
+:class-content: sd-h-100
+
 ````{raw} html
 <textarea class="pyscript" id="input_myst">
 # Heading 1
@@ -40,20 +45,23 @@ Hallo world!
 An admonition note!
 ```
 
+## Math
+
+```python
+from package import module
+module.call("string")
+```
+
+## Definition list
+
 term
 : definition
 
+## Math
+
 $$\pi = 3.14159$$
 
-```{list-table}
-:header-rows: 1
-:align: center
-
-* - Header 1
-  - Header 2
-* - Item 1
-  - Item 2
-```
+## Figures
 
 ```{figure} https://via.placeholder.com/150
 :width: 100px
@@ -61,28 +69,42 @@ $$\pi = 3.14159$$
 
 Figure caption
 ```
+
+## Tables
+
+```{list-table}
+:header-rows: 1
+:align: center
+
+* - Header 1
+  - Header 2
+* - Item 1 a
+  - Item 2 a
+* - Item 1 b
+  - Item 2 b
+```
 </textarea>
 ````
 
 ::::
 ::::{tab-item} Configuration (YAML)
+:class-container: sd-h-100
+:class-content: sd-h-100
+
 <textarea class="pyscript" id="input_config">
 # see: https://docutils.sourceforge.io/docs/user/config.html
 myst_enable_extensions:
 - colon_fence
 - deflist
 - dollarmath
-myst_highlight_code_blocks: false
-embed_stylesheet: true
-stylesheet_path:
-- minimal.css
+myst_highlight_code_blocks: true
 </textarea>
 ::::
 :::::
 
 :::::::
 :::::::{grid-item}
-:child-align: end
+:child-align: start
 
 ```{raw} html
 <div class="display-flex">
@@ -97,7 +119,7 @@ stylesheet_path:
 
 ::::{tab-set}
 :::{tab-item} HTML Render
-<iframe class="pyscript" id="output_html" readonly="true"></iframe>
+<div class="pyscript" id="output_html"></div>
 :::
 :::{tab-item} Raw Output
 <textarea class="pyscript" id="output_raw" readonly="true"></textarea>
