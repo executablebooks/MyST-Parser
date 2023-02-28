@@ -49,8 +49,8 @@ If you wish to include such a heading, you can use the [attrs_block](#syntax/att
 :::::
 
 
-:::::{admonition} Setting a title in front-matter
-:class: tip dropdown
+:::::{tip} Setting a title in front-matter
+:class: dropdown
 
 ```{versionadded} 0.17.0
 ```
@@ -135,8 +135,8 @@ to make it relative to the location that it is being inserted:
 Additional options:
 :encoding: The text encoding of the external file
 
-::::{admonition} Including to/from reStructuredText files
-:class: tip dropdown
+::::{tip} Including to/from reStructuredText files
+:class: dropdown
 
 As explained in [this section](#syntax/directives/parsing), all MyST directives will parse their content as Markdown.
 So to include rST, we must first "wrap" the directive in the [eval-rst directive](#syntax/directives/parsing):

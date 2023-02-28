@@ -110,8 +110,8 @@ These lists can be nested using two spaces at the start of the line.
 For numbered lists, you can start following lines with any number, meaning they don't have to be in numerical order, and this will not change the rendered output.
 The exception is the first number, which if it is not `1.` this will change the start number of the list.
 
-::::{admonition} Alternate numbering styles
-:class: tip dropdown
+::::{tip} Alternate numbering styles
+:class: dropdown
 
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also specify a alternative numbering styles:
@@ -229,8 +229,8 @@ For example, this won't be parsed into the document:
 % my comment
 :::
 
-::::{admonition} Comments split paragraphs
-:class: warning dropdown
+::::{warning} Comments split paragraphs
+:class: dropdown
 
 Since comments are a block-level entity, they will terminate the previous block.
 In practical terms, this means that the following lines

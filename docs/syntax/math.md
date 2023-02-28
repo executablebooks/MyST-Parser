@@ -58,8 +58,8 @@ The equation {eq}`mymath2` is also a quadratic equation.
 :::
 
 
-:::{admonition} Escaping Dollars
-:class: tip dropdown
+:::{tip} Escaping Dollars
+:class: dropdown
 
 Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
 Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.

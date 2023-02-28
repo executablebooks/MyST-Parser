@@ -55,9 +55,7 @@ Lets add an `admonition` directive and `sup` role to your Markdown page, like so
 
 Some **text**!
 
-:::{admonition} Here's my title
-:class: tip
-
+:::{tip} Here's my title
 Here's my admonition content.{sup}`1`
 :::
 

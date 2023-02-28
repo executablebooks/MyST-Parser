@@ -311,8 +311,8 @@ intersphinx_mapping = {
 }
 ```
 
-:::{admonition} Docutils configuration
-:class: note dropdown
+:::{note} Docutils configuration
+:class: dropdown
 
 Use the `docutils.conf` configuration file, for more details see [](myst-docutils).
 

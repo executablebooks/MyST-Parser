@@ -41,8 +41,7 @@ To create a **block** image, use the `image` directive:
 
 The following options are recognized:
 
-:::{admonition} Image options
-:class: hint
+:::{hint} Image options
 
 ``alt`` : text
 : Alternate text: a short description of the image, displayed by
@@ -104,8 +103,7 @@ table:
 
 The "figure" directive supports all of the options of the "image" directive, as well as the following:
 
-:::{admonition} Figure options
-:class: hint
+:::{hint} Figure options
 
 figwidth : "image", [length](units/length) or [percentage](units/percentage) of current line width
 : The width of the figure.  If the value is "image", the width of the

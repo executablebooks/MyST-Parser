@@ -66,6 +66,8 @@ def parse_directive_text(
     first_line: str,
     content: str,
     validate_options: bool = True,
+    *,
+    strict_argument: bool = False,
 ) -> DirectiveParsingResult:
     """Parse (and validate) the full directive text.
 
@@ -73,6 +75,8 @@ def parse_directive_text(
         May be an argument or body text, dependent on the directive
     :param content: All text after the first line. Can include options.
     :param validate_options: Whether to validate the values of options
+    :param strict_argument: If True, the first line will always be treated as an argument,
+        as opposed to potentially being part of the body text
 
     :raises MarkupError: if there is a fatal parsing/validation error
     """
@@ -90,13 +94,17 @@ def parse_directive_text(
         body_lines = content.splitlines()
         content_offset = 0
 
-    if not (directive_class.required_arguments or directive_class.optional_arguments):
+    if not (
+        strict_argument
+        or directive_class.required_arguments
+        or directive_class.optional_arguments
+    ):
         # If there are no possible arguments, then the body starts on the argument line
         if first_line:
             body_lines.insert(0, first_line)
         arguments = []
     else:
-        arguments = parse_directive_arguments(directive_class, first_line)
+        arguments = parse_directive_arguments(directive_class, first_line, parse_errors)
 
     # remove first line of body if blank
     # this is to allow space between the options and the content
@@ -202,12 +210,14 @@ def parse_directive_options(
 
 
 def parse_directive_arguments(
-    directive_cls: type[Directive], arg_text: str
+    directive_cls: type[Directive], arg_text: str, parse_errors: list[str]
 ) -> list[str]:
     """Parse (and validate) the directive argument section."""
     required = directive_cls.required_arguments
     optional = directive_cls.optional_arguments
     arguments = arg_text.split()
+    if arguments and not (required or optional):
+        parse_errors.append("Has arguments, but none permitted")
     if len(arguments) < required:
         raise MarkupError(f"{required} argument(s) required, {len(arguments)} supplied")
     elif len(arguments) > required + optional:

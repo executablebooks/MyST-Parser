@@ -64,9 +64,7 @@ you can use the `admonition` directive with the `class` option.
 
 ::::{myst-example}
 
-:::{admonition} My custom title with *Markdown*!
-:class: tip
-
+:::{tip} My custom title with *Markdown*!
 This is a custom title for a tip admonition.
 :::
 

@@ -111,6 +111,7 @@ myst_enable_extensions = [
     "attrs_inline",
     "attrs_block",
 ]
+myst_strict_arguments = True
 myst_url_schemes = {
     "http": None,
     "https": None,

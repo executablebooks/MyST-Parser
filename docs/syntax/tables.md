@@ -18,8 +18,8 @@ Cells in a column can be aligned using the `:` character:
 | a    | b      | c     |
 :::
 
-:::{admonition} Aligning cells in Sphinx HTML themes
-:class: tip dropdown
+:::{tip} Aligning cells in Sphinx HTML themes
+:class: dropdown
 
 Text is aligned by assigning `text-left`, `text-center`, or `text-right` to the cell.
 It is then necessary for the theme you are using to include the appropriate css styling.
@@ -54,8 +54,7 @@ The `table` directive can be used to create a table with a caption:
 
 The following options are recognized:
 
-:::{admonition} List table options
-:class: hint
+:::{hint} List table options
 
 `align` : "left", "center", or "right"
 : The horizontal alignment of the table.
@@ -100,8 +99,7 @@ The `list-table` directive is used to create a table from data in a uniform two-
 The following options are recognized:
 
 
-:::{admonition} List table options
-:class: hint
+:::{hint} List table options
 
 `align` : "left", "center", or "right"
 : The horizontal alignment of the table.
@@ -146,8 +144,7 @@ The `csv-table` directive is used to create a table from Comma-Separated-Values 
 
 The following options are recognized:
 
-:::{admonition} CSV table options
-:class: hint
+:::{hint} CSV table options
 
 `align` : "left", "center", or "right"
 : The horizontal alignment of the table.

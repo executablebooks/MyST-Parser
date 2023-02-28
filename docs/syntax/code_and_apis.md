@@ -13,14 +13,15 @@ c = "string"
 ```
 :::
 
-::::{admonition} Adding a language lexer
-:class: tip dropdown
+::::{tip} Adding a language lexer
+:class: dropdown
+
 You can create and register your own lexer, using the [`pygments.lexers` entry point](https://pygments.org/docs/plugins/#register-plugins),
 or within a sphinx extension, with the [`app.add_lexer` method](inv:sphinx#*.Sphinx.add_lexer).
 ::::
 
-::::{admonition} Show backticks inside raw markdown blocks
-:class: tip dropdown
+::::{tip} Show backticks inside raw markdown blocks
+:class: dropdown
 
 If you'd like to show backticks inside of your markdown,
 you can do so by nesting them in backticks of a greater length.
@@ -101,8 +102,8 @@ c = 3
 
 The following options are recognized:
 
-:::{admonition} Code block options
-:class: hint dropdown
+:::{hint} Code block options
+:class: dropdown
 
 `linenos` : flag
 : Enable to generate line numbers for the code block
@@ -224,6 +225,10 @@ docstring_parser_regexes = [
 ]
 ```
 ````
+
+:::{tip}
+Enable the [fieldlist extension](#syntax/fieldlists) to allow parsing of sphinx style `:param:` and `:return:` fields in MyST docstrings.
+:::
 
 (syntax/apis/sphinx-autodoc)=
 ### `sphinx.ext.autodoc`

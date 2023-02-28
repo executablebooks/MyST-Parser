@@ -215,6 +215,16 @@ class MdParserConfig:
         },
     )
 
+    strict_arguments: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Setting this to True changes the behaviour of directive parsing. "
+            "If True, then the first line of a directive will always be recognised as its argument,"
+            " as opposed to potentially being the first line of the body.",
+        },
+    )
+
     all_links_external: bool = dc.field(
         default=False,
         metadata={

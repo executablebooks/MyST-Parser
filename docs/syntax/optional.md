@@ -128,8 +128,8 @@ This is equivalent to writing:
 {math}`x_{hey}=it+is^{math}`
 ```
 
-:::{admonition} Escaping Dollars
-:class: tip dropdown
+:::{tip} Escaping Dollars
+:class: dropdown
 
 Math can be escaped (negated) by adding a `\` before the first symbol, e.g. `\$a$` renders as \$a\$.
 Escaping can also be used inside math, e.g. `$a=\$3$` renders as $a=\$3$.
