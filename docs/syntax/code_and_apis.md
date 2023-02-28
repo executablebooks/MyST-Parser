@@ -238,7 +238,6 @@ However, because it is hard-coded to generate RestructureText, the special [`eva
 ```
 ````
 
-
 Summaries can also be generated with [`autosummary`](inv:sphinx#sphinx.ext.autosummary):
 
 ````{myst-example}

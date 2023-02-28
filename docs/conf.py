@@ -4,6 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import hashlib
 from datetime import date
 
 from sphinx.application import Sphinx
@@ -236,5 +237,8 @@ def add_version_to_css(app, pagename, templatename, context, doctree):
     if app.builder.name != "html":
         return
     if "_static/local.css" in context.get("css_files", {}):
+        with open("_static/local.css") as f:
+            css = f.read()
+        hashed = hashlib.sha256(css.encode("utf-8")).hexdigest()
         index = context["css_files"].index("_static/local.css")
-        context["css_files"][index] = f"_static/local.css?v={__version__}"
+        context["css_files"][index] = f"_static/local.css?hash={hashed}"
