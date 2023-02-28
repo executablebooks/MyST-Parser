@@ -3,7 +3,7 @@ py-config:
   splashscreen:
     autoclose: true
   packages:
-    - myst-docutils
+    - myst-docutils==0.18
     - docutils==0.19
     - pygments
 ---
@@ -13,7 +13,7 @@ py-config:
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
 You can edit the text/configuration below and see the live output.[^note]
 
-[^note]: Additional styling is usually provided by Sphinx themes.
+[^note]: See [](docutils.md) for more information on the docutils renderer.
 
 ```{py-script}
 :file: live_preview.py
@@ -92,7 +92,6 @@ Figure caption
 :class-content: sd-h-100
 
 <textarea class="pyscript" id="input_config">
-# see: https://docutils.sourceforge.io/docs/user/config.html
 myst_enable_extensions:
 - colon_fence
 - deflist
