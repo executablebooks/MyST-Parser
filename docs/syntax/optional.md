@@ -596,6 +596,8 @@ and are applied to markdown list items starting with `[ ]` or `[x]`:
 ```{versionadded} 0.16.0
 ```
 
+By adding `"fieldlist"` to `myst_enable_extensions` (in the {{ confpy }}),
+you will be able to utilise field lists.
 Field lists are mappings from field names to field bodies,
 based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists).
 
