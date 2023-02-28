@@ -11,9 +11,7 @@ py-config:
 # ⚡️ Live Preview
 
 This is a live preview of the MyST Markdown [docutils renderer](docutils.md).
-You can edit the text/configuration below and see the live output.[^note]
-
-[^note]: See [](docutils.md) for more information on the docutils renderer.
+You can edit the text/configuration below and see the live output.
 
 ```{py-script}
 :file: live_preview.py
