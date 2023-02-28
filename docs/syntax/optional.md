@@ -852,7 +852,7 @@ HTML image can also be used inline!
 
 I'm an inline image: <img src="img/fun-fish.png" height="20px">
 
-(syntax/figures)=
+(syntax/md-figures)=
 
 ## Markdown Figures
 
@@ -866,9 +866,15 @@ to create a fully Markdown compliant version of the `figure` directive named `fi
 
 The figure block must contain **only** two components; an image, in either Markdown or HTML syntax, and a single paragraph for the caption.
 
-The title is optional and taken as the reference target of the figure:
+The first line argument is optional and taken as the reference target of the figure:
 
 ::::{myst-example}
+
+:::{figure-md}
+![fishy](img/fun-fish.png){.bg-primary .mb-1 width=200px}
+
+This is a caption in **Markdown**
+:::
 
 :::{figure-md} fig-target
 :class: myclass
@@ -883,7 +889,7 @@ This is a caption in **Markdown**
 As we see here, the target we set can be referenced:
 
 :::{myst-example}
-[Go to the fish!](fig-target)
+[Go to the fish!](#fig-target)
 :::
 
 (syntax/html-admonition)=

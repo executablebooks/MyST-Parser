@@ -6,6 +6,7 @@
 
 import hashlib
 from datetime import date
+from pathlib import Path
 
 from sphinx.application import Sphinx
 
@@ -232,13 +233,12 @@ def setup(app: Sphinx):
     app.add_lexer("myst", MystLexer)
 
 
-def add_version_to_css(app, pagename, templatename, context, doctree):
+def add_version_to_css(app: Sphinx, pagename, templatename, context, doctree):
     """Add the version number to the local.css file, to bust the cache for changes."""
     if app.builder.name != "html":
         return
     if "_static/local.css" in context.get("css_files", {}):
-        with open("_static/local.css") as f:
-            css = f.read()
+        css = Path(app.srcdir, "_static/local.css").read_text("utf8")
         hashed = hashlib.sha256(css.encode("utf-8")).hexdigest()
         index = context["css_files"].index("_static/local.css")
         context["css_files"][index] = f"_static/local.css?hash={hashed}"

@@ -117,6 +117,20 @@ figclass : text
 
 :::
 
+:::::{seealso}
+
+See the [...](#syntax/md-figures) section for information on how to create figures that use native Markdown images.
+
+::::{myst-example}
+:::{figure-md}
+![fishy](img/fun-fish.png){width=200px}
+
+This is a caption in __*Markdown*__
+:::
+::::
+
+:::::
+
 ## Figures with multiple images
 
 See the [sphinx-subfigure](https://sphinx-subfigure.readthedocs.io) extension for a way to create figures with multiple images.

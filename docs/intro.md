@@ -221,9 +221,9 @@ There are many other great Sphinx extensions that work with MyST, such as the on
 :sphinx-copybutton: Add a copy button to your code blocks
 :sphinxext-rediraffe: Add redirects to your documentation
 :sphinxext-opengraph: Add OpenGraph metadata to your documentation
-:[sphinx-pyscript](https://github.com/sphinx-extensions2/sphinx-pyscript): Execute Python code in your documentation
-:[sphinx-tippy](https://github.com/sphinx-extensions2/sphinx-tippy): Add tooltips to your documentation
-:[sphinx-autodoc2](https://github.com/sphinx-extensions2/sphinx-autodoc2): Generate documentation from docstrings
+:sphinx-pyscript: Execute Python code in your documentation, [see here](https://github.com/sphinx-extensions2/sphinx-pyscript)
+:sphinx-tippy: Add tooltips to your documentation, [see here](https://github.com/sphinx-extensions2/sphinx-tippy)
+:sphinx-autodoc2: Generate documentation from docstrings, [see here](https://github.com/sphinx-extensions2/sphinx-autodoc2)
 :sphinx-togglebutton: Add collapsible content to your documentation
 :sphinxcontrib.mermaid: Generate [Mermaid diagrams](https://mermaid-js.github.io/mermaid/#/)
 
