@@ -107,7 +107,7 @@ There are a range of great HTML themes that work well with MyST, such as [sphinx
 
 ## Configuring MyST-Parser
 
-The [...](configuration.md) section contains a complete list of configuration options for the MyST-Parser.
+The <project:configuration.md> section contains a complete list of configuration options for the MyST-Parser.
 
 These can be applied globally, e.g. in the sphinx `conf.py`:
 

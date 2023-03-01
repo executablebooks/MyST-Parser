@@ -98,7 +98,7 @@
                     <inline classes="std std-ref">
                         Title anchors
             <paragraph>
-                <reference internal="True" refid="title-anchors">
+                <reference id_link="True" refid="title-anchors">
                     <inline classes="std std-ref">
                         Title anchors
             <paragraph>

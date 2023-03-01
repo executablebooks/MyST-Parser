@@ -119,7 +119,7 @@ figclass : text
 
 :::::{seealso}
 
-See the [...](#syntax/md-figures) section for information on how to create figures that use native Markdown images.
+See the <project:#syntax/md-figures> section for information on how to create figures that use native Markdown images.
 
 ::::{myst-example}
 :::{figure-md}
