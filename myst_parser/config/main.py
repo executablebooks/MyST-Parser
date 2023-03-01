@@ -513,7 +513,6 @@ def merge_file_level(
     # validate each update
     fields = {name: (value, field) for name, value, field in config.as_triple()}
     for name, value in updates.items():
-
         if name not in fields:
             warning(MystWarnings.MD_TOPMATTER, f"Unknown field: {name}")
             continue

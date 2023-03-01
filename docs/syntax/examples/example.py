@@ -1,5 +1,6 @@
 """An example Python file."""
 
+
 # start example
 class MyClass:
     """An example class."""

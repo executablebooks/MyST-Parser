@@ -65,7 +65,6 @@ def get_sphinx_app_output(file_regression):
         regress_ext=".html",
         replace=None,
     ):
-
         outpath = path(os.path.join(str(app.srcdir), "_build", buildername, filename))
         if not outpath.exists():
             raise OSError(f"no output file exists: {outpath}")
