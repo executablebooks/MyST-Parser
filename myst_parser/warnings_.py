@@ -12,12 +12,14 @@ class MystWarnings(Enum):
 
     DEPRECATED = "deprecated"
     """Deprecated usage."""
+    NOT_SUPPORTED = "not_supported"
+    """Functionality that is not yet supported in docutils."""
 
     RENDER_METHOD = "render"
     """The render method is not implemented."""
 
     MD_TOPMATTER = "topmatter"
-    """Issue reading top-matter."""
+    """Issue reading front-matter."""
     MD_DEF_DUPE = "duplicate_def"
     """Duplicate Markdown reference definition."""
     MD_FOOTNOTE_DUPE = "footnote"

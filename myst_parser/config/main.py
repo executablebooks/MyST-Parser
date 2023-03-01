@@ -44,7 +44,6 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "fieldlist",
             "html_admonition",
             "html_image",
-            "inv_link",
             "linkify",
             "replacements",
             "smartquotes",
@@ -263,7 +262,7 @@ class MdParserConfig:
         default=False,
         metadata={
             "validator": instance_of(bool),
-            "help": "Convert a `title` field in the top-matter to a H1 header",
+            "help": "Convert a `title` field in the front-matter to a H1 header",
         },
     )
 

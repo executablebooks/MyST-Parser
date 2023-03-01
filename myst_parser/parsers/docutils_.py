@@ -15,8 +15,10 @@ from typing import (
 
 import yaml
 from docutils import frontend, nodes
-from docutils.core import default_description, publish_cmdline
+from docutils.core import default_description, publish_cmdline, publish_string
+from docutils.frontend import filter_settings_spec
 from docutils.parsers.rst import Parser as RstParser
+from docutils.writers.html5_polyglot import HTMLTranslator, Writer
 
 from myst_parser._compat import Literal, get_args, get_origin
 from myst_parser.config.main import (
@@ -321,6 +323,27 @@ class Parser(RstParser):
         self.finish_parse()
 
 
+class SimpleTranslator(HTMLTranslator):
+    def stylesheet_call(self, *args, **kwargs):
+        return ""
+
+
+class SimpleWriter(Writer):
+
+    settings_spec = filter_settings_spec(
+        Writer.settings_spec,
+        "template",
+    )
+
+    def apply_template(self):
+        subs = self.interpolation_dict()
+        return "%(body)s\n" % subs
+
+    def __init__(self):
+        self.parts = {}
+        self.translator_class = SimpleTranslator
+
+
 def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
     """Run the command line interface for a particular writer."""
     publish_cmdline(
@@ -341,6 +364,44 @@ def cli_html(argv: Optional[List[str]] = None) -> None:
 def cli_html5(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to HTML5."""
     _run_cli("html5", "HTML5 documents", argv)
+
+
+def cli_html5_demo(argv: Optional[List[str]] = None):
+    """Cmdline entrypoint for converting MyST to simple HTML5 demonstrations.
+
+    This is a special case of the HTML5 writer,
+    that only outputs the body of the document.
+    """
+    publish_cmdline(
+        parser=Parser(),
+        writer=SimpleWriter(),
+        description=(
+            f"Generates body HTML5 from standalone MyST sources.\n{default_description}"
+        ),
+        settings_overrides={
+            "doctitle_xform": False,
+            "sectsubtitle_xform": False,
+            "initial_header_level": 1,
+        },
+        argv=argv,
+    )
+
+
+def to_html5_demo(inputstring: str, **kwargs) -> str:
+    """Convert a MyST string to HTML5."""
+    overrides = {
+        "doctitle_xform": False,
+        "sectsubtitle_xform": False,
+        "initial_header_level": 1,
+        "output_encoding": "unicode",
+    }
+    overrides.update(kwargs)
+    return publish_string(
+        inputstring,
+        parser=Parser(),
+        writer=SimpleWriter(),
+        settings_overrides=overrides,
+    )
 
 
 def cli_latex(argv: Optional[List[str]] = None):

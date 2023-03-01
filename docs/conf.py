@@ -4,10 +4,11 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import hashlib
 from datetime import date
+from pathlib import Path
 
 from sphinx.application import Sphinx
-from sphinx.transforms.post_transforms import SphinxPostTransform
 
 from myst_parser import __version__
 
@@ -32,13 +33,16 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx_design",
     "sphinx_copybutton",
     "sphinxext.rediraffe",
-    "sphinxcontrib.mermaid",
+    # disabled due to https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109
+    # "sphinxcontrib.mermaid",
     "sphinxext.opengraph",
     "sphinx_pyscript",
     "sphinx_tippy",
+    "sphinx_togglebutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -60,6 +64,7 @@ intersphinx_mapping = {
 # -- Autodoc settings ---------------------------------------------------
 
 autodoc2_packages = ["../myst_parser"]
+autodoc2_exclude_files = ["_docs.py"]
 autodoc2_hidden_objects = ["dunder", "private", "inherited"]
 autodoc2_replace_annotations = [
     ("re.Pattern", "typing.Pattern"),
@@ -70,9 +75,14 @@ autodoc2_replace_bases = [
     ("myst_parser._compat.TypedDict", "typing.TypedDict"),
     ("sphinx.directives.SphinxDirective", "sphinx.util.docutils.SphinxDirective"),
 ]
+autodoc2_docstring_parser_regexes = [
+    ("myst_parser", "myst"),
+    (r"myst_parser\.setup", "myst"),
+]
 nitpicky = True
 nitpick_ignore_regex = [
     (r"py:.*", r"docutils\..*"),
+    (r"py:.*", r"pygments\..*"),
 ]
 nitpick_ignore = [
     ("py:obj", "myst_parser._docs._ConfigBase"),
@@ -100,7 +110,6 @@ myst_enable_extensions = [
     "tasklist",
     "attrs_inline",
     "attrs_block",
-    "inv_link",
 ]
 myst_url_schemes = {
     "http": None,
@@ -130,6 +139,10 @@ myst_heading_anchors = 2
 myst_footnote_transition = True
 myst_dmath_double_inline = True
 myst_enable_checkboxes = True
+myst_substitutions = {
+    "role": "[role](#syntax/roles)",
+    "directive": "[directive](#syntax/directives)",
+}
 
 # -- HTML output -------------------------------------------------
 
@@ -145,6 +158,8 @@ html_theme_options = {
     "path_to_docs": "docs",
     "use_repository_button": True,
     "use_edit_page_button": True,
+    "use_issues_button": True,
+    "announcement": "<p><b>v0.19</b> is now out! See the Changelog for details</p>",
 }
 # OpenGraph metadata
 ogp_site_url = "https://myst-parser.readthedocs.io/en/latest"
@@ -162,6 +177,7 @@ html_css_files = ["local.css"]
 
 rediraffe_redirects = {
     "using/intro.md": "sphinx/intro.md",
+    "syntax/syntax.md": "syntax/typography.md",
     "sphinx/intro.md": "intro.md",
     "using/use_api.md": "api/index.md",
     "api/index.md": "api/reference.rst",
@@ -190,31 +206,19 @@ latex_engine = "xelatex"
 # -- Local Sphinx extensions -------------------------------------------------
 
 
-class StripUnsupportedLatex(SphinxPostTransform):
-    """Remove unsupported nodes from the doctree."""
-
-    default_priority = 900
-
-    def run(self):
-        if self.app.builder.format != "latex":
-            return
-        from docutils import nodes
-
-        for node in self.document.findall():
-            if node.tagname == "image" and node["uri"].endswith(".svg"):
-                node.parent.replace(node, nodes.inline("", "Removed SVG image"))
-            if node.tagname == "mermaid":
-                node.parent.replace(node, nodes.inline("", "Removed Mermaid diagram"))
-
-
 def setup(app: Sphinx):
     """Add functions to the Sphinx setup."""
     from myst_parser._docs import (
         DirectiveDoc,
         DocutilsCliHelpDirective,
+        MystAdmonitionDirective,
         MystConfigDirective,
         MystExampleDirective,
+        MystLexer,
+        MystToHTMLDirective,
         MystWarningsDirective,
+        NumberSections,
+        StripUnsupportedLatex,
     )
 
     app.add_directive("myst-config", MystConfigDirective)
@@ -222,14 +226,20 @@ def setup(app: Sphinx):
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
     app.add_directive("myst-example", MystExampleDirective)
+    app.add_directive("myst-admonitions", MystAdmonitionDirective)
+    app.add_directive("myst-to-html", MystToHTMLDirective)
     app.add_post_transform(StripUnsupportedLatex)
+    app.add_post_transform(NumberSections)
     app.connect("html-page-context", add_version_to_css)
+    app.add_lexer("myst", MystLexer)
 
 
-def add_version_to_css(app, pagename, templatename, context, doctree):
+def add_version_to_css(app: Sphinx, pagename, templatename, context, doctree):
     """Add the version number to the local.css file, to bust the cache for changes."""
     if app.builder.name != "html":
         return
     if "_static/local.css" in context.get("css_files", {}):
+        css = Path(app.srcdir, "_static/local.css").read_text("utf8")
+        hashed = hashlib.sha256(css.encode("utf-8")).hexdigest()
         index = context["css_files"].index("_static/local.css")
-        context["css_files"][index] = f"_static/local.css?v={__version__}"
+        context["css_files"][index] = f"_static/local.css?hash={hashed}"

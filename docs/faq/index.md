@@ -9,7 +9,7 @@ These sections describe some common scenarios and use-cases for writing MyST wit
 (howto/include-rst)=
 ### Include rST files into a Markdown file
 
-As explained in [this section](syntax/directives/parsing), all MyST directives will parse their content as Markdown.
+As explained in [this section](#syntax/directives/parsing), all MyST directives will parse their content as Markdown.
 Therefore, using the conventional `include` directive, will parse the file contents as Markdown:
 
 ````md
@@ -20,7 +20,7 @@ Therefore, using the conventional `include` directive, will parse the file conte
 ```{include} snippets/include-md.md
 ```
 
-To include rST, we must first "wrap" the directive in the [eval-rst directive](syntax/directives/parsing):
+To include rST, we must first "wrap" the directive in the [eval-rst directive](#syntax/directives/parsing):
 
 ````md
 ```{eval-rst}
@@ -52,6 +52,10 @@ The [MyST-NB](https://myst-nb.readthedocs.io) tool provides a Sphinx extension f
 
 (howto/include-readme)=
 ### Include a file from outside the docs folder (like README.md)
+
+:::{seealso}
+<project:#organising-content/include>
+:::
 
 You can include a file, including one from outside the project using e.g.:
 
@@ -102,80 +106,19 @@ If you encounter any issues with this feature, please don't hesitate to report i
 (howto/autodoc)=
 ### Use `sphinx.ext.autodoc` in Markdown files
 
-The [Sphinx extension `autodoc`](inv:sphinx#sphinx.ext.autodoc), which pulls in code documentation from docstrings, is currently hard-coded to parse reStructuredText.
-It is therefore incompatible with MyST's Markdown parser.
-However, the special [`eval-rst` directive](syntax/directives/parsing) can be used to "wrap" `autodoc` directives:
-
-````md
-```{eval-rst}
-.. autoclass:: myst_parser.mocking.MockRSTParser
-    :show-inheritance:
-    :members: parse
-```
-````
-
-```{eval-rst}
-.. autoclass:: myst_parser.mocking.MockRSTParser
-    :show-inheritance:
-    :members: parse
-    :noindex:
-```
-
-As with other objects in MyST, this can then be referenced:
-
-- Using the role `` {py:class}`myst_parser.mocking.MockRSTParser` ``: {py:class}`myst_parser.mocking.MockRSTParser`
-- Using the Markdown syntax `[MockRSTParser](myst_parser.mocking.MockRSTParser)`: [MockRSTParser](myst_parser.mocking.MockRSTParser)
-
-```{warning}
-This expects docstrings to be written in reStructuredText.
-We hope to support Markdown in the future, see [GitHub issue #228](https://github.com/executablebooks/MyST-Parser/issues/228).
-```
+See [](#syntax/apis) for this information.
 
 (howto/autosectionlabel)=
 ### Automatically create targets for section headers
 
-:::{important}
-
-New in `v0.13.0` ✨, myst-parser now provides a separate implementation of `autosectionlabel`, which implements GitHub Markdown style bookmark anchors, like `[](file.md#header-anchor)`.
-
-See the [](syntax/header-anchors) section of extended syntaxes.
-
+:::{versionadded} 0.13.0
+See [](#syntax/implicit-targets) for this information.
 :::
 
-If you'd like to *automatically* generate targets for each of your section headers,
-check out the [autosectionlabel](inv:sphinx#usage/*/autosectionlabel)
-sphinx feature. You can activate it in your Sphinx site by adding the following to your
-`conf.py` file:
-
-```python
-extensions = [
-    'sphinx.ext.autosectionlabel',
-]
-
-# Prefix document path to section labels, to use:
-# `path/to/file:heading` instead of just `heading`
-autosectionlabel_prefix_document = True
-```
-
-So, if you have a page at `myfolder/mypage.md` (relative to your documentation root)
-with the following structure:
-
-```md
-# Title
-
-## My Subtitle
-```
-
-Then the `autosectionlabel` feature will allow you to reference the section headers
-like so:
-
-```md
-{ref}`path/to/file_1:My Subtitle`
-```
 
 ### Suppress warnings
 
-Moved to [](myst-warnings)
+See <project:#myst-warnings> for this information.
 
 ### Sphinx-specific page front matter
 

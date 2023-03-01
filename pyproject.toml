@@ -54,16 +54,18 @@ linkify = ["linkify-it-py~=1.0"]
 # Note: This is only required for internal use
 rtd = [
     "ipython",
-    # currently required to get sphinx v5
-    "sphinx-book-theme==0.4.0rc1",
-    "sphinx-design",
+    "sphinx-book-theme==1.0.0rc2",
+    "pydata-sphinx-theme==v0.13.0rc4",
+    "sphinx-design2",
     "sphinx-copybutton",
     "sphinxext-rediraffe~=0.2.7",
-    "sphinxcontrib.mermaid~=0.7.1",
+    # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed
+    # "sphinxcontrib.mermaid~=0.7.1",
     "sphinxext-opengraph~=0.7.5",
     "sphinx-pyscript",
     "sphinx-tippy>=0.3.1",
-    "sphinx-autodoc2>=0.3.0"
+    "sphinx-autodoc2~=0.4.2",
+    "sphinx-togglebutton",
 ]
 testing = [
     "beautifulsoup4",
@@ -85,6 +87,7 @@ myst-anchors = "myst_parser.cli:print_anchors"
 myst-inv = "myst_parser.inventory:inventory_cli"
 myst-docutils-html = "myst_parser.parsers.docutils_:cli_html"
 myst-docutils-html5 = "myst_parser.parsers.docutils_:cli_html5"
+myst-docutils-demo = "myst_parser.parsers.docutils_:cli_html5_demo"
 myst-docutils-latex = "myst_parser.parsers.docutils_:cli_latex"
 myst-docutils-xml = "myst_parser.parsers.docutils_:cli_xml"
 myst-docutils-pseudoxml = "myst_parser.parsers.docutils_:cli_pseudoxml"
@@ -117,7 +120,7 @@ no_implicit_optional = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ["docutils.*", "yaml.*"]
+module = ["docutils.*", "yaml.*", "pygments.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

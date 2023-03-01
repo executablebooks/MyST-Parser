@@ -1,24 +1,12 @@
+/** landing page logo **/
+#landing-page-logo {
+    background: none;
+}
+
 /** Add a counter before subsections **/
-h1 {
+h1:not(.rubric) {
     counter-reset: subsection;
     text-decoration: underline;
-}
-h2 {
-    counter-reset: subsubsection;
-}
-h2::before {
-    counter-increment: subsection;
-    content: counter(subsection) ". ";
-}
-.tippy-box h2::before {
-    content: unset;
-}
-h3::before {
-    counter-increment: subsubsection;
-    content: counter(subsection) "." counter(subsubsection) ". ";
-}
-.tippy-box h3::before {
-    content: unset;
 }
 
 /** MyST examples */
@@ -35,30 +23,43 @@ h3::before {
 .myst-example-render {
     padding: 0.5rem;
 }
+.myst-example-render > :first-child {
+    margin-top: 0.5rem;
+}
 
 /** No icon for admonitions with no-icon class */
-.admonition > .admonition-title, div.admonition.no-icon > .admonition-title::before {
+div.admonition.no-icon > .admonition-title::before {
     content: "";
 }
-.admonition > .admonition-title, div.admonition.no-icon > .admonition-title {
+div.admonition.no-icon > .admonition-title {
     padding-left: .6rem;
 }
 
 /* Live preview page */
-iframe.pyscript, textarea.pyscript {
-    width: 100%;
-    height: 400px;
-}
-iframe.pyscript {
-    padding: 4px;
+@media (min-width: 768px) {
+    .preview-input-tabs {
+        height: 100%;
+    }
+    textarea.pyscript.input {
+        height: 100%;
+    }
 }
 textarea.pyscript {
+    width: 100%;
+    min-height: 300px;
     padding: 30px 20px 20px;
     border-radius: 8px;
     resize: vertical;
     font-size: 16px;
     font-family: monospace;
 }
+textarea.pyscript.output {
+    height: 100%;
+}
+div.pyscript {
+    min-height: 300px;
+}
+
 .display-flex {
     display: flex;
 }
