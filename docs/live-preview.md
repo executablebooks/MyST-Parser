@@ -3,7 +3,7 @@ py-config:
   splashscreen:
     autoclose: true
   packages:
-    - myst-docutils==0.18
+    - myst-docutils==0.19
     - docutils==0.19
     - pygments
 ---
@@ -42,6 +42,8 @@ Hallo world!
 ```{note}
 An admonition note!
 ```
+
+[Link to the heading](#heading-1)
 
 ## Math
 
@@ -94,6 +96,7 @@ myst_enable_extensions:
 - colon_fence
 - deflist
 - dollarmath
+myst_heading_anchors: 2
 myst_highlight_code_blocks: true
 </textarea>
 ::::
