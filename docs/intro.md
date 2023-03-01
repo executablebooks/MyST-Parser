@@ -3,7 +3,7 @@
 
 This page gives a quick overview of how to get started with MyST Markdown, and how to use it within Docutils and Sphinx.
 
-![GitHub Repo stars][github-repo]
+[![GitHub Repo stars][github-badge]][github-link]
 
 ## Installation
 
@@ -27,7 +27,8 @@ conda install -c conda-forge myst-parser
 [pypi-link]: https://pypi.org/project/myst-parser
 [conda-badge]: https://anaconda.org/conda-forge/myst-parser/badges/version.svg
 [conda-link]: https://anaconda.org/conda-forge/myst-parser
-[github-repo]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=Like%20and%20Share%21&style=social
+[github-link]: https://github.com/executablebooks/MyST-Parser
+[github-badge]: https://img.shields.io/github/stars/executablebooks/myst-parser?label=Like%20and%20Share%21&style=social
 
 (intro/writing)=
 ## Write a Markdown document
