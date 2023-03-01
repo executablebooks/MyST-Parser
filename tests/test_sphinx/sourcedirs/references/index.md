@@ -45,7 +45,7 @@ subfolder/other2.md
 
 [](#title-anchors)
 
-[](./#title-anchors)
+<project:#title-anchors>
 
 [](./other.md#title-anchors)
 

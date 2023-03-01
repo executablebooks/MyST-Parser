@@ -107,7 +107,6 @@ class _ConfigBase(SphinxDirective):
 
 
 class MystConfigDirective(_ConfigBase):
-
     option_spec = {
         "sphinx": directives.flag,
         "extensions": directives.flag,
@@ -120,7 +119,6 @@ class MystConfigDirective(_ConfigBase):
         text = self.table_header()
         count = 0
         for name, value, field in config.as_triple():
-
             if field.metadata.get("deprecated"):
                 continue
 
@@ -378,7 +376,7 @@ myst-docutils-demo example.md {cli_opt}
 # TODO when some more work and testing, this should be made available publicly
 
 from pygments import token  # noqa: E402
-from pygments.lexer import bygroups, inherit  # noqa: E402
+from pygments.lexer import bygroups, inherit, this, using  # noqa: E402
 from pygments.lexers.markup import MarkdownLexer  # noqa: E402
 
 
@@ -412,12 +410,12 @@ class MystLexer(MarkdownLexer):
             ),
             # :name: value
             (
-                r"^(\:)([^\n]+)(\:)([^\n]+)(\n)",
+                r"^(\:)([^\n\:]+)(\:)([^\n]+)(\n)",
                 bygroups(
                     token.Punctuation,
-                    token.Name.Label,
+                    token.Generic.Strong,
                     token.Punctuation,
-                    token.Text,
+                    using(this, state="inline"),
                     token.Text,
                 ),
             ),
@@ -429,7 +427,18 @@ class MystLexer(MarkdownLexer):
             # {name}
             (
                 r"(\{)([a-zA-Z0-9+:-]+)(\})",
-                bygroups(token.Punctuation, token.Name.Label, token.Punctuation),
+                bygroups(token.Punctuation, token.Operator.Word, token.Punctuation),
+            ),
+            # <http:example.com>
+            (
+                r"(<)(http|https|mailto|project|path|inv)(\:)([^\s>]+)(>)",
+                bygroups(
+                    token.Punctuation,
+                    token.String.Other,
+                    token.String.Other,
+                    token.Name.Label,
+                    token.Punctuation,
+                ),
             ),
             inherit,
         ],

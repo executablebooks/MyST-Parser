@@ -170,7 +170,7 @@ Sphinx and MyST provide means to analyse source code and automatically generate 
 
 As opposed to `sphinx.ext.autodoc`, `sphinx-autodoc2` performs static (rather than dynamic) analysis of the source code, integrates full package documenting, and also allows for docstrings to be written in both RestructureText and MyST.
 
-The `auto_mode` will automatically generate the full API documentation, as shown [...](/apidocs/index.rst).
+The `auto_mode` will automatically generate the full API documentation, as shown <project:/apidocs/index.rst>.
 
 Alternatively, the `autodoc2-object` directive can be used to generate documentation for a single object.
 To embed in a MyST document the MyST `render_plugin` should be specified, for example:

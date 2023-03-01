@@ -887,46 +887,49 @@ class DocutilsRenderer(RendererProtocol):
     def render_link(self, token: SyntaxTreeNode) -> None:
         """Parse `<http://link.com>` or `[text](link "title")` syntax to docutils AST:
 
-        - If `myst_all_links_external` is True, forward to `render_external_url`
+        - If `myst_all_links_external` is True, forward to `render_link_url`
         - If the link token has a class attribute containing `external`,
-            forward to `render_external_url`
-        - If the link is an id link (e.g. `#id`), forward to `render_id_link`
+            forward to `render_link_url`
+        - If the link is an id link (e.g. `#id`), forward to `render_link_anchor`
         - If the link has a schema, and the schema is in `url_schemes` (e.g. `http:`),
-          forward to `render_external_url`
-        - If the link has an `inv:` schema,
-          forward to `render_inventory_link`
-        - If the link is an autolink/linkify type link, forward to `render_external_url`
-        - Otherwise, forward to `render_internal_link`
+          forward to `render_link_url`
+        - If the link has an `inv:` schema, forward to `render_link_inventory`
+        - If the link is an autolink/linkify type link, forward to `render_link_url`
+        - Otherwise, forward to `render_link_internal`
         """
         if (
             self.md_config.commonmark_only
             or self.md_config.gfm_only
             or self.md_config.all_links_external
         ):
-            return self.render_external_url(token)
+            return self.render_link_url(token)
 
         if "class" in token.attrs and "external" in str(token.attrs["class"]).split():
-            return self.render_external_url(token)
+            return self.render_link_url(token)
 
         href = cast(str, token.attrGet("href") or "")
         if href.startswith("#"):
-            return self.render_id_link(token)
+            return self.render_link_anchor(token, href)
 
         scheme_match = REGEX_SCHEME.match(href)
         scheme = None if scheme_match is None else scheme_match.group(1)
         if scheme in self.md_config.url_schemes:
-            return self.render_external_url(token, self.md_config.url_schemes[scheme])
+            return self.render_link_url(token, self.md_config.url_schemes[scheme])
 
         if scheme == "inv":
-            return self.render_inventory_link(token)
+            return self.render_link_inventory(token)
+        if scheme == "path":
+            return self.render_link_path(token)
+        if scheme == "project":
+            return self.render_link_project(token)
 
         if token.info == "auto":
-            # handles both autolink and linkify, these are currently never internal
-            return self.render_external_url(token)
+            # handles both autolink and linkify
+            return self.render_link_url(token)
 
-        return self.render_internal_link(token)
+        return self.render_link_unknown(token)
 
-    def render_external_url(
+    def render_link_url(
         self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
     ) -> None:
         """Render link token (including autolink and linkify),
@@ -986,21 +989,49 @@ class DocutilsRenderer(RendererProtocol):
             with self.current_node_context(ref_node, append=True):
                 self.render_children(token)
 
-    def render_id_link(self, token: SyntaxTreeNode) -> None:
-        """Render link token like `[text](#id)`, to a local target."""
+    def render_link_path(self, token: SyntaxTreeNode) -> None:
+        """Render a link token like `<path:...>`."""
+        self.create_warning(
+            "`path:` scheme not yet supported in docutils",
+            MystWarnings.NOT_SUPPORTED,
+            line=token_line(token, 0),
+            append_to=self.current_node,
+        )
+        return self.render_link_url(token)
+
+    def render_link_project(self, token: SyntaxTreeNode) -> None:
+        """Render a link token like `<project:...>`."""
+        destination = cast(str, token.attrGet("href") or "")
+        if destination.startswith("project:"):
+            destination = destination[8:]
+        if destination.startswith("#"):
+            return self.render_link_anchor(token, destination)
+        self.create_warning(
+            "`project:` scheme for file paths not yet supported in docutils",
+            MystWarnings.NOT_SUPPORTED,
+            line=token_line(token, 0),
+            append_to=self.current_node,
+        )
+        return self.render_link_url(token)
+
+    def render_link_anchor(self, token: SyntaxTreeNode, target: str) -> None:
+        """Render link token like `[text](#target)`, to a local target.
+
+        :target: the target id, e.g. `#target`
+        """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         ref_node["id_link"] = True
-        ref_node["refuri"] = self.md.normalizeLinkText(str(token.attrGet("href") or ""))
+        ref_node["refuri"] = self.md.normalizeLinkText(target)
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         self.current_node.append(ref_node)
-        if token.info != "auto" and not is_ellipsis(token):
+        if token.info != "auto":
             with self.current_node_context(ref_node):
                 self.render_children(token)
 
-    def render_internal_link(self, token: SyntaxTreeNode) -> None:
+    def render_link_unknown(self, token: SyntaxTreeNode) -> None:
         """Render link token `[text](link "title")`,
         where the link has not been identified as an external URL::
 
@@ -1021,7 +1052,7 @@ class DocutilsRenderer(RendererProtocol):
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
 
-    def render_inventory_link(self, token: SyntaxTreeNode) -> None:
+    def render_link_inventory(self, token: SyntaxTreeNode) -> None:
         r"""Create a link to an inventory object.
 
         This assumes the href is of the form `<scheme>:<path>#<target>`.
@@ -1037,9 +1068,7 @@ class DocutilsRenderer(RendererProtocol):
         href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
 
         # note if the link had explicit text or not (autolinks are always implicit)
-        explicit = (
-            (token.info != "auto") and bool(token.children) and not is_ellipsis(token)
-        )
+        explicit = (token.info != "auto") and bool(token.children)
 
         # split the href up into parts
         uri_parts = urlparse(href)
@@ -1938,12 +1967,3 @@ def compute_unique_slug(
         slug = f"{slug}-{i}"
         i += 1
     return slug
-
-
-def is_ellipsis(token: SyntaxTreeNode) -> bool:
-    """Check if a token content only contains an ellipsis."""
-    return (
-        len(token.children) == 1
-        and token.children[0].type == "text"
-        and token.children[0].content in ("...", "…")
-    )

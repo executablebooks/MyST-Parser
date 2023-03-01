@@ -18,7 +18,7 @@
 [missing] 
 .
 [](#test)
-[...](#test)
+<project:#test>
 [explicit](#test)
 [](<#name with spaces>)
 .
@@ -59,7 +59,7 @@
 ## Non-anchor heading
 
 [](#title)
-[...](#longer-title-with-nested-syntax)
+<project:#longer-title-with-nested-syntax>
 [explicit](#title)
 .
 <document source="<src>/index.md">
@@ -94,7 +94,7 @@
 # Test
 
 [](#target)
-[...](#target)
+<project:#target>
 [explicit](#target)
 .
 <document ids="test target" names="test target" source="<src>/index.md" title="Test">
@@ -165,7 +165,7 @@ c  | d
 ```
 
 [](#table)
-[...](#table)
+<project:#table>
 [explicit](#table)
 .
 <document source="<src>/index.md">

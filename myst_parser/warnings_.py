@@ -12,6 +12,8 @@ class MystWarnings(Enum):
 
     DEPRECATED = "deprecated"
     """Deprecated usage."""
+    NOT_SUPPORTED = "not_supported"
+    """Functionality that is not yet supported in docutils."""
 
     RENDER_METHOD = "render"
     """The render method is not implemented."""

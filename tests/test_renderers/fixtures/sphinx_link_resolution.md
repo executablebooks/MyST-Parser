@@ -18,7 +18,7 @@
 [missing] 
 .
 [](#test)
-[...](#test)
+<project:#test>
 [explicit](#test)
 .
 <document source="<src>/index.md">
@@ -41,7 +41,7 @@
 ## Non-anchor heading
 
 [](#title)
-[...](#longer-title-with-nested-syntax)
+<project:#longer-title-with-nested-syntax>
 [explicit](#title)
 .
 <document source="<src>/index.md">
@@ -76,7 +76,7 @@
 # Test
 
 [](#target)
-[...](#target)
+<project:#target>
 [explicit](#target)
 [](<#name with spaces>)
 .
@@ -151,7 +151,7 @@ c  | d
 ```
 
 [](#table)
-[...](#table)
+<project:#table>
 [explicit](#table)
 .
 <document source="<src>/index.md">
@@ -193,7 +193,7 @@ c  | d
 [external-file] 
 .
 [](test.txt)
-[...](./test.txt)
+<path:./test.txt>
 [relative to source dir](/test.txt)
 .
 <document source="<src>/index.md">
@@ -214,7 +214,7 @@ c  | d
 [source-file] 
 .
 [](other.rst)
-[...](./other.rst)
+<project:other.rst>
 [relative to source dir](/other.rst)
 .
 <document source="<src>/index.md">

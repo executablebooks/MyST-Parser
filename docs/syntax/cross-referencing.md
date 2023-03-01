@@ -78,7 +78,7 @@ For example, using `myst_heading_anchors = 2`:
 
 ## A heading with slug
 
-[...](#a-heading-with-slug)
+<project:#a-heading-with-slug>
 
 [Explicit title](#a-heading-with-slug-1)
 ::::
@@ -136,25 +136,31 @@ or an **internal** target, such as a file, heading or figure within the same pro
 
 By default, MyST will resolve link destinations according to the following rules:
 
-1. Destinations beginning with `inv:` will be treated as links to intersphinx references ([see below](#syntax/inv_links)).
+1. Destination beginning with a scheme (e.g. `xxx:`), will be handled according to that scheme:
 
-2. Autolinks or destinations beginning with  `http:`, `https:`, `ftp:`, or `mailto:` will be treated as external [URL] links.
+   {style=lower-roman}
+   1. Destinations beginning with `project:` will be treated as internal references
+   2. Destinations beginning with `path:` will be treated as downloadable files
+   3. Destinations beginning with `inv:` will be treated as intersphinx references
+   4. Autolinks or destinations beginning with  `http:`, `https:`, `ftp:`, or `mailto:` will be treated as external [URL] links.
 
-3. Destinations which point to a local file path are treated as links to that file.
+2. Destinations which point to a local file path are treated as links to that file.
 
-   - If the destination is a relative path, it is resolved relative to the current file.
-   - If the destination is an absolute path (starts with `/`), it is resolved relative to the root of the project (i.e. the source directory).
-   - If that path relates to another document in the project (e.g. a `.md` or `.rst` file), then it will link to the first heading in that document.
-   - Links to project documents can also include a `#` fragment identifier, to link to a specific heading in that document.
-   - If the path is to a non-source file (e.g. a `.png` or `.pdf` file), then the link will be to the file itself, e.g. to download it.
+   {style=lower-roman}
+   1. If the destination is a relative path, it is resolved relative to the current file.
+   2. If the destination is an absolute path (starts with `/`), it is resolved relative to the root of the project (i.e. the source directory).
+   3. If that path relates to another document in the project (e.g. a `.md` or `.rst` file), then it will link to the first heading in that document.
+   4. Links to project documents can also include a `#` fragment identifier, to link to a specific heading in that document.
+   5. If the path is to a non-source file (e.g. a `.png` or `.pdf` file), then the link will be to the file itself, e.g. to download it.
 
-4. Destinations beginning with `#` will be treated as internal references.
+3. Destinations beginning with `#` will be treated as internal references.
 
-   - First, explicit target in the same file are searched for, if not found
-   - Then, implicit targets in the same file are searched for, if not found
-   - Then, explicit targets across the whole project are searched for, if not found
-   - Then, intersphinx references are searched for, if not found
-   - A warning is emitted and the destination is left as an external link.
+   {style=lower-roman}
+   1. First, explicit targets in the same file are searched for, if not found
+   2. Then, implicit targets in the same file are searched for, if not found
+   3. Then, explicit targets across the whole project are searched for, if not found
+   4. Then, intersphinx references are searched for, if not found
+   5. A warning is emitted and the destination is left as an external link.
 
 :::{note}
 Local file path resolution and cross-project references are not available in [single page builds](#myst-docutils)
@@ -162,48 +168,52 @@ Local file path resolution and cross-project references are not available in [si
 
 ### Explicit vs implicit link text
 
-If the link text is explicitly given, e.g. `[text](dest)`, then the link text will be the given text.
+If the link text is explicitly given, e.g. `[text](#dest)`, then the rendered text will be that.
 This text can contain nested inline markup, such as `[*emphasis*](#syntax/emphasis)`{l=md}.
 
-If no text or `...` is given, e.g. `[](dest)` or `[...](dest)`, then MyST will attempt to resolve an implicit text.
+If no text is given or it is an auto-link, e.g. `[](#dest)` or `<project:#dest>`, then MyST will attempt to resolve an implicit text.
 For example, if the destination is a heading, then the heading text will be used as the link text,
 or if the destination is a figure/table then the caption will be used as the link text.
 Otherwise, the link text will be the destination itself.
 
-### Some examples
+### Examples
 
-Here are some examples:
+#### Autolinks
 
-:::{list-table}
-:header-rows: 1
+:::{myst-example}
 
-* - Type
-  - Syntax
-  - Rendered
+:External URL: <https://example.com>
+:Internal target reference: <project:#cross-references>
+:Internal file reference: <project:../intro.md>
+:Internal file -> heading reference: <project:../intro.md#-get-started>
+:Downloadable file: <path:example.txt>
+:Intersphinx reference: <inv:sphinx:std#index>
 
-* - Autolink
-  - `<https://example.com>`
-  - <https://example.com>
+:::
 
-* - External URL
-  - `[example.com](https://example.com)`
-  - [example.com](https://example.com)
+#### Inline links with implicit text
 
-* - Document file
-  - `[Source file](../intro.md)`
-  - [Source file](../intro.md)
+:::{myst-example}
 
-* - Non-document file
-  - `[Non-source file](example.txt)`
-  - [Non-source file](example.txt)
+:External URL: [](https://example.com)
+:Internal target reference: [](#cross-references)
+:Internal file reference: [](../intro.md)
+:Internal file -> heading reference: [](../intro.md#-get-started)
+:Downloadable file: [](example.txt)
+:Intersphinx reference: [](inv:sphinx:std#index)
 
-* - Local heading
-  - `[...](#cross-references)`
-  - [...](#cross-references)
+:::
 
-* - Heading in other file
-  - `[Heading](../intro.md#installation)`
-  - [Heading](../intro.md#installation)
+#### Inline links with explicit text
+
+:::{myst-example}
+
+:External URL: [Explicit text](https://example.com)
+:Internal target reference: [Explicit text](#cross-references)
+:Internal file reference: [Explicit text](../intro.md)
+:Internal file -> heading reference: [Explicit text](../intro.md#-get-started)
+:Downloadable file: [Explicit text](example.txt)
+:Intersphinx reference: [Explicit text](inv:sphinx:std#index)
 
 :::
 
@@ -341,23 +351,23 @@ Here are some examples:
   - Rendered
 
 * - Autolink, full
-  - `<inv:sphinx:std:doc#index>`
+  - `<inv:sphinx:std:doc#index>`{l=myst}
   - <inv:sphinx:std:doc#index>
 
 * - Link, full
-  - `[Sphinx](inv:sphinx:std:doc#index)`
+  - `[Sphinx](inv:sphinx:std:doc#index)`{l=myst}
   - [Sphinx](inv:sphinx:std:doc#index)
 
 * - Autolink, no type
-  - `<inv:sphinx:std#index>`
+  - `<inv:sphinx:std#index>`{l=myst}
   - <inv:sphinx:std#index>
 
 * - Autolink, no domain
-  - `<inv:sphinx:*:doc#index>`
+  - `<inv:sphinx:*:doc#index>`{l=myst}
   - <inv:sphinx:*:doc#index>
 
 * - Autolink, only name
-  - `<inv:#*.Sphinx>`
+  - `<inv:#*.Sphinx>`{l=myst}
   - <inv:#*.Sphinx>
 
 :::
@@ -371,21 +381,21 @@ These can also within MyST documents, although it is recommended to use the Mark
 :::{myst-example}
 - {ref}`syntax/referencing`, {ref}`Explicit text <syntax/referencing>`
 - {term}`my other term`
-- {doc}`../intro`
-- {download}`example.txt`
-- {py:class}`mypackage.MyClass`
-- {external:class}`sphinx.application.Sphinx`
-- {external+sphinx:ref}`code-examples`
+- {doc}`../intro`, {doc}`Explicit text <../intro>`
+- {download}`example.txt`, {download}`Explicit text <example.txt>`
+- {py:class}`mypackage.MyClass`, {py:class}`Explicit text <mypackage.MyClass>`
+- {external:class}`sphinx.application.Sphinx`, {external:class}`Explicit text <sphinx.application.Sphinx>`
+- {external+sphinx:ref}`code-examples`, {external+sphinx:ref}`Explicit text <code-examples>`
 
 ---
 
-- [...][syntax], [Explicit text][syntax]
-- [...](<#my other term>)
-- [...](../intro.md)
-- [...](example.txt)
-- [...](#mypackage.MyClass)
-- [...](#sphinx.application.Sphinx), [...](inv:#*Sphinx)
-- [...](inv:sphinx#code-examples)
+- <project:#syntax/referencing>, [][syntax], [Explicit text][syntax]
+- [](<#my other term>)
+- <project:../intro.md>, [Explicit text](../intro.md)
+- <path:example.txt>, [Explicit text](example.txt)
+- <project:#mypackage.MyClass>, [Explicit text](#mypackage.MyClass)
+- <inv:#*Sphinx>, [Explicit text](#sphinx.application.Sphinx)
+- <inv:sphinx#code-examples>, [Explicit text](inv:sphinx#code-examples)
 
 [syntax]: #syntax/referencing
 :::

@@ -83,8 +83,9 @@
                     <inline classes="std std-ref">
                         Title anchors
             <paragraph>
-                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="index" reftargetid="title-anchors" reftype="myst">
-                    <inline classes="xref myst">
+                <reference id_link="True" refid="title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
             <paragraph>
                 <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="other" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">

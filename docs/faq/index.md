@@ -54,7 +54,7 @@ The [MyST-NB](https://myst-nb.readthedocs.io) tool provides a Sphinx extension f
 ### Include a file from outside the docs folder (like README.md)
 
 :::{seealso}
-[...](#organising-content/include)
+<project:#organising-content/include>
 :::
 
 You can include a file, including one from outside the project using e.g.:
@@ -118,7 +118,7 @@ See [](#syntax/implicit-targets) for this information.
 
 ### Suppress warnings
 
-See [...](#myst-warnings) for this information.
+See <project:#myst-warnings> for this information.
 
 ### Sphinx-specific page front matter
 
