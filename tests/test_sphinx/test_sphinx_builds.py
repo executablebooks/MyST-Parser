@@ -564,15 +564,11 @@ def test_fieldlist_extension(
 
 @pytest.mark.sphinx(
     buildername="texinfo",
-    srcdir=os.path.join(SOURCE_DIR, "texi_table"),
+    srcdir=os.path.join(SOURCE_DIR, "texinfo"),
     freshenv=True,
 )
-def test_texinfo_table(
-    app,
-    status,
-    warning,
-):
-    """Test that tables can be built with the Texinfo builder."""
+def test_texinfo(app, status, warning):
+    """Test Texinfo builds."""
     app.build()
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
