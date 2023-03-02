@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.19.1 - 2023-03-02
+
+🐛 FIX `NoURI` error in doc reference resolution, for texinfo builds (<gh-pr:734>)
+
 ## 0.19.0 - 2023-03-01
 
 This release brings a number of exciting new features, improvements, and upgrades 🎉
