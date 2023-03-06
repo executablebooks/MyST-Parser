@@ -12,6 +12,8 @@ myst_enable_extensions = [
     "colon_fence",
     "linkify",
     "tasklist",
+    "attrs_inline",
+    "attrs_block",
 ]
 myst_number_code_blocks = ["typescript"]
 myst_html_meta = {

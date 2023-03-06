@@ -39,6 +39,15 @@ Term 3
 
   : other
 
+{#myid1 .glossary}
+term
+:  definition
+
+other term
+:  other definition
+
+{term}`other term`
+
 :::{figure-md} target
 :class: other
 
@@ -53,6 +62,10 @@ This is a caption in **Markdown**
 <img src="fun-fish.png" alt="fishy" class="bg-primary mb-1" width="200px">
 
 This is a caption in **Markdown**
+:::
+
+:::other
+Hallo *there*
 :::
 
 linkify URL: www.example.com

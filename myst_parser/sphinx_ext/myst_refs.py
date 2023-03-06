@@ -3,28 +3,28 @@
 This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
-from typing import Any, List, Optional, Tuple, cast
+from __future__ import annotations
+
+import re
+from typing import Any, cast
 
 from docutils import nodes
 from docutils.nodes import Element, document
-from sphinx import addnodes, version_info
+from markdown_it.common.normalize_url import normalizeLink
+from sphinx import addnodes
 from sphinx.addnodes import pending_xref
 from sphinx.domains.std import StandardDomain
 from sphinx.errors import NoUri
-from sphinx.locale import __
+from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.transforms.post_transforms import ReferencesResolver
 from sphinx.util import docname_join, logging
 from sphinx.util.nodes import clean_astext, make_refnode
 
+from myst_parser import inventory
 from myst_parser._compat import findall
 from myst_parser.warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
-
-
-def log_warning(msg: str, subtype: MystWarnings, **kwargs: Any):
-    """Log a warning, with a myst type and specific subtype."""
-    LOGGER.warning(msg, type="myst", subtype=subtype.value, **kwargs)
 
 
 class MystReferenceResolver(ReferencesResolver):
@@ -34,6 +34,41 @@ class MystReferenceResolver(ReferencesResolver):
     """
 
     default_priority = 9  # higher priority than ReferencesResolver (10)
+
+    def log_warning(
+        self, target: None | str, msg: str, subtype: MystWarnings, **kwargs: Any
+    ):
+        """Log a warning, with a myst type and specific subtype."""
+
+        # MyST references are warned about by default (the same as the `any` role)
+        # However, warnings can also be ignored by adding ("myst", target)
+        # nitpick_ignore/nitpick_ignore_regex lists
+        # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-nitpicky
+        if (
+            target
+            and self.config.nitpick_ignore
+            and ("myst", target) in self.config.nitpick_ignore
+        ):
+            return
+        if (
+            target
+            and self.config.nitpick_ignore_regex
+            and any(
+                (
+                    re.fullmatch(ignore_type, "myst")
+                    and re.fullmatch(ignore_target, target)
+                )
+                for ignore_type, ignore_target in self.config.nitpick_ignore_regex
+            )
+        ):
+            return
+
+        LOGGER.warning(
+            msg + f" [myst.{subtype.value}]",
+            type="myst",
+            subtype=subtype.value,
+            **kwargs,
+        )
 
     def run(self, **kwargs: Any) -> None:
         self.document: document
@@ -45,47 +80,55 @@ class MystReferenceResolver(ReferencesResolver):
                 self.resolve_myst_ref_doc(node)
                 continue
 
-            contnode = cast(nodes.TextElement, node[0].deepcopy())
             newnode = None
-
+            contnode = cast(nodes.TextElement, node[0].deepcopy())
             target = node["reftarget"]
             refdoc = node.get("refdoc", self.env.docname)
-            domain = None
+            search_domains: None | list[str] = self.env.config.myst_ref_domains
 
+            # try to resolve the reference within the local project,
+            # this asks all domains to resolve the reference,
+            # return None if no domain could resolve the reference
+            # or returns the first result, and logs a warning if
+            # multiple domains resolved the reference
             try:
-                newnode = self.resolve_myst_ref_any(refdoc, node, contnode)
-                if newnode is None:
-                    # no new node found? try the missing-reference event
-                    # but first we change the the reftype to 'any'
-                    # this means it is picked up by extensions like intersphinx
-                    node["reftype"] = "any"
-                    try:
-                        newnode = self.app.emit_firstresult(
-                            "missing-reference",
-                            self.env,
-                            node,
-                            contnode,
-                            **(
-                                {"allowed_exceptions": (NoUri,)}
-                                if version_info[0] > 2
-                                else {}
-                            ),
-                        )
-                    finally:
-                        node["reftype"] = "myst"
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
-                    if newnode is None:
-                        node["refdomain"] = ""
-                        # TODO ideally we would override the warning message here,
-                        # to show the [ref.myst] for suppressing warning
-                        self.warn_missing_reference(
-                            refdoc, node["reftype"], target, node, domain
-                        )
+                newnode = self.resolve_myst_ref_any(
+                    refdoc, node, contnode, search_domains
+                )
             except NoUri:
                 newnode = contnode
+            if newnode is None:
+                # If no local domain could resolve the reference, try to
+                # resolve it as an inter-sphinx reference
+                newnode = self._resolve_myst_ref_intersphinx(
+                    node, contnode, target, search_domains
+                )
+            if newnode is None:
+                # if still not resolved, log a warning,
+                self.log_warning(
+                    target,
+                    f"'myst' cross-reference target not found: {target!r}",
+                    MystWarnings.XREF_MISSING,
+                    location=node,
+                )
 
-            node.replace_self(newnode or contnode)
+            # if the target could not be found, then default to using an external link
+            if not newnode:
+                newnode = nodes.reference()
+                newnode["refid"] = normalizeLink(target)
+                newnode.append(node[0].deepcopy())
+
+            # ensure the output node has some content
+            if (
+                len(newnode.children) == 1
+                and isinstance(newnode[0], nodes.inline)
+                and not (newnode[0].children)
+            ):
+                newnode[0].replace_self(nodes.literal(target, target))
+            elif not newnode.children:
+                newnode.append(nodes.literal(target, target))
+
+            node.replace_self(newnode)
 
     def resolve_myst_ref_doc(self, node: pending_xref):
         """Resolve a reference, from a markdown link, to another document,
@@ -93,10 +136,11 @@ class MystReferenceResolver(ReferencesResolver):
         """
         from_docname = node.get("refdoc", self.env.docname)
         ref_docname: str = node["reftarget"]
-        ref_id: Optional[str] = node["reftargetid"]
+        ref_id: str | None = node["reftargetid"]
 
         if ref_docname not in self.env.all_docs:
-            log_warning(
+            self.log_warning(
+                ref_docname,
                 f"Unknown source document {ref_docname!r}",
                 MystWarnings.XREF_MISSING,
                 location=node,
@@ -111,14 +155,15 @@ class MystReferenceResolver(ReferencesResolver):
         if ref_id:
             slug_to_section = self.env.metadata[ref_docname].get("myst_slugs", {})
             if ref_id not in slug_to_section:
-                log_warning(
+                self.log_warning(
+                    ref_id,
                     f"local id not found in doc {ref_docname!r}: {ref_id!r}",
                     MystWarnings.XREF_MISSING,
                     location=node,
                 )
                 targetid = ref_id
             else:
-                targetid, implicit_text = slug_to_section[ref_id]
+                _, targetid, implicit_text = slug_to_section[ref_id]
             inner_classes = ["std", "std-ref"]
         else:
             implicit_text = clean_astext(self.env.titles[ref_docname])
@@ -133,15 +178,22 @@ class MystReferenceResolver(ReferencesResolver):
             )
 
         assert self.app.builder
-        ref_node = make_refnode(
-            self.app.builder, from_docname, ref_docname, targetid, innernode
-        )
+        try:
+            ref_node = make_refnode(
+                self.app.builder, from_docname, ref_docname, targetid, innernode
+            )
+        except NoUri:
+            ref_node = innernode
         node.replace_self(ref_node)
 
     def resolve_myst_ref_any(
-        self, refdoc: str, node: pending_xref, contnode: Element
-    ) -> Element:
-        """Resolve reference generated by the "myst" role; ``[text](reference)``.
+        self,
+        refdoc: str,
+        node: pending_xref,
+        contnode: Element,
+        only_domains: None | list[str],
+    ) -> Element | None:
+        """Resolve reference generated by the "myst" role; ``[text](#reference)``.
 
         This builds on the sphinx ``any`` role to also resolve:
 
@@ -152,7 +204,7 @@ class MystReferenceResolver(ReferencesResolver):
 
         """
         target: str = node["reftarget"]
-        results: List[Tuple[str, Element]] = []
+        results: list[tuple[str, Element]] = []
 
         # resolve standard references
         res = self._resolve_ref_nested(node, refdoc)
@@ -164,13 +216,10 @@ class MystReferenceResolver(ReferencesResolver):
         if res:
             results.append(("std:doc", res))
 
-        # get allowed domains for referencing
-        ref_domains = self.env.config.myst_ref_domains
-
         assert self.app.builder
 
         # next resolve for any other standard reference objects
-        if ref_domains is None or "std" in ref_domains:
+        if only_domains is None or "std" in only_domains:
             stddomain = cast(StandardDomain, self.env.get_domain("std"))
             for objtype in stddomain.object_types:
                 key = (objtype, target)
@@ -188,7 +237,7 @@ class MystReferenceResolver(ReferencesResolver):
         for domain in self.env.domains.values():
             if domain.name == "std":
                 continue  # we did this one already
-            if ref_domains is not None and domain.name not in ref_domains:
+            if only_domains is not None and domain.name not in only_domains:
                 continue
             try:
                 results.extend(
@@ -200,9 +249,10 @@ class MystReferenceResolver(ReferencesResolver):
                 # the domain doesn't yet support the new interface
                 # we have to manually collect possible references (SLOW)
                 if not (getattr(domain, "__module__", "").startswith("sphinx.")):
-                    log_warning(
+                    self.log_warning(
+                        None,
                         f"Domain '{domain.__module__}::{domain.name}' has not "
-                        "implemented a `resolve_any_xref` method [myst.domains]",
+                        "implemented a `resolve_any_xref` method",
                         MystWarnings.LEGACY_DOMAIN,
                         once=True,
                     )
@@ -223,11 +273,10 @@ class MystReferenceResolver(ReferencesResolver):
                 return f":{name}:`{reftitle}`"
 
             candidates = " or ".join(stringify(name, role) for name, role in results)
-            log_warning(
-                __(
-                    f"more than one target found for 'myst' cross-reference {target}: "
-                    f"could be {candidates} [myst.ref]"
-                ),
+            self.log_warning(
+                target,
+                f"more than one target found for 'myst' cross-reference {target}: "
+                f"could be {candidates}",
                 MystWarnings.XREF_AMBIGUOUS,
                 location=node,
             )
@@ -246,7 +295,7 @@ class MystReferenceResolver(ReferencesResolver):
 
     def _resolve_ref_nested(
         self, node: pending_xref, fromdocname: str, target=None
-    ) -> Optional[Element]:
+    ) -> Element | None:
         """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
         """
@@ -274,7 +323,7 @@ class MystReferenceResolver(ReferencesResolver):
 
     def _resolve_doc_nested(
         self, node: pending_xref, fromdocname: str
-    ) -> Optional[Element]:
+    ) -> Element | None:
         """This is the same as ``sphinx.domains.std._resolve_doc_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
 
@@ -295,3 +344,58 @@ class MystReferenceResolver(ReferencesResolver):
 
         assert self.app.builder
         return make_refnode(self.app.builder, fromdocname, docname, "", innernode)
+
+    def _resolve_myst_ref_intersphinx(
+        self,
+        node: nodes.Element,
+        contnode: nodes.Element,
+        target: str,
+        only_domains: list[str] | None,
+    ) -> None | nodes.reference:
+        """Resolve a myst reference to an intersphinx inventory."""
+        matches = [
+            m
+            for m in inventory.filter_sphinx_inventories(
+                InventoryAdapter(self.env).named_inventory,
+                targets=target,
+            )
+            if only_domains is None or m.domain in only_domains
+        ]
+        if not matches:
+            return None
+        if len(matches) > 1:
+            # log a warning if there are multiple matches
+            show_num = 3
+            matches_str = ", ".join(
+                [
+                    inventory.filter_string(m.inv, m.domain, m.otype, m.name)
+                    for m in matches[:show_num]
+                ]
+            )
+            if len(matches) > show_num:
+                matches_str += ", ..."
+            self.log_warning(
+                target,
+                f"Multiple matches found for {target!r}: {matches_str}",
+                MystWarnings.IREF_AMBIGUOUS,
+                location=node,
+            )
+        # get the first match and create a reference node
+        match = matches[0]
+        newnode = nodes.reference("", "", internal=False, refuri=match.loc)
+        if "reftitle" in node:
+            newnode["reftitle"] = node["reftitle"]
+        else:
+            newnode["reftitle"] = f"{match.project} {match.version}".strip()
+        if node.get("refexplicit"):
+            newnode.append(contnode)
+        elif match.text:
+            newnode.append(
+                contnode.__class__(match.text, match.text, classes=["iref", "myst"])
+            )
+        else:
+            newnode.append(
+                nodes.literal(match.name, match.name, classes=["iref", "myst"])
+            )
+
+        return newnode

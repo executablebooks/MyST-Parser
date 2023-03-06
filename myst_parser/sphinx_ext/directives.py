@@ -72,9 +72,7 @@ class FigureMarkdown(SphinxDirective):
         myst_extensions = copy(state._renderer.md_config.enable_extensions)
         node = nodes.Element()
         try:
-            state._renderer.md_config.enable_extensions = list(
-                state._renderer.md_config.enable_extensions
-            ) + ["html_image"]
+            state._renderer.md_config.enable_extensions.add("html_image")
             state.nested_parse(self.content, self.content_offset, node)
         finally:
             state._renderer.md_config.enable_extensions = myst_extensions

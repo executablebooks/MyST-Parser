@@ -4,6 +4,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from docutils import __version_info__
 from docutils.core import Publisher, publish_string
 from pytest_param_files import ParamTestData
 
@@ -16,6 +17,10 @@ INV_PATH = Path(__file__).parent.parent.absolute() / "static" / "objects_v2.inv"
 @pytest.mark.param_file(FIXTURE_PATH / "myst-config.txt")
 def test_cmdline(file_params: ParamTestData):
     """The description is parsed as a docutils commandline"""
+    if "url_schemes_list" in file_params.title and __version_info__ < (0, 18):
+        pytest.skip("problematic node ids changed in docutils 0.18")
+    if "heading_slug_func" in file_params.title and __version_info__ < (0, 18):
+        pytest.skip("dupnames ids changed in docutils 0.18")
     pub = Publisher(parser=Parser())
     option_parser = pub.setup_option_parser()
     try:

@@ -1,13 +1,24 @@
 """The setup for the sphinx extension."""
 from typing import Any
 
+from docutils import nodes
 from sphinx.application import Sphinx
 
+from myst_parser.parsers.docutils_ import (
+    depart_container_html,
+    depart_rubric_html,
+    visit_container_html,
+    visit_rubric_html,
+)
 from myst_parser.warnings_ import MystWarnings
 
 
-def setup_sphinx(app: Sphinx, load_parser=False):
-    """Initialize all settings and transforms in Sphinx."""
+def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
+    """Initialize all settings and transforms in Sphinx.
+
+    :param app: The Sphinx application object.
+    :param load_parser: Whether to load the parser.
+    """
     # we do this separately to setup,
     # so that it can be called by external packages like myst_nb
     from myst_parser.config.main import MdParserConfig
@@ -28,8 +39,22 @@ def setup_sphinx(app: Sphinx, load_parser=False):
 
     app.add_post_transform(MystReferenceResolver)
 
+    # override only the html writer visit methods for rubric, to use the "level" attribute
+    # this allows for nested headers to be correctly rendered
+    app.add_node(
+        nodes.rubric, override=True, html=(visit_rubric_html, depart_rubric_html)
+    )
+    # override only the html writer visit methods for container,
+    # to remove the "container" class for divs
+    # this avoids CSS clashes with the bootstrap theme
+    app.add_node(
+        nodes.container,
+        override=True,
+        html=(visit_container_html, depart_container_html),
+    )
+
     for name, default, field in MdParserConfig().as_triple():
-        if not field.metadata.get("docutils_only", False):
+        if "sphinx" not in field.metadata.get("omit", []):
             # TODO add types?
             app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
@@ -38,6 +63,7 @@ def setup_sphinx(app: Sphinx, load_parser=False):
 
 
 def create_myst_config(app):
+    """Create the myst config object and add it to the sphinx environment."""
     from sphinx.util import logging
 
     # Ignore type checkers because the attribute is dynamically assigned
@@ -51,7 +77,7 @@ def create_myst_config(app):
     values = {
         name: app.config[f"myst_{name}"]
         for name, _, field in MdParserConfig().as_triple()
-        if not field.metadata.get("docutils_only", False)
+        if "sphinx" not in field.metadata.get("omit", [])
     }
 
     try:

@@ -118,7 +118,7 @@ class MockState:
             reporter = self.document.reporter
             language = renderer.language_module_rst
             title_styles: list[str] = []
-            section_level = max(renderer._level_to_elem)
+            section_level = max(renderer._level_to_section)
             section_bubble_up_kludge = False
             inliner = self.inliner
 
@@ -174,7 +174,7 @@ class MockState:
             self._renderer.nested_render_text(
                 "\n".join(block),
                 self._lineno + input_offset,
-                allow_headings=match_titles,
+                temp_root_node=node if match_titles else None,
             )
         self.state_machine.match_titles = sm_match_titles
 
@@ -343,7 +343,6 @@ class MockIncludeDirective:
         self.lineno = lineno
 
     def run(self) -> list[nodes.Element]:
-
         from docutils.parsers.rst.directives.body import CodeBlock, NumberLines
 
         if not self.document.settings.file_insertion_enabled:
@@ -376,12 +375,13 @@ class MockIncludeDirective:
         # tab_width = self.options.get("tab-width", self.document.settings.tab_width)
         try:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
+        except FileNotFoundError:
+            raise DirectiveError(
+                4, f'Directive "{self.name}": file not found: {str(path)!r}'
+            )
         except Exception as error:
             raise DirectiveError(
-                4,
-                'Directive "{}": error reading file: {}\n{}.'.format(
-                    self.name, path, error
-                ),
+                4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
             )
 
         # get required section of text
@@ -469,7 +469,9 @@ class MockIncludeDirective:
                     path.parent,
                 )
             self.renderer.nested_render_text(
-                file_content, startline + 1, allow_headings=True
+                file_content,
+                startline + 1,
+                heading_offset=self.options.get("heading-offset", 0),
             )
         finally:
             self.renderer.document["source"] = source

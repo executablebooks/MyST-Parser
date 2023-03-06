@@ -111,6 +111,16 @@ Heading Levels:
             d
 .
 
+Nested heading
+.
+> # heading
+.
+<document source="<src>/index.md">
+    <block_quote>
+        <rubric ids="heading" level="1" names="heading">
+            heading
+.
+
 Block Code:
 .
     foo
@@ -311,44 +321,6 @@ Target with whitespace:
     <target ids="target-with-space" names="target\ with\ space">
 .
 
-Referencing:
-.
-(target)=
-
-Title
-=====
-
-[alt1](target)
-
-[](target2)
-
-[alt2](https://www.google.com)
-
-[alt3](#title)
-.
-<document source="<src>/index.md">
-    <target ids="target" names="target">
-    <section ids="title" names="title">
-        <title>
-            Title
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="target" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-                    alt1
-        <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target2" reftype="myst" refwarn="True">
-                <inline classes="xref myst">
-        <paragraph>
-            <reference refuri="https://www.google.com">
-                alt2
-        <paragraph>
-            <reference id_link="True" refid="title">
-                alt3
-                <system_message level="2" line="12" source="<src>/index.md" type="WARNING">
-                    <paragraph>
-                        local id not found: '#title' [myst.xref_missing]
-.
-
 Comments:
 .
 line 1
@@ -428,7 +400,7 @@ Link Definition in directive:
 <document source="<src>/index.md">
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst">
                 <inline classes="xref myst">
                     a
 .
@@ -452,7 +424,7 @@ Link Definition in nested directives:
     <note>
     <note>
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="link" reftype="myst">
                 <inline classes="xref myst">
                     ref1
 
@@ -797,6 +769,6 @@ a = 1
         <literal_block language="::python" xml:space="preserve">
             a = 1
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="target" reftype="myst">
                 <inline classes="xref myst">
 .

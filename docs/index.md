@@ -2,7 +2,7 @@
 sd_hide_title: true
 ---
 
-# Overview
+# 🔎 Overview
 
 ::::{grid}
 :reverse:
@@ -15,6 +15,7 @@ sd_hide_title: true
 ```{image} _static/logo-square.svg
 :width: 200px
 :class: sd-m-auto
+:name: landing-page-logo
 ```
 
 :::
@@ -130,25 +131,38 @@ live-preview.md
 
 ```{toctree}
 :hidden:
-:caption: Guides
+:caption: ✏️ Authoring
 
-syntax/syntax
-syntax/optional
-syntax/roles-and-directives.md
-configuration.md
-docutils.md
-faq/index.md
-develop/index.md
+syntax/typography.md
+syntax/admonitions.md
+syntax/images_and_figures.md
+syntax/tables.md
+syntax/code_and_apis.md
+syntax/cross-referencing.md
+syntax/math.md
 ```
 
 ```{toctree}
 :hidden:
-:caption: Reference
+:caption: 📚 Guides
+
+configuration.md
+syntax/organising_content.md
+syntax/optional
+syntax/roles-and-directives.md
+docutils.md
+faq/index.md
+```
+
+```{toctree}
+:hidden:
+:caption: 📖 Reference
 
 develop/_changelog.md
+develop/index.md
 syntax/reference
 develop/background.md
-api/reference.rst
+apidocs/index.rst
 ```
 
 [commonmark]: https://commonmark.org/

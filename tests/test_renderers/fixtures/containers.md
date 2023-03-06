@@ -29,3 +29,31 @@ Admonition with options:
             <emphasis>
                 hallo
 .
+
+empty name:
+.
+:::
+This is **content**
+:::
+.
+<document source="<src>/index.md">
+    <container is_div="True">
+        <paragraph>
+            This is
+            <strong>
+                content
+.
+
+has name:
+.
+:::name
+This is **content**
+:::
+.
+<document source="<src>/index.md">
+    <container classes="name" is_div="True">
+        <paragraph>
+            This is
+            <strong>
+                content
+.

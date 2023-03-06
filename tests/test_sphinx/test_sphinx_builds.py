@@ -90,8 +90,12 @@ def test_references(
     app.build()
 
     assert "build succeeded" in status.getvalue()  # Build succeeded
-    warnings = warning.getvalue().strip()
-    assert warnings == ""
+    # should be one warning:
+    # WARNING: Multiple matches found for 'duplicate':
+    # inter:py:module:duplicate, inter:std:label:duplicate [myst.iref_ambiguous]
+    warnings = warning.getvalue().strip().splitlines()
+    assert len(warnings) == 1
+    assert "[myst.iref_ambiguous]" in warnings[0]
 
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
@@ -560,15 +564,11 @@ def test_fieldlist_extension(
 
 @pytest.mark.sphinx(
     buildername="texinfo",
-    srcdir=os.path.join(SOURCE_DIR, "texi_table"),
+    srcdir=os.path.join(SOURCE_DIR, "texinfo"),
     freshenv=True,
 )
-def test_texinfo_table(
-    app,
-    status,
-    warning,
-):
-    """Test that tables can be built with the Texinfo builder."""
+def test_texinfo(app, status, warning):
+    """Test Texinfo builds."""
     app.build()
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()

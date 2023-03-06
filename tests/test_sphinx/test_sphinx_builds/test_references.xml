@@ -19,14 +19,14 @@
                 <emphasis>
                     syntax
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="title" reftype="myst">
                 <inline classes="xref myst">
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst">
                 <inline classes="xref myst">
                     plain text
         <paragraph>
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="title" reftype="myst">
                 <inline classes="xref myst">
                     nested 
                     <emphasis>
@@ -45,14 +45,14 @@
                     <emphasis>
                         syntax
         <paragraph>
-            <download_reference filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="file_link.txt" reftype="myst" refwarn="False">
+            <download_reference filename="ab0d698fdd2b6a81c34b5ed380fe6f61/file_link.txt" refdoc="index" refdomain="True" refexplicit="True" reftarget="file_link.txt" reftype="myst">
                 <inline classes="xref download myst">
                     download 
                     <strong>
                         link
         <paragraph>
-            <download_reference filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/file_link2.txt" reftype="myst" refwarn="False">
-                <inline classes="xref download myst">
+            <download_reference filename="1952147a8403903cb78cecf56f049085/file_link2.txt" refdoc="index" refdomain="True" refexplicit="False" reftarget="subfolder/file_link2.txt" reftype="myst">
+                <literal classes="xref download myst">
                     subfolder/file_link2.txt
         <target refid="insidecodeblock">
         <paragraph ids="insidecodeblock" names="insidecodeblock">
@@ -68,7 +68,7 @@
                 insidecodeblock
         <paragraph>
             I am outside the 
-            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst" refwarn="True">
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="insidecodeblock" reftype="myst">
                 <inline classes="xref myst">
                     fence
         <section ids="title-anchors" names="title\ anchors" slug="title-anchors">
@@ -83,8 +83,9 @@
                     <inline classes="std std-ref">
                         Title anchors
             <paragraph>
-                <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="index" reftargetid="title-anchors" reftype="myst">
-                    <inline classes="xref myst">
+                <reference id_link="True" refid="title-anchors">
+                    <inline classes="std std-ref">
+                        Title anchors
             <paragraph>
                 <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="other" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
@@ -94,3 +95,36 @@
             <paragraph>
                 <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="subfolder/other2" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="intersphinx-via" names="intersphinx\ via\ #" slug="intersphinx-via-">
+        <title>
+            Intersphinx via 
+            <literal>
+                #
+        <paragraph>
+            Unknown 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="unknown" reftype="myst">
+                <inline classes="xref myst">
+        <paragraph>
+            Unknown explicit 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="unknown" reftype="myst">
+                <inline classes="xref myst">
+                    <strong>
+                        hallo
+        <paragraph>
+            Known no title 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="paragraph-target" reftype="myst">
+                <inline classes="xref myst">
+        <paragraph>
+            Known explicit 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="paragraph-target" reftype="myst">
+                <inline classes="xref myst">
+                    <strong>
+                        hallo
+        <paragraph>
+            Known with title 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="title-target" reftype="myst">
+                <inline classes="xref myst">
+        <paragraph>
+            Ambiguous 
+            <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="duplicate" reftype="myst">
+                <inline classes="xref myst">

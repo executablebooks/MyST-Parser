@@ -4,6 +4,7 @@ Note, the output AST is before any transforms are applied.
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -21,6 +22,32 @@ def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+
+
+@pytest.mark.param_file(FIXTURE_PATH / "sphinx_link_resolution.md")
+def test_link_resolution(file_params, sphinx_doctree: CreateDoctree):
+    sphinx_doctree.set_conf(
+        {"extensions": ["myst_parser"], **settings_from_json(file_params.description)}
+    )
+    sphinx_doctree.srcdir.joinpath("test.txt").touch()
+    sphinx_doctree.srcdir.joinpath("other.rst").write_text(":orphan:\n\nTest\n====")
+    result = sphinx_doctree(file_params.content, "index.md")
+    outcome = result.pformat("index")
+    if result.warnings.strip():
+        outcome += "\n\n" + result.warnings.strip()
+    file_params.assert_expected(outcome, rstrip_lines=True)
+
+
+def settings_from_json(string: str | None):
+    """Parse the description for a JSON settings string."""
+    if string is None or not string.strip():
+        return {}
+    try:
+        data = json.loads(string)
+        assert isinstance(data, dict), "settings must be a JSON object"
+    except Exception as err:
+        raise AssertionError(f"Failed to parse JSON settings: {string}\n{err}")
+    return data
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "tables.md")
@@ -121,6 +148,18 @@ def test_evalrst_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
 def test_definition_lists(file_params, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]}
+    )
+    result = sphinx_doctree_no_tr(file_params.content, "index.md")
+    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+
+
+@pytest.mark.param_file(FIXTURE_PATH / "attributes.md")
+def test_attributes(file_params, sphinx_doctree_no_tr: CreateDoctree):
+    sphinx_doctree_no_tr.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "myst_enable_extensions": ["attrs_inline", "attrs_block"],
+        }
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)

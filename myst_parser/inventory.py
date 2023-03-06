@@ -43,7 +43,7 @@ class InventoryType(TypedDict):
     version: str
     """The version of the project."""
     base_url: str | None
-    """The base URL of the `loc`s."""
+    """The base URL of the `loc`."""
     objects: dict[str, dict[str, dict[str, InventoryItemType]]]
     """Mapping of domain -> object type -> name -> item."""
 

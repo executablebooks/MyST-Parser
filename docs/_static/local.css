@@ -1,43 +1,65 @@
+/** landing page logo **/
+#landing-page-logo {
+    background: none;
+}
+
 /** Add a counter before subsections **/
-h1:not(.tippy-header) {
+h1:not(.rubric) {
     counter-reset: subsection;
     text-decoration: underline;
 }
-h2:not(.tippy-header) {
-    counter-reset: subsubsection;
+
+/** MyST examples */
+.myst-example {
+    border: 1px solid var(--pst-color-border);
+    border-left-color: var(--pst-color-info);
+    border-left-width: .2em;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 15px;
+    margin-bottom: 1rem;
 }
-h2:not(.tippy-header)::before {
-    counter-increment: subsection;
-    content: counter(subsection) ". ";
+.myst-example-source > div[class*="highlight-"]{
+    margin: 0;
 }
-h3:not(.tippy-header)::before {
-    counter-increment: subsubsection;
-    content: counter(subsection) "." counter(subsubsection) ". ";
+.myst-example-render {
+    padding: 0.5rem;
+}
+.myst-example-render > :first-child {
+    margin-top: 0.5rem;
 }
 
 /** No icon for admonitions with no-icon class */
-.admonition > .admonition-title, div.admonition.no-icon > .admonition-title::before {
+div.admonition.no-icon > .admonition-title::before {
     content: "";
 }
-.admonition > .admonition-title, div.admonition.no-icon > .admonition-title {
+div.admonition.no-icon > .admonition-title {
     padding-left: .6rem;
 }
 
 /* Live preview page */
-iframe.pyscript, textarea.pyscript {
-    width: 100%;
-    height: 400px;
-}
-iframe.pyscript {
-    padding: 4px;
+@media (min-width: 768px) {
+    .preview-input-tabs {
+        height: 100%;
+    }
+    textarea.pyscript.input {
+        height: 100%;
+    }
 }
 textarea.pyscript {
+    width: 100%;
+    min-height: 300px;
     padding: 30px 20px 20px;
     border-radius: 8px;
     resize: vertical;
     font-size: 16px;
     font-family: monospace;
 }
+textarea.pyscript.output {
+    height: 100%;
+}
+div.pyscript {
+    min-height: 300px;
+}
+
 .display-flex {
     display: flex;
 }

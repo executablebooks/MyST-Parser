@@ -2,11 +2,15 @@
 
 Note, the output AST is before any transforms are applied.
 """
+from __future__ import annotations
+
 import shlex
 from io import StringIO
 from pathlib import Path
+from typing import Any
 
 import pytest
+from docutils import __version_info__
 from docutils.core import Publisher, publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
@@ -32,6 +36,27 @@ def test_syntax_elements(file_params, monkeypatch):
 
     # in docutils 0.18 footnote ids have changed
     outcome = doctree.pformat().replace('"footnote-reference-1"', '"id1"')
+    outcome = outcome.replace(' language=""', "")
+    file_params.assert_expected(outcome, rstrip_lines=True)
+
+
+@pytest.mark.param_file(FIXTURE_PATH / "docutil_link_resolution.md")
+def test_link_resolution(file_params):
+    """Test that Markdown links resolve to the correct target, or give the correct warning."""
+    if "explicit>implicit" in file_params.title and __version_info__ < (0, 18):
+        pytest.skip("ids changed in docutils 0.18+")
+    settings = settings_from_cmdline(file_params.description)
+    report_stream = StringIO()
+    settings["warning_stream"] = report_stream
+    doctree = publish_doctree(
+        file_params.content,
+        source_path="<src>/index.md",
+        parser=Parser(),
+        settings_overrides=settings,
+    )
+    outcome = doctree.pformat()
+    if report_stream.getvalue().strip():
+        outcome += "\n\n" + report_stream.getvalue().strip()
     file_params.assert_expected(outcome, rstrip_lines=True)
 
 
@@ -87,16 +112,7 @@ def test_docutils_directives(file_params, monkeypatch):
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_extensions.txt")
 def test_syntax_extensions(file_params):
     """The description is parsed as a docutils commandline"""
-    pub = Publisher(parser=Parser())
-    option_parser = pub.setup_option_parser()
-    try:
-        settings = option_parser.parse_args(
-            shlex.split(file_params.description)
-        ).__dict__
-    except Exception as err:
-        raise AssertionError(
-            f"Failed to parse commandline: {file_params.description}\n{err}"
-        )
+    settings = settings_from_cmdline(file_params.description)
     report_stream = StringIO()
     settings["warning_stream"] = report_stream
     doctree = publish_doctree(
@@ -105,3 +121,16 @@ def test_syntax_extensions(file_params):
         settings_overrides=settings,
     )
     file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+
+
+def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
+    """Parse a docutils commandline into a settings dictionary"""
+    if cmdline is None or not cmdline.strip():
+        return {}
+    pub = Publisher(parser=Parser())
+    option_parser = pub.setup_option_parser()
+    try:
+        settings = option_parser.parse_args(shlex.split(cmdline)).__dict__
+    except Exception as err:
+        raise AssertionError(f"Failed to parse commandline: {cmdline}\n{err}")
+    return settings

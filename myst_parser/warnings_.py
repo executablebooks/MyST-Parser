@@ -12,12 +12,14 @@ class MystWarnings(Enum):
 
     DEPRECATED = "deprecated"
     """Deprecated usage."""
+    NOT_SUPPORTED = "not_supported"
+    """Functionality that is not yet supported in docutils."""
 
     RENDER_METHOD = "render"
     """The render method is not implemented."""
 
     MD_TOPMATTER = "topmatter"
-    """Issue reading top-matter."""
+    """Issue reading front-matter."""
     MD_DEF_DUPE = "duplicate_def"
     """Duplicate Markdown reference definition."""
     MD_FOOTNOTE_DUPE = "footnote"
@@ -26,8 +28,6 @@ class MystWarnings(Enum):
     """Missing Markdown footnote definition."""
     MD_HEADING_NON_CONSECUTIVE = "header"
     """Non-consecutive heading levels."""
-    MD_HEADING_NESTED = "nested_header"
-    """Header found nested in another element."""
 
     DIRECTIVE_PARSING = "directive_parse"
     """Issue parsing directive."""
@@ -51,8 +51,8 @@ class MystWarnings(Enum):
     """A legacy domain found, which does not support `resolve_any_xref`."""
 
     # extensions
-    ANCHOR_DUPE = "anchor_dupe"
-    """Duplicate heading anchors generated in same document."""
+    HEADING_SLUG = "heading_slug"
+    """An error occured computing a heading slug."""
     STRIKETHROUGH = "strikethrough"
     """Strikethrough warning, since only implemented in HTML."""
     HTML_PARSE = "html"

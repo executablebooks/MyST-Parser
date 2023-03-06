@@ -12,9 +12,11 @@ from myst_parser.parsers.docutils_ import (
     attr_to_optparse_option,
     cli_html,
     cli_html5,
+    cli_html5_demo,
     cli_latex,
     cli_pseudoxml,
     cli_xml,
+    to_html5_demo,
 )
 
 
@@ -52,6 +54,18 @@ def test_cli_html5(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert not captured.err
     assert "text" in captured.out
+
+
+def test_cli_html5_demo(monkeypatch, capsys):
+    monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
+    cli_html5_demo([])
+    captured = capsys.readouterr()
+    assert not captured.err
+    assert "text" in captured.out
+
+
+def test_to_html5_demo():
+    assert to_html5_demo("text").strip() == "<p>text</p>"
 
 
 def test_cli_latex(monkeypatch, capsys):

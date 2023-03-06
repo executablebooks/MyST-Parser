@@ -1,11 +1,121 @@
 # Changelog
 
+## 0.19.1 - 2023-03-02
+
+🐛 FIX `NoURI` error in doc reference resolution, for texinfo builds (<gh-pr:734>)
+
+## 0.19.0 - 2023-03-01
+
+This release brings a number of exciting new features, improvements, and upgrades 🎉
+
+Full Changelog: [v0.18.1...v0.19.0](https://github.com/executablebooks/MyST-Parser/compare/v0.18.1...v0.19.0)
+
+### 📚 Rewritten documentation
+
+The documentation has been almost completely rewritten,
+with a clearer structure, many more examples, rich hover tips, and a new live preview page ⚡️ (powered by [pyscript](https://pyscript.readthedocs.io/), <gh-pr:717>).
+
+The code base API is also now fully documented by [sphinx-autodoc2](https://sphinx-autodoc2.readthedocs.io/), which even allows for MyST docstrings! (<gh-pr:704>).
+
+### ⬆️ Add Sphinx 6 support, drop Sphinx 4
+
+The code base has been updated to support sphinx v6, and is no longer tested against sphinx v4 (<gh-pr:664>)
+
+### 📄 Extended docutils (single-page) support
+
+The `docutils` parser now supports many more features, and improvements to support live previews:
+
+- `myst_suppress_warnings` option added, mirroring Sphinx, to suppress MyST warnings (<gh-pr:655>)
+- `myst_meta_html` and `myst_substitutions` options are now supported (<gh-pr:672>)
+- `myst_heading_anchors` option is now supported (<gh-pr:678>)
+- Math block labels syntax is now supported (<gh-pr:668>)
+- Missing directive/role errors errors are now suppressable warnings (<gh-pr:687>)
+- Non-fatal directive parsing errors are now suppressable warnings (<gh-pr:682>)
+- Most of the extended markdown syntax below is also supported
+
+### 🔗 Extended Markdown links
+
+See the [Extended Markdown links](docs/syntax/cross-referencing.md) section for the full guide.
+
+You can now use standard Markdown link syntax to reference many different types of targets, in a more consistent way.
+
+- `[text](relative/path/myfile.md)` work as previously, to link to files,
+  but they can also be relative to source directory: `[text](/path/from/srcdir/myfile.md)`.
+  You can also use `<project:file.md>`
+- `<path:myfile.txt>` will link specifically to a downloadable file
+- `[text](#target)` or `<project:#target>` will link (in order of priority) to any local target, local heading anchor, target in the same project, or intersphinx (inventory) target
+- `[text](inv:name:domain:type#target)` will link specifically to a Sphinx inventory target, or to any inventory `<inv:#target>`, and can even use `*` wildcards like `<inv:*:*:*#*.target>`
+  - This can even be used in docutils, with the new `myst_inventories` config option
+  - The `myst-inv` CLI makes it easy to find the correct inventory target
+
+:::{tip}
+It is advised (although not immediately necessary) to prefix all internal references with `#`.
+For example, `[...](my-reference)`, should be changed to `[...](#my-reference)`.
+:::
+
+### `{}` Attributes syntax
+
+The [`attrs_inline` and `attrs_block`](docs/syntax/optional.md#attributes) extensions allow for common Markdown syntaxes to be extended with greater control over the output.
+
+For example, you can now add classes, ids, and other attributes to inline code, images, and links, as well as to code blocks and directives.
+
+- Inline code: `` `a = 1`{#id .class l=python} ``
+- Images: `![image](image.png){#id .class width=100px}`
+- Text spans: `[some text]{#id .class}`
+
+A paragraph block can have attributes too:
+
+```markdown
+{#id .class}
+This is a paragraph with an id and class
+```
+
+A code fence can be given line numbers and line emphasis:
+
+````markdown
+{#id .class lineno-start=1 emphasize-lines="2,3"}
+```python
+a = 1
+b = 2
+c = 3
+```
+````
+
+A definition list can be turned into a glossary, with referenceable terms:
+
+```markdown
+{.glossary}
+term name
+: Definition of the term
+```
+
+Quote blocks can be given an attribution:
+
+```markdown
+{attribution="Chris Sewell"}
+> My quote
+```
+
+### 👌 Miscellaneous improvements
+
+- Nested headings (e.g. inside directives) are now allowed in MyST and are correctly rendered in HTML (<gh-pr:711>)
+- The `colon_fence` extension now renders internal content as MyST, rather than as a code block (<gh-pr:713>)
+- The `include` directive in MyST documents now supports a `:heading-offset:` option, to offset the heading levels in the included document
+- The `myst_heading_slug_func` option now supports setting a `str` which points to a fully qualified function name, e.g. `"module.path.func"` (<gh-pr:696>)
+- The `myst_enable_checkboxes` option allows for task list checkboxes to be enabled/disabled (<gh-pr:686>)
+
+### Additional contributions
+
+- 🐛 FIX: Remove unnecessary assert in <gh-pr:659>, thanks to <gh-user:n-peugnet>
+- 🔧 ci(deps): setup dependabot (<gh-pr:669>), thanks to <gh-user:mmorel-35>
+- 🔧: Depend on typing_extensions only on `Python<3.8` in <gh-pr:642>, thanks to <gh-user:hukkin>
+
 ## 0.18.1 - 2022-27-09
 
 Full Changelog: [v0.18.0...v0.18.1](https://github.com/executablebooks/MyST-Parser/compare/v0.18.0...v0.18.1)
 
-- ⬆️ UPGRADE: docutils 0.19 support (#611)
-- ✨ NEW: Add `attrs_image` (experimental) extension (#620)
+- ⬆️ UPGRADE: docutils 0.19 support in <gh-pr:611>
+- ✨ NEW: Add `attrs_image` (experimental) extension in <gh-pr:620>
   - e.g. `![image](image.png){#id .class width=100px}`
   - See: [Optional syntax section](docs/syntax/optional.md)
   - **Important**: This is an experimental extension, and may change in future releases
@@ -16,7 +126,7 @@ Full Changelog: [v0.17.2...v0.18.0](https://github.com/executablebooks/MyST-Pars
 
 This release adds support for Sphinx v5 (dropping v3), restructures the code base into modules, and also restructures the documentation, to make it easier for developers/users to follow.
 
-It also introduces **document-level configuration**  *via* the Markdown top-matter, under the `myst` key.
+It also introduces **document-level configuration**  *via* the Markdown front-matter, under the `myst` key.
 See the [Local configuration](docs/configuration.md) section for more information.
 
 ### Breaking changes
@@ -28,7 +138,7 @@ The `to_docutils`, `to_html`, `to_tokens` (from `myst_parser/main.py`) and `mock
 Instead, for single page builds, users should use the docutils parser API/CLI (see [](docs/docutils.md)),
 and for testing, functionality has been moved to <https://github.com/chrisjsewell/sphinx-pytest>.
 
-The top-level `html_meta` and `substitutions` top-matter keys have also been deprecated (i.e. they will still work but will emit a warning), as they now form part of the `myst` config, e.g.
+The top-level `html_meta` and `substitutions` front-matter keys have also been deprecated (i.e. they will still work but will emit a warning), as they now form part of the `myst` config, e.g.
 
 ```yaml
 ---
@@ -53,24 +163,24 @@ myst:
 
 ### Key PRs
 
-- ♻️📚 Restructure code base and documentation (#566)
-- ⬆️ Drop Sphinx 3 and add Sphinx 5 support (#579)
-- 🐛 FIX: `parse_directive_text` when body followed by options (#580)
-- 🐛 FIX: floor table column widths to integers (#568), thanks to @Jean-Abou-Samra!
+- ♻️📚 Restructure code base and documentation (<gh-pr:566>)
+- ⬆️ Drop Sphinx 3 and add Sphinx 5 support (<gh-pr:579>)
+- 🐛 FIX: `parse_directive_text` when body followed by options (<gh-pr:580>)
+- 🐛 FIX: floor table column widths to integers (<gh-pr:568>), thanks to <gh-user:Jean-Abou-Samra>!
 
 ## 0.17.2 - 2022-04-17
 
 Full Changelog: [v0.17.1...v0.17.2](https://github.com/executablebooks/MyST-Parser/compare/v0.17.1...v0.17.2)
 
-- ♻️ REFACTOR: Replace `attrs` by `dataclasses` for configuration (#557)
+- ♻️ REFACTOR: Replace `attrs` by `dataclasses` for configuration (<gh-pr:557>)
 
 ## 0.17.1 - 2022-04-15
 
 Full Changelog: [v0.17.0...v0.17.1](https://github.com/executablebooks/MyST-Parser/compare/v0.17.0...v0.17.1)
 
-- 🐛 FIX: Heading anchor resolution for parallel builds (#525)
-- 🔧 MAINTAIN: Move packaging from setuptools to flit (#553)
-- 🔧 MAINTAIN: Directly specify attrs dependency (#555)
+- 🐛 FIX: Heading anchor resolution for parallel builds (<gh-pr:525>)
+- 🔧 MAINTAIN: Move packaging from setuptools to flit (<gh-pr:553>)
+- 🔧 MAINTAIN: Directly specify attrs dependency (<gh-pr:555>)
 
 ## 0.17.0 - 2022-02-11
 
@@ -100,7 +210,7 @@ In addition, configuration to more finely tune this behaviour has been added.
 - `myst_url_schemes=("http", "https")`, sets what URL schemes are treated as (1)
 - `myst_ref_domains=("std", "py")`, sets what Sphinx reference domains are checked, when handling (3)
 
-See [Markdown Links and Referencing](docs/syntax/syntax.md#markdown-links-and-referencing) for more information.
+See [Markdown Links and Referencing](docs/syntax/cross-referencing.md) for more information.
 
 ### ‼️ Dollarmath is now disabled by default
 
@@ -143,7 +253,7 @@ would be equivalent to:
 # My Title with *emphasis*
 ```
 
-See [Front matter](docs/syntax/syntax.md#front-matter) for more information.
+See [Front matter](docs/configuration.md) for more information.
 
 ### 👌 Internal improvements
 
@@ -153,18 +263,18 @@ Now the warning is still emitted, but also the heading is rendered as a [rubric]
 
 Other internal improvements primarily focused in improving support for the for "docutils-only" use, introduced in `v0.16`:
 
-- ♻️ REFACTOR: `default_parser` -> `create_md_parser` in [#474](https://github.com/executablebooks/MyST-Parser/pull/474)
-- 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in [#465](https://github.com/executablebooks/MyST-Parser/pull/465)
-- 👌 IMPROVE: Use correct renderer for `state.inline_text` in [#466](https://github.com/executablebooks/MyST-Parser/pull/466)
-- 👌 IMPROVE: Docutils parser settings in [#476](https://github.com/executablebooks/MyST-Parser/pull/476)
-- 🐛 FIX: front-matter rendering with docutils in [#477](https://github.com/executablebooks/MyST-Parser/pull/477)
-- 👌 IMPROVE: Code block highlighting in [#478](https://github.com/executablebooks/MyST-Parser/pull/478)
-- 👌 IMPROVE: `note_refname` for docutils internal links in [#481](https://github.com/executablebooks/MyST-Parser/pull/481)
-- 🐛 FIX: Ordered list starting number in [#483](https://github.com/executablebooks/MyST-Parser/pull/483)
-- 👌 IMPROVE: Propagate enumerated list suffix in [#484](https://github.com/executablebooks/MyST-Parser/pull/484)
-- 👌 IMPROVE: `DocutilsRenderer.create_highlighted_code_block` in [#488](https://github.com/executablebooks/MyST-Parser/pull/488)
-- 🐛 FIX: Source line reporting for nested parsing in [#490](https://github.com/executablebooks/MyST-Parser/pull/490)
-- 🔧 MAINTAIN: Implement `MockInliner.parse` in [#504](https://github.com/executablebooks/MyST-Parser/pull/504)
+- ♻️ REFACTOR: `default_parser` -> `create_md_parser` in <gh-pr:474>
+- 👌 IMPROVE: Add `bullet` attribute to `bullet_list` node in <gh-pr:465>
+- 👌 IMPROVE: Use correct renderer for `state.inline_text` in <gh-pr:466>
+- 👌 IMPROVE: Docutils parser settings in <gh-pr:476>
+- 🐛 FIX: front-matter rendering with docutils in <gh-pr:477>
+- 👌 IMPROVE: Code block highlighting in <gh-pr:478>
+- 👌 IMPROVE: `note_refname` for docutils internal links in <gh-pr:481>
+- 🐛 FIX: Ordered list starting number in <gh-pr:483>
+- 👌 IMPROVE: Propagate enumerated list suffix in <gh-pr:484>
+- 👌 IMPROVE: `DocutilsRenderer.create_highlighted_code_block` in <gh-pr:488>
+- 🐛 FIX: Source line reporting for nested parsing in <gh-pr:490>
+- 🔧 MAINTAIN: Implement `MockInliner.parse` in <gh-pr:504>
 
 ## 0.16.1 - 2021-12-16
 
@@ -215,7 +325,7 @@ which includes no direct install requirements on docutils or sphinx.
 
 See [MyST with Docutils](docs/docutils.md) for more information.
 
-Thanks to help from [@cpitclaudel](https://github.com/cpitclaudel)!
+Thanks to help from <gh-user:cpitclaudel>!
 
 ### Include MyST files in RST files
 
@@ -291,27 +401,27 @@ is converted to:
 
 These classes should be supported by most sphinx HTML themes.
 
-See [Tables syntax](docs/syntax/syntax.md#tables) for more information.
+See [Tables syntax](docs/syntax/tables.md) for more information.
 
 ### Pull Requests
 
-- 🐛 FIX: Add mandatory attributes on `enumerated_list` by @cpitclaudel in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-- 📚 DOCS: Add reference to MySTyc in landing page by @astrojuanlu in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
-- ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by @chrisjsewell in [#449](https://github.com/executablebooks/MyST-Parser/pull/449)
-- 👌 IMPROVE: Table rendering by @chrisjsewell in [#450](https://github.com/executablebooks/MyST-Parser/pull/450)
-- 🐛 FIX: Ensure parent files are re-built if `include` file changes by @chrisjsewell in [#451](https://github.com/executablebooks/MyST-Parser/pull/451)
-- 🐛 FIX: Convert empty directive option to `None` by @chrisjsewell in [#452](https://github.com/executablebooks/MyST-Parser/pull/452)
-- 👌 IMPROVE: Add `\\` for hard-breaks in latex by @chrisjsewell in [#453](https://github.com/executablebooks/MyST-Parser/pull/453)
-- 🔧 MAINTAIN: Remove empty "sphinx" extra by @hukkin in [#350](https://github.com/executablebooks/MyST-Parser/pull/350)
-- ✨ NEW: Add `fieldlist` extension by @chrisjsewell in [#455](https://github.com/executablebooks/MyST-Parser/pull/455)
-- ✨ NEW: Add Docutils MyST config and CLI by @cpitclaudel in [#426](https://github.com/executablebooks/MyST-Parser/pull/426)
-- 🔧 MAINTAIN: Add publishing job for `myst-docutils` by @chrisjsewell in [#456](https://github.com/executablebooks/MyST-Parser/pull/456)
-- 🧪 TESTS: Add for `gettext_additional_targets` by @jpmckinney in [#459](https://github.com/executablebooks/MyST-Parser/pull/459)
+- 🐛 FIX: Add mandatory attributes on `enumerated_list` by <gh-user:cpitclaudel> in <gh-pr:418>
+- 📚 DOCS: Add reference to MySTyc in landing page by <gh-user:astrojuanlu> in <gh-pr:413>
+- ⬆️ UPGRADE: markdown-it-py v2, mdit-py-plugins v0.3 by <gh-user:chrisjsewell> in <gh-pr:449>
+- 👌 IMPROVE: Table rendering by <gh-user:chrisjsewell> in <gh-pr:450>
+- 🐛 FIX: Ensure parent files are re-built if `include` file changes by <gh-user:chrisjsewell> in <gh-pr:451>
+- 🐛 FIX: Convert empty directive option to `None` by <gh-user:chrisjsewell> in <gh-pr:452>
+- 👌 IMPROVE: Add `\\` for hard-breaks in latex by <gh-user:chrisjsewell> in <gh-pr:453>
+- 🔧 MAINTAIN: Remove empty "sphinx" extra by <gh-user:hukkin> in <gh-pr:350>
+- ✨ NEW: Add `fieldlist` extension by <gh-user:chrisjsewell> in <gh-pr:455>
+- ✨ NEW: Add Docutils MyST config and CLI by <gh-user:cpitclaudel> in <gh-pr:426>
+- 🔧 MAINTAIN: Add publishing job for `myst-docutils` by <gh-user:chrisjsewell> in <gh-pr:456>
+- 🧪 TESTS: Add for `gettext_additional_targets` by <gh-user:jpmckinney> in <gh-pr:459>
 
 ### New Contributors
 
-- @cpitclaudel made their first contribution in [#418](https://github.com/executablebooks/MyST-Parser/pull/418)
-- @astrojuanlu made their first contribution in [#413](https://github.com/executablebooks/MyST-Parser/pull/413)
+- <gh-user:cpitclaudel> made their first contribution in <gh-pr:418>
+- <gh-user:astrojuanlu> made their first contribution in <gh-pr:413>
 
 **Full Changelog**: <https://github.com/executablebooks/MyST-Parser/compare/v0.15.2...v0.16.0>
 
@@ -352,7 +462,7 @@ Set `myst_url_schemes = None`, to revert to the previous default.
 
 Use this option to specify a custom function to auto-generate heading anchors (see [Auto-generated header anchors](docs/syntax/optional.md#auto-generated-header-anchors)).
 
-Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+Thanks to <gh-user:jpmckinney>!
 
 ## 0.14.0 - 2021-05-04
 
@@ -382,7 +492,7 @@ In particular for users, this update alters the parsing of tables to be consiste
   > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
   ```
 
-  See [the roles syntax guide](docs/syntax/syntax.md) for further information.
+  See [the roles syntax guide](docs/syntax/roles-and-directives.md) for further information.
 
 - The **`dmath_double_inline`** configuration option allows display math (i.e. `$$`) within an inline context.
   See [the math syntax guide](docs/syntax/optional.md#math-shortcuts) for further information.
@@ -433,7 +543,7 @@ A warning (of type `myst.nested_header`) is now emitted when this occurs.
 - 👌 IMPROVE: Store `rawtext` in AST nodes:
   We now ensure that the raw text is propagated from the Markdown tokens to the Sphinx AST.
   In particular, this is required by the `gettext` builder, to generate translation POT templates.
-  Thanks to [@jpmckinney](https://github.com/jpmckinney)!
+  Thanks to <gh-user:jpmckinney>!
 - ✨ NEW: Add warning types `myst.subtype`:
   All parsing warnings are assigned a type/subtype, and also the messages are appended with them.
   These warning types can be suppressed with the sphinx `suppress_warnings` config option.
@@ -467,7 +577,7 @@ Minor fixes:
 : If the label is an integer, then it will always use this integer for the rendered label (i.e. they are manually numbered).
 : Add `myst_footnote_transition` configuration, to turn on/off transition line.
 : Add `footnotes` class to transition `<hr>` in HTML.
-: See [the syntax guide](docs/syntax/syntax.md) for further information.
+: See [the typography guide](docs/syntax/typography.md) for further information.
 
 👌 IMPROVE: `substitution` extension logic
 
@@ -481,7 +591,7 @@ Minor fixes:
 
 : Add isort and mypy type checking to code base.
 
-(thanks to contributors @akhmerov, @tfiers)
+(thanks to contributors <gh-user:akhmerov>, <gh-user:tfiers>)
 
 ## 0.13.1 - 2020-12-31
 
@@ -576,7 +686,7 @@ I’m an inline image: <img src="img/fun-fish.png" height="20px">
 ## 0.12.10 - 2020-09-21
 
 🐛 FIX: allow dates to be parsed in frontmatter.
-: This fixes a bug that would raise errors at parse time if non-string date objects were in front-matter YAML. See [#253](https://github.com/executablebooks/MyST-Parser/pull/253)
+: This fixes a bug that would raise errors at parse time if non-string date objects were in front-matter YAML. See <gh-pr:253>
 
 ## 0.12.9 - 2020-09-08
 
@@ -641,7 +751,7 @@ See the [Definition Lists documentation](https://myst-parser.readthedocs.io/en/l
   - How-to [include rST files into a Markdown file](https://myst-parser.readthedocs.io/en/latest/using/howto.html#include-rst-files-into-a-markdown-file)
   - How-to [Use sphinx.ext.autodoc in Markdown files](https://myst-parser.readthedocs.io/en/latest/using/howto.html#use-sphinx-ext-autodoc-in-markdown-files)
 
-  Thanks to [@stephenroller](https://github.com/stephenroller) for the contribution 🎉
+  Thanks to <gh-user:stephenroller> for the contribution 🎉
 
 ## 0.12.1 - 2020-08-19
 
@@ -709,9 +819,9 @@ More configuration options for math parsing (see [MyST configuration options](ht
 
 ### Improved 👌
 
-* Support Sphinx version 3 [#197](https://github.com/executablebooks/MyST-Parser/pull/197) ([@chrisjsewell](https://github.com/chrisjsewell))
-* Update Trove Classifiers [#192](https://github.com/executablebooks/MyST-Parser/pull/192) ([@chrisjsewell](https://github.com/chrisjsewell))
-* Add functionality to use docutils specialized role [#189](https://github.com/executablebooks/MyST-Parser/pull/189) ([@chrisjsewell](https://github.com/chrisjsewell))
+* Support Sphinx version 3 in <gh-pr:197> (<gh-user:chrisjsewell>)
+* Update Trove Classifiers in <gh-pr:192> (<gh-user:chrisjsewell>)
+* Add functionality to use docutils specialized role in <gh-pr:189> (<gh-user:chrisjsewell>)
 
 ### Contributors to this release
 

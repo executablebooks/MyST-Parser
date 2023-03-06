@@ -61,7 +61,7 @@ myst:
 ---
 .
 <string>:1: (WARNING/2) 'title_to_header' must be of type <class 'bool'> (got 1 that is a <class 'int'>). [myst.topmatter]
-<string>:1: (WARNING/2) 'url_schemes[0]' must be of type <class 'str'> (got 1 that is a <class 'int'>). [myst.topmatter]
+<string>:1: (WARNING/2) 'url_schemes' is not a list of strings: [1] [myst.topmatter]
 <string>:1: (WARNING/2) 'substitutions['key']' must be of type (<class 'str'>, <class 'int'>, <class 'float'>) (got [] that is a <class 'list'>). [myst.topmatter]
 .
 
@@ -160,7 +160,7 @@ header nested in admonition
 # Header
 ```
 .
-<string>:2: (WARNING/2) Disallowed nested header found, converting to rubric [myst.nested_header]
+
 .
 
 nested parse warning

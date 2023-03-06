@@ -1,11 +1,24 @@
 """MyST Markdown parser for docutils."""
 from dataclasses import Field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 import yaml
 from docutils import frontend, nodes
-from docutils.core import default_description, publish_cmdline
+from docutils.core import default_description, publish_cmdline, publish_string
+from docutils.frontend import filter_settings_spec
 from docutils.parsers.rst import Parser as RstParser
+from docutils.writers.html5_polyglot import HTMLTranslator, Writer
 
 from myst_parser._compat import Literal, get_args, get_origin
 from myst_parser.config.main import (
@@ -15,8 +28,9 @@ from myst_parser.config.main import (
     read_topmatter,
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+from myst_parser.mdit_to_docutils.transforms import ResolveAnchorIds
 from myst_parser.parsers.mdit import create_md_parser
-from myst_parser.warnings_ import create_warning
+from myst_parser.warnings_ import MystWarnings, create_warning
 
 
 def _validate_int(
@@ -24,6 +38,16 @@ def _validate_int(
 ) -> int:
     """Validate an integer setting."""
     return int(value)
+
+
+def _validate_comma_separated_set(
+    setting, value, option_parser, config_parser=None, config_section=None
+) -> Set[str]:
+    """Validate an integer setting."""
+    value = frontend.validate_comma_separated_list(
+        setting, value, option_parser, config_parser, config_section
+    )
+    return set(value)
 
 
 def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
@@ -73,11 +97,29 @@ def _create_validate_yaml(field: Field):
             output = yaml.safe_load(value)
         except Exception:
             raise ValueError("Invalid YAML string")
-        if "validator" in field.metadata:
-            field.metadata["validator"](None, field, output)
+        if not isinstance(output, dict):
+            raise ValueError("Expecting a YAML dictionary")
         return output
 
     return _validate_yaml
+
+
+def _validate_url_schemes(
+    setting, value, option_parser, config_parser=None, config_section=None
+):
+    """Validate a url_schemes setting.
+
+    This is a tricky one, because it can be either a comma-separated list or a YAML dictionary.
+    """
+    try:
+        output = yaml.safe_load(value)
+    except Exception:
+        raise ValueError("Invalid YAML string")
+    if isinstance(output, str):
+        output = {k: None for k in output.split(",")}
+    if not isinstance(output, dict):
+        raise ValueError("Expecting a comma-delimited str or YAML dictionary")
+    return output
 
 
 def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
@@ -85,6 +127,11 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
 
     :returns: (option_dict, default)
     """
+    if at.name == "url_schemes":
+        return {
+            "metavar": "<comma-delimited>|<yaml-dict>",
+            "validator": _validate_url_schemes,
+        }, ",".join(default)
     if at.type is int:
         return {"metavar": "<int>", "validator": _validate_int}, str(default)
     if at.type is bool:
@@ -92,7 +139,7 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
             "metavar": "<boolean>",
             "validator": frontend.validate_boolean,
         }, str(default)
-    if at.type is str:
+    if at.type is str or at.name == "heading_slug_func":
         return {
             "metavar": "<str>",
         }, f"(default: '{default}')"
@@ -109,6 +156,11 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
         return {
             "metavar": "<comma-delimited>",
             "validator": frontend.validate_comma_separated_list,
+        }, ",".join(default)
+    if at.type == Set[str]:
+        return {
+            "metavar": "<comma-delimited>",
+            "validator": _validate_comma_separated_set,
         }, ",".join(default)
     if at.type == Tuple[str, str]:
         return {
@@ -159,7 +211,7 @@ def create_myst_settings_spec(config_cls=MdParserConfig, prefix: str = "myst_"):
     return tuple(
         attr_to_optparse_option(at, getattr(defaults, at.name), prefix)
         for at in config_cls.get_fields()
-        if (not at.metadata.get("sphinx_only", False))
+        if ("docutils" not in at.metadata.get("omit", []))
     )
 
 
@@ -171,7 +223,7 @@ def create_myst_config(
     """Create a configuration instance from the given settings."""
     values = {}
     for attribute in config_cls.get_fields():
-        if attribute.metadata.get("sphinx_only", False):
+        if "docutils" in attribute.metadata.get("omit", []):
             continue
         setting = f"{prefix}{attribute.name}"
         val = getattr(settings, setting, DOCUTILS_UNSET)
@@ -198,12 +250,21 @@ class Parser(RstParser):
     config_section_dependencies = ("parsers",)
     translate_section_name = None
 
+    def get_transforms(self):
+        return super().get_transforms() + [ResolveAnchorIds]
+
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.
 
         :param inputstring: The source string to parse
         :param document: The root docutils node to add AST elements to
         """
+        from docutils.writers._html_base import HTMLTranslator
+
+        HTMLTranslator.visit_rubric = visit_rubric_html
+        HTMLTranslator.depart_rubric = depart_rubric_html
+        HTMLTranslator.visit_container = visit_container_html
+        HTMLTranslator.depart_container = depart_container_html
 
         self.setup_parse(inputstring, document)
 
@@ -225,6 +286,14 @@ class Parser(RstParser):
             error = document.reporter.error(f"Global myst configuration invalid: {exc}")
             document.append(error)
             config = MdParserConfig()
+
+        if "attrs_image" in config.enable_extensions:
+            create_warning(
+                document,
+                "The `attrs_image` extension is deprecated, "
+                "please use `attrs_inline` instead.",
+                MystWarnings.DEPRECATED,
+            )
 
         # update the global config with the file-level config
         try:
@@ -254,6 +323,26 @@ class Parser(RstParser):
         self.finish_parse()
 
 
+class SimpleTranslator(HTMLTranslator):
+    def stylesheet_call(self, *args, **kwargs):
+        return ""
+
+
+class SimpleWriter(Writer):
+    settings_spec = filter_settings_spec(
+        Writer.settings_spec,
+        "template",
+    )
+
+    def apply_template(self):
+        subs = self.interpolation_dict()
+        return "%(body)s\n" % subs
+
+    def __init__(self):
+        self.parts = {}
+        self.translator_class = SimpleTranslator
+
+
 def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
     """Run the command line interface for a particular writer."""
     publish_cmdline(
@@ -276,6 +365,44 @@ def cli_html5(argv: Optional[List[str]] = None):
     _run_cli("html5", "HTML5 documents", argv)
 
 
+def cli_html5_demo(argv: Optional[List[str]] = None):
+    """Cmdline entrypoint for converting MyST to simple HTML5 demonstrations.
+
+    This is a special case of the HTML5 writer,
+    that only outputs the body of the document.
+    """
+    publish_cmdline(
+        parser=Parser(),
+        writer=SimpleWriter(),
+        description=(
+            f"Generates body HTML5 from standalone MyST sources.\n{default_description}"
+        ),
+        settings_overrides={
+            "doctitle_xform": False,
+            "sectsubtitle_xform": False,
+            "initial_header_level": 1,
+        },
+        argv=argv,
+    )
+
+
+def to_html5_demo(inputstring: str, **kwargs) -> str:
+    """Convert a MyST string to HTML5."""
+    overrides = {
+        "doctitle_xform": False,
+        "sectsubtitle_xform": False,
+        "initial_header_level": 1,
+        "output_encoding": "unicode",
+    }
+    overrides.update(kwargs)
+    return publish_string(
+        inputstring,
+        parser=Parser(),
+        writer=SimpleWriter(),
+        settings_overrides=overrides,
+    )
+
+
 def cli_latex(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to LaTeX."""
     _run_cli("latex", "LaTeX documents", argv)
@@ -289,3 +416,99 @@ def cli_xml(argv: Optional[List[str]] = None):
 def cli_pseudoxml(argv: Optional[List[str]] = None):
     """Cmdline entrypoint for converting MyST to pseudo-XML."""
     _run_cli("pseudoxml", "pseudo-XML", argv)
+
+
+def visit_rubric_html(self, node):
+    """Override the default HTML visit method for rubric nodes.
+
+    docutils structures a document, based on the headings, into nested sections::
+
+        # h1
+        ## h2
+        ### h3
+
+        <section>
+            <title>
+                h1
+            <section>
+                <title>
+                    h2
+                <section>
+                    <title>
+                        h3
+
+    This means that it is not possible to have "standard" headings nested inside
+    other components, such as blockquotes, because it would break the structure::
+
+        # h1
+        > ## h2
+        ### h3
+
+        <section>
+            <title>
+                h1
+            <blockquote>
+                <section>
+                    <title>
+                        h2
+            <section>
+                <title>
+                    h3
+
+    we work around this shortcoming, in `DocutilsRenderer.render_heading`,
+    by identifying if a heading is inside another component
+    and instead outputting it as a "non-structural" rubric node, and capture the level::
+
+        <section>
+            <title>
+                h1
+            <blockquote>
+                <rubric level=2>
+                    h2
+            <section>
+                <title>
+                    h3
+
+    However, docutils natively just outputs rubrics as <p> tags,
+    and does not "honor" the heading level.
+    So here we override the visit/depart methods to output the correct <h> element
+    """
+    if "level" in node:
+        self.body.append(self.starttag(node, f'h{node["level"]}', "", CLASS="rubric"))
+    else:
+        self.body.append(self.starttag(node, "p", "", CLASS="rubric"))
+
+
+def depart_rubric_html(self, node):
+    """Override the default HTML visit method for rubric nodes.
+
+    See explanation in `visit_rubric_html`
+    """
+    if "level" in node:
+        self.body.append(f'</h{node["level"]}>\n')
+    else:
+        self.body.append("</p>\n")
+
+
+def visit_container_html(self, node: nodes.Node):
+    """Override the default HTML visit method for container nodes.
+
+    to remove the "container" class for divs
+    this avoids CSS clashes with the bootstrap theme
+    """
+    classes = "docutils container"
+    attrs = {}
+    if node.get("is_div", False):
+        # we don't want the CSS for container for these nodes
+        classes = "docutils"
+    if "style" in node:
+        attrs["style"] = node["style"]
+    self.body.append(self.starttag(node, "div", CLASS=classes, **attrs))
+
+
+def depart_container_html(self, node: nodes.Node):
+    """Override the default HTML depart method for container nodes.
+
+    See explanation in `visit_container_html`
+    """
+    self.body.append("</div>\n")

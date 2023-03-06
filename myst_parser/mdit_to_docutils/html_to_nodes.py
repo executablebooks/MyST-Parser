@@ -82,7 +82,6 @@ def html_to_nodes(
 
     nodes_list = []
     for child in root:
-
         if child.name == "img":
             if "src" not in child.attrs:
                 return [

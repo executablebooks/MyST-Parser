@@ -61,6 +61,25 @@
                 <definition>
                     <paragraph>
                         other
+        <definition_list classes="simple myst glossary" ids="myid1" names="myid1">
+            <definition_list_item>
+                <term ids="term-term">
+                    term
+                    <index entries="('single',\ 'term',\ 'term-term',\ 'main',\ None)">
+                <definition>
+                    <paragraph>
+                        definition
+            <definition_list_item>
+                <term ids="term-other-term">
+                    other term
+                    <index entries="('single',\ 'other\ term',\ 'term-other-term',\ 'main',\ None)">
+                <definition>
+                    <paragraph>
+                        other definition
+        <paragraph>
+            <pending_xref refdoc="index" refdomain="std" refexplicit="False" reftarget="other term" reftype="term" refwarn="True">
+                <inline classes="xref std std-term">
+                    other term
         <figure classes="other" ids="target" names="target">
             <image alt="fun-fish" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
             <caption>
@@ -69,6 +88,9 @@
             <image alt="fishy" candidates="{'*': 'fun-fish.png'}" classes="bg-primary mb-1" uri="fun-fish.png" width="200px">
             <caption>
                 This is a caption in **Markdown**
+        <container classes="other" is_div="True">
+            <paragraph>
+                Hallo *there*
         <paragraph>
             linkify URL: 
             <reference refuri="http://www.example.com">

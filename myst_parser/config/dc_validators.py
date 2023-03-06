@@ -43,22 +43,22 @@ class ValidatorType(Protocol):
         ...
 
 
-def instance_of(type: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
+def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
     """
     A validator that raises a `TypeError` if the initializer is called
     with a wrong type for this particular attribute (checks are performed using
     `isinstance` therefore it's also valid to pass a tuple of types).
 
-    :param type: The type to check for.
+    :param type_: The type to check for.
     """
 
     def _validator(inst, field, value, suffix=""):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        if not isinstance(value, type):
+        if not isinstance(value, type_):
             raise TypeError(
-                f"'{field.name}{suffix}' must be of type {type!r} "
+                f"'{field.name}{suffix}' must be of type {type_!r} "
                 f"(got {value!r} that is a {value.__class__!r})."
             )
 
