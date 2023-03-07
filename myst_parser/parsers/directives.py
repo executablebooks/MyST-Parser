@@ -65,7 +65,9 @@ def parse_directive_text(
     directive_class: type[Directive],
     first_line: str,
     content: str,
+    *,
     validate_options: bool = True,
+    additional_options: dict[str, str] | None = None,
 ) -> DirectiveParsingResult:
     """Parse (and validate) the full directive text.
 
@@ -73,13 +75,18 @@ def parse_directive_text(
         May be an argument or body text, dependent on the directive
     :param content: All text after the first line. Can include options.
     :param validate_options: Whether to validate the values of options
+    :param additional_options: Additional options to add to the directive,
+        above those parsed from the content (content options take priority).
 
     :raises MarkupError: if there is a fatal parsing/validation error
     """
     parse_errors: list[str] = []
     if directive_class.option_spec:
         body, options, option_errors = parse_directive_options(
-            content, directive_class, validate=validate_options
+            content,
+            directive_class,
+            validate=validate_options,
+            additional_options=additional_options,
         )
         parse_errors.extend(option_errors)
         body_lines = body.splitlines()
@@ -114,7 +121,10 @@ def parse_directive_text(
 
 
 def parse_directive_options(
-    content: str, directive_class: type[Directive], validate: bool = True
+    content: str,
+    directive_class: type[Directive],
+    validate: bool = True,
+    additional_options: dict[str, str] | None = None,
 ) -> tuple[str, dict, list[str]]:
     """Parse (and validate) the directive option section.
 
@@ -161,6 +171,10 @@ def parse_directive_options(
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
         return content, options, validation_errors
+
+    if additional_options:
+        # The YAML block takes priority over additional options
+        options = {**additional_options, **options}
 
     # check options against spec
     options_spec: dict[str, Callable] = directive_class.option_spec
