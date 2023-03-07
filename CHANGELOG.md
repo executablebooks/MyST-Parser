@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 - 2023-03-07
+
+🎉 **MyST-Parser 1.0.0** 🎉
+
+This changes absolutely nothing in the code, or about the maintenance/release policy of this project.
+But it does feel about time 😄
+
 ## 0.19.2 - 2023-03-02
 
 ✨ NEW: Add myst_fence_as_directive config (<gh-pr:742>)
@@ -31,7 +38,7 @@ and have interoperable rendering with tools like GitHub.
 - 📚 Add `html_last_updated_fmt = ""` to conf.py to fix documentation footer, thanks to <gh-user:jeanas> (<gh-pr:691>)
 - 📚 Fix the sphinx-design example, thanks to <gh-user:recfab> (<gh-pr:738>)
 
-## 0.19.1 - 2023-03-02
+## 0.19.1 - 2023-03-07
 
 🐛 FIX `NoURI` error in doc reference resolution, for texinfo builds (<gh-pr:734>)
 
