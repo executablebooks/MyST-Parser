@@ -166,6 +166,14 @@ def _test_slug_func(text: str) -> str:
     return text[::-1]
 
 
+def check_fence_as_directive(
+    inst: "MdParserConfig", field: dc.Field, value: Any
+) -> None:
+    """Check that the extensions are a sequence of known strings"""
+    deep_iterable(instance_of(str), instance_of((list, tuple, set)))(inst, field, value)
+    setattr(inst, field.name, set(value))
+
+
 @dc.dataclass()
 class MdParserConfig:
     """Configuration options for the Markdown Parser.
@@ -247,6 +255,16 @@ class MdParserConfig:
             ),
             "help": "Sphinx domain names to search in for link references",
             "omit": ["docutils"],
+        },
+    )
+
+    fence_as_directive: Set[str] = dc.field(
+        default_factory=set,
+        metadata={
+            "validator": check_fence_as_directive,
+            "help": "Interpret a code fence as a directive, for certain language names. "
+            "This can be useful for fences like dot and mermaid, "
+            "and interoperability with other Markdown renderers.",
         },
     )
 

@@ -743,6 +743,13 @@ class DocutilsRenderer(RendererProtocol):
                 return self.render_restructuredtext(token)
             if name.startswith("{") and name.endswith("}"):
                 return self.render_directive(token, name[1:-1], arguments)
+            if name in self.md_config.fence_as_directive:
+                options = {k: str(v) for k, v in token.attrs.items()}
+                if "id" in options:
+                    options["name"] = options.pop("id")
+                return self.render_directive(
+                    token, name, arguments, additional_options=options
+                )
 
         if not name and self.sphinx_env is not None:
             # use the current highlight setting, via the ``highlight`` directive,
@@ -1664,7 +1671,12 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.extend(newdoc.children)
 
     def render_directive(
-        self, token: SyntaxTreeNode, name: str, arguments: str
+        self,
+        token: SyntaxTreeNode,
+        name: str,
+        arguments: str,
+        *,
+        additional_options: dict[str, str] | None = None,
     ) -> None:
         """Render special fenced code blocks as directives.
 
@@ -1673,7 +1685,13 @@ class DocutilsRenderer(RendererProtocol):
         :param arguments: The remaining text on the same line as the directive name.
         """
         position = token_line(token)
-        nodes_list = self.run_directive(name, arguments, token.content, position)
+        nodes_list = self.run_directive(
+            name,
+            arguments,
+            token.content,
+            position,
+            additional_options=additional_options,
+        )
         self.current_node += nodes_list
 
     def run_directive(
