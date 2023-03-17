@@ -67,3 +67,7 @@ Known explicit [**hallo**](#paragraph-target)
 Known with title [](#title-target)
 
 Ambiguous [](#duplicate)
+
+# Image in title ![badge](https://shields.io/or/something.svg)
+
+[link up](#image-in-title-)

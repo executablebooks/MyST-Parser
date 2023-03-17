@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title" slug="title-with-nested">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title" slug="title-with-nested-">
         <title>
             Title with 
             <strong>
@@ -150,3 +150,10 @@
             <reference internal="False" reftitle="Example 0.0.1" refuri="https://example.com/index.html#module-duplicate">
                 <literal classes="iref myst">
                     duplicate
+    <section classes="tex2jax_ignore mathjax_ignore" ids="image-in-title" names="image\ in\ title" slug="image-in-title-">
+        <title>
+            Image in title 
+            <image alt="badge" candidates="{'?': 'https://shields.io/or/something.svg'}" uri="https://shields.io/or/something.svg">
+        <paragraph>
+            <reference id_link="True" refid="image-in-title">
+                link up
