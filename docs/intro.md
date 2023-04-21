@@ -138,7 +138,7 @@ For example, let's install the [sphinx-design](https://github.com/executablebook
 First, install `sphinx-design`:
 
 ```shell
-pip install sphinxcontrib-mermaid
+pip install sphinx-design
 ```
 
 Next, add it to your list of extensions in `conf.py`:

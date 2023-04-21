@@ -329,7 +329,6 @@ class SimpleTranslator(HTMLTranslator):
 
 
 class SimpleWriter(Writer):
-
     settings_spec = filter_settings_spec(
         Writer.settings_spec,
         "template",

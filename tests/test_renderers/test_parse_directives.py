@@ -49,3 +49,34 @@ def test_parsing(file_params):
 def test_parsing_errors(descript, klass, arguments, content):
     with pytest.raises(MarkupError):
         parse_directive_text(klass, arguments, content)
+
+
+def test_additional_options():
+    """Allow additional options to be passed to a directive."""
+    # this should be fine
+    result = parse_directive_text(
+        Note, "", "content", additional_options={"class": "bar"}
+    )
+    assert not result.warnings
+    assert result.options == {"class": ["bar"]}
+    assert result.body == ["content"]
+    # body on first line should also be fine
+    result = parse_directive_text(
+        Note, "content", "other", additional_options={"class": "bar"}
+    )
+    assert not result.warnings
+    assert result.options == {"class": ["bar"]}
+    assert result.body == ["content", "other"]
+    # additional option should not take precedence
+    result = parse_directive_text(
+        Note, "content", ":class: foo", additional_options={"class": "bar"}
+    )
+    assert not result.warnings
+    assert result.options == {"class": ["foo"]}
+    assert result.body == ["content"]
+    # this should warn about the unknown option
+    result = parse_directive_text(
+        Note, "", "content", additional_options={"foo": "bar"}
+    )
+    assert len(result.warnings) == 1
+    assert "Unknown option" in result.warnings[0]

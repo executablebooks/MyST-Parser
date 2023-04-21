@@ -159,8 +159,9 @@ html_theme_options = {
     "use_repository_button": True,
     "use_edit_page_button": True,
     "use_issues_button": True,
-    "announcement": "<p><b>v0.19</b> is now out! See the Changelog for details</p>",
+    "announcement": "<b>v1.0.0</b> is now out! See the Changelog for details",
 }
+html_last_updated_fmt = ""
 # OpenGraph metadata
 ogp_site_url = "https://myst-parser.readthedocs.io/en/latest"
 # This is the image that GitHub stores for our social media previews

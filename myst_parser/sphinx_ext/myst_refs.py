@@ -178,9 +178,12 @@ class MystReferenceResolver(ReferencesResolver):
             )
 
         assert self.app.builder
-        ref_node = make_refnode(
-            self.app.builder, from_docname, ref_docname, targetid, innernode
-        )
+        try:
+            ref_node = make_refnode(
+                self.app.builder, from_docname, ref_docname, targetid, innernode
+            )
+        except NoUri:
+            ref_node = innernode
         node.replace_self(ref_node)
 
     def resolve_myst_ref_any(

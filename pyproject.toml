@@ -111,6 +111,7 @@ no_lines_before = "LOCALFOLDER"
 [tool.ruff]
 line-length = 100
 extend-select = ["B0", "C4", "ICN", "ISC", "N", "RUF", "SIM"]
+extend-ignore = ["RUF005"]
 
 [tool.mypy]
 show_error_codes = true

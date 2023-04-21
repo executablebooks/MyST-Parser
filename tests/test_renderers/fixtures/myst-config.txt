@@ -468,3 +468,31 @@ My paragraph
                 <reference id_link="True" refid="title">
                     reversed
 .
+
+[fence_as_directive] --myst-fence-as-directive=unknown,admonition --myst-enable-extensions=attrs_block
+.
+```unknown
+```
+
+{#myname .class1}
+{a=b}
+```admonition title
+content
+```
+.
+<document source="<string>">
+    <system_message level="2" line="1" source="<string>" type="WARNING">
+        <paragraph>
+            Unknown directive type: 'unknown' [myst.directive_unknown]
+    <system_message level="2" line="6" source="<string>" type="WARNING">
+        <paragraph>
+            'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+    <admonition classes="class1" ids="myname" names="myname">
+        <title>
+            title
+        <paragraph>
+            content
+
+<string>:1: (WARNING/2) Unknown directive type: 'unknown' [myst.directive_unknown]
+<string>:6: (WARNING/2) 'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+.
