@@ -29,8 +29,11 @@ class SphinxRenderer(DocutilsRenderer):
     """
 
     @property
-    def sphinx_env(self) -> BuildEnvironment:
-        return self.document.settings.env
+    def sphinx_env(self) -> BuildEnvironment | None:
+        try:
+            return self.document.settings.env
+        except AttributeError:
+            return None
 
     def _process_wrap_node(
         self,
