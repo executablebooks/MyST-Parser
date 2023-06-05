@@ -49,7 +49,7 @@ Documentation = "https://myst-parser.readthedocs.io"
 [project.optional-dependencies]
 code_style = ["pre-commit~=3.0"]
 # for use with "linkify" extension
-linkify = ["linkify-it-py~=1.0"]
+linkify = ["linkify-it-py~=2.0"]
 # Note: This is only required for internal use
 rtd = [
     "ipython",
