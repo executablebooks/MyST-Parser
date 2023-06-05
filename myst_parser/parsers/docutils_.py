@@ -6,11 +6,14 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Sequence,
     Set,
     Tuple,
     Union,
+    get_args,
+    get_origin,
 )
 
 import yaml
@@ -20,7 +23,6 @@ from docutils.frontend import filter_settings_spec
 from docutils.parsers.rst import Parser as RstParser
 from docutils.writers.html5_polyglot import HTMLTranslator, Writer
 
-from myst_parser._compat import Literal, get_args, get_origin
 from myst_parser.config.main import (
     MdParserConfig,
     TopmatterReadError,

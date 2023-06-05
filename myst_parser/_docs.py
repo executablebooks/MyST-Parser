@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import io
-from typing import Sequence, Union
+from typing import Sequence, Union, get_args, get_origin
 
 from docutils import nodes
 from docutils.frontend import OptionParser
@@ -13,7 +13,6 @@ from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
 from myst_parser.parsers.docutils_ import to_html5_demo
-from ._compat import get_args, get_origin
 from .config.main import MdParserConfig
 from .parsers.docutils_ import Parser as DocutilsParser
 from .warnings_ import MystWarnings

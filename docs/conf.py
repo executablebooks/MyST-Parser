@@ -71,8 +71,6 @@ autodoc2_replace_annotations = [
     ("markdown_it.MarkdownIt", "markdown_it.main.MarkdownIt"),
 ]
 autodoc2_replace_bases = [
-    ("myst_parser._compat.Protocol", "typing.Protocol"),
-    ("myst_parser._compat.TypedDict", "typing.TypedDict"),
     ("sphinx.directives.SphinxDirective", "sphinx.util.docutils.SphinxDirective"),
 ]
 autodoc2_docstring_parser_regexes = [
