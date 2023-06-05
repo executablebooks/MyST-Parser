@@ -335,7 +335,7 @@ def test_footnotes(
             regress_ext=".html",
             replace={
                 'role="note">': 'role="doc-footnote">',  # changed in docutils 0.20
-            }
+            },
         )
 
 
