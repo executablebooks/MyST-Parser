@@ -3,8 +3,7 @@ from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
 
-import pytest
-from docutils import VersionInfo, __version_info__
+from docutils import __version_info__
 
 from myst_parser.mdit_to_docutils.base import make_document
 from myst_parser.parsers.docutils_ import (
@@ -101,10 +100,6 @@ def test_help_text():
     assert "MyST options" in stream.getvalue()
 
 
-@pytest.mark.skipif(
-    __version_info__ < VersionInfo(0, 17, 0, "final", 0, True),
-    reason="parser option added in docutils 0.17",
-)
 def test_include_from_rst(tmp_path):
     """Test including a MyST file from within an RST file."""
     from docutils.parsers.rst import Parser as RSTParser
