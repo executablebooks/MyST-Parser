@@ -1,11 +1,11 @@
 import io
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
+from typing import Literal
 
 import pytest
 from docutils import VersionInfo, __version_info__
 
-from myst_parser._compat import Literal
 from myst_parser.mdit_to_docutils.base import make_document
 from myst_parser.parsers.docutils_ import (
     Parser,
@@ -23,7 +23,7 @@ from myst_parser.parsers.docutils_ import (
 def test_attr_to_optparse_option():
     @dataclass
     class Config:
-        name: Literal["a"] = field(default="default")  # noqa: F821
+        name: Literal["a"] = field(default="default")
 
     output = attr_to_optparse_option(fields(Config)[0], "default")
     assert len(output) == 3

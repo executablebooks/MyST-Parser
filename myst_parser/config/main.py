@@ -12,10 +12,10 @@ from typing import (
     Sequence,
     Set,
     Tuple,
+    TypedDict,
     Union,
 )
 
-from myst_parser._compat import TypedDict
 from myst_parser.warnings_ import MystWarnings
 from .dc_validators import (
     deep_iterable,

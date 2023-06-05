@@ -63,16 +63,18 @@ intersphinx_mapping = {
 
 # -- Autodoc settings ---------------------------------------------------
 
-autodoc2_packages = ["../myst_parser"]
-autodoc2_exclude_files = ["_docs.py"]
+autodoc2_packages = [
+    {
+        "path": "../myst_parser",
+        "exclude_files": ["_docs.py"],
+    }
+]
 autodoc2_hidden_objects = ["dunder", "private", "inherited"]
 autodoc2_replace_annotations = [
     ("re.Pattern", "typing.Pattern"),
     ("markdown_it.MarkdownIt", "markdown_it.main.MarkdownIt"),
 ]
 autodoc2_replace_bases = [
-    ("myst_parser._compat.Protocol", "typing.Protocol"),
-    ("myst_parser._compat.TypedDict", "typing.TypedDict"),
     ("sphinx.directives.SphinxDirective", "sphinx.util.docutils.SphinxDirective"),
 ]
 autodoc2_docstring_parser_regexes = [
@@ -159,7 +161,7 @@ html_theme_options = {
     "use_repository_button": True,
     "use_edit_page_button": True,
     "use_issues_button": True,
-    "announcement": "<b>v0.19</b> is now out! See the Changelog for details",
+    "announcement": "<b>v1.0.0</b> is now out! See the Changelog for details",
 }
 html_last_updated_fmt = ""
 # OpenGraph metadata
