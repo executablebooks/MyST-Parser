@@ -3,8 +3,6 @@ from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
 
-from docutils import __version_info__
-
 from myst_parser.mdit_to_docutils.base import make_document
 from myst_parser.parsers.docutils_ import (
     Parser,
