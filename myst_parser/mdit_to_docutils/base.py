@@ -357,9 +357,7 @@ class DocutilsRenderer(RendererProtocol):
             if temp_root_node is not None:
                 # we need to temporarily set the root node,
                 # and we also want to restore the level_to_section mapping at the end
-                current_level_to_section = {
-                    i: node for i, node in self._level_to_section.items()
-                }
+                current_level_to_section = dict(self._level_to_section.items())
                 current_root_node = self.md_env.get("temp_root_node", None)
                 self.md_env["temp_root_node"] = temp_root_node
             yield
