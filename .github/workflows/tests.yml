@@ -36,12 +36,6 @@ jobs:
           python-version: "3.8"
           sphinx: ">=5,<6"
 
-    continue-on-error: >-
-      ${{
-        (matrix.python-version == '3.8' && matrix.sphinx == '>=5,<6')
-        && true || false
-      }}
-
     runs-on: ${{ matrix.os }}
 
     steps:
