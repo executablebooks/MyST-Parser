@@ -107,7 +107,7 @@ content
 .
 <document source="<string>">
     <paragraph>
-        © © ® ® ™ ™ § § ± …
+        © © ® ® ™ ™ (p) (P) ± …
 .
 
 [strikethrough] --myst-enable-extensions=strikethrough
