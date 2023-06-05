@@ -15,10 +15,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -32,15 +32,14 @@ keywords = [
     "docutils",
     "sphinx",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = [
-    "docutils>=0.15,<0.20",
+    "docutils>=0.16,<0.21",
     "jinja2", # required for substitutions, but let sphinx choose version
-    "markdown-it-py>=1.0.0,<3.0.0",
-    "mdit-py-plugins~=0.3.4",
+    "markdown-it-py~=3.0",
+    "mdit-py-plugins~=0.4",
     "pyyaml",
     "sphinx>=5,<7",
-    'typing-extensions; python_version < "3.8"',
 ]
 
 [project.urls]
@@ -50,7 +49,7 @@ Documentation = "https://myst-parser.readthedocs.io"
 [project.optional-dependencies]
 code_style = ["pre-commit~=3.0"]
 # for use with "linkify" extension
-linkify = ["linkify-it-py~=1.0"]
+linkify = ["linkify-it-py~=2.0"]
 # Note: This is only required for internal use
 rtd = [
     "ipython",
