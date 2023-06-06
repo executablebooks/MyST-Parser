@@ -1,0 +1,4 @@
+contact_links:
+  - name: Ask a question 💬
+    url: https://github.com/executablebooks/MyST-Parser/discussions
+    about: Ask questions and discuss ideas with other community members
