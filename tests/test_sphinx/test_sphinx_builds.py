@@ -278,10 +278,6 @@ def test_includes(
         )
 
 
-@pytest.mark.skipif(
-    __version_info__ < VersionInfo(0, 17, 0, "final", 0, True),
-    reason="parser option added in docutils 0.17",
-)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "include_from_rst"),
@@ -337,6 +333,9 @@ def test_footnotes(
             filename="footnote_md.html",
             regress_html=True,
             regress_ext=".html",
+            replace={
+                'role="note">': 'role="doc-footnote">',  # changed in docutils 0.20
+            },
         )
 
 
