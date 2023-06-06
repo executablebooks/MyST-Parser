@@ -53,3 +53,9 @@
         INDEX
     <compound classes="toctree-wrapper">
         <toctree caption="True" entries="(None,\ 'other')" glob="False" hidden="False" includefiles="other" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
+    <paragraph>
+        Jan 01, 2020
+    <paragraph>
+        item1
+    <paragraph>
+        value1

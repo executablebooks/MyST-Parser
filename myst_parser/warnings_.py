@@ -59,6 +59,8 @@ class MystWarnings(Enum):
     """HTML could not be parsed."""
     INVALID_ATTRIBUTE = "attribute"
     """Invalid attribute value."""
+    SUBSTITUTION = "substitution"
+    """Substitution could not be resolved."""
 
 
 def _is_suppressed_warning(
