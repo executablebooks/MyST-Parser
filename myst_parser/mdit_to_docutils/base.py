@@ -1854,11 +1854,12 @@ class DocutilsRenderer(RendererProtocol):
                 variable_context
             )
         except Exception as error:
-            error_msg = self.reporter.error(
+            self.create_warning(
                 f"Substitution error:{error.__class__.__name__}: {error}",
+                MystWarnings.SUBSTITUTION,
                 line=position,
+                append_to=self.current_node,
             )
-            self.current_node += [error_msg]
             return
 
         # handle circular references
@@ -1869,11 +1870,12 @@ class DocutilsRenderer(RendererProtocol):
         self.document.sub_references = getattr(self.document, "sub_references", set())
         cyclic = references.intersection(self.document.sub_references)
         if cyclic:
-            error_msg = self.reporter.error(
+            self.create_warning(
                 f"circular substitution reference: {cyclic}",
+                MystWarnings.SUBSTITUTION,
                 line=position,
+                append_to=self.current_node,
             )
-            self.current_node += [error_msg]
             return
 
         # TODO improve error reporting;

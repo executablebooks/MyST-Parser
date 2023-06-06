@@ -234,15 +234,26 @@ text
         text
 .
 
-[substitutions] --myst-enable-extensions=substitution --myst-substitutions='{"a": "b", "c": "d"}'
+[substitutions] --myst-enable-extensions=substitution --myst-substitutions='{"a": "b", "c": "d", "e": "{{f}}", "f": "{{e}}"}'
 .
-{{a}} {{c}}
+{{a}} {{c}} {{x}} {{e}}
 .
 <document source="<string>">
     <paragraph>
         b
 
         d
+
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Substitution error:UndefinedError: 'x' is undefined [myst.substitution]
+
+        <system_message level="2" line="3" source="<string>" type="WARNING">
+            <paragraph>
+                circular substitution reference: {'e'} [myst.substitution]
+
+<string>:1: (WARNING/2) Substitution error:UndefinedError: 'x' is undefined [myst.substitution]
+<string>:3: (WARNING/2) circular substitution reference: {'e'} [myst.substitution]
 .
 
 [attrs_image] --myst-enable-extensions=attrs_image

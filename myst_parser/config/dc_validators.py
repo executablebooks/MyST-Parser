@@ -41,6 +41,12 @@ class ValidatorType(Protocol):
         ...
 
 
+def any_(inst, field, value, suffix=""):
+    """
+    A validator that does not perform any validation.
+    """
+
+
 def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
     """
     A validator that raises a `TypeError` if the initializer is called
