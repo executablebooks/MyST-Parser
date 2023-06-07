@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import dataclasses as dc
-from typing import Any, Sequence
-
-from myst_parser._compat import Protocol
+from typing import Any, Protocol, Sequence
 
 
 def validate_field(inst: Any, field: dc.Field, value: Any) -> None:
@@ -41,6 +39,12 @@ class ValidatorType(Protocol):
         self, inst: Any, field: dc.Field, value: Any, suffix: str = ""
     ) -> None:
         ...
+
+
+def any_(inst, field, value, suffix=""):
+    """
+    A validator that does not perform any validation.
+    """
 
 
 def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:

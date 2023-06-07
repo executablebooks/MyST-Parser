@@ -12,12 +12,13 @@ from typing import (
     Sequence,
     Set,
     Tuple,
+    TypedDict,
     Union,
 )
 
-from myst_parser._compat import TypedDict
 from myst_parser.warnings_ import MystWarnings
 from .dc_validators import (
+    any_,
     deep_iterable,
     deep_mapping,
     in_,
@@ -335,12 +336,10 @@ class MdParserConfig:
 
     # Extension specific
 
-    substitutions: Dict[str, Union[str, int, float]] = dc.field(
+    substitutions: Dict[str, Any] = dc.field(
         default_factory=dict,
         metadata={
-            "validator": deep_mapping(
-                instance_of(str), instance_of((str, int, float)), instance_of(dict)
-            ),
+            "validator": deep_mapping(instance_of(str), any_, instance_of(dict)),
             "merge_topmatter": True,
             "help": "Substitutions mapping",
             "extension": "substitutions",

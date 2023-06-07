@@ -18,6 +18,11 @@ myst:
       Inline note
       ```
     override: Overridden by front matter
+    date: 2020-01-01
+    nested_list:
+      - item1
+    nested_dict:
+      key1: value1
 
 ---
 
@@ -54,3 +59,9 @@ Using env and filters:
 ```{toctree}
 other.md
 ```
+
+{{ date.strftime("%b %d, %Y") }}
+
+{{ nested_list.0 }}
+
+{{ nested_dict.key1 }}
