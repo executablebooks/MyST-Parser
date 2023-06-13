@@ -1974,7 +1974,7 @@ def default_slugify(title: str) -> str:
     - https://github.com/jch/html-pipeline/blob/master/lib/html/pipeline/toc_filter.rb
     - https://gist.github.com/asabaylus/3071099
     """
-    return _SLUGIFY_CLEAN_REGEX.sub("", title.strip().lower().replace(" ", "-"))
+    return _SLUGIFY_CLEAN_REGEX.sub("", title.lower().replace(" ", "-"))
 
 
 def compute_unique_slug(
