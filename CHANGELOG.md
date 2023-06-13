@@ -1,5 +1,38 @@
 # Changelog
 
+## 2.0.0 - 2023-06-13
+
+This release primarily updates core myst-parser dependencies,
+with some minor changes to parsing behaviour:
+
+* ⬆️ UPGRADE: `markdown-it-py` to v3 (<gh-pr:773>)
+  * This is mainly a non-breaking change, fixing some edge cases in parsing
+  * See: <https://github.com/executablebooks/markdown-it-py/releases/tag/v3.0.0>
+    and <https://github.com/executablebooks/mdit-py-plugins/releases/tag/v0.4.0>
+
+* ⬆️ UPGRADE: `linkify-it-py` to v2 (<gh-pr:675>)
+  * Also fixes some edge cases in parsing
+  * See: <https://github.com/tsutsu3/linkify-it-py/blob/main/CHANGELOG.md>
+
+* ⬆️ UPGRADE: Add support for `docutils` v0.20 (<gh-pr:775>)
+  * No significant changes, see <https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-20-2023-05-04>
+
+* ⬆️ UPGRADE: Add support for `sphinx` v7, and remove v5 support (<gh-pr:776>)
+  * No significant changes, see <https://www.sphinx-doc.org/en/master/changes.html>
+
+* ⬆️ UPGRADE: Remove Python 3.7 support and add testing for Python 3.11 (<gh-pr:772>)
+
+* 👌 Improve default slug generation for heading anchors, thanks to <gh-user:Cimbali> (<gh-pr:777>)
+  * This change makes the slug generation closer to GitHub, in that, starting/ending whitespace will not be stripped.
+    For example, ``# ` a` b `c ` `` will now correctly create the slug `-a-b-c-` and not `a-b-c`
+
+* 👌 IMPROVE: Substitution extension (<gh-pr:777>)
+  * Allow any value type (including dict, list, datetime) and emit a `myst.substitution` warning for errors in resolving the substitution content.
+
+* 🧪 Introduce a gate/check GHA job, thanks to <gh-user:webknjaz> (<gh-pr:635>)
+
+**Full Changelog**: [v1.0.0...v2.0.0](https://github.com/executablebooks/MyST-Parser/compare/v1.0.0...v2.0.0)
+
 ## 1.0.0 - 2023-03-07
 
 🎉 **MyST-Parser 1.0.0** 🎉
