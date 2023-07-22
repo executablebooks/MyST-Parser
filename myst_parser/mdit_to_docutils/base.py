@@ -1349,7 +1349,6 @@ class DocutilsRenderer(RendererProtocol):
 
         # top-level element
         table = nodes.table()
-        table["classes"] += ["colwidths-auto"]
         self.copy_attributes(token, table, ("class", "id"))
         self.add_line_and_source_path(table, token)
         self.current_node.append(table)

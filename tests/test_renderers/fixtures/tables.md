@@ -5,7 +5,7 @@ a|b
 1|2
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto">
+    <table>
         <tgroup cols="2">
             <colspec colwidth="50">
             <colspec colwidth="50">
@@ -33,7 +33,7 @@ Header only:
 | --- | --- |
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto">
+    <table>
         <tgroup cols="2">
             <colspec colwidth="50">
             <colspec colwidth="50">
@@ -54,7 +54,7 @@ a | b | c
 1 | 2 | 3
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto">
+    <table>
         <tgroup cols="3">
             <colspec colwidth="33">
             <colspec colwidth="33">
@@ -90,7 +90,7 @@ Nested syntax:
 |c  | {sub}`x` |
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto">
+    <table>
         <tgroup cols="2">
             <colspec colwidth="50">
             <colspec colwidth="50">
@@ -123,7 +123,7 @@ a|b
 [link-a](https://www.google.com/)|[link-b](https://www.python.org/)
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto">
+    <table>
         <tgroup cols="2">
             <colspec colwidth="50">
             <colspec colwidth="50">
