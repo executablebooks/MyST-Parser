@@ -23,9 +23,8 @@ It is effectively a Markdown code fence with curly brackets around the language,
 Here is the basic structure:
 
 `````{list-table}
----
-header-rows: 1
----
+:header-rows: 1
+
 * - MyST
   - reStructuredText
 * - ````md
@@ -55,16 +54,13 @@ This is my note
 ```
 :::
 
-#### Parameterizing directives
+#### Parameterizing directives (options)
 
-For directives that take parameters as input, there are two ways to parameterize them.
-In each case, the options themselves are given as `key: value` pairs. An example of
-each is shown below:
+Many directives can take key/value pairs, in an optional *option block* at the start of the directive.
 
-**Short-hand options with `:` characters**. If you only need one or two options for your
-directive and wish to save lines, you may also specify directive options as a collection
-of lines just after the first line of the directive, each preceding with `:`. Then the
-leading `:` is removed from each line, and the rest is parsed as YAML.
+The option block starts on the first line of the directive body and is defined by a set of lines prefixed with `:`.
+
+The block then follows a YAML-like mapping syntax, where the key (string) and value (string) are separated by a colon (`:`):
 
 :::{myst-example}
 ```{code-block} python
@@ -77,10 +73,28 @@ print(f'my {a}nd line')
 ```
 :::
 
-**Using YAML frontmatter**. A block of YAML front-matter just after the
-first line of the directive will be parsed as options for the directive. This needs to be
-surrounded by `---` lines. Everything in between will be parsed by YAML and
-passed as keyword arguments to your directive. For example:
+Comments, starting `#`, are also allowed in between options or at the end of values, and are ignored.
+The values can be enclosed in quotes (`"` or `'`) and span multiple lines.
+Newline behaviour can be controlled by starting the value with `|` (preserve newlines) or `>` (collapse newlines):
+
+:::{myst-example}
+```{code-block} python
+:lineno-start: 10  # this is a comment
+: # this is also a comment
+:emphasize-lines: "1, 3"
+:caption: |
+:    This is my
+:    multi-line caption. It is *pretty nifty* ;-)
+
+a = 2
+print('my 1st line')
+print(f'my {a}nd line')
+```
+:::
+
+::::{dropdown} Old-style options block
+
+Option blocks can also be enclosed by `---`, with no `:` prefix, for example:
 
 :::{myst-example}
 ```{code-block} python
@@ -96,6 +110,8 @@ print('my 1st line')
 print(f'my {a}nd line')
 ```
 :::
+
+::::
 
 (syntax/directives/parsing)=
 
@@ -209,9 +225,8 @@ Roles are similar to directives - they allow you to define arbitrary new functio
 To define an in-line role, use the following form:
 
 ````{list-table}
----
-header-rows: 1
----
+:header-rows: 1
+
 * - MyST
   - reStructuredText
 * - ````md

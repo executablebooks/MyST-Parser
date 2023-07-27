@@ -25,6 +25,21 @@ options: {}
 warnings: []
 .
 
+note: content in first line and body
+.
+```{note} a
+b
+```
+.
+arguments: []
+body:
+- a
+- b
+content_offset: 0
+options: {}
+warnings: []
+.
+
 note: content after option
 .
 ```{note}
@@ -92,11 +107,14 @@ body:
 - first line
 - ''
 - body line
-content_offset: 1
+content_offset: 0
 options:
   class:
   - tip
-warnings: []
+warnings:
+- - Cannot split content across first line and body, when options block is present
+    (move first line to body)
+  - null
 .
 
 admonition: no options, no new line
@@ -162,7 +180,8 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- Invalid options format (bad YAML)
+- - 'Unknown option keys: [''a''] (allowed: [''class'', ''name''])'
+  - 1
 .
 
 warning: yaml not a dict
@@ -178,7 +197,8 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- Invalid options format (not a dict)
+- - 'Invalid options format: expected '':'' after key'
+  - 1
 .
 
 warning: unknown option name
@@ -192,7 +212,8 @@ body: []
 content_offset: 1
 options: {}
 warnings:
-- 'Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])'
+- - 'Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])'
+  - 0
 .
 
 warning: invalid option value
@@ -206,7 +227,8 @@ body: []
 content_offset: 1
 options: {}
 warnings:
-- 'Invalid option value for ''class'': 1: cannot make "1" into a class name'
+- - 'Invalid option value for ''class'': 1: cannot make "1" into a class name'
+  - 0
 .
 
 error: missing argument
