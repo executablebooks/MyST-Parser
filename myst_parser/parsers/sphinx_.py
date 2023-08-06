@@ -81,11 +81,11 @@ class MystParser(SphinxParser):
         # to be parsed. This will ensure references will be resolved/built as
         # expected.
         env = document.settings.env
-        labelrefs = env.metadata[env.docname].get('myst_labelrefs', {})
+        labelrefs = env.metadata[env.docname].get("myst_labelrefs", {})
         if labelrefs:
-            postfix = '\n\n'
+            postfix = "\n\n"
             for label, uri in labelrefs.items():
-                postfix += f'[{label}]: {uri}\n'
+                postfix += f"[{label}]: {uri}\n"
             inputstring += postfix
 
         parser = create_md_parser(config, SphinxRenderer)

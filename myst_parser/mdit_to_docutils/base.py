@@ -950,11 +950,11 @@ class DocutilsRenderer(RendererProtocol):
 
         # cache label references for possible i8n support
         # (see also: MystParser.parse)
-        if uri and 'label' in token.meta:
-            label = token.meta['label']
+        if uri and "label" in token.meta:
+            label = token.meta["label"]
             env = self.sphinx_env
             docname = env.docname
-            labelrefs = env.metadata[docname].setdefault('myst_labelrefs', {})
+            labelrefs = env.metadata[docname].setdefault("myst_labelrefs", {})
             labelrefs[label] = uri
 
         if conversion is not None:
