@@ -948,6 +948,15 @@ class DocutilsRenderer(RendererProtocol):
         uri = cast(str, token.attrGet("href") or "")
         implicit_text: str | None = None
 
+        # cache label references for possible i8n support
+        # (see also: MystParser.parse)
+        if uri and 'label' in token.meta:
+            label = token.meta['label']
+            env = self.sphinx_env
+            docname = env.docname
+            labelrefs = env.metadata[docname].setdefault('myst_labelrefs', {})
+            labelrefs[label] = uri
+
         if conversion is not None:
             # implicit_template: str | None = None
             # if isinstance(conversion, (list, tuple)):

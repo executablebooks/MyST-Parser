@@ -69,6 +69,25 @@ class MystParser(SphinxParser):
                 )
                 config = merge_file_level(config, topmatter, warning)
 
+        # inject label references for a partial document string
+        #
+        # When processing translations in Sphinx, after Sphinx's i8n transform
+        # replaces parts of a document with a translation, document is
+        # processed a message at a time through the MyST-parser. For
+        # references using link labels, these may not be to the parse for the
+        # specific messages that need them. If we detect we have a cache of
+        # label references (from an initial pass before translation), rebuild
+        # the label references and append them to the specific message about
+        # to be parsed. This will ensure references will be resolved/built as
+        # expected.
+        env = document.settings.env
+        labelrefs = env.metadata[env.docname].get('myst_labelrefs', {})
+        if labelrefs:
+            postfix = '\n\n'
+            for label, uri in labelrefs.items():
+                postfix += f'[{label}]: {uri}\n'
+            inputstring += postfix
+
         parser = create_md_parser(config, SphinxRenderer)
         parser.options["document"] = document
         parser.render(inputstring)

@@ -120,6 +120,9 @@ def create_md_parser(
             "typographer": typographer,
             "linkify": "linkify" in config.enable_extensions,
             "myst_config": config,
+            # store labels for references so we can rebuild link labels
+            # when using Sphinx Internationalization translation building
+            "store_labels": True,
         }
     )
 
