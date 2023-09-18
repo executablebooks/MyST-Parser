@@ -20,7 +20,7 @@ repos:
     - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.11.0
     hooks:
     - id: pyupgrade
       args: [--py38-plus]
@@ -31,17 +31,17 @@ repos:
     - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.9.1
     hooks:
     - id: black
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.270
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.290
     hooks:
     - id: ruff
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.3.0
+    rev: v1.5.1
     hooks:
     - id: mypy
       args: [--config-file=pyproject.toml]
