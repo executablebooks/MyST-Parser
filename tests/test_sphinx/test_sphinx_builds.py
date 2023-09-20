@@ -41,6 +41,10 @@ def test_basic(
             app,
             docname="content",
             regress=True,
+            replace={
+                # changed in sphinx 7.1
+                '<literal classes="code" language="">': '<literal classes="code">',
+            }
         )
     finally:
         get_sphinx_app_doctree(
@@ -48,6 +52,10 @@ def test_basic(
             docname="content",
             resolve=True,
             regress=True,
+            replace={
+                # changed in sphinx 7.1
+                '<literal classes="code" language="">': '<literal classes="code">',
+            }
         )
     get_sphinx_app_output(
         app,
@@ -257,8 +265,6 @@ def test_includes(
                 r"subfolder\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\\\example2.jpg": "subfolder/example2.jpg",
-                # in sphinx 5.3 whitespace nodes were added
-                '                <inline classes="whitespace">\n    ': "",
             },
         )
     finally:
@@ -271,9 +277,6 @@ def test_includes(
                 r"'subfolder\\example2'": "'subfolder/example2'",
                 r'uri="subfolder\\example2"': 'uri="subfolder/example2"',
                 "_images/example21.jpg": "_images/example2.jpg",
-                # in sphinx 5.3 whitespace nodes were added
-                '<span class="whitespace"></span>': "",
-                '<span class="whitespace">\n</span>': "\n",
             },
         )
 
@@ -539,17 +542,13 @@ def test_fieldlist_extension(
             docname="index",
             regress=True,
             replace={
-                # changed in:
-                # https://www.sphinx-doc.org/en/master/changes.html#release-4-4-0-released-jan-17-2022
-                (
-                    '<literal_strong py:class="True" '
-                    'py:module="True" refspecific="True">'
-                ): "<literal_strong>",
-                # changed in sphinx 5.3, for `desc` node
-                'nocontentsentry="False" ': "",
-                'noindexentry="False" ': "",
-                # changed in sphinx 5.3, for `desc_signature` node
-                '_toc_name="send_message()" _toc_parts="(\'send_message\',)" ': "",
+                # changed in sphinx 7.1 for desc_sig_name node
+                'classes="n n"': 'classes="n"',
+                # changed in sphinx 7.1 for desc_parameterlist node
+                'multi_line_parameter_list="False" ': '',
+                # changed in sphinx 7.1 for desc_signature/desc_name nodes
+                'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
+                'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',
             },
         )
     finally:

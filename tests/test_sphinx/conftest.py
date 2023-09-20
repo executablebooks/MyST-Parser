@@ -36,6 +36,7 @@ import pathlib
 import shutil
 
 import pytest
+from docutils import nodes
 from bs4 import BeautifulSoup
 from sphinx.testing.path import path
 
@@ -115,6 +116,13 @@ def get_sphinx_app_doctree(file_regression):
             lambda n: "source" in n and not isinstance(n, str)
         ):
             node["source"] = pathlib.Path(node["source"]).name
+
+        doctree = doctree.deepcopy()
+
+        # remove attrs added in sphinx 7.1
+        doctree.attributes.pop("translation_progress", None)
+        for node in findall(doctree)(nodes.Element):
+            node.attributes.pop("translated", None)
 
         if regress:
             text = doctree.pformat()  # type: str
