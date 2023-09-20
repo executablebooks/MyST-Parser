@@ -56,6 +56,7 @@
                     param
                 <inline classes="punctuation">
                     ):
+                <inline classes="whitespace">
 
 
                 <inline classes="name builtin">
@@ -80,9 +81,11 @@
                     param
                 <inline classes="punctuation">
                     ):
+                <inline classes="whitespace">
 
                 <inline classes="ln">
                     1
+                <inline classes="whitespace">
 
                 <inline classes="name builtin">
                     print

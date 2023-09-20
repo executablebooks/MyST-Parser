@@ -21,8 +21,8 @@ object (`sphinx.directives.ObjectDescription`):
 .
 <document source="<src>/index.md">
     <index entries="">
-    <desc classes="object" desctype="object" domain="" noindex="False" objtype="object">
-        <desc_signature classes="sig sig-object">
+    <desc classes="object" desctype="object" domain="" nocontentsentry="False" noindex="False" noindexentry="False" objtype="object">
+        <desc_signature _toc_name="" _toc_parts="()" classes="sig sig-object">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 something
         <desc_content>
@@ -404,8 +404,8 @@ cmdoption (`sphinx.domains.std.Cmdoption`):
 .
 <document source="<src>/index.md">
     <index entries="('pair',\ 'command\ line\ option;\ a',\ 'cmdoption-arg-a',\ '',\ None)">
-    <desc classes="std cmdoption" desctype="cmdoption" domain="std" noindex="False" objtype="cmdoption">
-        <desc_signature allnames="a" classes="sig sig-object" ids="cmdoption-arg-a">
+    <desc classes="std cmdoption" desctype="cmdoption" domain="std" nocontentsentry="False" noindex="False" noindexentry="False" objtype="cmdoption">
+        <desc_signature _toc_name="" _toc_parts="()" allnames="a" classes="sig sig-object" ids="cmdoption-arg-a">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 a
             <desc_addname classes="sig-prename descclassname" xml:space="preserve">
@@ -419,8 +419,8 @@ rst:directive (`sphinx.domains.rst.ReSTDirective`):
 .
 <document source="<src>/index.md">
     <index entries="('single',\ 'a\ (directive)',\ 'directive-a',\ '',\ None)">
-    <desc classes="rst directive" desctype="directive" domain="rst" noindex="False" objtype="directive">
-        <desc_signature classes="sig sig-object" ids="directive-a">
+    <desc classes="rst directive" desctype="directive" domain="rst" nocontentsentry="False" noindex="False" noindexentry="False" objtype="directive">
+        <desc_signature _toc_name=".. a::" _toc_parts="('a',)" classes="sig sig-object" fullname="a" ids="directive-a">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 .. a::
         <desc_content>

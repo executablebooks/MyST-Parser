@@ -37,6 +37,7 @@ import shutil
 
 import pytest
 from bs4 import BeautifulSoup
+from docutils import nodes
 from sphinx.testing.path import path
 
 from myst_parser._compat import findall
@@ -83,6 +84,8 @@ def get_sphinx_app_output(file_regression):
             for pygment_whitespace in doc_div.select("pre > span.w"):
                 pygment_whitespace.replace_with(pygment_whitespace.text)
             text = doc_div.prettify()
+            # changed in sphinx 7.2
+            text = text.replace('"Link to this', '"Permalink to this')
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
             file_regression.check(text, extension=regress_ext, encoding="utf8")
@@ -115,6 +118,13 @@ def get_sphinx_app_doctree(file_regression):
             lambda n: "source" in n and not isinstance(n, str)
         ):
             node["source"] = pathlib.Path(node["source"]).name
+
+        doctree = doctree.deepcopy()
+
+        # remove attrs added in sphinx 7.1
+        doctree.attributes.pop("translation_progress", None)
+        for node in findall(doctree)(nodes.Element):
+            node.attributes.pop("translated", None)
 
         if regress:
             text = doctree.pformat()  # type: str

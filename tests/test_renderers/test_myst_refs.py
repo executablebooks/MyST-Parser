@@ -35,6 +35,7 @@ def test_parse(
         assert not result.warnings
 
     doctree["source"] = "root/index.md"
+    doctree.attributes.pop("translation_progress", None)
     outcome = doctree.pformat()
     if result.warnings.strip():
         outcome += "\n\n" + result.warnings.strip().replace("[91m", "").replace(
