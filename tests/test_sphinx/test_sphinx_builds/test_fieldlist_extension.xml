@@ -15,8 +15,8 @@
                     <paragraph>
                         content
         <index entries="('pair',\ 'built-in\ function;\ send_message()',\ 'send_message',\ '',\ None)">
-        <desc classes="py function" desctype="function" domain="py" noindex="False" objtype="function">
-            <desc_signature class="" classes="sig sig-object" fullname="send_message" ids="send_message" module="True">
+        <desc classes="py function" desctype="function" domain="py" nocontentsentry="False" noindex="False" noindexentry="False" objtype="function">
+            <desc_signature _toc_name="send_message()" _toc_parts="('send_message',)" class="" classes="sig sig-object" fullname="send_message" ids="send_message" module="True">
                 <desc_name classes="sig-name descname" xml:space="preserve">
                     send_message
                 <desc_parameterlist xml:space="preserve">
