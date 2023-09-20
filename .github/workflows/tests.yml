@@ -56,6 +56,7 @@ jobs:
       if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest'
       uses: codecov/codecov-action@v3
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         name: myst-parser-pytests
         flags: pytests
         file: ./coverage.xml
