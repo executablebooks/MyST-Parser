@@ -81,10 +81,17 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
     if sys.maxsize == 2147483647:
         pformat = pformat.replace('"2147483647"', '"9223372036854775807"')
     # changed in sphinx 7.1
-    pformat = pformat.replace('classes="sig sig-object sig sig-object"', 'classes="sig sig-object"')
-    pformat = pformat.replace('classes="sig-name descname sig-name descname"', 'classes="sig-name descname"')
-    pformat = pformat.replace('classes="sig-prename descclassname sig-prename descclassname"', 'classes="sig-prename descclassname"')
-    
+    pformat = pformat.replace(
+        'classes="sig sig-object sig sig-object"', 'classes="sig sig-object"'
+    )
+    pformat = pformat.replace(
+        'classes="sig-name descname sig-name descname"', 'classes="sig-name descname"'
+    )
+    pformat = pformat.replace(
+        'classes="sig-prename descclassname sig-prename descclassname"',
+        'classes="sig-prename descclassname"',
+    )
+
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 

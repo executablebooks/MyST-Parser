@@ -44,7 +44,7 @@ def test_basic(
             replace={
                 # changed in sphinx 7.1
                 '<literal classes="code" language="">': '<literal classes="code">',
-            }
+            },
         )
     finally:
         get_sphinx_app_doctree(
@@ -55,7 +55,7 @@ def test_basic(
             replace={
                 # changed in sphinx 7.1
                 '<literal classes="code" language="">': '<literal classes="code">',
-            }
+            },
         )
     get_sphinx_app_output(
         app,
@@ -545,7 +545,7 @@ def test_fieldlist_extension(
                 # changed in sphinx 7.1 for desc_sig_name node
                 'classes="n n"': 'classes="n"',
                 # changed in sphinx 7.1 for desc_parameterlist node
-                'multi_line_parameter_list="False" ': '',
+                'multi_line_parameter_list="False" ': "",
                 # changed in sphinx 7.1 for desc_signature/desc_name nodes
                 'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
                 'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',

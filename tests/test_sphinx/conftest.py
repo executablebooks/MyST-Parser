@@ -36,8 +36,8 @@ import pathlib
 import shutil
 
 import pytest
-from docutils import nodes
 from bs4 import BeautifulSoup
+from docutils import nodes
 from sphinx.testing.path import path
 
 from myst_parser._compat import findall
