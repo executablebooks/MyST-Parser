@@ -80,7 +80,7 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
     # see https://github.com/executablebooks/MyST-Parser/issues/522
     if sys.maxsize == 2147483647:
         pformat = pformat.replace('"2147483647"', '"9223372036854775807"')
-    # changed in sphinx 7.1
+    # changed in sphinx 7.2
     pformat = pformat.replace(
         'classes="sig sig-object sig sig-object"', 'classes="sig sig-object"'
     )
@@ -90,6 +90,14 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
     pformat = pformat.replace(
         'classes="sig-prename descclassname sig-prename descclassname"',
         'classes="sig-prename descclassname"',
+    )
+    # changed in sphinx 7.2 (#11533)
+    pformat = pformat.replace(
+        (
+            'no-contents-entry="False" no-index="False" '
+            'no-index-entry="False" no-typesetting="False" '
+        ),
+        "",
     )
 
     file_params.assert_expected(pformat, rstrip_lines=True)

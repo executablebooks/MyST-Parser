@@ -265,6 +265,8 @@ def test_includes(
                 r"subfolder\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\example2.jpg": "subfolder/example2.jpg",
                 r"subfolder\\\\example2.jpg": "subfolder/example2.jpg",
+                # added in sphinx 7.2 (#9846)
+                'original_uri="/subfolder/example2.jpg" ': "",
             },
         )
     finally:
@@ -460,6 +462,10 @@ def test_gettext_html(
         filename="index.html",
         regress_html=True,
         regress_ext=".html",
+        replace={
+            # upstream bug https://github.com/sphinx-doc/sphinx/issues/11689
+            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"'
+        },
     )
 
 
@@ -542,13 +548,18 @@ def test_fieldlist_extension(
             docname="index",
             regress=True,
             replace={
-                # changed in sphinx 7.1 for desc_sig_name node
+                # changed in sphinx 7.2 for desc_sig_name node
                 'classes="n n"': 'classes="n"',
-                # changed in sphinx 7.1 for desc_parameterlist node
+                # changed in sphinx 7.2 for desc_parameterlist node
                 'multi_line_parameter_list="False" ': "",
-                # changed in sphinx 7.1 for desc_signature/desc_name nodes
+                # changed in sphinx 7.2 for desc_signature/desc_name nodes
                 'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
                 'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',
+                # changed in sphinx 7.2 (#11533)
+                (
+                    'no-contents-entry="False" no-index="False" '
+                    'no-index-entry="False" no-typesetting="False" '
+                ): "",
             },
         )
     finally:

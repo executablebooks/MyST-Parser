@@ -84,6 +84,8 @@ def get_sphinx_app_output(file_regression):
             for pygment_whitespace in doc_div.select("pre > span.w"):
                 pygment_whitespace.replace_with(pygment_whitespace.text)
             text = doc_div.prettify()
+            # changed in sphinx 7.2
+            text = text.replace('"Link to this', '"Permalink to this')
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
             file_regression.check(text, extension=regress_ext, encoding="utf8")
