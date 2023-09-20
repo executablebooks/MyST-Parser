@@ -72,13 +72,13 @@ testing = [
     "pytest>=7,<8",
     "pytest-cov",
     "pytest-regressions",
-    "pytest-param-files~=0.3.4",
+    "pytest-param-files~=0.6.0",
     "sphinx-pytest",
 ]
 testing-docutils = [
     "pygments",
     "pytest>=7,<8",
-    "pytest-param-files~=0.3.4",
+    "pytest-param-files~=0.6.0",
 ]
 
 [project.scripts]
@@ -110,7 +110,7 @@ no_lines_before = "LOCALFOLDER"
 [tool.ruff]
 line-length = 100
 extend-select = ["B0", "C4", "ICN", "ISC", "N", "RUF", "SIM"]
-extend-ignore = ["RUF005"]
+extend-ignore = ["RUF005", "RUF012"]
 
 [tool.mypy]
 show_error_codes = true

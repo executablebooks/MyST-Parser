@@ -57,6 +57,10 @@ Include code:
 <document source="tmpdir/test.md">
     <literal_block classes="code md" source="tmpdir/other.md" xml:space="preserve">
         a
+        <inline classes="whitespace">
+            
         b
+        <inline classes="whitespace">
+            
         c
 .

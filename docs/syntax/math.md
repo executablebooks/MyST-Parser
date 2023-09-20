@@ -6,7 +6,7 @@ depending on your preference.
 
 ## Math role and directive
 
-The `math` {{role}} and {{directive}} are used used to define inline and block math respectively.
+The `math` {{role}} and {{directive}} are used to define inline and block math respectively.
 
 The directive supports multiple equations, which should be separated by a blank line.
 Each single equation can have multiple aligned lines, which should be separated by `\\` characters, and each line can have multiple `&` characters to align the equations.

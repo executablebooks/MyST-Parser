@@ -1593,7 +1593,7 @@ class DocutilsRenderer(RendererProtocol):
                                 None,  # type: ignore
                                 term.source,
                                 term.line,
-                                node_id=None,  # type: ignore
+                                node_id=None,
                                 document=self.document,
                             )
                         self.current_node.append(term)
