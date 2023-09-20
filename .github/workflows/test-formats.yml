@@ -18,7 +18,7 @@ jobs:
         format: ["man", "text"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
@@ -42,7 +42,7 @@ jobs:
         format: ["latex"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
