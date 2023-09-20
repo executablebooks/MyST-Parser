@@ -552,7 +552,7 @@ def test_fieldlist_extension(
                 'classes="n n"': 'classes="n"',
                 # changed in sphinx 7.2 for desc_parameterlist node
                 'multi_line_parameter_list="False" ': "",
-                # changed in sphinx 7.2 for desc_signature/desc_name nodes
+                # changed in sphinx 7.1 (but fixed in 7.2) for desc_signature/desc_name nodes
                 'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
                 'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',
                 # changed in sphinx 7.2 (#11533)
