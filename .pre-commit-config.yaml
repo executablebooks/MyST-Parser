@@ -12,7 +12,7 @@ exclude: >
 repos:
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     - id: check-json
     - id: check-yaml
@@ -20,7 +20,7 @@ repos:
     - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.11.1
+    rev: v3.15.0
     hooks:
     - id: pyupgrade
       args: [--py38-plus]
@@ -31,17 +31,17 @@ repos:
     - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.11.0
     hooks:
     - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.290
+    rev: v0.1.6
     hooks:
     - id: ruff
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.5.1
+    rev: v1.7.0
     hooks:
     - id: mypy
       args: [--config-file=pyproject.toml]
