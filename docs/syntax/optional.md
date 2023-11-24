@@ -622,7 +622,7 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
   ```
 :::
 
-A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](inv:sphinx#python-domain):
+A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](inv:sphinx#usage/domains/python):
 
 :::{myst-example}
 ```{py:function} send_message(sender, priority)
