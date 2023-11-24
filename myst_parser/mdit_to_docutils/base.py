@@ -582,12 +582,15 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(quote, token)
         with self.current_node_context(quote, append=True):
             self.render_children(token)
-        if "attribution" in token.attrs:
-            attribution = nodes.attribution(
-                token.attrs["attribution"], "", nodes.Text(token.attrs["attribution"])
-            )
-            self.add_line_and_source_path(attribution, token)
-            quote.append(attribution)
+            if "attribution" in token.attrs:
+                attribution = nodes.attribution(token.attrs["attribution"], "")
+                self.add_line_and_source_path(attribution, token)
+                with self.current_node_context(attribution, append=True):
+                    self.nested_render_text(
+                        str(token.attrs["attribution"]),
+                        token_line(token, 0),
+                        inline=True,
+                    )
 
     def render_hr(self, token: SyntaxTreeNode) -> None:
         node = nodes.transition()

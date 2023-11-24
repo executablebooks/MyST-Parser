@@ -16,7 +16,7 @@ c = 3
 
 blockquote
 .
-{attribution="Chris Sewell"}
+{attribution="Chris Sewell [link](https://source.com)"}
 > Hallo
 .
 <document source="<src>/index.md">
@@ -25,6 +25,8 @@ blockquote
             Hallo
         <attribution>
             Chris Sewell
+            <reference refuri="https://source.com">
+                link
 .
 
 list-style
