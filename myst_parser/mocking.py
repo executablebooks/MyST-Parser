@@ -84,9 +84,7 @@ class MockInliner:
         """
         # TODO use document.reporter mechanism?
         if hasattr(Inliner, name):
-            msg = "{cls} has not yet implemented attribute '{name}'".format(
-                cls=type(self).__name__, name=name
-            )
+            msg = f"{type(self).__name__} has not yet implemented attribute '{name}'"
             raise MockingError(msg).with_traceback(sys.exc_info()[2])
         msg = f"{type(self).__name__} has no attribute {name}"
         raise MockingError(msg).with_traceback(sys.exc_info()[2])
@@ -307,9 +305,7 @@ class MockStateMachine:
         been defined. Defined attributes will not be overridden.
         """
         if hasattr(RSTStateMachine, name):
-            msg = "{cls} has not yet implemented attribute '{name}'".format(
-                cls=type(self).__name__, name=name
-            )
+            msg = f"{type(self).__name__} has not yet implemented attribute '{name}'"
             raise MockingError(msg).with_traceback(sys.exc_info()[2])
         msg = f"{type(self).__name__} has no attribute {name}"
         raise MockingError(msg).with_traceback(sys.exc_info()[2])

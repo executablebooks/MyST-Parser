@@ -28,7 +28,7 @@ class SimpleWriter(Writer):
 
     def apply_template(self):
         subs = self.interpolation_dict()
-        return "%(body)s\n" % subs
+        return "{body}\n".format(**subs)
 
     def __init__(self):
         self.parts = {}
