@@ -749,7 +749,7 @@ c = 3
 For **block quotes**, the `attribution` key is supported:
 
 :::{myst-example}
-{attribution="Chris Sewell"}
+{attribution="Chris Sewell, [link](https://example.com)"}
 > Hallo
 :::
 
