@@ -27,9 +27,8 @@ import yaml
 from docutils import nodes
 from docutils.frontend import OptionParser
 from docutils.languages import get_language
-from docutils.parsers.rst import Directive, DirectiveError
+from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
-from docutils.parsers.rst import directives, roles
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
@@ -55,6 +54,7 @@ from myst_parser.mocking import (
 )
 from myst_parser.parsers.directives import MarkupError, parse_directive_text
 from myst_parser.warnings_ import MystWarnings, create_warning
+
 from .html_to_nodes import html_to_nodes
 
 if TYPE_CHECKING:
@@ -1799,9 +1799,7 @@ class DocutilsRenderer(RendererProtocol):
             result = [msg_node]
         except MockingError as exc:
             error_msg = self.reporter.error(
-                "Directive '{}' cannot be mocked: {}: {}".format(
-                    name, exc.__class__.__name__, exc
-                ),
+                f"Directive '{name}' cannot be mocked: {exc.__class__.__name__}: {exc}",
                 nodes.literal_block(content, content),
                 line=position,
             )
@@ -1813,9 +1811,7 @@ class DocutilsRenderer(RendererProtocol):
         for i in range(len(result)):
             assert isinstance(
                 result[i], nodes.Node
-            ), 'Directive "{}" returned non-Node object (index {}): {}'.format(
-                name, i, result[i]
-            )
+            ), f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
         return result
 
     def render_substitution_inline(self, token: SyntaxTreeNode) -> None:

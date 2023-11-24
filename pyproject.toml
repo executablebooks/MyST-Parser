@@ -101,17 +101,9 @@ exclude = [
     "tests/",
 ]
 
-[tool.isort]
-profile = "black"
-known_first_party = ["myst_parser", "tests"]
-known_third_party = ["docutils", "markdown_it", "sphinx"]
-# Group first party and local folder imports together
-no_lines_before = "LOCALFOLDER"
-
 [tool.ruff]
-line-length = 100
-extend-select = ["B0", "C4", "ICN", "ISC", "N", "RUF", "SIM"]
-extend-ignore = ["RUF005", "RUF012"]
+extend-select = ["B0", "C4", "I", "ICN", "ISC", "N", "RUF", "SIM", "UP"]
+extend-ignore = ["ISC001", "RUF005", "RUF012"]
 
 [tool.mypy]
 show_error_codes = true
