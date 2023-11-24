@@ -54,7 +54,7 @@ linkify = ["linkify-it-py~=2.0"]
 rtd = [
     "ipython",
     "sphinx-book-theme==1.0.0rc2",
-    "pydata-sphinx-theme==v0.13.0rc4",
+    "pydata-sphinx-theme==v0.14.3",
     "sphinx-design2",
     "sphinx-copybutton",
     "sphinxext-rediraffe~=0.2.7",
