@@ -64,7 +64,7 @@ rtd = [
     "sphinx-pyscript",
     "sphinx-tippy>=0.3.1",
     "sphinx-autodoc2~=0.4.2",
-    "astroid<3",  # see https://github.com/sphinx-extensions2/sphinx-autodoc2/issues/31
+    "astroid<4",  # see https://github.com/sphinx-extensions2/sphinx-autodoc2/issues/31
     "sphinx-togglebutton",
 ]
 testing = [
