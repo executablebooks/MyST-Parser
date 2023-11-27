@@ -1741,6 +1741,7 @@ class DocutilsRenderer(RendererProtocol):
                 directive_class,
                 first_line,
                 content,
+                line=position,
                 additional_options=additional_options,
             )
         except MarkupError as error:
@@ -1750,12 +1751,11 @@ class DocutilsRenderer(RendererProtocol):
             )
             return [error]
 
-        if parsed.warnings:
-            _errors = ",\n".join(parsed.warnings)
+        for warning_msg, warning_line in parsed.warnings:
             self.create_warning(
-                f"{name!r}: {_errors}",
+                f"{name!r}: {warning_msg}",
                 MystWarnings.DIRECTIVE_PARSING,
-                line=position,
+                line=warning_line if warning_line is not None else position,
                 append_to=self.current_node,
             )
 

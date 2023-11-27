@@ -149,7 +149,7 @@ bad-option-value
 :class: [1]
 ```
 .
-<string>:1: (WARNING/2) 'note': option "class" value not string (enclose with ""): [1] [myst.directive_parse]
+<string>:1: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_parse]
 <string>:1: (ERROR/3) Content block expected for the "note" directive; none found.
 .
 

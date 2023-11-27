@@ -1,0 +1,42 @@
+no `:`:
+  content: |
+    key1
+  expected: |-
+    expected ':' after key
+    at line 1, column 0
+
+Indented key:
+  content: |2
+     key1: value1
+  expected: |-
+    expected key to start at column 0
+    at line 0, column 1
+
+Quote not closed:
+  content: |
+    key1: "value1
+  expected: |-
+    while scanning a quoted scalar
+    at line 0, column 6
+    found unexpected end of stream
+    at line 1, column 0
+
+Content after literal:
+  content: |
+    key1: | value1
+      extra
+  expected: |-
+    while scanning a block scalar
+    at line 0, column 6
+    expected a comment or a line break, but found 'v'
+    at line 0, column 8
+
+Content after folded:
+  content: |
+    key1: > value1
+      extra
+  expected: |-
+    while scanning a block scalar
+    at line 0, column 6
+    expected a comment or a line break, but found 'v'
+    at line 0, column 8

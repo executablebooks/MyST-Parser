@@ -1,0 +1,169 @@
+plain key/values:
+  content: |-
+    key1:
+    key2: val2
+    key3:
+        val3
+    key4: val4.1
+        val4.2
+  expected: |-
+    [
+      [
+        "key1",
+        ""
+      ],
+      [
+        "key2",
+        "val2"
+      ],
+      [
+        "key3",
+        "val3"
+      ],
+      [
+        "key4",
+        "val4.1 val4.2"
+      ]
+    ]
+
+plain key/values with comments:
+  content: |-
+    key1: # comment
+    key2: val2 # comment
+    # comment
+    key3:
+        val3 # comment
+
+    key4: val4.1
+        val4.2 # comment
+  expected: |-
+    [
+      [
+        "key1",
+        ""
+      ],
+      [
+        "key2",
+        "val2"
+      ],
+      [
+        "key3",
+        "val3"
+      ],
+      [
+        "key4",
+        "val4.1 val4.2"
+      ]
+    ]
+
+quoted key/values:
+  content: |-
+    "key1": "val1"
+    'key2': 'val2'
+    "key
+    3": "val
+    3"
+    escapes: "\"\e\x07"
+  expected: |-
+    [
+      [
+        "key1",
+        "val1"
+      ],
+      [
+        "key2",
+        "val2"
+      ],
+      [
+        "key 3",
+        "val 3"
+      ],
+      [
+        "escapes",
+        "\"\u001b\u0007"
+      ]
+    ]
+
+literal values:
+  content: |
+    key1: |
+      val1.1
+      val1.2
+
+      val1.3
+    key2: |2
+        val2.1
+      val2.2
+
+        val2.3
+    key3: |-
+      val3.1
+      val3.2
+
+      val3.3
+    key4: |+
+      val4.1
+      val4.2
+
+      val4.3
+  expected: |-
+    [
+      [
+        "key1",
+        "val1.1\nval1.2\n\nval1.3\n"
+      ],
+      [
+        "key2",
+        "  val2.1\nval2.2\n\n  val2.3\n"
+      ],
+      [
+        "key3",
+        "val3.1\nval3.2\n\nval3.3"
+      ],
+      [
+        "key4",
+        "val4.1\nval4.2\n\nval4.3\n"
+      ]
+    ]
+
+folded values:
+  content: |
+    key1: >
+      val1.1
+      val1.2
+
+      val1.3
+    key2: >2
+        val2.1
+      val2.2
+
+        val2.3
+    key3: >-
+      val3.1
+      val3.2
+
+      val3.3
+    key4: >+
+      val4.1
+      val4.2
+
+      val4.3
+  expected: |-
+    [
+      [
+        "key1",
+        "val1.1 val1.2\nval1.3\n"
+      ],
+      [
+        "key2",
+        "  val2.1\nval2.2\n\n  val2.3\n"
+      ],
+      [
+        "key3",
+        "val3.1 val3.2\nval3.3"
+      ],
+      [
+        "key4",
+        "val4.1 val4.2\nval4.3\n"
+      ]
+    ]
