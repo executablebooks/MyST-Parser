@@ -85,6 +85,7 @@ nitpicky = True
 nitpick_ignore_regex = [
     (r"py:.*", r"docutils\..*"),
     (r"py:.*", r"pygments\..*"),
+    (r"py:.*", r"typing\.Literal\[.*"),
 ]
 nitpick_ignore = [
     ("py:obj", "myst_parser._docs._ConfigBase"),

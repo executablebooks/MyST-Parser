@@ -133,7 +133,7 @@ foo
 <document source="<src>/index.md">
     <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
         <paragraph>
-            'restructuredtext-test-directive': Invalid options format (bad YAML) [myst.directive_parse]
+            'restructuredtext-test-directive': Invalid options format: expected ':' after key [myst.directive_parse]
     <system_message level="1" line="1" source="<src>/index.md" type="INFO">
         <paragraph>
             Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content:
