@@ -1,5 +1,5 @@
-import io
 import contextlib
+import io
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
