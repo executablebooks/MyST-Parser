@@ -118,6 +118,8 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:.*The default for the setting.*:FutureWarning",
+#    'ignore:.*The frontend\.OptionParser class will be replaced.*:DeprecationWarning',
+#    'ignore:.*The frontend\.Option class will be removed.*:DeprecationWarning'
 ]
 
 [tool.coverage.run]

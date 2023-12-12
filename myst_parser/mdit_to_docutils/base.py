@@ -22,10 +22,10 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import docutils
 import jinja2
 import yaml
 from docutils import nodes
-from docutils.frontend import OptionParser
 from docutils.languages import get_language
 from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
@@ -63,7 +63,14 @@ if TYPE_CHECKING:
 
 def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     """Create a new docutils document, with the parser classes' default settings."""
-    settings = OptionParser(components=(parser_cls,)).get_default_values()
+    if docutils.__version_info__[:2] >= (0, 19):
+        from docutils.frontend import get_default_settings
+
+        settings = get_default_settings(parser_cls)
+    else:
+        from docutils.frontend import OptionParser
+
+        settings = OptionParser(components=(parser_cls,)).get_default_values()
     return new_document(source_path, settings=settings)
 
 

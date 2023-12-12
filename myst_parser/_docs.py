@@ -1,11 +1,12 @@
 """Code to use internally, for documentation."""
 from __future__ import annotations
 
+import contextlib
 import io
 from typing import Sequence, Union, get_args, get_origin
 
 from docutils import nodes
-from docutils.frontend import OptionParser
+from docutils.core import Publisher
 from docutils.parsers.rst import directives
 from sphinx.directives import other
 from sphinx.transforms.post_transforms import SphinxPostTransform
@@ -175,11 +176,18 @@ class DocutilsCliHelpDirective(SphinxDirective):
 
     def run(self):
         """Run the directive."""
+
         stream = io.StringIO()
-        OptionParser(
-            components=(DocutilsParser,),
-            usage="myst-docutils-<writer> [options] [<source> [<destination>]]",
-        ).print_help(stream)
+
+        pub = Publisher(parser=DocutilsParser())
+        with contextlib.redirect_stdout(stream):
+            try:
+                pub.process_command_line(
+                    ["--help"],
+                    usage="myst-docutils-<writer> [options] [<source> [<destination>]]",
+                )
+            except SystemExit as exc:
+                assert not exc.code
         return [nodes.literal_block("", stream.getvalue())]
 
 
