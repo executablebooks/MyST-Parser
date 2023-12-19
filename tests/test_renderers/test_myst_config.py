@@ -22,15 +22,13 @@ def test_cmdline(file_params: ParamTestData):
     if "heading_slug_func" in file_params.title and __version_info__ < (0, 18):
         pytest.skip("dupnames ids changed in docutils 0.18")
     pub = Publisher(parser=Parser())
-    option_parser = pub.setup_option_parser()
     try:
-        settings = option_parser.parse_args(
-            shlex.split(file_params.description)
-        ).__dict__
+        pub.process_command_line(shlex.split(file_params.description))
     except Exception as err:
         raise AssertionError(
             f"Failed to parse commandline: {file_params.description}\n{err}"
         )
+    settings = vars(pub.settings)
     report_stream = StringIO()
     settings["output_encoding"] = "unicode"
     settings["warning_stream"] = report_stream

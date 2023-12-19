@@ -128,9 +128,8 @@ def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
     if cmdline is None or not cmdline.strip():
         return {}
     pub = Publisher(parser=Parser())
-    option_parser = pub.setup_option_parser()
     try:
-        settings = option_parser.parse_args(shlex.split(cmdline)).__dict__
+        pub.process_command_line(shlex.split(cmdline))
     except Exception as err:
         raise AssertionError(f"Failed to parse commandline: {cmdline}\n{err}")
-    return settings
+    return vars(pub.settings)
