@@ -1,3 +1,4 @@
+import contextlib
 import io
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
@@ -91,10 +92,16 @@ def test_cli_pseudoxml(monkeypatch, capsys):
 
 def test_help_text():
     """Test retrieving settings help text."""
-    from docutils.frontend import OptionParser
+    from docutils.core import Publisher
 
     stream = io.StringIO()
-    OptionParser(components=(Parser,)).print_help(stream)
+    pub = Publisher(parser=Parser())
+    with contextlib.redirect_stdout(stream):
+        try:
+            pub.process_command_line(["--help"])
+        except SystemExit as exc:
+            assert not exc.code
+
     assert "MyST options" in stream.getvalue()
 
 
