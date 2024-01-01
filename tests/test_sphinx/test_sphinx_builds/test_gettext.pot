@@ -79,3 +79,7 @@ msgstr ""
 #: ../../index.md:61
 msgid "Fun Fish 3"
 msgstr ""
+
+#: ../../index.md:65
+msgid "1. numbered title"
+msgstr ""

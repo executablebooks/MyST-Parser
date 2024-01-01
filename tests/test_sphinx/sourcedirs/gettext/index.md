@@ -61,3 +61,5 @@ doctest block
 ```{figure} fun-fish.png
 :alt: Fun Fish 3
 ```
+
+## 1. numbered title
