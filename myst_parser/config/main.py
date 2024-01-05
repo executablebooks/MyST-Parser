@@ -233,6 +233,14 @@ class MdParserConfig:
         },
     )
 
+    links_external_new_tab: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Open all external links in a new tab",
+        },
+    )
+
     url_schemes: Dict[str, Optional[UrlSchemeType]] = dc.field(
         default_factory=lambda: {
             "http": None,

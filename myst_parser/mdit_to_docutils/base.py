@@ -952,8 +952,12 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
+        attribute_keys = ["class", "id", "reftitle", "target", "rel"]
+        if self.md_config.links_external_new_tab:
+            token.attrs["target"] = "_blank"
+            token.attrs["rel"] = "noreferer noopener"
         self.copy_attributes(
-            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+            token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
         uri = cast(str, token.attrGet("href") or "")
         implicit_text: str | None = None
