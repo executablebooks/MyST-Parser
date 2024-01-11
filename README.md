@@ -38,7 +38,7 @@ Or for package development:
 git clone https://github.com/executablebooks/MyST-Parser
 cd MyST-Parser
 git checkout master
-pip install -e .[code_style,testing,rtd]
+pip install -e .[code_style,linkify,testing,rtd]
 ```
 
 To use the MyST parser in Sphinx, simply add: `extensions = ["myst_parser"]` to your `conf.py`.
