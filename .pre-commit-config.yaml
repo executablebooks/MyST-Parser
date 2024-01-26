@@ -2,51 +2,51 @@
 # pre-commit install
 
 exclude: >
-  (?x)^(
-    \.vscode/settings\.json|
-    tests/test_commonmark/commonmark\.json|
-    .*\.xml|
-    tests/.*/.*\.md|
-    tests/.*/.*\.yaml
-  )$
+    (?x)^(
+      \.vscode/settings\.json|
+      tests/test_commonmark/commonmark\.json|
+      .*\.xml|
+      tests/.*/.*\.md|
+      tests/.*/.*\.yaml
+    )$
 
 repos:
 
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
-  hooks:
-  - id: check-json
-  - id: check-yaml
-  - id: check-toml
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-json
+    -   id: check-yaml
+    -   id: check-toml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
 
-- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.12.0
-  hooks:
-  - id: pretty-format-toml
-    args: [--autofix]
-  - id: pretty-format-yaml
-    args: [--autofix]
+-   repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.12.0
+    hooks:
+    -   id: pretty-format-toml
+        args: [--autofix, --indent, '4']
+    -   id: pretty-format-yaml
+        args: [--autofix, --indent, '4']
 
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.11
-  hooks:
-  - id: ruff
-    args: [--fix]
-  - id: ruff-format
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.11
+    hooks:
+    -   id: ruff
+        args: [--fix]
+    -   id: ruff-format
 
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.8.0
-  hooks:
-  - id: mypy
-    args: [--config-file=pyproject.toml]
-    additional_dependencies:
-    - sphinx~=6.0
-    - types-urllib3
-    - markdown-it-py~=3.0
-    - mdit-py-plugins~=0.4.0
-    files: >
-      (?x)^(
-          myst_parser/.*py|
-      )$
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+    -   id: mypy
+        args: [--config-file=pyproject.toml]
+        additional_dependencies:
+        -   sphinx~=6.0
+        -   types-urllib3
+        -   markdown-it-py~=3.0
+        -   mdit-py-plugins~=0.4.0
+        files: >
+            (?x)^(
+                myst_parser/.*py|
+            )$

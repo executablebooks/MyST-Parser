@@ -1,170 +1,170 @@
 name: continuous-integration
 
 on:
-  push:
-    branches: [master]
-    tags:
-    - v[0-9]+.[0-9]+.[0-9]+*
-  pull_request:
+    push:
+        branches: [master]
+        tags:
+        -   v[0-9]+.[0-9]+.[0-9]+*
+    pull_request:
 
 jobs:
-  pre-commit:
+    pre-commit:
 
-    runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.8'
-    - uses: pre-commit/action@v3.0.0
+        steps:
+        -   uses: actions/checkout@v4
+        -   name: Set up Python 3.8
+            uses: actions/setup-python@v5
+            with:
+                python-version: '3.8'
+        -   uses: pre-commit/action@v3.0.0
 
-  tests:
+    tests:
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        sphinx: ['>=7,<8']
-        os: [ubuntu-latest]
-        include:
-        - os: ubuntu-latest
-          python-version: '3.8'
-          sphinx: '>=6,<7'
-        - os: windows-latest
-          python-version: '3.8'
-          sphinx: '>=6,<7'
+        strategy:
+            fail-fast: false
+            matrix:
+                python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+                sphinx: ['>=7,<8']
+                os: [ubuntu-latest]
+                include:
+                -   os: ubuntu-latest
+                    python-version: '3.8'
+                    sphinx: '>=6,<7'
+                -   os: windows-latest
+                    python-version: '3.8'
+                    sphinx: '>=6,<7'
 
-    runs-on: ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
-    - name: Run pytest
-      run: |
-        pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
-        coverage xml
-    - name: Upload to Codecov
-      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        name: myst-parser-pytests
-        flags: pytests
-        file: ./coverage.xml
-        fail_ci_if_error: true
+        steps:
+        -   uses: actions/checkout@v4
+        -   name: Set up Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v5
+            with:
+                python-version: ${{ matrix.python-version }}
+        -   name: Install dependencies
+            run: |
+                python -m pip install --upgrade pip
+                pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
+        -   name: Run pytest
+            run: |
+                pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
+                coverage xml
+        -   name: Upload to Codecov
+            if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest'
+            uses: codecov/codecov-action@v3
+            with:
+                token: ${{ secrets.CODECOV_TOKEN }}
+                name: myst-parser-pytests
+                flags: pytests
+                file: ./coverage.xml
+                fail_ci_if_error: true
 
-  check-myst-docutils:
+    check-myst-docutils:
 
-    name: Check myst-docutils install
-    runs-on: ubuntu-latest
+        name: Check myst-docutils install
+        runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        docutils-version: ['0.17', '0.18', '0.19', '0.20']
+        strategy:
+            fail-fast: false
+            matrix:
+                docutils-version: ['0.17', '0.18', '0.19', '0.20']
 
-    steps:
-    - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.8'
-    - name: Install setup
-      run: |
-        python -m pip install --upgrade pip
-        pip install tomlkit
-    - name: Modify setup
-      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
-    - name: Install dependencies
-      run: |
-        pip install .[linkify,testing-docutils] docutils==${{ matrix.docutils-version }}
-    - name: ensure sphinx is not installed
-      run: |
-        python -c "\
-        try:
-            import sphinx
-        except ImportError:
-            pass
-        else:
-            raise AssertionError()"
-    - name: Run pytest for docutils-only tests
-      run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py tests/test_renderers/test_myst_config.py
-    - name: Run docutils CLI
-      run: echo "test" | myst-docutils-html
+        steps:
+        -   name: Checkout source
+            uses: actions/checkout@v4
+        -   name: Set up Python 3.8
+            uses: actions/setup-python@v5
+            with:
+                python-version: '3.8'
+        -   name: Install setup
+            run: |
+                python -m pip install --upgrade pip
+                pip install tomlkit
+        -   name: Modify setup
+            run: python .github/workflows/docutils_setup.py pyproject.toml README.md
+        -   name: Install dependencies
+            run: |
+                pip install .[linkify,testing-docutils] docutils==${{ matrix.docutils-version }}
+        -   name: ensure sphinx is not installed
+            run: |
+                python -c "\
+                try:
+                    import sphinx
+                except ImportError:
+                    pass
+                else:
+                    raise AssertionError()"
+        -   name: Run pytest for docutils-only tests
+            run: pytest tests/test_docutils.py tests/test_renderers/test_fixtures_docutils.py tests/test_renderers/test_include_directive.py tests/test_renderers/test_myst_config.py
+        -   name: Run docutils CLI
+            run: echo "test" | myst-docutils-html
 
   # https://github.com/marketplace/actions/alls-green#why
-  check:  # This job does nothing and is only used for the branch protection
+    check: # This job does nothing and is only used for the branch protection
 
-    if: always()
+        if: always()
 
-    needs:
-    - pre-commit
-    - tests
-    - check-myst-docutils
+        needs:
+        -   pre-commit
+        -   tests
+        -   check-myst-docutils
 
-    runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-    steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        jobs: ${{ toJSON(needs) }}
+        steps:
+        -   name: Decide whether the needed jobs succeeded or failed
+            uses: re-actors/alls-green@release/v1
+            with:
+                jobs: ${{ toJSON(needs) }}
 
-  publish:
+    publish:
 
-    name: Publish myst-parser to PyPi
-    needs:
-    - check
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.8'
-    - name: install flit
-      run: |
-        pip install flit~=3.4
-    - name: Build and publish
-      run: |
-        flit publish
-      env:
-        FLIT_USERNAME: __token__
-        FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
+        name: Publish myst-parser to PyPi
+        needs:
+        -   check
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        runs-on: ubuntu-latest
+        steps:
+        -   name: Checkout source
+            uses: actions/checkout@v4
+        -   name: Set up Python 3.8
+            uses: actions/setup-python@v5
+            with:
+                python-version: '3.8'
+        -   name: install flit
+            run: |
+                pip install flit~=3.4
+        -   name: Build and publish
+            run: |
+                flit publish
+            env:
+                FLIT_USERNAME: __token__
+                FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
 
-  publish-docutils:
+    publish-docutils:
 
-    name: Publish myst-docutils to PyPi
-    needs: [publish]
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.8'
-    - name: install flit and tomlkit
-      run: |
-        pip install flit~=3.4 tomlkit
-    - name: Modify setup
-      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
-    - name: Build and publish
-      run: |
-        flit publish
-      env:
-        FLIT_USERNAME: __token__
-        FLIT_PASSWORD: ${{ secrets.PYPI_KEY_DOCUTILS }}
+        name: Publish myst-docutils to PyPi
+        needs: [publish]
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        runs-on: ubuntu-latest
+        steps:
+        -   name: Checkout source
+            uses: actions/checkout@v4
+        -   name: Set up Python 3.8
+            uses: actions/setup-python@v5
+            with:
+                python-version: '3.8'
+        -   name: install flit and tomlkit
+            run: |
+                pip install flit~=3.4 tomlkit
+        -   name: Modify setup
+            run: python .github/workflows/docutils_setup.py pyproject.toml README.md
+        -   name: Build and publish
+            run: |
+                flit publish
+            env:
+                FLIT_USERNAME: __token__
+                FLIT_PASSWORD: ${{ secrets.PYPI_KEY_DOCUTILS }}

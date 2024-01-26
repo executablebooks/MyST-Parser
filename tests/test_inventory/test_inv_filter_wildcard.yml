@@ -1,36 +1,36 @@
-- base_url:
-  domain: std
-  inv: inv
-  loc: genindex.html
-  name: genindex
-  otype: label
-  project: Python
-  text: Index
-  version: ''
-- base_url:
-  domain: std
-  inv: inv
-  loc: py-modindex.html
-  name: modindex
-  otype: label
-  project: Python
-  text: Module Index
-  version: ''
-- base_url:
-  domain: std
-  inv: inv
-  loc: py-modindex.html
-  name: py-modindex
-  otype: label
-  project: Python
-  text: Python Module Index
-  version: ''
-- base_url:
-  domain: std
-  inv: inv
-  loc: index.html
-  name: index
-  otype: doc
-  project: Python
-  text: Title
-  version: ''
+-   base_url:
+    domain: std
+    inv: inv
+    loc: genindex.html
+    name: genindex
+    otype: label
+    project: Python
+    text: Index
+    version: ''
+-   base_url:
+    domain: std
+    inv: inv
+    loc: py-modindex.html
+    name: modindex
+    otype: label
+    project: Python
+    text: Module Index
+    version: ''
+-   base_url:
+    domain: std
+    inv: inv
+    loc: py-modindex.html
+    name: py-modindex
+    otype: label
+    project: Python
+    text: Python Module Index
+    version: ''
+-   base_url:
+    domain: std
+    inv: inv
+    loc: index.html
+    name: index
+    otype: doc
+    project: Python
+    text: Title
+    version: ''

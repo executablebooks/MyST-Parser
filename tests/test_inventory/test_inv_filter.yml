@@ -1,9 +1,9 @@
-- base_url:
-  domain: std
-  inv: inv
-  loc: index.html
-  name: index
-  otype: doc
-  project: Python
-  text: Title
-  version: ''
+-   base_url:
+    domain: std
+    inv: inv
+    loc: index.html
+    name: index
+    otype: doc
+    project: Python
+    text: Title
+    version: ''

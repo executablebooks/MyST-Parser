@@ -5,38 +5,38 @@ requires = ["flit_core >=3.4,<4"]
 [project]
 authors = [{name = "Chris Sewell", email = "chrisj_sewell@hotmail.com"}]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Framework :: Sphinx :: Extension",
-  "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
-  "Topic :: Software Development :: Libraries :: Python Modules",
-  "Topic :: Text Processing :: Markup"
+    "Development Status :: 4 - Beta",
+    "Framework :: Sphinx :: Extension",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup"
 ]
 dependencies = [
-  "docutils>=0.16,<0.21",
-  "jinja2",  # required for substitutions, but let sphinx choose version
-  "markdown-it-py~=3.0",
-  "mdit-py-plugins~=0.4",
-  "pyyaml",
-  "sphinx>=6,<8"
+    "docutils>=0.16,<0.21",
+    "jinja2",  # required for substitutions, but let sphinx choose version
+    "markdown-it-py~=3.0",
+    "mdit-py-plugins~=0.4",
+    "pyyaml",
+    "sphinx>=6,<8"
 ]
 dynamic = ["version", "description"]
 keywords = [
-  "markdown",
-  "lexer",
-  "parser",
-  "development",
-  "docutils",
-  "sphinx"
+    "markdown",
+    "lexer",
+    "parser",
+    "development",
+    "docutils",
+    "sphinx"
 ]
 license = {file = "LICENSE"}
 name = "myst-parser"
@@ -49,33 +49,33 @@ code_style = ["pre-commit~=3.0"]
 linkify = ["linkify-it-py~=2.0"]
 # Note: This is only required for internal use
 rtd = [
-  "ipython",
-  "sphinx-book-theme==1.0.0rc2",
-  "pydata-sphinx-theme==v0.13.0rc4",
-  "sphinx-design2",
-  "sphinx-copybutton",
-  "sphinxext-rediraffe~=0.2.7",
-  # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed
-  # "sphinxcontrib.mermaid~=0.7.1",
-  "sphinxext-opengraph~=0.9.0",
-  "sphinx-pyscript",
-  "sphinx-tippy>=0.3.1",
-  "sphinx-autodoc2~=0.5.0",
-  "sphinx-togglebutton"
+    "ipython",
+    "sphinx-book-theme==1.0.0rc2",
+    "pydata-sphinx-theme==v0.13.0rc4",
+    "sphinx-design2",
+    "sphinx-copybutton",
+    "sphinxext-rediraffe~=0.2.7",
+    # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed
+    # "sphinxcontrib.mermaid~=0.7.1",
+    "sphinxext-opengraph~=0.9.0",
+    "sphinx-pyscript",
+    "sphinx-tippy>=0.3.1",
+    "sphinx-autodoc2~=0.5.0",
+    "sphinx-togglebutton"
 ]
 testing = [
-  "beautifulsoup4",
-  "coverage[toml]",
-  "pytest>=7,<8",
-  "pytest-cov",
-  "pytest-regressions",
-  "pytest-param-files~=0.6.0",
-  "sphinx-pytest"
+    "beautifulsoup4",
+    "coverage[toml]",
+    "pytest>=7,<8",
+    "pytest-cov",
+    "pytest-regressions",
+    "pytest-param-files~=0.6.0",
+    "sphinx-pytest"
 ]
 testing-docutils = [
-  "pygments",
-  "pytest>=7,<8",
-  "pytest-param-files~=0.6.0"
+    "pygments",
+    "pytest>=7,<8",
+    "pytest-param-files~=0.6.0"
 ]
 
 [project.scripts]
@@ -100,8 +100,8 @@ name = "myst_parser"
 
 [tool.flit.sdist]
 exclude = [
-  "docs/",
-  "tests/"
+    "docs/",
+    "tests/"
 ]
 
 [tool.mypy]
@@ -117,7 +117,7 @@ module = ["docutils.*", "yaml.*", "pygments.*"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
-  "ignore:.*The default for the setting.*:FutureWarning"
+    "ignore:.*The default for the setting.*:FutureWarning"
 ]
 
 [tool.ruff]
