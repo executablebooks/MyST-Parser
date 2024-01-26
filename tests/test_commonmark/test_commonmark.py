@@ -11,7 +11,8 @@ from myst_parser.config.main import MdParserConfig
 from myst_parser.parsers.mdit import create_md_parser
 
 with open(
-    os.path.join(os.path.dirname(__file__), "commonmark.json"), encoding="utf8"
+    os.path.join(os.path.dirname(__file__), "commonmark.json"),
+    encoding="utf8",
 ) as fin:
     tests = json.load(fin)
 
@@ -26,7 +27,7 @@ def test_commonmark(entry):
         # but not strictly CommonMark,
         # see: https://talk.commonmark.org/t/metadata-in-documents/721/86
         pytest.skip(
-            "Thematic breaks on the first line conflict with front matter syntax"
+            "Thematic breaks on the first line conflict with front matter syntax",
         )
     test_case = entry["markdown"]
     md = create_md_parser(MdParserConfig(), RendererHTML)
@@ -38,7 +39,8 @@ def test_commonmark(entry):
     if entry["example"] in [187, 209, 210]:
         # this doesn't have any bearing on the output
         output = output.replace(
-            "<blockquote></blockquote>", "<blockquote>\n</blockquote>"
+            "<blockquote></blockquote>",
+            "<blockquote>\n</blockquote>",
         )
 
     assert output == entry["html"]

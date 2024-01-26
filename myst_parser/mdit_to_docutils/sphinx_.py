@@ -65,7 +65,8 @@ class SphinxRenderer(DocutilsRenderer):
         if relative_include is not None and destination.startswith(relative_include[0]):
             source_dir, include_dir = relative_include[1:]
             destination = os.path.relpath(
-                os.path.join(include_dir, os.path.normpath(destination)), source_dir
+                os.path.join(include_dir, os.path.normpath(destination)),
+                source_dir,
             )
         return destination
 
@@ -146,17 +147,24 @@ class SphinxRenderer(DocutilsRenderer):
             docname = self.sphinx_env.path2doc(str(potential_path))
             if docname:
                 wrap_node = addnodes.pending_xref(
-                    refdomain="doc", reftarget=docname, reftargetid=path_id, **kwargs
+                    refdomain="doc",
+                    reftarget=docname,
+                    reftargetid=path_id,
+                    **kwargs,
                 )
                 classes = ["xref", "myst"]
             else:
                 wrap_node = addnodes.download_reference(
-                    refdomain=None, reftarget=path_dest, **kwargs
+                    refdomain=None,
+                    reftarget=path_dest,
+                    **kwargs,
                 )
                 classes = ["xref", "download", "myst"]
         else:
             wrap_node = addnodes.pending_xref(
-                refdomain=None, reftarget=destination, **kwargs
+                refdomain=None,
+                reftarget=destination,
+                **kwargs,
             )
             classes = ["xref", "myst"]
 
@@ -177,7 +185,7 @@ class SphinxRenderer(DocutilsRenderer):
                 domains=domains,
                 otypes=otypes,
                 targets=target,
-            )
+            ),
         )
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
@@ -185,7 +193,11 @@ class SphinxRenderer(DocutilsRenderer):
         label = token.info
         content = token.content
         node = nodes.math_block(
-            content, content, nowrap=False, number=None, label=label
+            content,
+            content,
+            nowrap=False,
+            number=None,
+            label=label,
         )
         target = self.add_math_target(node)
         self.add_line_and_source_path(target, token)
@@ -219,7 +231,11 @@ class SphinxRenderer(DocutilsRenderer):
             self.current_node.append(target)
         else:
             node = nodes.math_block(
-                content, content, nowrap=True, number=None, classes=["amsmath"]
+                content,
+                content,
+                nowrap=True,
+                number=None,
+                classes=["amsmath"],
             )
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)

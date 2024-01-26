@@ -52,7 +52,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "strikethrough",
             "substitution",
             "tasklist",
-        ]
+        ],
     )
     if diff:
         raise ValueError(f"'{field.name}' items not recognised: {diff}")
@@ -90,11 +90,11 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
                 raise TypeError(f"'{field.name}[{key}]' keys are not strings: {val!r}")
             if "url" in val and not isinstance(val["url"], str):
                 raise TypeError(
-                    f"'{field.name}[{key}][url]' is not a string: {val['url']!r}"
+                    f"'{field.name}[{key}][url]' is not a string: {val['url']!r}",
                 )
             if "title" in val and not isinstance(val["title"], str):
                 raise TypeError(
-                    f"'{field.name}[{key}][title]' is not a string: {val['title']!r}"
+                    f"'{field.name}[{key}][title]' is not a string: {val['title']!r}",
                 )
             if (
                 "classes" in val
@@ -102,12 +102,12 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
                 and not all(isinstance(c, str) for c in val["classes"])
             ):
                 raise TypeError(
-                    f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}"
+                    f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}",
                 )
             new_dict[key] = val  # type: ignore
         else:
             raise TypeError(
-                f"'{field.name}[{key}]' value is not a string or dict: {val!r}"
+                f"'{field.name}[{key}]' value is not a string or dict: {val!r}",
             )
 
     setattr(inst, field.name, new_dict)
@@ -120,7 +120,7 @@ def check_sub_delimiters(_: "MdParserConfig", field: dc.Field, value: Any) -> No
     for delim in value:
         if (not isinstance(delim, str)) or len(delim) != 1:
             raise TypeError(
-                f"'{field.name}' does not contain strings of length 1: {value}"
+                f"'{field.name}' does not contain strings of length 1: {value}",
             )
 
 
@@ -133,7 +133,7 @@ def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
             raise TypeError(f"'{field.name}' key is not a string: {key!r}")
         if not isinstance(val, (tuple, list)) or len(val) != 2:
             raise TypeError(
-                f"'{field.name}[{key}]' value is not a 2-item list: {val!r}"
+                f"'{field.name}[{key}]' value is not a 2-item list: {val!r}",
             )
         if not isinstance(val[0], str):
             raise TypeError(f"'{field.name}[{key}][0]' is not a string: {val[0]}")
@@ -142,7 +142,9 @@ def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
 
 
 def check_heading_slug_func(
-    inst: "MdParserConfig", field: dc.Field, value: Any
+    inst: "MdParserConfig",
+    field: dc.Field,
+    value: Any,
 ) -> None:
     """Check that the heading_slug_func is a callable."""
     if value is None:
@@ -155,7 +157,7 @@ def check_heading_slug_func(
             value = getattr(mod, function_name)
         except ImportError as exc:
             raise TypeError(
-                f"'{field.name}' could not be loaded from string: {value!r}"
+                f"'{field.name}' could not be loaded from string: {value!r}",
             ) from exc
         setattr(inst, field.name, value)
     if not callable(value):
@@ -169,7 +171,9 @@ def _test_slug_func(text: str) -> str:
 
 
 def check_fence_as_directive(
-    inst: "MdParserConfig", field: dc.Field, value: Any
+    inst: "MdParserConfig",
+    field: dc.Field,
+    value: Any,
 ) -> None:
     """Check that the extensions are a sequence of known strings"""
     deep_iterable(instance_of(str), instance_of((list, tuple, set)))(inst, field, value)
@@ -253,7 +257,7 @@ class MdParserConfig:
         default=None,
         metadata={
             "validator": optional(
-                deep_iterable(instance_of(str), instance_of((list, tuple)))
+                deep_iterable(instance_of(str), instance_of((list, tuple))),
             ),
             "help": "Sphinx domain names to search in for link references",
             "omit": ["docutils"],
@@ -311,7 +315,9 @@ class MdParserConfig:
         default_factory=dict,
         metadata={
             "validator": deep_mapping(
-                instance_of(str), instance_of(str), instance_of(dict)
+                instance_of(str),
+                instance_of(str),
+                instance_of(dict),
             ),
             "merge_topmatter": True,
             "help": "HTML meta tags",

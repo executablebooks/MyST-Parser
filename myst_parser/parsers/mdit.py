@@ -25,7 +25,8 @@ from myst_parser.config.main import MdParserConfig
 
 
 def create_md_parser(
-    config: MdParserConfig, renderer: Callable[[MarkdownIt], RendererProtocol]
+    config: MdParserConfig,
+    renderer: Callable[[MarkdownIt], RendererProtocol],
 ) -> MarkdownIt:
     """Return a Markdown parser with the required MyST configuration."""
 
@@ -35,7 +36,8 @@ def create_md_parser(
     if config.commonmark_only:
         # see https://spec.commonmark.org/
         md = MarkdownIt("commonmark", renderer_cls=renderer).use(
-            wordcount_plugin, per_minute=config.words_per_minute
+            wordcount_plugin,
+            per_minute=config.words_per_minute,
         )
         md.options.update({"myst_config": config})
         return md
@@ -120,7 +122,7 @@ def create_md_parser(
             "typographer": typographer,
             "linkify": "linkify" in config.enable_extensions,
             "myst_config": config,
-        }
+        },
     )
 
     return md

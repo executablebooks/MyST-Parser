@@ -401,7 +401,10 @@ def filter_string(
 
 
 def fetch_inventory(
-    uri: str, *, timeout: None | float = None, base_url: None | str = None
+    uri: str,
+    *,
+    timeout: None | float = None,
+    base_url: None | str = None,
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
     if uri.startswith("http://") or uri.startswith("https://"):

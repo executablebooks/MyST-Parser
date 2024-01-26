@@ -36,7 +36,8 @@ def modify_readme(content: str) -> str:
     )
     content = content.replace("myst-docutils.readthedocs", "myst-parser.readthedocs")
     content = content.replace(
-        "readthedocs.org/projects/myst-docutils", "readthedocs.org/projects/myst-parser"
+        "readthedocs.org/projects/myst-docutils",
+        "readthedocs.org/projects/myst-parser",
     )
     return content
 

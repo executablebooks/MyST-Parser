@@ -102,8 +102,8 @@ exclude = [
 ]
 
 [tool.ruff]
-extend-select = ["B", "C4", "I", "ICN", "ISC", "N", "RUF", "SIM", "UP"]
-extend-ignore = ["ISC001", "RUF005", "RUF012"]
+extend-select = ["B", "C4", "COM", "I", "ICN", "ISC", "N", "RUF", "SIM", "UP"]
+extend-ignore = ["ISC001", "RUF005", "RUF012", "COM812"]
 
 [tool.mypy]
 show_error_codes = true

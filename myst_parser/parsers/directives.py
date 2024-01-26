@@ -125,7 +125,7 @@ def parse_directive_text(
                         "Cannot split content across first line and body, "
                         "when options block is present (move first line to body)",
                         None,
-                    )
+                    ),
                 )
             body_lines.insert(0, first_line)
             content_offset = 0
@@ -144,7 +144,11 @@ def parse_directive_text(
         parse_errors.append(("Has content, but none permitted", None))
 
     return DirectiveParsingResult(
-        arguments, options, body_lines, content_offset, parse_errors
+        arguments,
+        options,
+        body_lines,
+        content_offset,
+        parse_errors,
     )
 
 
@@ -250,7 +254,7 @@ def _parse_directive_options(
             converted_value = convertor(value)
         except (ValueError, TypeError) as error:
             validation_errors.append(
-                (f"Invalid option value for {name!r}: {value}: {error}", line)
+                (f"Invalid option value for {name!r}: {value}: {error}", line),
             )
         else:
             new_options[name] = converted_value
@@ -261,14 +265,15 @@ def _parse_directive_options(
                 f"Unknown option keys: {sorted(unknown_options)} "
                 f"(allowed: {sorted(options_spec)})",
                 line,
-            )
+            ),
         )
 
     return _DirectiveOptions(content, new_options, validation_errors, has_options_block)
 
 
 def parse_directive_arguments(
-    directive_cls: type[Directive], arg_text: str
+    directive_cls: type[Directive],
+    arg_text: str,
 ) -> list[str]:
     """Parse (and validate) the directive argument section."""
     required = directive_cls.required_arguments
@@ -282,6 +287,6 @@ def parse_directive_arguments(
         else:
             raise MarkupError(
                 f"maximum {required + optional} argument(s) allowed, "
-                f"{len(arguments)} supplied"
+                f"{len(arguments)} supplied",
             )
     return arguments

@@ -159,7 +159,7 @@ class Element(abc.MutableSequence):
                 e
                 for e in element.children
                 if not (isinstance(e, Data) and e.data.strip() == "")
-            ]
+            ],
         )
         if recurse:
             for child in element:

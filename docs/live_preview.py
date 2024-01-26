@@ -51,7 +51,7 @@ def convert(input_config: str, input_myst: str, writer_name: str) -> dict:
             "doctitle_xform": False,
             "sectsubtitle_xform": False,
             "initial_header_level": 1,
-        }
+        },
     )
     try:
         output = publish_string(

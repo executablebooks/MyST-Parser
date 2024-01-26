@@ -22,7 +22,9 @@ class ResolveAnchorIds(Transform):
         # gather the implicit heading slugs
         # name -> (line, slug, title)
         slugs: dict[str, tuple[int, str, str]] = getattr(
-            self.document, "myst_slugs", {}
+            self.document,
+            "myst_slugs",
+            {},
         )
 
         # gather explicit references
@@ -89,11 +91,15 @@ class ResolveAnchorIds(Transform):
                 refnode["refid"] = ref_id
                 if not refnode.children and implicit_title:
                     refnode += nodes.inline(
-                        implicit_title, implicit_title, classes=["std", "std-ref"]
+                        implicit_title,
+                        implicit_title,
+                        classes=["std", "std-ref"],
                     )
                 elif not refnode.children:
                     refnode += nodes.inline(
-                        "#" + target, "#" + target, classes=["std", "std-ref"]
+                        "#" + target,
+                        "#" + target,
+                        classes=["std", "std-ref"],
                     )
                 continue
 
@@ -103,7 +109,9 @@ class ResolveAnchorIds(Transform):
                 refnode["refid"] = sect_id
                 if not refnode.children and implicit_title:
                     refnode += nodes.inline(
-                        implicit_title, implicit_title, classes=["std", "std-ref"]
+                        implicit_title,
+                        implicit_title,
+                        classes=["std", "std-ref"],
                     )
                 continue
 
@@ -119,7 +127,9 @@ class ResolveAnchorIds(Transform):
                     refexplicit=bool(refnode.children),
                 )
                 inner_node = nodes.inline(
-                    "", "", classes=["xref", "myst"] + refnode["classes"]
+                    "",
+                    "",
+                    classes=["xref", "myst"] + refnode["classes"],
                 )
                 for attr in ("ids", "names", "dupnames"):
                     inner_node[attr] = refnode[attr]
@@ -141,5 +151,7 @@ class ResolveAnchorIds(Transform):
             refnode["refid"] = normalizeLink(target)
             if not refnode.children:
                 refnode += nodes.inline(
-                    "#" + target, "#" + target, classes=["std", "std-ref"]
+                    "#" + target,
+                    "#" + target,
+                    classes=["std", "std-ref"],
                 )

@@ -67,7 +67,7 @@ autodoc2_packages = [
     {
         "path": "../myst_parser",
         "exclude_files": ["_docs.py"],
-    }
+    },
 ]
 autodoc2_hidden_objects = ["dunder", "private", "inherited"]
 autodoc2_replace_annotations = [

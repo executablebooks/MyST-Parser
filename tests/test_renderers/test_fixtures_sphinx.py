@@ -27,7 +27,7 @@ def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_link_resolution.md")
 def test_link_resolution(file_params, sphinx_doctree: CreateDoctree):
     sphinx_doctree.set_conf(
-        {"extensions": ["myst_parser"], **settings_from_json(file_params.description)}
+        {"extensions": ["myst_parser"], **settings_from_json(file_params.description)},
     )
     sphinx_doctree.srcdir.joinpath("test.txt").touch()
     sphinx_doctree.srcdir.joinpath("other.rst").write_text(":orphan:\n\nTest\n====")
@@ -69,7 +69,7 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
     # TODO fix skipped directives
     # TODO test domain directives
     if file_params.title.startswith("SKIP") or file_params.title.startswith(
-        "SPHINX4-SKIP"
+        "SPHINX4-SKIP",
     ):
         pytest.skip(file_params.title)
 
@@ -82,10 +82,12 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
         pformat = pformat.replace('"2147483647"', '"9223372036854775807"')
     # changed in sphinx 7.1 (but fixed in 7.2)
     pformat = pformat.replace(
-        'classes="sig sig-object sig sig-object"', 'classes="sig sig-object"'
+        'classes="sig sig-object sig sig-object"',
+        'classes="sig sig-object"',
     )
     pformat = pformat.replace(
-        'classes="sig-name descname sig-name descname"', 'classes="sig-name descname"'
+        'classes="sig-name descname sig-name descname"',
+        'classes="sig-name descname"',
     )
     pformat = pformat.replace(
         'classes="sig-prename descclassname sig-prename descclassname"',
@@ -124,7 +126,7 @@ def test_sphinx_roles(file_params, sphinx_doctree_no_tr: CreateDoctree):
 @pytest.mark.param_file(FIXTURE_PATH / "dollarmath.md")
 def test_dollarmath(file_params, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["dollarmath"]}
+        {"extensions": ["myst_parser"], "myst_enable_extensions": ["dollarmath"]},
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
@@ -134,7 +136,7 @@ def test_dollarmath(file_params, sphinx_doctree_no_tr: CreateDoctree):
 def test_amsmath(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["amsmath"]}
+        {"extensions": ["myst_parser"], "myst_enable_extensions": ["amsmath"]},
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
@@ -144,7 +146,7 @@ def test_amsmath(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
 def test_containers(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["colon_fence"]}
+        {"extensions": ["myst_parser"], "myst_enable_extensions": ["colon_fence"]},
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
@@ -160,7 +162,7 @@ def test_evalrst_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
 @pytest.mark.param_file(FIXTURE_PATH / "definition_lists.md")
 def test_definition_lists(file_params, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]}
+        {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]},
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
@@ -172,7 +174,7 @@ def test_attributes(file_params, sphinx_doctree_no_tr: CreateDoctree):
         {
             "extensions": ["myst_parser"],
             "myst_enable_extensions": ["attrs_inline", "attrs_block"],
-        }
+        },
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
