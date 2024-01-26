@@ -31,18 +31,17 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 - docutilsconf=None
 
 """
-import os
 import pathlib
 import shutil
+from pathlib import Path
 
 import pytest
 from bs4 import BeautifulSoup
 from docutils import nodes
-from sphinx.testing.path import path
 
 from myst_parser._compat import findall
 
-SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
+SOURCE_DIR = (Path(__file__).parent / "sourcedirs").resolve()
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -66,7 +65,7 @@ def get_sphinx_app_output(file_regression):
         regress_ext=".html",
         replace=None,
     ):
-        outpath = path(os.path.join(str(app.srcdir), "_build", buildername, filename))
+        outpath = Path(app.srcdir) / "_build" / buildername / filename
         if not outpath.exists():
             raise OSError(f"no output file exists: {outpath}")
 
