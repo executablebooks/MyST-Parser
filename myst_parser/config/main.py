@@ -1,19 +1,15 @@
 """The configuration for the myst parser."""
+from __future__ import annotations
+
 import dataclasses as dc
 from importlib import import_module
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Iterator,
-    List,
-    Optional,
     Sequence,
-    Set,
-    Tuple,
     TypedDict,
-    Union,
 )
 
 from myst_parser.warnings_ import MystWarnings
@@ -30,7 +26,7 @@ from .dc_validators import (
 )
 
 
-def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> None:
+def check_extensions(inst: MdParserConfig, field: dc.Field, value: Any) -> None:
     """Check that the extensions are a list of known strings"""
     if not isinstance(value, Iterable):
         raise TypeError(f"'{field.name}' not iterable: {value}")
@@ -64,10 +60,10 @@ class UrlSchemeType(TypedDict, total=False):
 
     url: str
     title: str
-    classes: List[str]
+    classes: list[str]
 
 
-def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> None:
+def check_url_schemes(inst: MdParserConfig, field: dc.Field, value: Any) -> None:
     """Check that the external schemes are of the right format."""
     if isinstance(value, (list, tuple)):
         if not all(isinstance(v, str) for v in value):
@@ -77,7 +73,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
     if not isinstance(value, dict):
         raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
 
-    new_dict: Dict[str, Optional[UrlSchemeType]] = {}
+    new_dict: dict[str, UrlSchemeType | None] = {}
     for key, val in value.items():
         if not isinstance(key, str):
             raise TypeError(f"'{field.name}' key is not a string: {key!r}")
@@ -113,7 +109,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
     setattr(inst, field.name, new_dict)
 
 
-def check_sub_delimiters(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
+def check_sub_delimiters(_: MdParserConfig, field: dc.Field, value: Any) -> None:
     """Check that the sub_delimiters are a tuple of length 2 of strings of length 1"""
     if (not isinstance(value, (tuple, list))) or len(value) != 2:
         raise TypeError(f"'{field.name}' is not a tuple of length 2: {value}")
@@ -124,7 +120,7 @@ def check_sub_delimiters(_: "MdParserConfig", field: dc.Field, value: Any) -> No
             )
 
 
-def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
+def check_inventories(_: MdParserConfig, field: dc.Field, value: Any) -> None:
     """Check that the inventories are a dict of {str: (str, Optional[str])}"""
     if not isinstance(value, dict):
         raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
@@ -142,7 +138,7 @@ def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
 
 
 def check_heading_slug_func(
-    inst: "MdParserConfig",
+    inst: MdParserConfig,
     field: dc.Field,
     value: Any,
 ) -> None:
@@ -171,7 +167,7 @@ def _test_slug_func(text: str) -> str:
 
 
 def check_fence_as_directive(
-    inst: "MdParserConfig",
+    inst: MdParserConfig,
     field: dc.Field,
     value: Any,
 ) -> None:
@@ -191,7 +187,7 @@ class MdParserConfig:
         """Return a string representation of the config."""
         # this replicates the auto-generated __repr__,
         # but also allows for a repr function to be defined on the field
-        attributes: List[str] = []
+        attributes: list[str] = []
         for name, val, f in self.as_triple():
             if not f.repr:
                 continue
@@ -216,7 +212,7 @@ class MdParserConfig:
         },
     )
 
-    enable_extensions: Set[str] = dc.field(
+    enable_extensions: set[str] = dc.field(
         default_factory=set,
         metadata={"validator": check_extensions, "help": "Enable syntax extensions"},
     )
@@ -237,7 +233,7 @@ class MdParserConfig:
         },
     )
 
-    url_schemes: Dict[str, Optional[UrlSchemeType]] = dc.field(
+    url_schemes: dict[str, UrlSchemeType | None] = dc.field(
         default_factory=lambda: {
             "http": None,
             "https": None,
@@ -253,7 +249,7 @@ class MdParserConfig:
         },
     )
 
-    ref_domains: Optional[Iterable[str]] = dc.field(
+    ref_domains: Iterable[str] | None = dc.field(
         default=None,
         metadata={
             "validator": optional(
@@ -264,7 +260,7 @@ class MdParserConfig:
         },
     )
 
-    fence_as_directive: Set[str] = dc.field(
+    fence_as_directive: set[str] = dc.field(
         default_factory=set,
         metadata={
             "validator": check_fence_as_directive,
@@ -298,7 +294,7 @@ class MdParserConfig:
         },
     )
 
-    heading_slug_func: Optional[Callable[[str], str]] = dc.field(
+    heading_slug_func: Callable[[str], str] | None = dc.field(
         default=None,
         metadata={
             "validator": check_heading_slug_func,
@@ -311,7 +307,7 @@ class MdParserConfig:
         },
     )
 
-    html_meta: Dict[str, str] = dc.field(
+    html_meta: dict[str, str] = dc.field(
         default_factory=dict,
         metadata={
             "validator": deep_mapping(
@@ -343,7 +339,7 @@ class MdParserConfig:
 
     # Extension specific
 
-    substitutions: Dict[str, Any] = dc.field(
+    substitutions: dict[str, Any] = dc.field(
         default_factory=dict,
         metadata={
             "validator": deep_mapping(instance_of(str), any_, instance_of(dict)),
@@ -354,7 +350,7 @@ class MdParserConfig:
         },
     )
 
-    sub_delimiters: Tuple[str, str] = dc.field(
+    sub_delimiters: tuple[str, str] = dc.field(
         default=("{", "}"),
         repr=False,
         metadata={
@@ -459,7 +455,7 @@ class MdParserConfig:
         },
     )
 
-    inventories: Dict[str, Tuple[str, Optional[str]]] = dc.field(
+    inventories: dict[str, tuple[str, str | None]] = dc.field(
         default_factory=dict,
         repr=False,
         metadata={
@@ -473,7 +469,7 @@ class MdParserConfig:
     def __post_init__(self):
         validate_fields(self)
 
-    def copy(self, **kwargs: Any) -> "MdParserConfig":
+    def copy(self, **kwargs: Any) -> MdParserConfig:
         """Return a new object replacing specified fields with new values.
 
         Note: initiating the copy will also validate the new fields.
@@ -481,7 +477,7 @@ class MdParserConfig:
         return dc.replace(self, **kwargs)
 
     @classmethod
-    def get_fields(cls) -> Tuple[dc.Field, ...]:
+    def get_fields(cls) -> tuple[dc.Field, ...]:
         """Return all attribute fields in this class."""
         return dc.fields(cls)
 
@@ -489,7 +485,7 @@ class MdParserConfig:
         """Return a dictionary of field name -> value."""
         return dc.asdict(self, dict_factory=dict_factory)
 
-    def as_triple(self) -> Iterable[Tuple[str, Any, dc.Field]]:
+    def as_triple(self) -> Iterable[tuple[str, Any, dc.Field]]:
         """Yield triples of (name, value, field)."""
         fields = {f.name: f for f in dc.fields(self.__class__)}
         for name, value in dc.asdict(self).items():
@@ -498,7 +494,7 @@ class MdParserConfig:
 
 def merge_file_level(
     config: MdParserConfig,
-    topmatter: Dict[str, Any],
+    topmatter: dict[str, Any],
     warning: Callable[[MystWarnings, str], None],
 ) -> MdParserConfig:
     """Merge the file-level topmatter with the global config.
@@ -509,7 +505,7 @@ def merge_file_level(
     :returns: A new config object
     """
     # get updates
-    updates: Dict[str, Any] = {}
+    updates: dict[str, Any] = {}
     myst = topmatter.get("myst", {})
     if not isinstance(myst, dict):
         warning(MystWarnings.MD_TOPMATTER, f"'myst' key not a dict: {type(myst)}")
@@ -561,7 +557,7 @@ class TopmatterReadError(Exception):
     """Topmatter parsing error."""
 
 
-def read_topmatter(text: Union[str, Iterator[str]]) -> Optional[Dict[str, Any]]:
+def read_topmatter(text: str | Iterator[str]) -> dict[str, Any] | None:
     """Read the (optional) YAML topmatter from a source string.
 
     This is identified by the first line starting with `---`,

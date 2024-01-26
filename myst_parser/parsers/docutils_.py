@@ -1,13 +1,12 @@
 """MyST Markdown parser for docutils."""
+from __future__ import annotations
+
 from dataclasses import Field
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
-    List,
     Literal,
-    Optional,
     Sequence,
     Set,
     Tuple,
@@ -52,7 +51,7 @@ def _validate_comma_separated_set(
     option_parser,
     config_parser=None,
     config_section=None,
-) -> Set[str]:
+) -> set[str]:
     """Validate an integer setting."""
     value = frontend.validate_comma_separated_list(
         setting,
@@ -64,7 +63,7 @@ def _validate_comma_separated_set(
     return set(value)
 
 
-def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
+def _create_validate_tuple(length: int) -> Callable[..., tuple[str, ...]]:
     """Create a validator for a tuple of length `length`."""
 
     def _validate(
@@ -152,7 +151,7 @@ def _validate_url_schemes(
     return output
 
 
-def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
+def _attr_to_optparse_option(at: Field, default: Any) -> tuple[dict, str]:
     """Convert a field into a Docutils optparse options dict.
 
     :returns: (option_dict, default)
@@ -221,7 +220,7 @@ def attr_to_optparse_option(
     attribute: Field,
     default: Any,
     prefix: str = "myst_",
-) -> Tuple[str, List[str], Dict[str, Any]]:
+) -> tuple[str, list[str], dict[str, Any]]:
     """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple.
 
     :returns: A tuple of ``(help string, option flags, optparse kwargs)``.
@@ -267,7 +266,7 @@ def create_myst_config(
 class Parser(RstParser):
     """Docutils parser for Markedly Structured Text (MyST)."""
 
-    supported: Tuple[str, ...] = ("md", "markdown", "myst")
+    supported: tuple[str, ...] = ("md", "markdown", "myst")
     """Aliases this parser supports."""
 
     settings_spec = (
@@ -379,7 +378,7 @@ class SimpleWriter(Writer):
         self.translator_class = SimpleTranslator
 
 
-def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
+def _run_cli(writer_name: str, writer_description: str, argv: list[str] | None):
     """Run the command line interface for a particular writer."""
     publish_cmdline(
         parser=Parser(),
@@ -391,17 +390,17 @@ def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]
     )
 
 
-def cli_html(argv: Optional[List[str]] = None) -> None:
+def cli_html(argv: list[str] | None = None) -> None:
     """Cmdline entrypoint for converting MyST to HTML."""
     _run_cli("html", "(X)HTML documents", argv)
 
 
-def cli_html5(argv: Optional[List[str]] = None):
+def cli_html5(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to HTML5."""
     _run_cli("html5", "HTML5 documents", argv)
 
 
-def cli_html5_demo(argv: Optional[List[str]] = None):
+def cli_html5_demo(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to simple HTML5 demonstrations.
 
     This is a special case of the HTML5 writer,
@@ -439,17 +438,17 @@ def to_html5_demo(inputstring: str, **kwargs) -> str:
     )
 
 
-def cli_latex(argv: Optional[List[str]] = None):
+def cli_latex(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to LaTeX."""
     _run_cli("latex", "LaTeX documents", argv)
 
 
-def cli_xml(argv: Optional[List[str]] = None):
+def cli_xml(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to XML."""
     _run_cli("xml", "Docutils-native XML", argv)
 
 
-def cli_pseudoxml(argv: Optional[List[str]] = None):
+def cli_pseudoxml(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to pseudo-XML."""
     _run_cli("pseudoxml", "pseudo-XML", argv)
 
