@@ -1,4 +1,4 @@
-- base_url: null
+- base_url:
   domain: std
   inv: inv
   loc: genindex.html
@@ -7,7 +7,7 @@
   project: Python
   text: Index
   version: ''
-- base_url: null
+- base_url:
   domain: std
   inv: inv
   loc: py-modindex.html
@@ -16,7 +16,7 @@
   project: Python
   text: Module Index
   version: ''
-- base_url: null
+- base_url:
   domain: std
   inv: inv
   loc: py-modindex.html
@@ -25,7 +25,7 @@
   project: Python
   text: Python Module Index
   version: ''
-- base_url: null
+- base_url:
   domain: std
   inv: inv
   loc: index.html

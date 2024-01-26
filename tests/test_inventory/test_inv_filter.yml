@@ -1,4 +1,4 @@
-- base_url: null
+- base_url:
   domain: std
   inv: inv
   loc: index.html

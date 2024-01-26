@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        format: ["man", "text"]
+        format: [man, text]
 
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        format: ["latex"]
+        format: [latex]
 
     steps:
     - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
       uses: xu-cheng/latex-action@v2
       with:
         working_directory: docs/_build/latex
-        root_file: "mystparser.tex"
+        root_file: mystparser.tex
         # https://github.com/marketplace/actions/github-action-for-latex#it-fails-due-to-xindy-cannot-be-found
         pre_compile: |
           ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/xindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/xindy

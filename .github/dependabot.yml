@@ -5,15 +5,15 @@
 
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
-    commit-message:
-      prefix: ⬆️
-    schedule:
-      interval: weekly
-  - package-ecosystem: pip
-    directory: /
-    commit-message:
-      prefix: ⬆️
-    schedule:
-      interval: weekly
+- package-ecosystem: github-actions
+  directory: /
+  commit-message:
+    prefix: ⬆️
+  schedule:
+    interval: weekly
+- package-ecosystem: pip
+  directory: /
+  commit-message:
+    prefix: ⬆️
+  schedule:
+    interval: weekly
