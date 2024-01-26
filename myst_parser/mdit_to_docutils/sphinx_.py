@@ -66,7 +66,7 @@ class SphinxRenderer(DocutilsRenderer):
         if relative_include is not None and destination.startswith(relative_include[0]):
             source_dir, include_dir = relative_include[1:]
             destination = os.path.relpath(
-                os.path.join(include_dir, os.path.normpath(destination)), source_dir
+                Path(include_dir) / os.path.normpath(destination), source_dir
             )
         return destination
 

@@ -15,6 +15,7 @@ import re
 import zlib
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import IO, TYPE_CHECKING, TypedDict
 from urllib.request import urlopen
 
@@ -417,7 +418,7 @@ def fetch_inventory(
     if uri.startswith(("http://", "https://")):
         with urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
-    with open(uri, "rb") as stream:
+    with Path(uri).open("rb") as stream:
         return load(stream, base_url=base_url)
 
 
@@ -478,7 +479,7 @@ def inventory_cli(inputs: None | list[str] = None):
                 invdata = load(stream)
             base_url = args.uri
     else:
-        with open(args.uri, "rb") as stream:
+        with Path(args.uri).open("rb") as stream:
             invdata = load(stream)
 
     filtered: InventoryType = {

@@ -13,12 +13,12 @@ from pathlib import Path
 import pytest
 from sphinx.util.console import strip_colors
 
-SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
+SOURCE_DIR = (Path(__file__).parent / "sourcedirs").resolve()
 
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "basic"),
+    srcdir=SOURCE_DIR / "basic",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -77,7 +77,7 @@ def test_basic(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "references"),
+    srcdir=SOURCE_DIR / "references",
     freshenv=True,
     confoverrides={
         "myst_enable_extensions": ["dollarmath"],
@@ -118,7 +118,7 @@ def test_references(
 
 @pytest.mark.sphinx(
     buildername="singlehtml",
-    srcdir=os.path.join(SOURCE_DIR, "references_singlehtml"),
+    srcdir=SOURCE_DIR / "references_singlehtml",
     freshenv=True,
     confoverrides={"nitpicky": True},
 )
@@ -177,7 +177,7 @@ def test_references_singlehtml(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "heading_slug_func"),
+    srcdir=SOURCE_DIR / "heading_slug_func",
     freshenv=True,
 )
 def test_heading_slug_func(
@@ -208,7 +208,7 @@ def test_heading_slug_func(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    srcdir=SOURCE_DIR / "extended_syntaxes",
     freshenv=True,
 )
 def test_extended_syntaxes(
@@ -245,7 +245,7 @@ def test_extended_syntaxes(
 
 @pytest.mark.sphinx(
     buildername="text",
-    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    srcdir=SOURCE_DIR / "extended_syntaxes",
     freshenv=True,
 )
 def test_extended_syntaxes_text(
@@ -276,9 +276,7 @@ def test_extended_syntaxes_text(
     sys.platform == "win32",
     reason="original_uri attribute handling differs on Windows",
 )
-@pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="html", srcdir=SOURCE_DIR / "includes", freshenv=True)
 def test_includes(
     app,
     status,
@@ -324,7 +322,7 @@ def test_includes(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "include_from_rst"),
+    srcdir=SOURCE_DIR / "include_from_rst",
     freshenv=True,
 )
 def test_include_from_rst(
@@ -348,9 +346,7 @@ def test_include_from_rst(
     )
 
 
-@pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="html", srcdir=SOURCE_DIR / "footnotes", freshenv=True)
 def test_footnotes(
     app,
     status,
@@ -392,7 +388,7 @@ source/footnote_rst.rst:28: WARNING: Footnote [#] is not referenced. [ref.footno
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "commonmark_only"),
+    srcdir=SOURCE_DIR / "commonmark_only",
     freshenv=True,
 )
 def test_commonmark_only(
@@ -421,7 +417,7 @@ def test_commonmark_only(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "substitutions"),
+    srcdir=SOURCE_DIR / "substitutions",
     freshenv=True,
 )
 def test_substitutions(
@@ -453,7 +449,7 @@ def test_substitutions(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "substitutions_missing"),
+    srcdir=SOURCE_DIR / "substitutions_missing",
     freshenv=True,
 )
 def test_substitutions_missing(
@@ -472,9 +468,7 @@ def test_substitutions_missing(
     )
 
 
-@pytest.mark.sphinx(
-    buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="gettext", srcdir=SOURCE_DIR / "gettext", freshenv=True)
 def test_gettext(
     app,
     status,
@@ -501,7 +495,7 @@ def test_gettext(
 )
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    srcdir=SOURCE_DIR / "gettext",
     freshenv=True,
     confoverrides={"language": "fr", "gettext_compact": False, "locale_dirs": ["."]},
 )
@@ -542,7 +536,7 @@ def test_gettext_html(
 
 @pytest.mark.sphinx(
     buildername="gettext",
-    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    srcdir=SOURCE_DIR / "gettext",
     freshenv=True,
     confoverrides={
         "gettext_additional_targets": [
@@ -576,7 +570,7 @@ def test_gettext_additional_targets(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    srcdir=SOURCE_DIR / "mathjax",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -597,7 +591,7 @@ def test_mathjax_warning(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax_default"),
+    srcdir=SOURCE_DIR / "mathjax_default",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -623,7 +617,7 @@ def test_mathjax_default(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax_default"),
+    srcdir=SOURCE_DIR / "mathjax_default",
     freshenv=True,
     confoverrides={
         "myst_enable_extensions": ["dollarmath"],
@@ -651,7 +645,7 @@ def test_mathjax_no_override(
 )
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax4"),
+    srcdir=SOURCE_DIR / "mathjax4",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -676,7 +670,7 @@ def test_mathjax4_warning(
 )
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    srcdir=SOURCE_DIR / "mathjax",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -702,7 +696,7 @@ def test_mathjax3_config_on_sphinx9(
 )
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "fieldlist"),
+    srcdir=SOURCE_DIR / "fieldlist",
     freshenv=True,
 )
 def test_fieldlist_extension(
@@ -736,7 +730,7 @@ def test_fieldlist_extension(
 
 @pytest.mark.sphinx(
     buildername="texinfo",
-    srcdir=os.path.join(SOURCE_DIR, "texinfo"),
+    srcdir=SOURCE_DIR / "texinfo",
     freshenv=True,
 )
 def test_texinfo(app, status, warning):
@@ -749,7 +743,7 @@ def test_texinfo(app, status, warning):
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "includes"),
+    srcdir=SOURCE_DIR / "includes",
     freshenv=True,
 )
 def test_include_read_event(app, status, warning):
@@ -770,7 +764,7 @@ def test_include_read_event(app, status, warning):
     expected = [
         ("../include_from_rst/include.md", "index"),
         ("include1.inc.md", "index"),
-        (os.path.join("subfolder", "include2.inc.md"), "include1.inc"),
+        (str(Path("subfolder", "include2.inc.md")), "include1.inc"),
         ("include_code.py", "index"),
         ("include_code.py", "index"),
         ("include_literal.txt", "index"),
@@ -778,7 +772,7 @@ def test_include_read_event(app, status, warning):
     ]
     expected_events = []
     for include_file_name, parent_docname in expected:
-        with open(os.path.join(SOURCE_DIR, "includes", include_file_name)) as file:
+        with (SOURCE_DIR / "includes" / include_file_name).open() as file:
             content = file.read()
         expected_events.append((Path(include_file_name), parent_docname, [content]))
     assert len(include_read_events) == len(expected_events), "Wrong number of events"

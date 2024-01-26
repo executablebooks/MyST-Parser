@@ -10,6 +10,7 @@ import re
 from collections.abc import Callable, Iterable, Iterator, MutableMapping, Sequence
 from contextlib import contextmanager, suppress
 from datetime import date, datetime
+from pathlib import Path
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -1225,10 +1226,8 @@ class DocutilsRenderer(RendererProtocol):
             # make the path relative to an "including" document
             # this is set when using the `relative-images` option of the MyST `include` directive
             destination = os.path.normpath(
-                os.path.join(
-                    self.md_env.get("relative-images", ""),
-                    os.path.normpath(destination),
-                )
+                Path(self.md_env.get("relative-images", ""))
+                / os.path.normpath(destination)
             )
 
         img_node["uri"] = destination
