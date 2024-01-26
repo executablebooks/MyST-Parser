@@ -362,7 +362,7 @@ class Tree:
             count = 0
 
         # It pops all the items which do not match with the closing tag.
-        for _ in range(0, count):
+        for _ in range(count):
             self.stack.pop()
 
 

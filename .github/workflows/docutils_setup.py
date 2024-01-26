@@ -16,7 +16,7 @@ def modify_toml(content: str) -> str:
     dependencies = []
     sphinx_extra = []
     for dep in doc["project"]["dependencies"]:
-        if dep.startswith("docutils") or dep.startswith("sphinx"):
+        if dep.startswith(("docutils", "sphinx")):
             sphinx_extra.append(dep)
         else:
             dependencies.append(dep)

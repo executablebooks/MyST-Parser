@@ -579,7 +579,7 @@ def read_topmatter(text: str | Iterator[str]) -> dict[str, Any] | None:
         return None
     top_matter = []
     for line in text:
-        if line.startswith("---") or line.startswith("..."):
+        if line.startswith(("---", "...")):
             break
         top_matter.append(line.rstrip() + "\n")
     try:
