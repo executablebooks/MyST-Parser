@@ -96,7 +96,7 @@ class _ConfigBase(SphinxDirective):
             get_args(field.type) if get_origin(field.type) is Union else [field.type]
         )
         ctype = " | ".join(
-            str("None" if ftype == type(None) else ftype)  # type: ignore
+            str("None" if ftype == type(None) else ftype)  # type: ignore[comparison-overlap]
             for ftype in ftypes
         )
         ctype = " ".join(ctype.splitlines())

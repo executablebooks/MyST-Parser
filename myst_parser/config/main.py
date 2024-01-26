@@ -100,7 +100,7 @@ def check_url_schemes(inst: MdParserConfig, field: dc.Field, value: Any) -> None
                 raise TypeError(
                     f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}",
                 )
-            new_dict[key] = val  # type: ignore
+            new_dict[key] = val  # type: ignore[assignment]
         else:
             raise TypeError(
                 f"'{field.name}[{key}]' value is not a string or dict: {val!r}",
