@@ -131,5 +131,5 @@ def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
     try:
         pub.process_command_line(shlex.split(cmdline))
     except Exception as err:
-        raise AssertionError(f"Failed to parse commandline: {cmdline}\n{err}")
+        raise AssertionError(f"Failed to parse commandline: {cmdline}\n{err}") from err
     return vars(pub.settings)
