@@ -33,7 +33,7 @@ from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
 from docutils.transforms.components import Filter
-from docutils.utils import Reporter, new_document
+from docutils.utils import Reporter, SystemMessage, new_document
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
@@ -379,7 +379,7 @@ class DocutilsRenderer(RendererProtocol):
     @contextmanager
     def current_node_context(
         self, node: nodes.Element, append: bool = False
-    ) -> Iterator:
+    ) -> Iterator[None]:
         """Context manager for temporarily setting the current node."""
         if append:
             self.current_node.append(node)
@@ -1724,7 +1724,7 @@ class DocutilsRenderer(RendererProtocol):
         self.document.current_line = position
 
         # get directive class
-        output: tuple[Directive | None, list] = directives.directive(
+        output: tuple[Directive | None, list[SystemMessage]] = directives.directive(
             name, self.language_module_rst, self.document
         )
         directive_class, messages = output

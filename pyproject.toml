@@ -5,9 +5,9 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "myst-parser"
 dynamic = ["version", "description"]
-authors = [{name = "Chris Sewell", email = "chrisj_sewell@hotmail.com"}]
+authors = [{ name = "Chris Sewell", email = "chrisj_sewell@hotmail.com" }]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: Sphinx :: Extension",
@@ -25,18 +25,11 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing :: Markup",
 ]
-keywords = [
-    "markdown",
-    "lexer",
-    "parser",
-    "development",
-    "docutils",
-    "sphinx",
-]
+keywords = ["markdown", "lexer", "parser", "development", "docutils", "sphinx"]
 requires-python = ">=3.8"
 dependencies = [
     "docutils>=0.16,<0.21",
-    "jinja2", # required for substitutions, but let sphinx choose version
+    "jinja2",               # required for substitutions, but let sphinx choose version
     "markdown-it-py~=3.0",
     "mdit-py-plugins~=0.4",
     "pyyaml",
@@ -76,11 +69,7 @@ testing = [
     "pytest-param-files~=0.6.0",
     "sphinx-pytest",
 ]
-testing-docutils = [
-    "pygments",
-    "pytest>=7,<8",
-    "pytest-param-files~=0.6.0",
-]
+testing-docutils = ["pygments", "pytest>=7,<8", "pytest-param-files~=0.6.0"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
@@ -96,10 +85,7 @@ myst-docutils-pseudoxml = "myst_parser.parsers.docutils_:cli_pseudoxml"
 name = "myst_parser"
 
 [tool.flit.sdist]
-exclude = [
-    "docs/",
-    "tests/",
-]
+exclude = ["docs/", "tests/"]
 
 [tool.ruff]
 extend-select = ["B0", "C4", "I", "ICN", "ISC", "N", "RUF", "SIM", "UP"]
@@ -111,15 +97,26 @@ check_untyped_defs = true
 strict_equality = true
 no_implicit_optional = true
 warn_unused_ignores = true
+disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = ["docutils.*", "yaml.*", "pygments.*"]
 ignore_missing_imports = true
 
-[tool.pytest.ini_options]
-filterwarnings = [
-    "ignore:.*The default for the setting.*:FutureWarning",
+[[tool.mypy.overrides]]
+# shrink me
+module = [
+    "myst_parser.config.dc_validators",
+    "myst_parser.config.main",
+    "myst_parser.inventory",
+    "myst_parser.parsers.directives",
+    "myst_parser.parsers.docutils_",
+    "myst_parser.parsers.parse_html",
 ]
+disallow_any_generics = false
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore:.*The default for the setting.*:FutureWarning"]
 
 [tool.coverage.run]
 omit = ["*/_docs.py"]
