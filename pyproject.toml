@@ -109,7 +109,6 @@ extend-ignore = ["ISC001", "RUF005", "RUF012"]
 show_error_codes = true
 check_untyped_defs = true
 strict_equality = true
-no_implicit_optional = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
