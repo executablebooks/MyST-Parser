@@ -70,7 +70,7 @@ rtd = [
 testing = [
     "beautifulsoup4",
     "coverage[toml]",
-    "pytest>=7,<8",
+    "pytest>=7,<9",
     "pytest-cov",
     "pytest-regressions",
     "pytest-param-files~=0.6.0",
@@ -78,7 +78,7 @@ testing = [
 ]
 testing-docutils = [
     "pygments",
-    "pytest>=7,<8",
+    "pytest>=7,<9",
     "pytest-param-files~=0.6.0",
 ]
 
