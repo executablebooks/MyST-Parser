@@ -1,5 +1,8 @@
 # Main Title
 
+```{include} ../include_from_rst/include.md
+```
+
 ```{include} include1.inc.md
 ```
 

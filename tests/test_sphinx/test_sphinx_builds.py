@@ -610,6 +610,7 @@ def test_include_read_event(app, status, warning):
     warnings = warning.getvalue().strip()
     assert warnings == ""
     expected = [
+        ("../include_from_rst/include.md", "index"),
         ("include1.inc.md", "index"),
         (os.path.join("subfolder", "include2.inc.md"), "include1.inc"),
         ("include_code.py", "index"),
