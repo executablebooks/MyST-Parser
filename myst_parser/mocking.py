@@ -383,7 +383,10 @@ class MockIncludeDirective:
         if self.renderer.sphinx_env is not None:
             # Emit the "include-read" event
             arg = [file_content]
-            relative_path = path.relative_to(source_dir)
+            relative_path = path.relative_to(
+                self.renderer.sphinx_env.srcdir,
+                walk_up=True,
+            )
             parent_docname = Path(self.renderer.document["source"]).stem
             self.renderer.sphinx_env.app.events.emit(
                 "include-read",
