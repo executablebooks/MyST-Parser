@@ -380,6 +380,19 @@ class MockIncludeDirective:
                 4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
             )
 
+        if self.renderer.sphinx_env is not None:
+            # Emit the "include-read" event
+            arg = [file_content]
+            relative_path = path.relative_to(source_dir)
+            parent_docname = Path(self.renderer.document["source"]).stem
+            self.renderer.sphinx_env.app.events.emit(
+                "include-read",
+                relative_path,
+                parent_docname,
+                arg,
+            )
+            file_content = arg[0]
+
         # get required section of text
         startline = self.options.get("start-line", None)
         endline = self.options.get("end-line", None)
