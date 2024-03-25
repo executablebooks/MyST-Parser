@@ -1,4 +1,5 @@
 """Convert Markdown-it tokens to docutils nodes."""
+
 from __future__ import annotations
 
 import inspect
@@ -260,9 +261,9 @@ class DocutilsRenderer(RendererProtocol):
         # save for later reference resolution
         self.document.myst_slugs = self._heading_slugs
         if self._heading_slugs and self.sphinx_env:
-            self.sphinx_env.metadata[self.sphinx_env.docname][
-                "myst_slugs"
-            ] = self._heading_slugs
+            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = (
+                self._heading_slugs
+            )
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],

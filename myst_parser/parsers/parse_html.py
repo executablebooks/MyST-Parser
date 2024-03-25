@@ -17,6 +17,7 @@ Note: optional tags are not accounted for
 (see https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
 
 """
+
 from __future__ import annotations
 
 import inspect

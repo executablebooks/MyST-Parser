@@ -1,6 +1,7 @@
 """This module provides classes to Mock the core components of the docutils.RSTParser,
 the key difference being that nested parsing treats the text as Markdown not rST.
 """
+
 from __future__ import annotations
 
 import os
@@ -393,9 +394,7 @@ class MockIncludeDirective:
             if split_index < 0:
                 raise DirectiveError(
                     4,
-                    'Directive "{}"; option "{}": text not found "{}".'.format(
-                        self.name, split_on_type, split_on
-                    ),
+                    f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
                 startline += split_index + len(split_on)

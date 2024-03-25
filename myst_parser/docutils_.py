@@ -5,4 +5,5 @@ For example::
    .. include:: path/to/file.md
       :parser: myst_parser.docutils_
 """
+
 from myst_parser.parsers.docutils_ import Parser  # noqa: F401

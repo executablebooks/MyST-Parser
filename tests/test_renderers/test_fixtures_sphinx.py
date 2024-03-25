@@ -2,6 +2,7 @@
 
 Note, the output AST is before any transforms are applied.
 """
+
 from __future__ import annotations
 
 import json

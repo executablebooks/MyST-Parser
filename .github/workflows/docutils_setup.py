@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Script to convert package setup to myst-docutils."""
+
 import sys
 
 import tomlkit

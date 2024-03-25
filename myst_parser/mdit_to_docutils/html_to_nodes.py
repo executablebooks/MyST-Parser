@@ -1,4 +1,5 @@
 """Convert HTML to docutils nodes."""
+
 from __future__ import annotations
 
 import re

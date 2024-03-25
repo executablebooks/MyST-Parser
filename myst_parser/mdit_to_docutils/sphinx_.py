@@ -1,4 +1,5 @@
 """Convert Markdown-it tokens to docutils nodes, including sphinx specific elements."""
+
 from __future__ import annotations
 
 import os
