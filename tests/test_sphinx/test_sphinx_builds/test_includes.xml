@@ -2,6 +2,12 @@
     <section ids="main-title" names="main\ title">
         <title>
             Main Title
+    <section ids="markdown" names="markdown">
+        <title>
+            Markdown
+        <paragraph>
+            <reference refuri="http://example.com/">
+                target
         <target refid="inc-header">
         <section ids="a-sub-heading-in-include inc-header" names="a\ sub-heading\ in\ include inc_header">
             <title>
