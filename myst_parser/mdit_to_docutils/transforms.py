@@ -1,4 +1,5 @@
 """Directives that can be applied to both Sphinx and docutils."""
+
 from __future__ import annotations
 
 import typing as t

@@ -33,6 +33,7 @@ from the content.
 This is to allow for separation between the option block and content.
 
 """
+
 from __future__ import annotations
 
 import re

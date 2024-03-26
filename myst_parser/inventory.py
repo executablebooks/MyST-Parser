@@ -5,6 +5,7 @@ These contain mappings of reference names to ids, scoped by domain and object ty
 This is adapted from the Sphinx inventory.py module.
 We replicate it here, so that it can be used without Sphinx.
 """
+
 from __future__ import annotations
 
 import argparse

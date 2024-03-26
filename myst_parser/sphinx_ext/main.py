@@ -1,4 +1,5 @@
 """The setup for the sphinx extension."""
+
 from typing import Any
 
 from docutils import nodes

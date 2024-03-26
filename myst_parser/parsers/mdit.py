@@ -1,6 +1,7 @@
 """This module holds the ``create_md_parser`` function,
 which creates a parser from the config.
 """
+
 from __future__ import annotations
 
 from typing import Callable

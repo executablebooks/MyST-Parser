@@ -1,4 +1,5 @@
 """Test (docutils) parsing with different ``MdParserConfig`` options set."""
+
 import shlex
 from io import StringIO
 from pathlib import Path

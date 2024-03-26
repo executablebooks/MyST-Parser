@@ -1,4 +1,5 @@
 """Test reading of inventory files."""
+
 from pathlib import Path
 
 import pytest

@@ -1,4 +1,5 @@
 """The configuration for the myst parser."""
+
 import dataclasses as dc
 from importlib import import_module
 from typing import (
