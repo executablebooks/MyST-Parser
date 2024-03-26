@@ -124,7 +124,7 @@ def _validate_url_schemes(
     return output
 
 
-def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
+def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[Dict[str, Any], str]:
     """Convert a field into a Docutils optparse options dict.
 
     :returns: (option_dict, default)

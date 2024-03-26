@@ -114,10 +114,23 @@ show_error_codes = true
 check_untyped_defs = true
 strict_equality = true
 warn_unused_ignores = true
+disallow_any_generics = true
 
 [[tool.mypy.overrides]]
 module = ["docutils.*", "yaml.*", "pygments.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# shrink me
+module = [
+    "myst_parser.config.dc_validators",
+    "myst_parser.config.main",
+    "myst_parser.inventory",
+    "myst_parser.parsers.directives",
+    "myst_parser.parsers.docutils_",
+    "myst_parser.parsers.parse_html",
+]
+disallow_any_generics = false
 
 [tool.pytest.ini_options]
 filterwarnings = [

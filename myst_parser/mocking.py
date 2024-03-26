@@ -127,8 +127,8 @@ class MockState:
         content: StringList,
         line_offset: int,
         directive: type[Directive],
-        option_presets: dict,
-    ) -> tuple[list, dict, StringList, int]:
+        option_presets: dict[str, Any],
+    ) -> tuple[list[str], dict[str, Any], StringList, int]:
         """Parse the full directive text
 
         :raises MarkupError: for errors in parsing the directive
@@ -324,8 +324,8 @@ class MockIncludeDirective:
         renderer: DocutilsRenderer,
         name: str,
         klass: Include,
-        arguments: list,
-        options: dict,
+        arguments: list[str],
+        options: dict[str, Any],
         body: list[str],
         lineno: int,
     ):

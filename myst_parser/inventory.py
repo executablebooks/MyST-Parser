@@ -231,7 +231,7 @@ class InventoryFileReader:
 
 
 @functools.lru_cache(maxsize=256)
-def _create_regex(pat: str) -> re.Pattern:
+def _create_regex(pat: str) -> re.Pattern[str]:
     r"""Create a regex from a pattern, that can include `*` wildcards,
     to match 0 or more characters.
 
