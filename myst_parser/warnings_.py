@@ -24,7 +24,7 @@ class MystWarnings(Enum):
     """Duplicate Markdown reference definition."""
     MD_FOOTNOTE_DUPE = "footnote"
     """Duplicate Markdown footnote definition."""
-    MD_FOOTNOTE_MISSING = "footnote"
+    MD_FOOTNOTE_MISSING = "footnote"  # noqa: PIE796
     """Missing Markdown footnote definition."""
     MD_HEADING_NON_CONSECUTIVE = "header"
     """Non-consecutive heading levels."""

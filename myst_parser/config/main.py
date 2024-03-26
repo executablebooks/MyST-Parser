@@ -104,7 +104,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
                 raise TypeError(
                     f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}"
                 )
-            new_dict[key] = val  # type: ignore
+            new_dict[key] = val  # type: ignore[assignment]
         else:
             raise TypeError(
                 f"'{field.name}[{key}]' value is not a string or dict: {val!r}"
@@ -577,7 +577,7 @@ def read_topmatter(text: Union[str, Iterator[str]]) -> Optional[Dict[str, Any]]:
         return None
     top_matter = []
     for line in text:
-        if line.startswith("---") or line.startswith("..."):
+        if line.startswith(("---", "...")):
             break
         top_matter.append(line.rstrip() + "\n")
     try:

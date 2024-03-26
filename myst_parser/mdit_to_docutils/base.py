@@ -1589,9 +1589,9 @@ class DocutilsRenderer(RendererProtocol):
                             from sphinx.domains.std import make_glossary_term
 
                             term = make_glossary_term(
-                                self.sphinx_env,  # type: ignore
+                                self.sphinx_env,  # type: ignore[arg-type]
                                 term.children,
-                                None,  # type: ignore
+                                None,  # type: ignore[arg-type]
                                 term.source,
                                 term.line,
                                 node_id=None,

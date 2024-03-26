@@ -27,7 +27,7 @@ def test_cmdline(file_params: ParamTestData):
     except Exception as err:
         raise AssertionError(
             f"Failed to parse commandline: {file_params.description}\n{err}"
-        )
+        ) from err
     settings = vars(pub.settings)
     report_stream = StringIO()
     settings["output_encoding"] = "unicode"
