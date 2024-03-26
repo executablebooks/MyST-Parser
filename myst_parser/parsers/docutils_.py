@@ -1,4 +1,5 @@
 """MyST Markdown parser for docutils."""
+
 from dataclasses import Field
 from typing import (
     Any,
@@ -97,8 +98,8 @@ def _create_validate_yaml(field: Field):
         """
         try:
             output = yaml.safe_load(value)
-        except Exception:
-            raise ValueError("Invalid YAML string")
+        except Exception as err:
+            raise ValueError("Invalid YAML string") from err
         if not isinstance(output, dict):
             raise ValueError("Expecting a YAML dictionary")
         return output
@@ -115,8 +116,8 @@ def _validate_url_schemes(
     """
     try:
         output = yaml.safe_load(value)
-    except Exception:
-        raise ValueError("Invalid YAML string")
+    except Exception as err:
+        raise ValueError("Invalid YAML string") from err
     if isinstance(output, str):
         output = {k: None for k in output.split(",")}
     if not isinstance(output, dict):
@@ -124,7 +125,7 @@ def _validate_url_schemes(
     return output
 
 
-def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
+def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[Dict[str, Any], str]:
     """Convert a field into a Docutils optparse options dict.
 
     :returns: (option_dict, default)
