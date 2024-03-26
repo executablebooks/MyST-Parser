@@ -2,6 +2,7 @@
 
 Note, the output AST is before any transforms are applied.
 """
+
 from __future__ import annotations
 
 import json
@@ -46,7 +47,7 @@ def settings_from_json(string: str | None):
         data = json.loads(string)
         assert isinstance(data, dict), "settings must be a JSON object"
     except Exception as err:
-        raise AssertionError(f"Failed to parse JSON settings: {string}\n{err}")
+        raise AssertionError(f"Failed to parse JSON settings: {string}\n{err}") from err
     return data
 
 

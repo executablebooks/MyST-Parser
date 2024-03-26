@@ -31,6 +31,7 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 - docutilsconf=None
 
 """
+
 import os
 import pathlib
 import shutil

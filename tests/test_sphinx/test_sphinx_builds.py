@@ -7,6 +7,7 @@ the major difference being sphinx 4 uses docutils 0.17,
 which uses semantic HTML tags
 (e.g. converting `<div class="section">` to `<section>`)
 """
+
 import os
 import re
 from pathlib import Path

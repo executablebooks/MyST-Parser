@@ -1,4 +1,5 @@
 """Convert Markdown-it tokens to docutils nodes."""
+
 from __future__ import annotations
 
 import inspect
@@ -33,7 +34,7 @@ from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
 from docutils.transforms.components import Filter
-from docutils.utils import Reporter, new_document
+from docutils.utils import Reporter, SystemMessage, new_document
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
@@ -260,9 +261,9 @@ class DocutilsRenderer(RendererProtocol):
         # save for later reference resolution
         self.document.myst_slugs = self._heading_slugs
         if self._heading_slugs and self.sphinx_env:
-            self.sphinx_env.metadata[self.sphinx_env.docname][
-                "myst_slugs"
-            ] = self._heading_slugs
+            self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = (
+                self._heading_slugs
+            )
 
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
@@ -379,7 +380,7 @@ class DocutilsRenderer(RendererProtocol):
     @contextmanager
     def current_node_context(
         self, node: nodes.Element, append: bool = False
-    ) -> Iterator:
+    ) -> Iterator[None]:
         """Context manager for temporarily setting the current node."""
         if append:
             self.current_node.append(node)
@@ -952,8 +953,12 @@ class DocutilsRenderer(RendererProtocol):
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
+        attribute_keys = ["class", "id", "reftitle", "target", "rel"]
+        if self.md_config.links_external_new_tab:
+            token.attrs["target"] = "_blank"
+            token.attrs["rel"] = "noreferer noopener"
         self.copy_attributes(
-            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+            token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
         uri = cast(str, token.attrGet("href") or "")
         implicit_text: str | None = None
@@ -1589,9 +1594,9 @@ class DocutilsRenderer(RendererProtocol):
                             from sphinx.domains.std import make_glossary_term
 
                             term = make_glossary_term(
-                                self.sphinx_env,  # type: ignore
+                                self.sphinx_env,  # type: ignore[arg-type]
                                 term.children,
-                                None,  # type: ignore
+                                None,  # type: ignore[arg-type]
                                 term.source,
                                 term.line,
                                 node_id=None,
@@ -1724,7 +1729,7 @@ class DocutilsRenderer(RendererProtocol):
         self.document.current_line = position
 
         # get directive class
-        output: tuple[Directive | None, list] = directives.directive(
+        output: tuple[Directive | None, list[SystemMessage]] = directives.directive(
             name, self.language_module_rst, self.document
         )
         directive_class, messages = output
@@ -1758,11 +1763,11 @@ class DocutilsRenderer(RendererProtocol):
             )
             return [error]
 
-        for warning_msg, warning_line in parsed.warnings:
+        for _warning in parsed.warnings:
             self.create_warning(
-                f"{name!r}: {warning_msg}",
-                MystWarnings.DIRECTIVE_PARSING,
-                line=warning_line if warning_line is not None else position,
+                f"{name!r}: {_warning.msg}",
+                _warning.type,
+                line=_warning.lineno if _warning.lineno is not None else position,
                 append_to=self.current_node,
             )
 

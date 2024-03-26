@@ -1,6 +1,7 @@
 """This module provides classes to Mock the core components of the docutils.RSTParser,
 the key difference being that nested parsing treats the text as Markdown not rST.
 """
+
 from __future__ import annotations
 
 import os
@@ -127,8 +128,8 @@ class MockState:
         content: StringList,
         line_offset: int,
         directive: type[Directive],
-        option_presets: dict,
-    ) -> tuple[list, dict, StringList, int]:
+        option_presets: dict[str, Any],
+    ) -> tuple[list[str], dict[str, Any], StringList, int]:
         """Parse the full directive text
 
         :raises MarkupError: for errors in parsing the directive
@@ -140,7 +141,7 @@ class MockState:
         # TODO should argument_str always be ""?
         parsed = parse_directive_text(directive, "", "\n".join(content))
         if parsed.warnings:
-            raise MarkupError(",".join(w for w, _ in parsed.warnings))
+            raise MarkupError(",".join(w.msg for w in parsed.warnings))
         return (
             parsed.arguments,
             parsed.options,
@@ -324,8 +325,8 @@ class MockIncludeDirective:
         renderer: DocutilsRenderer,
         name: str,
         klass: Include,
-        arguments: list,
-        options: dict,
+        arguments: list[str],
+        options: dict[str, Any],
         body: list[str],
         lineno: int,
     ):
@@ -371,14 +372,14 @@ class MockIncludeDirective:
         # tab_width = self.options.get("tab-width", self.document.settings.tab_width)
         try:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
-        except FileNotFoundError:
+        except FileNotFoundError as error:
             raise DirectiveError(
                 4, f'Directive "{self.name}": file not found: {str(path)!r}'
-            )
+            ) from error
         except Exception as error:
             raise DirectiveError(
                 4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
-            )
+            ) from error
 
         if self.renderer.sphinx_env is not None:
             # Emit the "include-read" event
@@ -408,9 +409,7 @@ class MockIncludeDirective:
             if split_index < 0:
                 raise DirectiveError(
                     4,
-                    'Directive "{}"; option "{}": text not found "{}".'.format(
-                        self.name, split_on_type, split_on
-                    ),
+                    f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
                 startline += split_index + len(split_on)
@@ -427,10 +426,10 @@ class MockIncludeDirective:
             if "number-lines" in self.options:
                 try:
                     startline = int(self.options["number-lines"] or 1)
-                except ValueError:
+                except ValueError as err:
                     raise DirectiveError(
                         3, ":number-lines: with non-integer start value"
-                    )
+                    ) from err
                 endline = startline + len(file_content.splitlines())
                 if file_content.endswith("\n"):
                     file_content = file_content[:-1]

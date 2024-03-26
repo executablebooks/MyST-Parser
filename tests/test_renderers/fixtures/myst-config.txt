@@ -301,6 +301,10 @@ a
 [ref]{#id3 .e .f}
 
 [ref]: https://example.com
+
+[text3](https://example.com){target="g"}
+
+[text4](https://example.com){rel="h"}
 .
 <document source="<string>">
     <paragraph>
@@ -319,6 +323,12 @@ a
     <paragraph>
         <reference classes="e f" ids="id3" names="id3" refuri="https://example.com">
             ref
+    <paragraph>
+        <reference refuri="https://example.com" target="g">
+            text3
+    <paragraph>
+        <reference refuri="https://example.com" rel="h">
+            text4
 .
 
 [attrs_inline_image] --myst-enable-extensions=attrs_inline
@@ -497,7 +507,7 @@ content
             Unknown directive type: 'unknown' [myst.directive_unknown]
     <system_message level="2" line="6" source="<string>" type="WARNING">
         <paragraph>
-            'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+            'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_option]
     <admonition classes="class1" ids="myname" names="myname">
         <title>
             title
@@ -505,5 +515,15 @@ content
             content
 
 <string>:1: (WARNING/2) Unknown directive type: 'unknown' [myst.directive_unknown]
-<string>:6: (WARNING/2) 'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+<string>:6: (WARNING/2) 'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_option]
+.
+
+[links-external-new-tab] --myst-links-external-new-tab="true"
+.
+[text](https://example.com)
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="https://example.com" rel="noreferer noopener" target="_blank">
+            text
 .
