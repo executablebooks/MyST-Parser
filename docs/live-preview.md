@@ -45,7 +45,7 @@ An admonition note!
 
 [Link to the heading](#heading-1)
 
-## Math
+## Code
 
 ```python
 from package import module

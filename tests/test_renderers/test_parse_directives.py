@@ -60,7 +60,7 @@ def test_parsing(file_params):
                 "options": result.options,
                 "body": result.body,
                 "content_offset": result.body_offset,
-                "warnings": result.warnings,
+                "warnings": [repr(w) for w in result.warnings],
             },
             sort_keys=True,
         )
@@ -112,4 +112,4 @@ def test_additional_options():
         Note, "", "content", additional_options={"foo": "bar"}
     )
     assert len(result.warnings) == 1
-    assert "Unknown option" in result.warnings[0][0]
+    assert "Unknown option" in result.warnings[0].msg
