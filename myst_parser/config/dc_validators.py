@@ -36,11 +36,7 @@ def validate_fields(inst: Any) -> None:
 
 class ValidatorType(Protocol):
     def __call__(
-        self,
-        inst: Any,
-        field: dc.Field,
-        value: Any,
-        suffix: str = "",
+        self, inst: Any, field: dc.Field, value: Any, suffix: str = ""
     ) -> None:
         ...
 
@@ -67,7 +63,7 @@ def instance_of(type_: type[Any] | tuple[type[Any], ...]) -> ValidatorType:
         if not isinstance(value, type_):
             raise TypeError(
                 f"'{field.name}{suffix}' must be of type {type_!r} "
-                f"(got {value!r} that is a {value.__class__!r}).",
+                f"(got {value!r} that is a {value.__class__!r})."
             )
 
     return _validator
@@ -98,7 +94,7 @@ def is_callable(inst, field, value, suffix=""):
     if not callable(value):
         raise TypeError(
             f"'{field.name}{suffix}' must be callable "
-            f"(got {value!r} that is a {value.__class__!r}).",
+            f"(got {value!r} that is a {value.__class__!r})."
         )
 
 
@@ -119,15 +115,14 @@ def in_(options: Sequence) -> ValidatorType:
 
         if not in_options:
             raise ValueError(
-                f"'{field.name}{suffix}' must be in {options!r} (got {value!r})",
+                f"'{field.name}{suffix}' must be in {options!r} (got {value!r})"
             )
 
     return _validator
 
 
 def deep_iterable(
-    member_validator: ValidatorType,
-    iterable_validator: ValidatorType | None = None,
+    member_validator: ValidatorType, iterable_validator: ValidatorType | None = None
 ) -> ValidatorType:
     """
     A validator that performs deep validation of an iterable.

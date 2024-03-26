@@ -68,9 +68,7 @@ class MystWarnings(Enum):
 
 
 def _is_suppressed_warning(
-    type: str,
-    subtype: str,
-    suppress_warnings: Sequence[str],
+    type: str, subtype: str, suppress_warnings: Sequence[str]
 ) -> bool:
     """Check whether the warning is suppressed or not.
 

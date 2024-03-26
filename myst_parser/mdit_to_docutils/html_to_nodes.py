@@ -14,10 +14,7 @@ if TYPE_CHECKING:
 
 
 def make_error(
-    document: nodes.document,
-    error_msg: str,
-    text: str,
-    line_number: int,
+    document: nodes.document, error_msg: str, text: str, line_number: int
 ) -> nodes.system_message:
     return document.reporter.error(
         error_msg,
@@ -46,9 +43,7 @@ def default_html(text: str, source: str, line_number: int) -> list[nodes.Element
 
 
 def html_to_nodes(
-    text: str,
-    line_number: int,
-    renderer: DocutilsRenderer,
+    text: str, line_number: int, renderer: DocutilsRenderer
 ) -> list[nodes.Element]:
     """Convert HTML to docutils nodes."""
     if renderer.md_config.gfm_only:
@@ -64,14 +59,10 @@ def html_to_nodes(
         root = tokenize_html(text).strip(inplace=True, recurse=False)
     except Exception:
         msg_node = renderer.create_warning(
-            "HTML could not be parsed",
-            MystWarnings.HTML_PARSE,
-            line=line_number,
+            "HTML could not be parsed", MystWarnings.HTML_PARSE, line=line_number
         )
         return ([msg_node] if msg_node else []) + default_html(
-            text,
-            renderer.document["source"],
-            line_number,
+            text, renderer.document["source"], line_number
         )
 
     if len(root) < 1:
@@ -95,9 +86,8 @@ def html_to_nodes(
             if "src" not in child.attrs:
                 return [
                     renderer.reporter.error(
-                        "<img> missing 'src' attribute",
-                        line=line_number,
-                    ),
+                        "<img> missing 'src' attribute", line=line_number
+                    )
                 ]
             content = "\n".join(
                 f":{k}: {v}"
@@ -106,11 +96,8 @@ def html_to_nodes(
             )
             nodes_list.extend(
                 renderer.run_directive(
-                    "image",
-                    child.attrs["src"],
-                    content,
-                    line_number,
-                ),
+                    "image", child.attrs["src"], content, line_number
+                )
             )
 
         else:
@@ -145,7 +132,7 @@ def html_to_nodes(
             )
 
             nodes_list.extend(
-                renderer.run_directive("admonition", title, content, line_number),
+                renderer.run_directive("admonition", title, content, line_number)
             )
 
     return nodes_list

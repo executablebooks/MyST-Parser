@@ -82,7 +82,7 @@ Although schemes are case-insensitive, the canonical form is lowercase
 and documents that specify schemes must do so with lowercase letters.
 """
 REGEX_URI_TEMPLATE = re.compile(
-    r"{{\s*(uri|scheme|netloc|path|params|query|fragment)\s*}}",
+    r"{{\s*(uri|scheme|netloc|path|params|query|fragment)\s*}}"
 )
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
 
@@ -129,16 +129,14 @@ class DocutilsRenderer(RendererProtocol):
             "_level_to_section",
         ):
             raise AttributeError(
-                f"'{name}' attribute is not available until setup_render() is called",
+                f"'{name}' attribute is not available until setup_render() is called"
             )
         raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'",
+            f"'{type(self).__name__}' object has no attribute '{name}'"
         )
 
     def setup_render(
-        self,
-        options: dict[str, Any],
-        env: MutableMapping[str, Any],
+        self, options: dict[str, Any], env: MutableMapping[str, Any]
     ) -> None:
         """Setup the renderer with per render variables."""
         self.md_env = env
@@ -150,12 +148,12 @@ class DocutilsRenderer(RendererProtocol):
         # note there are actually two possible language modules:
         # one from docutils.languages, and one from docutils.parsers.rst.languages
         self.language_module_rst: ModuleType = get_language_rst(
-            self.document.settings.language_code,
+            self.document.settings.language_code
         )
         self._heading_offset: int = 0
         # a mapping of heading levels to its currently associated node
         self._level_to_section: dict[int, nodes.document | nodes.section] = {
-            0: self.document,
+            0: self.document
         }
         # mapping of section slug to (line, id, implicit_text)
         self._heading_slugs: dict[str, tuple[int | None, str, str]] = {}
@@ -230,10 +228,7 @@ class DocutilsRenderer(RendererProtocol):
                 )
 
     def render(
-        self,
-        tokens: Sequence[Token],
-        options,
-        md_env: MutableMapping[str, Any],
+        self, tokens: Sequence[Token], options, md_env: MutableMapping[str, Any]
     ) -> nodes.document:
         """Run the render on a token stream.
 
@@ -256,7 +251,7 @@ class DocutilsRenderer(RendererProtocol):
                 document=self.document,
                 line=0,
                 reporter=self.reporter,
-            ),
+            )
         )
 
     def _render_finalise(self) -> None:
@@ -323,14 +318,12 @@ class DocutilsRenderer(RendererProtocol):
                 if value is None:
                     continue
                 substitution_node = nodes.substitution_definition(
-                    str(value),
-                    nodes.Text(str(value)),
+                    str(value), nodes.Text(str(value))
                 )
                 substitution_node.source = self.document["source"]
                 substitution_node["names"].append(f"wordcount-{key}")
                 self.document.note_substitution_def(
-                    substitution_node,
-                    f"wordcount-{key}",
+                    substitution_node, f"wordcount-{key}"
                 )
 
     def nested_render_text(
@@ -385,9 +378,7 @@ class DocutilsRenderer(RendererProtocol):
 
     @contextmanager
     def current_node_context(
-        self,
-        node: nodes.Element,
-        append: bool = False,
+        self, node: nodes.Element, append: bool = False
     ) -> Iterator:
         """Context manager for temporarily setting the current node."""
         if append:
@@ -417,9 +408,7 @@ class DocutilsRenderer(RendererProtocol):
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
-        self,
-        nodes_: list[nodes.Element],
-        token: SyntaxTreeNode,
+        self, nodes_: list[nodes.Element], token: SyntaxTreeNode
     ) -> None:
         """Copy the line number and document source path to the docutils nodes,
         and recursively to all descendants.
@@ -673,8 +662,7 @@ class DocutilsRenderer(RendererProtocol):
             if isinstance(emphasize_lines, str):
                 try:
                     emphasize_lines = self._parse_linenos(
-                        emphasize_lines,
-                        len(text.splitlines()),
+                        emphasize_lines, len(text.splitlines())
                     )
                 except ValueError as err:
                     self.create_warning(
@@ -689,8 +677,7 @@ class DocutilsRenderer(RendererProtocol):
                 node["highlight_args"]["hl_lines"] = emphasize_lines
         else:
             node = node_cls(
-                text,
-                classes=["code"] + ([lexer_name] if lexer_name else []),
+                text, classes=["code"] + ([lexer_name] if lexer_name else [])
             )
             try:
                 lex_tokens = Lexer(
@@ -711,9 +698,7 @@ class DocutilsRenderer(RendererProtocol):
 
             if number_lines:
                 lex_tokens = NumberLines(
-                    lex_tokens,
-                    lineno_start,
-                    lineno_start + len(text.splitlines()),
+                    lex_tokens, lineno_start, lineno_start + len(text.splitlines())
                 )
 
             for classes, value in lex_tokens:
@@ -771,18 +756,14 @@ class DocutilsRenderer(RendererProtocol):
                 if "id" in options:
                     options["name"] = options.pop("id")
                 return self.render_directive(
-                    token,
-                    name,
-                    arguments,
-                    additional_options=options,
+                    token, name, arguments, additional_options=options
                 )
 
         if not name and self.sphinx_env is not None:
             # use the current highlight setting, via the ``highlight`` directive,
             # or ``highlight_language`` configuration.
             name = self.sphinx_env.temp_data.get(
-                "highlight_language",
-                self.sphinx_env.config.highlight_language,
+                "highlight_language", self.sphinx_env.config.highlight_language
             )
 
         lineno_start = 1
@@ -964,9 +945,7 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_link_unknown(token)
 
     def render_link_url(
-        self,
-        token: SyntaxTreeNode,
-        conversion: None | UrlSchemeType = None,
+        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
     ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
@@ -974,10 +953,7 @@ class DocutilsRenderer(RendererProtocol):
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         self.copy_attributes(
-            token,
-            ref_node,
-            ("class", "id", "reftitle"),
-            aliases={"title": "reftitle"},
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         uri = cast(str, token.attrGet("href") or "")
         implicit_text: str | None = None
@@ -1063,10 +1039,7 @@ class DocutilsRenderer(RendererProtocol):
         ref_node["id_link"] = True
         ref_node["refuri"] = self.md.normalizeLinkText(target)
         self.copy_attributes(
-            token,
-            ref_node,
-            ("class", "id", "reftitle"),
-            aliases={"title": "reftitle"},
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         self.current_node.append(ref_node)
         if token.info != "auto":
@@ -1087,10 +1060,7 @@ class DocutilsRenderer(RendererProtocol):
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         self.copy_attributes(
-            token,
-            ref_node,
-            ("class", "id", "reftitle"),
-            aliases={"title": "reftitle"},
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         ref_node["refname"] = cast(str, token.attrGet("href") or "")
         self.document.note_refname(ref_node)
@@ -1128,10 +1098,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # find the matches
         matches = self.get_inventory_matches(
-            target=target,
-            invs=invs,
-            domains=domains,
-            otypes=otypes,
+            target=target, invs=invs, domains=domains, otypes=otypes
         )
 
         # warn for 0 or >1 matches
@@ -1151,7 +1118,7 @@ class DocutilsRenderer(RendererProtocol):
                 [
                     inventory.filter_string(m.inv, m.domain, m.otype, m.name)
                     for m in matches[:show_num]
-                ],
+                ]
             )
             if len(matches) > show_num:
                 matches_str += ", ..."
@@ -1166,17 +1133,11 @@ class DocutilsRenderer(RendererProtocol):
         match = matches[0]
         ref_node = nodes.reference("", "", internal=False)
         ref_node["inv_match"] = inventory.filter_string(
-            match.inv,
-            match.domain,
-            match.otype,
-            match.name,
+            match.inv, match.domain, match.otype, match.name
         )
         self.add_line_and_source_path(ref_node, token)
         self.copy_attributes(
-            token,
-            ref_node,
-            ("class", "id", "reftitle"),
-            aliases={"title": "reftitle"},
+            token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
         ref_node["refuri"] = (
             posixpath.join(match.base_url, match.loc) if match.base_url else match.loc
@@ -1226,7 +1187,7 @@ class DocutilsRenderer(RendererProtocol):
                 domains=domains,
                 otypes=otypes,
                 targets=target,
-            ),
+            )
         )
 
     def render_html_inline(self, token: SyntaxTreeNode) -> None:
@@ -1242,8 +1203,7 @@ class DocutilsRenderer(RendererProtocol):
         destination = cast(str, token.attrGet("src") or "")
 
         if self.md_env.get(
-            "relative-images",
-            None,
+            "relative-images", None
         ) is not None and not REGEX_SCHEME.match(destination):
             # make the path relative to an "including" document
             # this is set when using the `relative-images` option of the MyST `include` directive
@@ -1251,7 +1211,7 @@ class DocutilsRenderer(RendererProtocol):
                 os.path.join(
                     self.md_env.get("relative-images", ""),
                     os.path.normpath(destination),
-                ),
+                )
             )
 
         img_node["uri"] = destination
@@ -1316,8 +1276,7 @@ class DocutilsRenderer(RendererProtocol):
         }
         if fields:
             field_list = self.dict_to_fm_field_list(
-                fields,
-                language_code=self.document.settings.language_code,
+                fields, language_code=self.document.settings.language_code
             )
             self.current_node.append(field_list)
 
@@ -1325,10 +1284,7 @@ class DocutilsRenderer(RendererProtocol):
             self.nested_render_text(f"# {data['title']}", 0)
 
     def dict_to_fm_field_list(
-        self,
-        data: dict[str, Any],
-        language_code: str,
-        line: int = 0,
+        self, data: dict[str, Any], language_code: str, line: int = 0
     ) -> nodes.field_list:
         """Render each key/val pair as a docutils ``field_node``.
 
@@ -1438,7 +1394,7 @@ class DocutilsRenderer(RendererProtocol):
             for child in token.children or []:
                 entry = nodes.entry()
                 para = nodes.paragraph(
-                    child.children[0].content if child.children else "",
+                    child.children[0].content if child.children else ""
                 )
                 style = child.attrGet("style")  # i.e. the alignment when using e.g. :--
                 if style and style in (
@@ -1448,8 +1404,7 @@ class DocutilsRenderer(RendererProtocol):
                 ):
                     entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
                 with self.current_node_context(
-                    entry,
-                    append=True,
+                    entry, append=True
                 ), self.current_node_context(para, append=True):
                     self.render_children(child)
 
@@ -1504,10 +1459,7 @@ class DocutilsRenderer(RendererProtocol):
         # note docutils does not currently support the nowrap attribute
         # or equation numbering, so this is overridden in the sphinx renderer
         node = nodes.math_block(
-            token.content,
-            token.content,
-            nowrap=True,
-            classes=["amsmath"],
+            token.content, token.content, nowrap=True, classes=["amsmath"]
         )
         if token.meta["numbered"] != "*":
             node["numbered"] = True
@@ -1573,10 +1525,7 @@ class DocutilsRenderer(RendererProtocol):
         rawsource = f":{name}:`{token.content}`"
         lineno = token_line(token) if token.map else 0
         role_func, messages = roles.role(
-            name,
-            self.language_module_rst,
-            lineno,
-            self.reporter,
+            name, self.language_module_rst, lineno, self.reporter
         )
         if not role_func:
             self.create_warning(
@@ -1631,7 +1580,7 @@ class DocutilsRenderer(RendererProtocol):
                     self.add_line_and_source_path(item, child)
                     with self.current_node_context(item, append=True):
                         term = nodes.term(
-                            child.children[0].content if child.children else "",
+                            child.children[0].content if child.children else ""
                         )
                         self.add_line_and_source_path(term, child)
                         with self.current_node_context(term):
@@ -1776,9 +1725,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # get directive class
         output: tuple[Directive | None, list] = directives.directive(
-            name,
-            self.language_module_rst,
-            self.document,
+            name, self.language_module_rst, self.document
         )
         directive_class, messages = output
         if not directive_class:
@@ -1856,9 +1803,7 @@ class DocutilsRenderer(RendererProtocol):
             result = directive_instance.run()
         except DirectiveError as error:
             msg_node = self.reporter.system_message(
-                error.level,
-                error.msg,
-                line=position,
+                error.level, error.msg, line=position
             )
             msg_node += nodes.literal_block(content, content)
             result = [msg_node]
@@ -1871,13 +1816,11 @@ class DocutilsRenderer(RendererProtocol):
             return [error_msg]
 
         assert isinstance(
-            result,
-            list,
+            result, list
         ), f'Directive "{name}" must return a list of nodes.'
         for i in range(len(result)):
             assert isinstance(
-                result[i],
-                nodes.Node,
+                result[i], nodes.Node
             ), f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
         return result
 
@@ -1914,7 +1857,7 @@ class DocutilsRenderer(RendererProtocol):
         # try rendering
         try:
             rendered = env.from_string(f"{{{{{token.content}}}}}").render(
-                variable_context,
+                variable_context
             )
         except Exception as error:
             self.create_warning(
@@ -1959,10 +1902,7 @@ class DocutilsRenderer(RendererProtocol):
 
 
 def html_meta_to_nodes(
-    data: dict[str, Any],
-    document: nodes.document,
-    line: int,
-    reporter: Reporter,
+    data: dict[str, Any], document: nodes.document, line: int, reporter: Reporter
 ) -> list[nodes.pending | nodes.system_message]:
     """Replicate the `meta` directive,
     by converting a dictionary to a list of pending meta nodes

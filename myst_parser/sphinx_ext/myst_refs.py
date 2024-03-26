@@ -36,11 +36,7 @@ class MystReferenceResolver(ReferencesResolver):
     default_priority = 9  # higher priority than ReferencesResolver (10)
 
     def log_warning(
-        self,
-        target: None | str,
-        msg: str,
-        subtype: MystWarnings,
-        **kwargs: Any,
+        self, target: None | str, msg: str, subtype: MystWarnings, **kwargs: Any
     ):
         """Log a warning, with a myst type and specific subtype."""
 
@@ -97,10 +93,7 @@ class MystReferenceResolver(ReferencesResolver):
             # multiple domains resolved the reference
             try:
                 newnode = self.resolve_myst_ref_any(
-                    refdoc,
-                    node,
-                    contnode,
-                    search_domains,
+                    refdoc, node, contnode, search_domains
                 )
             except NoUri:
                 newnode = contnode
@@ -108,10 +101,7 @@ class MystReferenceResolver(ReferencesResolver):
                 # If no local domain could resolve the reference, try to
                 # resolve it as an inter-sphinx reference
                 newnode = self._resolve_myst_ref_intersphinx(
-                    node,
-                    contnode,
-                    target,
-                    search_domains,
+                    node, contnode, target, search_domains
                 )
             if newnode is None:
                 # if still not resolved, log a warning,
@@ -184,19 +174,13 @@ class MystReferenceResolver(ReferencesResolver):
             innernode.extend(node[0].children)
         else:
             innernode = nodes.inline(
-                implicit_text,
-                implicit_text,
-                classes=inner_classes,
+                implicit_text, implicit_text, classes=inner_classes
             )
 
         assert self.app.builder
         try:
             ref_node = make_refnode(
-                self.app.builder,
-                from_docname,
-                ref_docname,
-                targetid,
-                innernode,
+                self.app.builder, from_docname, ref_docname, targetid, innernode
             )
         except NoUri:
             ref_node = innernode
@@ -245,11 +229,7 @@ class MystReferenceResolver(ReferencesResolver):
                     docname, labelid = stddomain.objects[key]
                     domain_role = "std:" + stddomain.role_for_objtype(objtype)
                     ref_node = make_refnode(
-                        self.app.builder,
-                        refdoc,
-                        docname,
-                        labelid,
-                        contnode,
+                        self.app.builder, refdoc, docname, labelid, contnode
                     )
                     results.append((domain_role, ref_node))
 
@@ -262,13 +242,8 @@ class MystReferenceResolver(ReferencesResolver):
             try:
                 results.extend(
                     domain.resolve_any_xref(
-                        self.env,
-                        refdoc,
-                        self.app.builder,
-                        target,
-                        node,
-                        contnode,
-                    ),
+                        self.env, refdoc, self.app.builder, target, node, contnode
+                    )
                 )
             except NotImplementedError:
                 # the domain doesn't yet support the new interface
@@ -283,13 +258,7 @@ class MystReferenceResolver(ReferencesResolver):
                     )
                 for role in domain.roles:
                     res = domain.resolve_xref(
-                        self.env,
-                        refdoc,
-                        self.app.builder,
-                        role,
-                        target,
-                        node,
-                        contnode,
+                        self.env, refdoc, self.app.builder, role, target, node, contnode
                     )
                     if res and len(res) and isinstance(res[0], nodes.Element):
                         results.append((f"{domain.name}:{role}", res))
@@ -325,10 +294,7 @@ class MystReferenceResolver(ReferencesResolver):
         return newnode
 
     def _resolve_ref_nested(
-        self,
-        node: pending_xref,
-        fromdocname: str,
-        target=None,
+        self, node: pending_xref, fromdocname: str, target=None
     ) -> Element | None:
         """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
@@ -356,9 +322,7 @@ class MystReferenceResolver(ReferencesResolver):
         return make_refnode(self.app.builder, fromdocname, docname, labelid, innernode)
 
     def _resolve_doc_nested(
-        self,
-        node: pending_xref,
-        fromdocname: str,
+        self, node: pending_xref, fromdocname: str
     ) -> Element | None:
         """This is the same as ``sphinx.domains.std._resolve_doc_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
@@ -406,7 +370,7 @@ class MystReferenceResolver(ReferencesResolver):
                 [
                     inventory.filter_string(m.inv, m.domain, m.otype, m.name)
                     for m in matches[:show_num]
-                ],
+                ]
             )
             if len(matches) > show_num:
                 matches_str += ", ..."
@@ -427,11 +391,11 @@ class MystReferenceResolver(ReferencesResolver):
             newnode.append(contnode)
         elif match.text:
             newnode.append(
-                contnode.__class__(match.text, match.text, classes=["iref", "myst"]),
+                contnode.__class__(match.text, match.text, classes=["iref", "myst"])
             )
         else:
             newnode.append(
-                nodes.literal(match.name, match.name, classes=["iref", "myst"]),
+                nodes.literal(match.name, match.name, classes=["iref", "myst"])
             )
 
         return newnode

@@ -151,21 +151,19 @@ class TokenizeError(Exception):
             or self.context_mark.column != self.problem_mark.column
         ):
             lines.append(
-                f"at line {self.context_mark.line}, column {self.context_mark.column}",
+                f"at line {self.context_mark.line}, column {self.context_mark.column}"
             )
         if self.problem is not None:
             lines.append(self.problem)
         if self.problem_mark is not None:
             lines.append(
-                f"at line {self.problem_mark.line}, column {self.problem_mark.column}",
+                f"at line {self.problem_mark.line}, column {self.problem_mark.column}"
             )
         return "\n".join(lines)
 
 
 def to_items(
-    text: str,
-    line_offset: int = 0,
-    column_offset: int = 0,
+    text: str, line_offset: int = 0, column_offset: int = 0
 ) -> Iterable[tuple[str, str]]:
     """Parse a directive option block into (key, value) tuples.
 
@@ -180,9 +178,7 @@ def to_items(
 
 
 def to_tokens(
-    text: str,
-    line_offset: int = 0,
-    column_offset: int = 0,
+    text: str, line_offset: int = 0, column_offset: int = 0
 ) -> Iterable[tuple[KeyToken, ValueToken | None]]:
     """Parse a directive option, and yield key/value token pairs.
 
@@ -222,8 +218,7 @@ def tokenize(text: str) -> Iterable[Token]:
 
         if not stream.column == 0:
             raise TokenizeError(
-                "expected key to start at column 0",
-                stream.get_position(),
+                "expected key to start at column 0", stream.get_position()
             )
 
         # find key
@@ -278,8 +273,7 @@ def _scan_to_next_token(stream: StreamBuffer) -> None:
 
 
 def _scan_plain_scalar(
-    stream: StreamBuffer,
-    is_key: bool = False,
+    stream: StreamBuffer, is_key: bool = False
 ) -> KeyToken | ValueToken:
     chunks = []
     start_mark = stream.get_position()
@@ -365,9 +359,7 @@ def _scan_line_break(stream: StreamBuffer) -> str:
 
 
 def _scan_flow_scalar(
-    stream: StreamBuffer,
-    style: Literal["'", '"'],
-    is_key: bool = False,
+    stream: StreamBuffer, style: Literal["'", '"'], is_key: bool = False
 ) -> KeyToken | ValueToken:
     double = style == '"'
     chunks = []
@@ -388,9 +380,7 @@ def _scan_flow_scalar(
 
 
 def _scan_flow_scalar_non_spaces(
-    stream: StreamBuffer,
-    double: bool,
-    start_mark: Position,
+    stream: StreamBuffer, double: bool, start_mark: Position
 ) -> list[str]:
     chunks = []
     while True:
@@ -540,8 +530,7 @@ def _scan_block_scalar(stream: StreamBuffer, style: Literal["|", ">"]) -> ValueT
 
 
 def _scan_block_scalar_indicators(
-    stream: StreamBuffer,
-    start_mark: Position,
+    stream: StreamBuffer, start_mark: Position
 ) -> tuple[bool | None, int | None]:
     chomping = None
     increment = None
@@ -620,8 +609,7 @@ def _scan_block_scalar_indentation(
 
 
 def _scan_block_scalar_breaks(
-    stream: StreamBuffer,
-    indent: int,
+    stream: StreamBuffer, indent: int
 ) -> tuple[list[str], Position]:
     chunks = []
     end_mark = stream.get_position()

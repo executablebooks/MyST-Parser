@@ -299,8 +299,7 @@ def _parse_directive_options(
 
 
 def parse_directive_arguments(
-    directive_cls: type[Directive],
-    arg_text: str,
+    directive_cls: type[Directive], arg_text: str
 ) -> list[str]:
     """Parse (and validate) the directive argument section."""
     required = directive_cls.required_arguments
@@ -314,6 +313,6 @@ def parse_directive_arguments(
         else:
             raise MarkupError(
                 f"maximum {required + optional} argument(s) allowed, "
-                f"{len(arguments)} supplied",
+                f"{len(arguments)} supplied"
             )
     return arguments

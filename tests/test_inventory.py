@@ -51,8 +51,7 @@ def test_inv_filter_wildcard(data_regression):
 
 
 @pytest.mark.parametrize(
-    "options",
-    [(), ("-d", "std"), ("-o", "doc"), ("-n", "ref"), ("-l", "index.html*")],
+    "options", [(), ("-d", "std"), ("-o", "doc"), ("-n", "ref"), ("-l", "index.html*")]
 )
 def test_inv_cli_v2(options, capsys, file_regression):
     inventory_cli([str(STATIC / "objects_v2.inv"), "-f", "yaml", *options])

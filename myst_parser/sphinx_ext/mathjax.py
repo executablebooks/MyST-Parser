@@ -31,7 +31,7 @@ def log_override_warning(app: Sphinx, version: int, current: str, new: str) -> N
     logger.warning(
         f"`{config_name}` is being overridden by myst-parser: '{current}' -> '{new}'. "
         "Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or "
-        "`myst_update_mathjax=False` if this is undesirable.",
+        "`myst_update_mathjax=False` if this is undesirable."
     )
 
 
@@ -101,7 +101,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
     """
     if "amsmath" in node.get("classes", []):
         self.body.append(
-            self.starttag(node, "div", CLASS="math notranslate nohighlight amsmath"),
+            self.starttag(node, "div", CLASS="math notranslate nohighlight amsmath")
         )
         if node["number"]:
             number = get_node_equation_number(self, node)

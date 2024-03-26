@@ -39,7 +39,6 @@ def test_parse(
     outcome = doctree.pformat()
     if result.warnings.strip():
         outcome += "\n\n" + result.warnings.strip().replace("[91m", "").replace(
-            "[39;49;00m",
-            "",
+            "[39;49;00m", ""
         )
     file_regression.check(outcome, basename=test_name, extension=".xml")

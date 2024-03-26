@@ -36,30 +36,18 @@ from myst_parser.warnings_ import MystWarnings, create_warning
 
 
 def _validate_int(
-    setting,
-    value,
-    option_parser,
-    config_parser=None,
-    config_section=None,
+    setting, value, option_parser, config_parser=None, config_section=None
 ) -> int:
     """Validate an integer setting."""
     return int(value)
 
 
 def _validate_comma_separated_set(
-    setting,
-    value,
-    option_parser,
-    config_parser=None,
-    config_section=None,
+    setting, value, option_parser, config_parser=None, config_section=None
 ) -> Set[str]:
     """Validate an integer setting."""
     value = frontend.validate_comma_separated_list(
-        setting,
-        value,
-        option_parser,
-        config_parser,
-        config_section,
+        setting, value, option_parser, config_parser, config_section
     )
     return set(value)
 
@@ -68,22 +56,14 @@ def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
     """Create a validator for a tuple of length `length`."""
 
     def _validate(
-        setting,
-        value,
-        option_parser,
-        config_parser=None,
-        config_section=None,
+        setting, value, option_parser, config_parser=None, config_section=None
     ):
         string_list = frontend.validate_comma_separated_list(
-            setting,
-            value,
-            option_parser,
-            config_parser,
-            config_section,
+            setting, value, option_parser, config_parser, config_section
         )
         if len(string_list) != length:
             raise ValueError(
-                f"Expecting {length} items in {setting}, got {len(string_list)}.",
+                f"Expecting {length} items in {setting}, got {len(string_list)}."
             )
         return tuple(string_list)
 
@@ -109,11 +89,7 @@ def _create_validate_yaml(field: Field):
     """Create a deserializer/validator for a json setting."""
 
     def _validate_yaml(
-        setting,
-        value,
-        option_parser,
-        config_parser=None,
-        config_section=None,
+        setting, value, option_parser, config_parser=None, config_section=None
     ):
         """Check/normalize a key-value pair setting.
 
@@ -131,11 +107,7 @@ def _create_validate_yaml(field: Field):
 
 
 def _validate_url_schemes(
-    setting,
-    value,
-    option_parser,
-    config_parser=None,
-    config_section=None,
+    setting, value, option_parser, config_parser=None, config_section=None
 ):
     """Validate a url_schemes setting.
 
@@ -213,14 +185,12 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[dict, str]:
             "validator": _create_validate_yaml(at),
         }, str(default) if default else ""
     raise AssertionError(
-        f"Configuration option {at.name} not set up for use in docutils.conf.",
+        f"Configuration option {at.name} not set up for use in docutils.conf."
     )
 
 
 def attr_to_optparse_option(
-    attribute: Field,
-    default: Any,
-    prefix: str = "myst_",
+    attribute: Field, default: Any, prefix: str = "myst_"
 ) -> Tuple[str, List[str], Dict[str, Any]]:
     """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple.
 
@@ -306,7 +276,7 @@ class Parser(RstParser):
                 if len(line) > document.settings.line_length_limit:
                     error = document.reporter.error(
                         f"Line {i+1} exceeds the line-length-limit:"
-                        f" {document.settings.line_length_limit}.",
+                        f" {document.settings.line_length_limit}."
                     )
                     document.append(error)
                     return
@@ -335,11 +305,7 @@ class Parser(RstParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document,
-                    msg,
-                    wtype,
-                    line=1,
-                    append_to=document,
+                    document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
 

@@ -27,11 +27,7 @@ def print_anchors(args=None):
         help="Output file (default stdout)",
     )
     arg_parser.add_argument(
-        "-l",
-        "--level",
-        type=int,
-        default=2,
-        help="Maximum heading level.",
+        "-l", "--level", type=int, default=2, help="Maximum heading level."
     )
     args = arg_parser.parse_args(args)
     parser = create_md_parser(MdParserConfig(), RendererHTML)

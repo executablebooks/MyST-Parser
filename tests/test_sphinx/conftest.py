@@ -115,7 +115,7 @@ def get_sphinx_app_doctree(file_regression):
 
         # convert absolute filenames
         for node in findall(doctree)(
-            lambda n: "source" in n and not isinstance(n, str),
+            lambda n: "source" in n and not isinstance(n, str)
         ):
             node["source"] = pathlib.Path(node["source"]).name
 

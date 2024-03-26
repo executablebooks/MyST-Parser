@@ -115,8 +115,7 @@ def test_include_from_rst(tmp_path):
     parser = RSTParser()
     document = make_document(parser_cls=RSTParser)
     parser.parse(
-        f".. include:: {include_path}\n   :parser: myst_parser.docutils_",
-        document,
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
     )
     assert (
         document.pformat().strip()
@@ -126,6 +125,6 @@ def test_include_from_rst(tmp_path):
                 <section ids="title" names="title">
                     <title>
                         Title
-            """,
+            """
         ).strip()
     )

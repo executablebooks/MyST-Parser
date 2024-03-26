@@ -135,7 +135,7 @@ class MystConfigDirective(_ConfigBase):
                     continue
 
             if self.options.get("scope") == "local" and field.metadata.get(
-                "global_only",
+                "global_only"
             ):
                 continue
 
@@ -152,7 +152,7 @@ class MystConfigDirective(_ConfigBase):
                     f"* - `{name}`",
                     f"  - `{ctype}`",
                     f"  - {description} (default: `{default}`)",
-                ],
+                ]
             )
 
             count += 1
@@ -202,9 +202,7 @@ class DirectiveDoc(SphinxDirective):
         name = self.arguments[0]
         # load the directive class
         klass, _ = directives.directive(
-            name,
-            self.state.memo.language,
-            self.state.document,
+            name, self.state.memo.language, self.state.document
         )
         if klass is None:
             LOGGER.warning(f"Directive {name} not found.", line=self.lineno)
@@ -404,10 +402,7 @@ class MystLexer(MarkdownLexer):
             (
                 r"^(\()([^\n]+)(\)=)(\n)",
                 bygroups(
-                    token.Punctuation,
-                    token.Name.Label,
-                    token.Punctuation,
-                    token.Text,
+                    token.Punctuation, token.Name.Label, token.Punctuation, token.Text
                 ),
             ),
             # :::

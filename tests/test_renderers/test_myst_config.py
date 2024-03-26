@@ -26,7 +26,7 @@ def test_cmdline(file_params: ParamTestData):
         pub.process_command_line(shlex.split(file_params.description))
     except Exception as err:
         raise AssertionError(
-            f"Failed to parse commandline: {file_params.description}\n{err}",
+            f"Failed to parse commandline: {file_params.description}\n{err}"
         ) from err
     settings = vars(pub.settings)
     report_stream = StringIO()

@@ -50,10 +50,7 @@ class MockInliner:
         self.rfc_url = "rfc%d.html"
 
     def problematic(
-        self,
-        text: str,
-        rawsource: str,
-        message: nodes.system_message,
+        self, text: str, rawsource: str, message: nodes.system_message
     ) -> nodes.problematic:
         """Record a system message from parsing."""
         msgid = self.document.set_id(message, self.parent)
@@ -63,11 +60,7 @@ class MockInliner:
         return problematic
 
     def parse(
-        self,
-        text: str,
-        lineno: int,
-        memo: Any,
-        parent: nodes.Node,
+        self, text: str, lineno: int, memo: Any, parent: nodes.Node
     ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         """Parse the text and return a list of nodes."""
         # note the only place this is normally called,
@@ -197,9 +190,7 @@ class MockState:
         return "refuri", unescape(reference)
 
     def inline_text(
-        self,
-        text: str,
-        lineno: int,
+        self, text: str, lineno: int
     ) -> tuple[list[nodes.Element], list[nodes.Element]]:
         """Parse text with only inline rules.
 
@@ -382,13 +373,11 @@ class MockIncludeDirective:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
         except FileNotFoundError as error:
             raise DirectiveError(
-                4,
-                f'Directive "{self.name}": file not found: {str(path)!r}',
+                4, f'Directive "{self.name}": file not found: {str(path)!r}'
             ) from error
         except Exception as error:
             raise DirectiveError(
-                4,
-                f'Directive "{self.name}": error reading file: {path}\n{error}.',
+                4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
             ) from error
 
         # get required section of text
@@ -405,9 +394,7 @@ class MockIncludeDirective:
                 raise DirectiveError(
                     4,
                     'Directive "{}"; option "{}": text not found "{}".'.format(
-                        self.name,
-                        split_on_type,
-                        split_on,
+                        self.name, split_on_type, split_on
                     ),
                 )
             if split_on_type == "start-after":
@@ -418,9 +405,7 @@ class MockIncludeDirective:
 
         if "literal" in self.options:
             literal_block = nodes.literal_block(
-                file_content,
-                source=str(path),
-                classes=self.options.get("class", []),
+                file_content, source=str(path), classes=self.options.get("class", [])
             )
             literal_block.line = 1  # TODO don;t think this should be 1?
             self.add_name(literal_block)
@@ -429,8 +414,7 @@ class MockIncludeDirective:
                     startline = int(self.options["number-lines"] or 1)
                 except ValueError as err:
                     raise DirectiveError(
-                        3,
-                        ":number-lines: with non-integer start value",
+                        3, ":number-lines: with non-integer start value"
                     ) from err
                 endline = startline + len(file_content.splitlines())
                 if file_content.endswith("\n"):
@@ -472,8 +456,7 @@ class MockIncludeDirective:
             self.renderer.reporter.get_source_and_line = lambda li: (str(path), li)
             if "relative-images" in self.options:
                 self.renderer.md_env["relative-images"] = os.path.relpath(
-                    path.parent,
-                    source_dir,
+                    path.parent, source_dir
                 )
             if "relative-docs" in self.options:
                 self.renderer.md_env["relative-docs"] = (

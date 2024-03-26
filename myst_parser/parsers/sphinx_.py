@@ -65,11 +65,7 @@ class MystParser(SphinxParser):
         else:
             if topmatter:
                 warning = lambda wtype, msg: create_warning(  # noqa: E731
-                    document,
-                    msg,
-                    wtype,
-                    line=1,
-                    append_to=document,
+                    document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
 

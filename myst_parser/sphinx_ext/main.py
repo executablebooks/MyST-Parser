@@ -42,9 +42,7 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
     # override only the html writer visit methods for rubric, to use the "level" attribute
     # this allows for nested headers to be correctly rendered
     app.add_node(
-        nodes.rubric,
-        override=True,
-        html=(visit_rubric_html, depart_rubric_html),
+        nodes.rubric, override=True, html=(visit_rubric_html, depart_rubric_html)
     )
     # override only the html writer visit methods for container,
     # to remove the "container" class for divs

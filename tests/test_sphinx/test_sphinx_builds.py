@@ -238,9 +238,7 @@ def test_extended_syntaxes(
 
 
 @pytest.mark.sphinx(
-    buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "includes"),
-    freshenv=True,
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
 )
 def test_includes(
     app,
@@ -316,9 +314,7 @@ def test_include_from_rst(
     reason="Footnote HTML changed in docutils 0.19",
 )
 @pytest.mark.sphinx(
-    buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "footnotes"),
-    freshenv=True,
+    buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
 )
 def test_footnotes(
     app,
@@ -407,9 +403,7 @@ def test_substitutions(
 
 
 @pytest.mark.sphinx(
-    buildername="gettext",
-    srcdir=os.path.join(SOURCE_DIR, "gettext"),
-    freshenv=True,
+    buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
 )
 def test_gettext(
     app,
@@ -470,7 +464,7 @@ def test_gettext_html(
         regress_ext=".html",
         replace={
             # upstream bug https://github.com/sphinx-doc/sphinx/issues/11689
-            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
+            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"'
         },
     )
 
