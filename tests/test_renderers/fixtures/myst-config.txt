@@ -497,7 +497,7 @@ content
             Unknown directive type: 'unknown' [myst.directive_unknown]
     <system_message level="2" line="6" source="<string>" type="WARNING">
         <paragraph>
-            'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+            'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_option]
     <admonition classes="class1" ids="myname" names="myname">
         <title>
             title
@@ -505,5 +505,5 @@ content
             content
 
 <string>:1: (WARNING/2) Unknown directive type: 'unknown' [myst.directive_unknown]
-<string>:6: (WARNING/2) 'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_parse]
+<string>:6: (WARNING/2) 'admonition': Unknown option keys: ['a'] (allowed: ['class', 'name']) [myst.directive_option]
 .

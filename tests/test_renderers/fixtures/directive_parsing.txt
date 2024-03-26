@@ -112,9 +112,9 @@ options:
   class:
   - tip
 warnings:
-- - Cannot split content across first line and body, when options block is present
-    (move first line to body)
-  - null
+- 'ParseWarnings(msg=''Splitting content across first line and body, when an options
+  block is present, is not recommended'', lineno=None, type=<MystWarnings.DIRECTIVE_PARSING:
+  ''directive_parse''>)'
 .
 
 admonition: no options, no new line
@@ -180,8 +180,8 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- - 'Unknown option keys: [''a''] (allowed: [''class'', ''name''])'
-  - 1
+- 'ParseWarnings(msg="Unknown option keys: [''a''] (allowed: [''class'', ''name''])",
+  lineno=1, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 warning: yaml not a dict
@@ -197,8 +197,8 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- - 'Invalid options format: expected '':'' after key'
-  - 1
+- 'ParseWarnings(msg="Invalid options format: expected '':'' after key", lineno=1,
+  type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 warning: unknown option name
@@ -212,8 +212,8 @@ body: []
 content_offset: 1
 options: {}
 warnings:
-- - 'Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])'
-  - 0
+- 'ParseWarnings(msg="Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])",
+  lineno=0, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 warning: invalid option value
@@ -227,8 +227,8 @@ body: []
 content_offset: 1
 options: {}
 warnings:
-- - 'Invalid option value for ''class'': 1: cannot make "1" into a class name'
-  - 0
+- 'ParseWarnings(msg=''Invalid option value for \''class\'': 1: cannot make "1" into
+  a class name'', lineno=0, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 error: missing argument
