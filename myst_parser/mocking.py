@@ -140,7 +140,7 @@ class MockState:
         # TODO should argument_str always be ""?
         parsed = parse_directive_text(directive, "", "\n".join(content))
         if parsed.warnings:
-            raise MarkupError(",".join(w for w, _ in parsed.warnings))
+            raise MarkupError(",".join(w.msg for w in parsed.warnings))
         return (
             parsed.arguments,
             parsed.options,
@@ -371,14 +371,14 @@ class MockIncludeDirective:
         # tab_width = self.options.get("tab-width", self.document.settings.tab_width)
         try:
             file_content = path.read_text(encoding=encoding, errors=error_handler)
-        except FileNotFoundError:
+        except FileNotFoundError as error:
             raise DirectiveError(
                 4, f'Directive "{self.name}": file not found: {str(path)!r}'
-            )
+            ) from error
         except Exception as error:
             raise DirectiveError(
                 4, f'Directive "{self.name}": error reading file: {path}\n{error}.'
-            )
+            ) from error
 
         # get required section of text
         startline = self.options.get("start-line", None)
@@ -412,10 +412,10 @@ class MockIncludeDirective:
             if "number-lines" in self.options:
                 try:
                     startline = int(self.options["number-lines"] or 1)
-                except ValueError:
+                except ValueError as err:
                     raise DirectiveError(
                         3, ":number-lines: with non-integer start value"
-                    )
+                    ) from err
                 endline = startline + len(file_content.splitlines())
                 if file_content.endswith("\n"):
                     file_content = file_content[:-1]

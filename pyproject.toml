@@ -88,14 +88,17 @@ name = "myst_parser"
 exclude = ["docs/", "tests/"]
 
 [tool.ruff]
-extend-select = ["B0", "C4", "I", "ICN", "ISC", "N", "RUF", "SIM", "UP"]
+extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "RUF", "SIM", "UP"]
 extend-ignore = ["ISC001", "RUF005", "RUF012"]
+
+[tool.ruff.per-file-ignores]
+"myst_parser/parsers/docutils_.py" = ["FA"]
+"myst_parser/config/main.py" = ["FA"]
 
 [tool.mypy]
 show_error_codes = true
 check_untyped_defs = true
 strict_equality = true
-no_implicit_optional = true
 warn_unused_ignores = true
 disallow_any_generics = true
 

@@ -1589,9 +1589,9 @@ class DocutilsRenderer(RendererProtocol):
                             from sphinx.domains.std import make_glossary_term
 
                             term = make_glossary_term(
-                                self.sphinx_env,  # type: ignore
+                                self.sphinx_env,  # type: ignore[arg-type]
                                 term.children,
-                                None,  # type: ignore
+                                None,  # type: ignore[arg-type]
                                 term.source,
                                 term.line,
                                 node_id=None,
@@ -1758,11 +1758,11 @@ class DocutilsRenderer(RendererProtocol):
             )
             return [error]
 
-        for warning_msg, warning_line in parsed.warnings:
+        for _warning in parsed.warnings:
             self.create_warning(
-                f"{name!r}: {warning_msg}",
-                MystWarnings.DIRECTIVE_PARSING,
-                line=warning_line if warning_line is not None else position,
+                f"{name!r}: {_warning.msg}",
+                _warning.type,
+                line=_warning.lineno if _warning.lineno is not None else position,
                 append_to=self.current_node,
             )
 

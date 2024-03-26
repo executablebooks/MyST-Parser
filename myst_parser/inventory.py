@@ -404,7 +404,7 @@ def fetch_inventory(
     uri: str, *, timeout: None | float = None, base_url: None | str = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
-    if uri.startswith("http://") or uri.startswith("https://"):
+    if uri.startswith(("http://", "https://")):
         with urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
     with open(uri, "rb") as stream:
