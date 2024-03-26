@@ -7,18 +7,18 @@ the major difference being sphinx 4 uses docutils 0.17,
 which uses semantic HTML tags
 (e.g. converting `<div class="section">` to `<section>`)
 """
-import os
 import re
+from pathlib import Path
 
 import pytest
 from docutils import VersionInfo, __version_info__
 
-SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
+SOURCE_DIR = (Path(__file__).parent / "sourcedirs").resolve()
 
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "basic"),
+    srcdir=SOURCE_DIR / "basic",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -83,7 +83,7 @@ def test_basic(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "references"),
+    srcdir=SOURCE_DIR / "references",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -121,7 +121,7 @@ def test_references(
 
 @pytest.mark.sphinx(
     buildername="singlehtml",
-    srcdir=os.path.join(SOURCE_DIR, "references_singlehtml"),
+    srcdir=SOURCE_DIR / "references_singlehtml",
     freshenv=True,
     confoverrides={"nitpicky": True},
 )
@@ -171,7 +171,7 @@ def test_references_singlehtml(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "heading_slug_func"),
+    srcdir=SOURCE_DIR / "heading_slug_func",
     freshenv=True,
 )
 def test_heading_slug_func(
@@ -202,7 +202,7 @@ def test_heading_slug_func(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    srcdir=SOURCE_DIR / "extended_syntaxes",
     freshenv=True,
 )
 def test_extended_syntaxes(
@@ -237,9 +237,7 @@ def test_extended_syntaxes(
         )
 
 
-@pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="html", srcdir=SOURCE_DIR / "includes", freshenv=True)
 def test_includes(
     app,
     status,
@@ -285,7 +283,7 @@ def test_includes(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "include_from_rst"),
+    srcdir=SOURCE_DIR / "include_from_rst",
     freshenv=True,
 )
 def test_include_from_rst(
@@ -313,9 +311,7 @@ def test_include_from_rst(
     __version_info__ < VersionInfo(0, 19, 0, "final", 0, True),
     reason="Footnote HTML changed in docutils 0.19",
 )
-@pytest.mark.sphinx(
-    buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="html", srcdir=SOURCE_DIR / "footnotes", freshenv=True)
 def test_footnotes(
     app,
     status,
@@ -346,7 +342,7 @@ def test_footnotes(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "commonmark_only"),
+    srcdir=SOURCE_DIR / "commonmark_only",
     freshenv=True,
 )
 def test_commonmark_only(
@@ -375,7 +371,7 @@ def test_commonmark_only(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "substitutions"),
+    srcdir=SOURCE_DIR / "substitutions",
     freshenv=True,
 )
 def test_substitutions(
@@ -402,9 +398,7 @@ def test_substitutions(
         get_sphinx_app_output(app, filename="index.html", regress_html=True)
 
 
-@pytest.mark.sphinx(
-    buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
-)
+@pytest.mark.sphinx(buildername="gettext", srcdir=SOURCE_DIR / "gettext", freshenv=True)
 def test_gettext(
     app,
     status,
@@ -427,7 +421,7 @@ def test_gettext(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    srcdir=SOURCE_DIR / "gettext",
     freshenv=True,
     confoverrides={"language": "fr", "gettext_compact": False, "locale_dirs": ["."]},
 )
@@ -471,7 +465,7 @@ def test_gettext_html(
 
 @pytest.mark.sphinx(
     buildername="gettext",
-    srcdir=os.path.join(SOURCE_DIR, "gettext"),
+    srcdir=SOURCE_DIR / "gettext",
     freshenv=True,
     confoverrides={
         "gettext_additional_targets": [
@@ -505,7 +499,7 @@ def test_gettext_additional_targets(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    srcdir=SOURCE_DIR / "mathjax",
     freshenv=True,
     confoverrides={"myst_enable_extensions": ["dollarmath"]},
 )
@@ -526,7 +520,7 @@ def test_mathjax_warning(
 
 @pytest.mark.sphinx(
     buildername="html",
-    srcdir=os.path.join(SOURCE_DIR, "fieldlist"),
+    srcdir=SOURCE_DIR / "fieldlist",
     freshenv=True,
 )
 def test_fieldlist_extension(
@@ -573,7 +567,7 @@ def test_fieldlist_extension(
 
 @pytest.mark.sphinx(
     buildername="texinfo",
-    srcdir=os.path.join(SOURCE_DIR, "texinfo"),
+    srcdir=SOURCE_DIR / "texinfo",
     freshenv=True,
 )
 def test_texinfo(app, status, warning):

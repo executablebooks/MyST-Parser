@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Script to convert package setup to myst-docutils."""
 import sys
+from pathlib import Path
 
 import tomlkit
 
@@ -42,15 +43,12 @@ def modify_readme(content: str) -> str:
 
 
 if __name__ == "__main__":
-    project_path = sys.argv[1]
-    readme_path = sys.argv[2]
-    with open(project_path) as f:
-        content = f.read()
+    project_path = Path(sys.argv[1])
+    content = project_path.read_text()
     content = modify_toml(content)
-    with open(project_path, "w") as f:
-        f.write(content)
-    with open(readme_path) as f:
-        content = f.read()
+    project_path.write_text(content)
+
+    readme_path = Path(sys.argv[2])
+    content = readme_path.read_text()
     content = modify_readme(content)
-    with open(readme_path, "w") as f:
-        f.write(content)
+    readme_path.write_text(content)

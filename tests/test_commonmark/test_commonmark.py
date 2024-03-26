@@ -2,7 +2,7 @@
 provided by https://github.com/commonmark/CommonMark.git.
 """
 import json
-import os
+from pathlib import Path
 
 import pytest
 from markdown_it.renderer import RendererHTML
@@ -10,9 +10,7 @@ from markdown_it.renderer import RendererHTML
 from myst_parser.config.main import MdParserConfig
 from myst_parser.parsers.mdit import create_md_parser
 
-with open(
-    os.path.join(os.path.dirname(__file__), "commonmark.json"), encoding="utf8"
-) as fin:
+with (Path(__file__).parent / "commonmark.json").open(encoding="utf8") as fin:
     tests = json.load(fin)
 
 
