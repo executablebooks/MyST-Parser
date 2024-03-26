@@ -1,4 +1,5 @@
 """MyST Markdown parser for docutils."""
+
 from dataclasses import Field
 from typing import (
     Any,

@@ -8,6 +8,7 @@ This fixes two issues:
    and assigned an equation number
 
 """
+
 from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.ext import mathjax
