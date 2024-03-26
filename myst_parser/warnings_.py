@@ -31,6 +31,10 @@ class MystWarnings(Enum):
 
     DIRECTIVE_PARSING = "directive_parse"
     """Issue parsing directive."""
+    DIRECTIVE_OPTION = "directive_option"
+    """Issue parsing directive options."""
+    DIRECTIVE_BODY = "directive_body"
+    """Issue parsing directive body."""
     UNKNOWN_DIRECTIVE = "directive_unknown"
     """Unknown directive."""
     UNKNOWN_ROLE = "role_unknown"

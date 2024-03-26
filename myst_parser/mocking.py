@@ -147,7 +147,7 @@ class MockState:
         # TODO should argument_str always be ""?
         parsed = parse_directive_text(directive, "", "\n".join(content))
         if parsed.warnings:
-            raise MarkupError(",".join(w for w, _ in parsed.warnings))
+            raise MarkupError(",".join(w.msg for w in parsed.warnings))
         return (
             parsed.arguments,
             parsed.options,
