@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 
 import pytest
+import sphinx
 from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
@@ -588,6 +589,9 @@ def test_texinfo(app, status, warning):
     assert warnings == ""
 
 
+@pytest.mark.skipif(
+    sphinx.version_info < (7, 2, 5), reason="include-read event added in sphinx 7.2.5"
+)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "includes"),
@@ -595,10 +599,6 @@ def test_texinfo(app, status, warning):
 )
 def test_include_read_event(app, status, warning):
     """Test that include-read event is emitted correctly."""
-    import sphinx
-
-    if sphinx.version_info < (7, 2, 5):
-        return
 
     include_read_events = []
 
