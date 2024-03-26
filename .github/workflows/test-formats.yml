@@ -56,7 +56,7 @@ jobs:
         sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
 
     - name: Make PDF
-      uses: xu-cheng/latex-action@v2
+      uses: xu-cheng/latex-action@v3
       with:
         working_directory: docs/_build/latex
         root_file: "mystparser.tex"
