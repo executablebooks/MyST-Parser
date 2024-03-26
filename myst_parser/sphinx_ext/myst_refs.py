@@ -3,6 +3,7 @@
 This is applied to MyST type references only, such as ``[text](target)``,
 and allows for nested syntax
 """
+
 from __future__ import annotations
 
 import re

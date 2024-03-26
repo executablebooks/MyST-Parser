@@ -14,6 +14,7 @@ https://github.com/yaml/pyyaml/commit/957ae4d495cf8fcb5475c6c2f1bce801096b68a5
 For a good description of multi-line YAML strings, see:
 https://stackoverflow.com/a/21699210/5033292
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -65,7 +66,7 @@ class StreamBuffer:
             ):
                 self._line += 1
                 self._column = 0
-            elif ch != "\uFEFF":
+            elif ch != "\ufeff":
                 self._column += 1
             length -= 1
 
@@ -259,7 +260,7 @@ def _scan_to_next_token(stream: StreamBuffer) -> None:
     The byte order mark is also stripped,
     if it's the first character in the stream.
     """
-    if stream.index == 0 and stream.peek() == "\uFEFF":
+    if stream.index == 0 and stream.peek() == "\ufeff":
         stream.forward()
     found = False
     while not found:
@@ -636,17 +637,17 @@ _ESCAPE_REPLACEMENTS: Final[dict[str, str]] = {
     "b": "\x08",
     "t": "\x09",
     "\t": "\x09",
-    "n": "\x0A",
-    "v": "\x0B",
-    "f": "\x0C",
-    "r": "\x0D",
-    "e": "\x1B",
+    "n": "\x0a",
+    "v": "\x0b",
+    "f": "\x0c",
+    "r": "\x0d",
+    "e": "\x1b",
     " ": "\x20",
     '"': '"',
     "\\": "\\",
     "/": "/",
     "N": "\x85",
-    "_": "\xA0",
+    "_": "\xa0",
     "L": "\u2028",
     "P": "\u2029",
 }

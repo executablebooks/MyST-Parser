@@ -5,6 +5,7 @@ These contain mappings of reference names to ids, scoped by domain and object ty
 This is adapted from the Sphinx inventory.py module.
 We replicate it here, so that it can be used without Sphinx.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -231,7 +232,7 @@ class InventoryFileReader:
 
 
 @functools.lru_cache(maxsize=256)
-def _create_regex(pat: str) -> re.Pattern:
+def _create_regex(pat: str) -> re.Pattern[str]:
     r"""Create a regex from a pattern, that can include `*` wildcards,
     to match 0 or more characters.
 
@@ -404,7 +405,7 @@ def fetch_inventory(
     uri: str, *, timeout: None | float = None, base_url: None | str = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
-    if uri.startswith("http://") or uri.startswith("https://"):
+    if uri.startswith(("http://", "https://")):
         with urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
     with open(uri, "rb") as stream:

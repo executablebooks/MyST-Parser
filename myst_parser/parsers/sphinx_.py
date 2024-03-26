@@ -1,4 +1,5 @@
 """MyST Markdown parser for sphinx."""
+
 from __future__ import annotations
 
 from docutils import nodes

@@ -1,4 +1,5 @@
 """The configuration for the myst parser."""
+
 import dataclasses as dc
 from importlib import import_module
 from typing import (
@@ -104,7 +105,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
                 raise TypeError(
                     f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}"
                 )
-            new_dict[key] = val  # type: ignore
+            new_dict[key] = val  # type: ignore[assignment]
         else:
             raise TypeError(
                 f"'{field.name}[{key}]' value is not a string or dict: {val!r}"
@@ -230,6 +231,14 @@ class MdParserConfig:
         metadata={
             "validator": instance_of(bool),
             "help": "Parse all links as simple hyperlinks",
+        },
+    )
+
+    links_external_new_tab: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Open all external links in a new tab",
         },
     )
 
@@ -577,7 +586,7 @@ def read_topmatter(text: Union[str, Iterator[str]]) -> Optional[Dict[str, Any]]:
         return None
     top_matter = []
     for line in text:
-        if line.startswith("---") or line.startswith("..."):
+        if line.startswith(("---", "...")):
             break
         top_matter.append(line.rstrip() + "\n")
     try:

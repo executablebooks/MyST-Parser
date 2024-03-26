@@ -8,6 +8,7 @@ This fixes two issues:
    and assigned an equation number
 
 """
+
 from docutils import nodes
 from sphinx.application import Sphinx
 from sphinx.ext import mathjax
@@ -53,14 +54,14 @@ def override_mathjax(app: Sphinx):
 
     if "dollarmath" not in app.config["myst_enable_extensions"]:
         return
-    if not app.env.myst_config.update_mathjax:  # type: ignore
+    if not app.env.myst_config.update_mathjax:  # type: ignore[attr-defined]
         return
 
-    mjax_classes = app.env.myst_config.mathjax_classes  # type: ignore
+    mjax_classes = app.env.myst_config.mathjax_classes  # type: ignore[attr-defined]
 
     if "mathjax3_config" in app.config:
         # sphinx 4 + mathjax 3
-        app.config.mathjax3_config = app.config.mathjax3_config or {}  # type: ignore
+        app.config.mathjax3_config = app.config.mathjax3_config or {}  # type: ignore[attr-defined]
         app.config.mathjax3_config.setdefault("options", {})
         if (
             "processHtmlClass" in app.config.mathjax3_config["options"]

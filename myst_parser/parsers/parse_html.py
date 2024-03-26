@@ -17,6 +17,7 @@ Note: optional tags are not accounted for
 (see https://html.spec.whatwg.org/multipage/syntax.html#optional-tags)
 
 """
+
 from __future__ import annotations
 
 import inspect
@@ -362,7 +363,7 @@ class Tree:
             count = 0
 
         # It pops all the items which do not match with the closing tag.
-        for _ in range(0, count):
+        for _ in range(count):
             self.stack.pop()
 
 

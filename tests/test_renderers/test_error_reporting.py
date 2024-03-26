@@ -1,4 +1,5 @@
 """Tests of the warning reporting for different MyST Markdown inputs."""
+
 from io import StringIO
 from pathlib import Path
 

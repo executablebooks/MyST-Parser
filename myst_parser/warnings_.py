@@ -1,4 +1,5 @@
 """Central handling of warnings for the myst extension."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -24,13 +25,17 @@ class MystWarnings(Enum):
     """Duplicate Markdown reference definition."""
     MD_FOOTNOTE_DUPE = "footnote"
     """Duplicate Markdown footnote definition."""
-    MD_FOOTNOTE_MISSING = "footnote"
+    MD_FOOTNOTE_MISSING = "footnote"  # noqa: PIE796
     """Missing Markdown footnote definition."""
     MD_HEADING_NON_CONSECUTIVE = "header"
     """Non-consecutive heading levels."""
 
     DIRECTIVE_PARSING = "directive_parse"
     """Issue parsing directive."""
+    DIRECTIVE_OPTION = "directive_option"
+    """Issue parsing directive options."""
+    DIRECTIVE_BODY = "directive_body"
+    """Issue parsing directive body."""
     UNKNOWN_DIRECTIVE = "directive_unknown"
     """Unknown directive."""
     UNKNOWN_ROLE = "role_unknown"
