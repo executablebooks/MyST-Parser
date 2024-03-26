@@ -8,6 +8,8 @@ which uses semantic HTML tags
 (e.g. converting `<div class="section">` to `<section>`)
 """
 
+from __future__ import annotations
+
 import os
 import re
 from pathlib import Path
