@@ -87,16 +87,19 @@ A paragraph with a span of [text with attributes]{.bg-warning}
 To put a line break, without a paragraph, use a `\` followed by a new line. This corresponds to a `<br>` in HTML and `\\` in LaTeX.
 
 :::{myst-example}
-Fleas \
+**Fleas** \
 Adam \
 Had 'em.
 :::
 
-Alternatively, you can use the `line-block` directive which constructs an element where all line breaks (and also initial indentations) are respected:
+```{versionadded} 3.0
+```
+
+Alternatively, you can use the `line-block` directive, which constructs a block where all line breaks (and also initial indentations) are respected:
 
 ::::{myst-example}
 :::{line-block}
-Fleas
+**Fleas**
   Adam
   Had 'em.
 :::
