@@ -92,6 +92,16 @@ Adam \
 Had 'em.
 :::
 
+Alternatively, you can use the `line-block` directive which constructs an element where all line breaks (and also initial indentations) are respected:
+
+::::{myst-example}
+:::{line-block}
+Fleas
+  Adam
+  Had 'em.
+:::
+::::
+
 ## Bullet points and numbered lists
 
 You can use bullet points and numbered lists as you would in standard Markdown.
