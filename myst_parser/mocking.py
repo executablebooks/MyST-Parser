@@ -263,6 +263,35 @@ class MockState:
     def build_table_row(self, rowdata, tableline):
         return Body.build_table_row(self, rowdata, tableline)
 
+    def nest_line_block_lines(self, block: nodes.line_block):
+        """Modify the line block element in-place, to nest line block segments.
+
+        Line nodes are placed into child line block containers, based on their indentation.
+        """
+        for index in range(1, len(block)):
+            if getattr(block[index], "indent", None) is None:
+                block[index].indent = block[index - 1].indent
+        self._nest_line_block_segment(block)
+
+    def _nest_line_block_segment(self, block: nodes.line_block):
+        indents = [item.indent for item in block]
+        least = min(indents)
+        new_items = []
+        new_block = nodes.line_block()
+        for item in block:
+            if item.indent > least:
+                new_block.append(item)
+            else:
+                if len(new_block):
+                    self._nest_line_block_segment(new_block)
+                    new_items.append(new_block)
+                    new_block = nodes.line_block()
+                new_items.append(item)
+        if len(new_block):
+            self._nest_line_block_segment(new_block)
+            new_items.append(new_block)
+        block[:] = new_items
+
     def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
         been defined. Defined attributes will not be overridden.
