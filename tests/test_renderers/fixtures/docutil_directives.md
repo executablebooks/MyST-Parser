@@ -1,4 +1,3 @@
---------------------------------
 [attention] (`docutils.parsers.rst.directives.admonitions.Attention`):
 .
 ```{attention}
@@ -12,7 +11,6 @@ a
             a
 .
 
---------------------------------
 [caution] (`docutils.parsers.rst.directives.admonitions.Caution`):
 .
 ```{caution}
@@ -26,7 +24,6 @@ a
             a
 .
 
---------------------------------
 [danger] (`docutils.parsers.rst.directives.admonitions.Danger`):
 .
 ```{danger}
@@ -40,7 +37,6 @@ a
             a
 .
 
---------------------------------
 [error] (`docutils.parsers.rst.directives.admonitions.Error`):
 .
 ```{error}
@@ -54,7 +50,6 @@ a
             a
 .
 
---------------------------------
 [important] (`docutils.parsers.rst.directives.admonitions.Important`):
 .
 ```{important}
@@ -68,7 +63,6 @@ a
             a
 .
 
---------------------------------
 [note] (`docutils.parsers.rst.directives.admonitions.Note`):
 .
 ```{note}
@@ -82,7 +76,6 @@ a
             a
 .
 
---------------------------------
 [tip] (`docutils.parsers.rst.directives.admonitions.Tip`):
 .
 ```{tip}
@@ -96,7 +89,6 @@ a
             a
 .
 
---------------------------------
 [hint] (`docutils.parsers.rst.directives.admonitions.Hint`):
 .
 ```{hint}
@@ -110,7 +102,6 @@ a
             a
 .
 
---------------------------------
 [warning] (`docutils.parsers.rst.directives.admonitions.Warning`):
 .
 ```{warning}
@@ -124,7 +115,6 @@ a
             a
 .
 
---------------------------------
 [admonition] (`docutils.parsers.rst.directives.admonitions.Admonition`):
 .
 ```{admonition} myclass
@@ -140,7 +130,6 @@ a
             a
 .
 
---------------------------------
 [sidebar] (`docutils.parsers.rst.directives.body.Sidebar`):
 .
 ```{sidebar} sidebar title
@@ -156,7 +145,6 @@ a
             a
 .
 
---------------------------------
 [topic] (`docutils.parsers.rst.directives.body.Topic`):
 .
 ```{topic} Topic Title
@@ -172,18 +160,25 @@ a
             a
 .
 
---------------------------------
-[line-block] (`docutils.parsers.rst.directives.body.LineBlock`) SKIP: MockingError: MockState has not yet implemented attribute 'nest_line_block_lines'
+[line-block] (`docutils.parsers.rst.directives.body.LineBlock`)
 .
 ```{line-block}
-
-
+line 1
+line 2
+  line 3
 ```
 .
 <document source="notset">
+    <line_block>
+        <line>
+            line 1
+        <line>
+            line 2
+        <line_block>
+            <line>
+                line 3
 .
 
---------------------------------
 [parsed-literal] (`docutils.parsers.rst.directives.body.ParsedLiteral`):
 .
 ```{parsed-literal}
@@ -196,7 +191,6 @@ a
         a
 .
 
---------------------------------
 [rubric] (`docutils.parsers.rst.directives.body.Rubric`):
 .
 ```{rubric} Rubric Title
@@ -207,7 +201,6 @@ a
         Rubric Title
 .
 
---------------------------------
 [epigraph] (`docutils.parsers.rst.directives.body.Epigraph`):
 .
 ```{epigraph}
@@ -225,7 +218,6 @@ a
             attribution
 .
 
---------------------------------
 [highlights] (`docutils.parsers.rst.directives.body.Highlights`):
 .
 ```{highlights}
@@ -243,7 +235,6 @@ a
             attribution
 .
 
---------------------------------
 [pull-quote] (`docutils.parsers.rst.directives.body.PullQuote`):
 .
 ```{pull-quote}
@@ -261,7 +252,6 @@ a
             attribution
 .
 
---------------------------------
 [compound] (`docutils.parsers.rst.directives.body.Compound`):
 .
 ```{compound}
@@ -275,7 +265,6 @@ a
             a
 .
 
---------------------------------
 [container] (`docutils.parsers.rst.directives.body.Container`):
 .
 ```{container}
@@ -289,7 +278,6 @@ a
             a
 .
 
---------------------------------
 [image] (`docutils.parsers.rst.directives.images.Image`):
 .
 ```{image} path/to/image
@@ -301,7 +289,6 @@ a
     <image alt="abc" ids="name" names="name" uri="path/to/image">
 .
 
---------------------------------
 [raw] (`docutils.parsers.rst.directives.misc.Raw`):
 .
 ```{raw} raw
@@ -314,7 +301,6 @@ a
         a
 .
 
---------------------------------
 [class] (`docutils.parsers.rst.directives.misc.Class`):
 .
 ```{class} myclass
@@ -327,7 +313,6 @@ a
         a
 .
 
---------------------------------
 [role] (`docutils.parsers.rst.directives.misc.Role`) + raw (`docutils.parsers.rst.roles.raw_role`):
 .
 ```{role} raw-latex(raw)
@@ -342,7 +327,6 @@ a
             \tag{content}
 .
 
---------------------------------
 [title] (`docutils.parsers.rst.directives.misc.Title`):
 .
 ```{title} title
@@ -351,7 +335,6 @@ a
 <document source="notset" title="title">
 .
 
---------------------------------
 [restructuredtext-test-directive] (`docutils.parsers.rst.directives.misc.TestDirective`):
 .
 ```{restructuredtext-test-directive}
@@ -363,7 +346,6 @@ a
             Directive processed. Type="restructuredtext-test-directive", arguments=[], options={}, content: None
 .
 
---------------------------------
 [contents] (`docutils.parsers.rst.directives.parts.Contents`):
 .
 ```{contents} Contents
@@ -379,7 +361,6 @@ a
                  .details:
 .
 
---------------------------------
 [sectnum] (`docutils.parsers.rst.directives.parts.Sectnum`):
 .
 ```{sectnum}
@@ -392,7 +373,6 @@ a
              .details:
 .
 
---------------------------------
 [header] (`docutils.parsers.rst.directives.parts.Header`):
 .
 ```{header}
@@ -407,7 +387,6 @@ a
                 a
 .
 
---------------------------------
 [footer] (`docutils.parsers.rst.directives.parts.Footer`):
 .
 ```{footer}
@@ -422,7 +401,6 @@ a
                 a
 .
 
---------------------------------
 [target-notes] (`docutils.parsers.rst.directives.references.TargetNotes`):
 .
 ```{target-notes}

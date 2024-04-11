@@ -31,6 +31,7 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 - docutilsconf=None
 
 """
+
 import os
 import pathlib
 import shutil
@@ -38,7 +39,6 @@ import shutil
 import pytest
 from bs4 import BeautifulSoup
 from docutils import nodes
-from sphinx.testing.path import path
 
 from myst_parser._compat import findall
 
@@ -66,15 +66,11 @@ def get_sphinx_app_output(file_regression):
         regress_ext=".html",
         replace=None,
     ):
-        outpath = path(os.path.join(str(app.srcdir), "_build", buildername, filename))
+        outpath = pathlib.Path(str(app.srcdir), "_build", buildername, filename)
         if not outpath.exists():
             raise OSError(f"no output file exists: {outpath}")
 
-        try:
-            # introduced in sphinx 3.0
-            content = outpath.read_text(encoding=encoding)
-        except AttributeError:
-            content = outpath.text(encoding=encoding)
+        content = outpath.read_text(encoding=encoding)
 
         if regress_html:
             # only regress the inner body, since other sections are non-deterministic

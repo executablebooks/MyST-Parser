@@ -7,10 +7,15 @@ the major difference being sphinx 4 uses docutils 0.17,
 which uses semantic HTML tags
 (e.g. converting `<div class="section">` to `<section>`)
 """
+
+from __future__ import annotations
+
 import os
 import re
+from pathlib import Path
 
 import pytest
+import sphinx
 from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
@@ -582,3 +587,45 @@ def test_texinfo(app, status, warning):
     assert "build succeeded" in status.getvalue()  # Build succeeded
     warnings = warning.getvalue().strip()
     assert warnings == ""
+
+
+@pytest.mark.skipif(
+    sphinx.version_info < (7, 2, 5), reason="include-read event added in sphinx 7.2.5"
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "includes"),
+    freshenv=True,
+)
+def test_include_read_event(app, status, warning):
+    """Test that include-read event is emitted correctly."""
+
+    include_read_events = []
+
+    def handle_include_read(
+        app, relative_path: Path, parent_docname: str, content: list[str]
+    ) -> None:
+        include_read_events.append((relative_path, parent_docname, content))
+
+    app.connect("include-read", handle_include_read)
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+    expected = [
+        ("../include_from_rst/include.md", "index"),
+        ("include1.inc.md", "index"),
+        (os.path.join("subfolder", "include2.inc.md"), "include1.inc"),
+        ("include_code.py", "index"),
+        ("include_code.py", "index"),
+        ("include_literal.txt", "index"),
+        ("include_literal.txt", "index"),
+    ]
+    expected_events = []
+    for include_file_name, parent_docname in expected:
+        with open(os.path.join(SOURCE_DIR, "includes", include_file_name)) as file:
+            content = file.read()
+        expected_events.append((Path(include_file_name), parent_docname, [content]))
+    assert len(include_read_events) == len(expected_events), "Wrong number of events"
+    for evt in expected_events:
+        assert evt in include_read_events

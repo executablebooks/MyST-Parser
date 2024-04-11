@@ -33,6 +33,7 @@ from the content.
 This is to allow for separation between the option block and content.
 
 """
+
 from __future__ import annotations
 
 import re
@@ -46,8 +47,17 @@ from docutils.parsers.rst.directives import flag
 from docutils.parsers.rst.directives.misc import TestDirective
 from docutils.parsers.rst.states import MarkupError
 
+from myst_parser.warnings_ import MystWarnings
+
 from .options import TokenizeError
 from .options import to_items as options_to_items
+
+
+@dataclass
+class ParseWarnings:
+    msg: str
+    lineno: int | None = None
+    type: MystWarnings = MystWarnings.DIRECTIVE_PARSING
 
 
 @dataclass
@@ -60,7 +70,7 @@ class DirectiveParsingResult:
     """The lines of body content"""
     body_offset: int
     """The number of lines to the start of the body content."""
-    warnings: list[tuple[str, int | None]]
+    warnings: list[ParseWarnings]
     """List of non-fatal errors encountered during parsing.
     (message, line_number)
     """
@@ -88,7 +98,7 @@ def parse_directive_text(
 
     :raises MarkupError: if there is a fatal parsing/validation error
     """
-    parse_errors: list[tuple[str, int | None]]
+    parse_warnings: list[ParseWarnings]
     options: dict[str, Any]
     body_lines: list[str]
     content_offset: int
@@ -104,13 +114,13 @@ def parse_directive_text(
             as_yaml=not validate_options,
             additional_options=additional_options,
         )
-        parse_errors = result.errors
+        parse_warnings = result.warnings
         has_options_block = result.has_options
         options = result.options
         body_lines = result.content.splitlines()
         content_offset = len(content.splitlines()) - len(body_lines)
     else:
-        parse_errors = []
+        parse_warnings = []
         has_options_block = False
         options = {}
         body_lines = content.splitlines()
@@ -120,11 +130,10 @@ def parse_directive_text(
         # If there are no possible arguments, then the body can start on the argument line
         if first_line.strip():
             if has_options_block and any(body_lines):
-                parse_errors.append(
-                    (
-                        "Cannot split content across first line and body, "
-                        "when options block is present (move first line to body)",
-                        None,
+                parse_warnings.append(
+                    ParseWarnings(
+                        "Splitting content across first line and body, "
+                        "when an options block is present, is not recommended"
                     )
                 )
             body_lines.insert(0, first_line)
@@ -141,10 +150,10 @@ def parse_directive_text(
 
     # check for body content
     if body_lines and not directive_class.has_content:
-        parse_errors.append(("Has content, but none permitted", None))
+        parse_warnings.append(ParseWarnings("Has content, but none permitted"))
 
     return DirectiveParsingResult(
-        arguments, options, body_lines, content_offset, parse_errors
+        arguments, options, body_lines, content_offset, parse_warnings
     )
 
 
@@ -152,7 +161,7 @@ def parse_directive_text(
 class _DirectiveOptions:
     content: str
     options: dict[str, Any]
-    errors: list[tuple[str, int | None]]
+    warnings: list[ParseWarnings]
     has_options: bool
 
 
@@ -195,15 +204,27 @@ def _parse_directive_options(
     has_options_block = yaml_block is not None
 
     if as_yaml:
-        yaml_errors: list[tuple[str, int | None]] = []
+        yaml_errors: list[ParseWarnings] = []
         try:
             yaml_options = yaml.safe_load(yaml_block or "") or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError):
             yaml_options = {}
-            yaml_errors.append(("Invalid options format (bad YAML)", line))
+            yaml_errors.append(
+                ParseWarnings(
+                    "Invalid options format (bad YAML)",
+                    line,
+                    MystWarnings.DIRECTIVE_OPTION,
+                )
+            )
         if not isinstance(yaml_options, dict):
             yaml_options = {}
-            yaml_errors.append(("Invalid options format (not a dict)", line))
+            yaml_errors.append(
+                ParseWarnings(
+                    "Invalid options format (not a dict)",
+                    line,
+                    MystWarnings.DIRECTIVE_OPTION,
+                )
+            )
         return _DirectiveOptions(content, yaml_options, yaml_errors, has_options_block)
 
     options: dict[str, str] = {}
@@ -214,7 +235,13 @@ def _parse_directive_options(
             return _DirectiveOptions(
                 content,
                 options,
-                [(f"Invalid options format: {err.problem}", line)],
+                [
+                    ParseWarnings(
+                        f"Invalid options format: {err.problem}",
+                        line,
+                        MystWarnings.DIRECTIVE_OPTION,
+                    )
+                ],
                 has_options_block,
             )
 
@@ -231,7 +258,7 @@ def _parse_directive_options(
     options_spec: dict[str, Callable] = directive_class.option_spec
     unknown_options: list[str] = []
     new_options: dict[str, Any] = {}
-    validation_errors: list[tuple[str, int | None]] = []
+    validation_errors: list[ParseWarnings] = []
     value: str | None
     for name, value in options.items():
         try:
@@ -250,17 +277,22 @@ def _parse_directive_options(
             converted_value = convertor(value)
         except (ValueError, TypeError) as error:
             validation_errors.append(
-                (f"Invalid option value for {name!r}: {value}: {error}", line)
+                ParseWarnings(
+                    f"Invalid option value for {name!r}: {value}: {error}",
+                    line,
+                    MystWarnings.DIRECTIVE_OPTION,
+                )
             )
         else:
             new_options[name] = converted_value
 
     if unknown_options:
         validation_errors.append(
-            (
+            ParseWarnings(
                 f"Unknown option keys: {sorted(unknown_options)} "
                 f"(allowed: {sorted(options_spec)})",
                 line,
+                MystWarnings.DIRECTIVE_OPTION,
             )
         )
 

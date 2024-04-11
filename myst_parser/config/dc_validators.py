@@ -1,4 +1,5 @@
 """Validators for dataclasses, mirroring those of https://github.com/python-attrs/attrs."""
+
 from __future__ import annotations
 
 import dataclasses as dc
@@ -37,8 +38,7 @@ def validate_fields(inst: Any) -> None:
 class ValidatorType(Protocol):
     def __call__(
         self, inst: Any, field: dc.Field, value: Any, suffix: str = ""
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def any_(inst, field, value, suffix=""):

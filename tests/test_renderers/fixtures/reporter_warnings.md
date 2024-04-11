@@ -143,13 +143,13 @@ lines
 <string>:12: (ERROR/3) Unknown interpreted text role "unknown".
 .
 
-bad-option-value
+directive bad-option-value
 .
 ```{note}
 :class: [1]
 ```
 .
-<string>:1: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_parse]
+<string>:1: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_option]
 <string>:1: (ERROR/3) Content block expected for the "note" directive; none found.
 .
 

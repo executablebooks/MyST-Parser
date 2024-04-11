@@ -1,6 +1,9 @@
 """MyST specific directives"""
+
+from __future__ import annotations
+
 from copy import copy
-from typing import List, Tuple, cast
+from typing import cast
 
 from docutils import nodes
 from docutils.parsers.rst import directives
@@ -27,7 +30,7 @@ class SubstitutionReferenceRole(SphinxRole):
     Note, in ``docutils/parsers/rst/roles.py`` this is left unimplemented.
     """
 
-    def run(self) -> Tuple[List[nodes.Node], List[nodes.system_message]]:
+    def run(self) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         subref_node = nodes.substitution_reference(self.rawtext, self.text)
         self.set_source_info(subref_node, self.lineno)
         subref_node["refname"] = nodes.fully_normalize_name(self.text)
@@ -59,7 +62,7 @@ class FigureMarkdown(SphinxDirective):
         "name": directives.unchanged,
     }
 
-    def run(self) -> List[nodes.Node]:
+    def run(self) -> list[nodes.Node]:
         figwidth = self.options.pop("width", None)
         figclasses = self.options.pop("class", None)
         align = self.options.pop("align", None)
