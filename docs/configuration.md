@@ -51,7 +51,7 @@ key3:
 
 :::{seealso}
 Frontmatter is also used for the [substitution syntax extension](syntax/substitutions),
-and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/en/latest/manual/markdown/)).
+and can be used to store information for blog posting (see [ablog's myst-parser support](https://ablog.readthedocs.io/en/latest/manual/markdown.html)).
 :::
 
 The following configuration variables are available to be set in the document frontmatter.
