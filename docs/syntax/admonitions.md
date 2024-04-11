@@ -23,13 +23,13 @@ The following core admonition types are available:
 
 These admonitions take no argument, but may be specified with options:
 
-:class: A space-separated list of CSS classes to add to the admonition.
+:class: A space-separated list of CSS classes to add to the admonition, conforming to the [identifier normalization rules](https://docutils.sourceforge.io/docs/ref/rst/directives.html#identifier-normalization).
 :name: A reference target for the admonition (see [cross-referencing](#syntax/referencing)).
 
 ::::{myst-example}
 
 :::{tip}
-:class: myclass1,myclass2
+:class: myclass1 myclass2
 :name: a-tip-reference
 Let's give readers a helpful hint!
 :::
