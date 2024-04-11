@@ -108,7 +108,7 @@ to modify parsing behaviour and access extended syntax features.
 [Jupyter Book](https://jupyterbook.org)
 : An open source project for building beautiful, publication-quality books and documents from computational material, built on top of the MyST-Parser and MyST-NB.
 
-[The Jupyter Book gallery](https://executablebooks.org/en/latest/gallery.html)
+[The Jupyter Book gallery](https://executablebooks.org/en/latest/gallery)
 : Examples of documents built with MyST.
 
 [Javascript MyST parser][mystjs]
