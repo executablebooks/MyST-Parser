@@ -5,7 +5,7 @@ of the project.
 
 ## A Renderer for markdown-it tokens
 
-At a high level, the MyST parser is an extension of th project. Markdown-It-Py
+At a high level, the MyST parser is an extension of the Markdown-It-Py project. Markdown-It-Py
 is a well-structured Python parser for CommonMark text. It also defines an extension
 point to include more syntax in parsed files. The MyST parser uses this extension
 point to define its own syntax options (e.g., for Sphinx roles and directives).
