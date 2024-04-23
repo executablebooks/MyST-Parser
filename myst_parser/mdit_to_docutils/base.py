@@ -1918,19 +1918,11 @@ def html_meta_to_nodes(
     if not data:
         return []
 
-    try:
-        meta_cls = nodes.meta
-    except AttributeError:
-        # docutils-0.17 or older
-        from docutils.parsers.rst.directives.html import MetaBody
-
-        meta_cls = MetaBody.meta
-
     output = []
 
     for key, value in data.items():
         content = str(value or "")
-        meta_node = meta_cls(content)
+        meta_node = nodes.meta(content)
         meta_node.source = document["source"]
         meta_node.line = line
         meta_node["content"] = content

@@ -1,11 +1,6 @@
 """Uses sphinx's pytest fixture to run builds.
 
 see conftest.py for fixture usage
-
-NOTE: sphinx 3 & 4 regress against different output files,
-the major difference being sphinx 4 uses docutils 0.17,
-which uses semantic HTML tags
-(e.g. converting `<div class="section">` to `<section>`)
 """
 
 from __future__ import annotations
