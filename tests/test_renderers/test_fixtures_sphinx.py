@@ -22,7 +22,12 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    pformat = result.pformat("index")
+    # changed in docutils 0.20.1
+    pformat = pformat.replace(
+        '<literal classes="code" language="">', '<literal classes="code">'
+    )
+    file_params.assert_expected(pformat, rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_link_resolution.md")
@@ -100,6 +105,8 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
         ),
         "",
     )
+    # changed in sphinx 7.3
+    pformat = pformat.replace("Added in version 0.2", "New in version 0.2")
 
     file_params.assert_expected(pformat, rstrip_lines=True)
 
