@@ -278,7 +278,7 @@ MathJax version 3 (see [the document options](https://docs.mathjax.org/en/latest
 window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}
 ```
 
-This ensurea that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
+This ensures that MathJax processes only math, identified by the `dollarmath` and `amsmath` extensions, or specified in `math` directives.
 
 To change this behaviour, set a custom regex, for identifying HTML classes to process, like `myst_mathjax_classes="math|myclass"`, or set `myst_update_mathjax=False` to inhibit this override and process all HTML elements.
 
