@@ -70,6 +70,7 @@ rtd = [
 testing = [
     "beautifulsoup4",
     "coverage[toml]",
+    "defusedxml",  # required by sphinx 7.3 testing utils
     "pytest>=8,<9",
     "pytest-cov",
     "pytest-regressions",
