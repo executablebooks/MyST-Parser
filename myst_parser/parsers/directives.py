@@ -188,16 +188,13 @@ def _parse_directive_options(
             yaml_block = content
             content = ""
         yaml_block = dedent(yaml_block)
-    elif content.lstrip().startswith(":"):
-        # TODO deprecate allowing initial whitespace (by lstripping)
-        # or at least make it that all have the same indent
-        # also look at mystjs implementation
+    elif content.startswith(":"):
         content_lines = content.splitlines()
         yaml_lines = []
         while content_lines:
-            if not content_lines[0].lstrip().startswith(":"):
+            if not content_lines[0].startswith(":"):
                 break
-            yaml_lines.append(content_lines.pop(0).lstrip()[1:])
+            yaml_lines.append(content_lines.pop(0)[1:])
         yaml_block = "\n".join(yaml_lines)
         content = "\n".join(content_lines)
 
@@ -227,10 +224,13 @@ def _parse_directive_options(
             )
         return _DirectiveOptions(content, yaml_options, yaml_errors, has_options_block)
 
+    validation_errors: list[ParseWarnings] = []
+
     options: dict[str, str] = {}
     if yaml_block is not None:
         try:
-            options = dict(options_to_items(yaml_block))
+            _options, state = options_to_items(yaml_block)
+            options = dict(_options)
         except TokenizeError as err:
             return _DirectiveOptions(
                 content,
@@ -243,6 +243,14 @@ def _parse_directive_options(
                     )
                 ],
                 has_options_block,
+            )
+        if state.has_comments:
+            validation_errors.append(
+                ParseWarnings(
+                    "Directive options has # comments, which may not be supported in future versions.",
+                    line,
+                    MystWarnings.DIRECTIVE_OPTION_COMMENTS,
+                )
             )
 
     if issubclass(directive_class, TestDirective):
@@ -258,7 +266,6 @@ def _parse_directive_options(
     options_spec: dict[str, Callable] = directive_class.option_spec
     unknown_options: list[str] = []
     new_options: dict[str, Any] = {}
-    validation_errors: list[ParseWarnings] = []
     value: str | None
     for name, value in options.items():
         try:

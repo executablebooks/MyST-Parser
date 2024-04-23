@@ -17,9 +17,14 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 @pytest.mark.param_file(FIXTURE_PATH / "option_parsing.yaml", "yaml")
 def test_option_parsing(file_params):
     """Test parsing of directive options."""
-    result = list(options_to_items(file_params.content))
+    result, state = options_to_items(file_params.content)
     file_params.assert_expected(
-        json.dumps(result, ensure_ascii=False, indent=2), rstrip_lines=True
+        json.dumps(
+            {"dict": result, "comments": state.has_comments},
+            ensure_ascii=False,
+            indent=2,
+        ),
+        rstrip_lines=True,
     )
 
 
@@ -27,7 +32,7 @@ def test_option_parsing(file_params):
 def test_option_parsing_errors(file_params):
     """Test parsing of directive options."""
     try:
-        list(options_to_items(file_params.content))
+        options_to_items(file_params.content)
     except TokenizeError as err:
         result = str(err)
     else:
