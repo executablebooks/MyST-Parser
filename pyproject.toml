@@ -53,10 +53,10 @@ code_style = ["pre-commit~=3.0"]
 linkify = ["linkify-it-py~=2.0"]
 # Note: This is only required for internal use
 rtd = [
+    "sphinx>=7",
     "ipython",
-    "sphinx-book-theme==1.0.0rc2",
-    "pydata-sphinx-theme==v0.13.0rc4",
-    "sphinx-design2",
+    "sphinx-book-theme~=1.1",
+    "sphinx-design",
     "sphinx-copybutton",
     "sphinxext-rediraffe~=0.2.7",
     # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed

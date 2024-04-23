@@ -155,14 +155,14 @@ html_favicon = "_static/logo-square.svg"
 html_title = ""
 html_theme_options = {
     "home_page_in_toc": True,
-    "github_url": "https://github.com/executablebooks/MyST-Parser",
+    # "github_url": "https://github.com/executablebooks/MyST-Parser",
     "repository_url": "https://github.com/executablebooks/MyST-Parser",
     "repository_branch": "master",
     "path_to_docs": "docs",
     "use_repository_button": True,
     "use_edit_page_button": True,
     "use_issues_button": True,
-    "announcement": "<b>v2.0.0</b> is now out! See the Changelog for details",
+    # "announcement": "<b>v2.0.0</b> is now out! See the Changelog for details",
 }
 html_last_updated_fmt = ""
 # OpenGraph metadata
