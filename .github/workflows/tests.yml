@@ -70,15 +70,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        docutils-version: ["0.17", "0.18", "0.19", "0.20"]
+        docutils-version: ["0.18", "0.19", "0.20", "0.21"]
 
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: "3.8"
+        python-version: "3.9"
     - name: Install setup
       run: |
         python -m pip install --upgrade pip

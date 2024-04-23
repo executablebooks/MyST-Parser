@@ -1,11 +1,6 @@
 """Uses sphinx's pytest fixture to run builds.
 
 see conftest.py for fixture usage
-
-NOTE: sphinx 3 & 4 regress against different output files,
-the major difference being sphinx 4 uses docutils 0.17,
-which uses semantic HTML tags
-(e.g. converting `<div class="section">` to `<section>`)
 """
 
 from __future__ import annotations
@@ -162,7 +157,12 @@ def test_references_singlehtml(
             docname="other/other",
             resolve=True,
             regress=True,
-            replace={"other\\other.md": "other/other.md"},
+            replace={
+                "other\\other.md": "other/other.md",
+                # changed in sphinx 7.3
+                '="#document-index': '="index.html#document-index',
+                '="#document-other': '="index.html#document-other',
+            },
         )
 
     get_sphinx_app_output(
@@ -170,7 +170,12 @@ def test_references_singlehtml(
         filename="index.html",
         buildername="singlehtml",
         regress_html=True,
-        replace={"Permalink to this headline": "Permalink to this heading"},
+        replace={
+            "Permalink to this headline": "Permalink to this heading",
+            # changed in sphinx 7.3
+            '="#document-index': '="index.html#document-index',
+            '="#document-other': '="index.html#document-other',
+        },
     )
 
 
@@ -469,7 +474,9 @@ def test_gettext_html(
         regress_ext=".html",
         replace={
             # upstream bug https://github.com/sphinx-doc/sphinx/issues/11689
-            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"'
+            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
+            # which was fixed to a different translation in sphinx 7.3
+            '"Lien vers cette rubrique"': '"Lien permanent vers cette rubrique"',
         },
     )
 
