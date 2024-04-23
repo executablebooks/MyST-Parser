@@ -1,5 +1,47 @@
 # Changelog
 
+## 3.0.0 - 2024-04-23
+
+### Upgraded dependencies
+
+- ⬆️ Add support for Python 3.12 by <gh-user:hugovk> in <gh-pr:848>
+- ⬆️ Update docutils requirement from >=0.16,<0.21 to >=0.18,<0.22 by <gh-user:chrisjsewell> in <gh-pr:916>
+
+### New features
+
+- ✨ Allow for use of the `line-block` directive by <gh-user:chrisjsewell> in <gh-pr:900>
+- ✨ Emits sphinx include-read event by <gh-user:sumezulike> in <gh-pr:887>
+
+### Improvements
+
+- 👌 Nested parse attribution in `attr_block` by <gh-user:chrisjsewell> in <gh-pr:831>
+- 👌 Directive option parsing by <gh-user:chrisjsewell> in <gh-pr:796
+- 👌 Improve directive parsing warnings by <gh-user:chrisjsewell> in <gh-pr:893>
+- 👌 Allow for opening external links in new tabs (#856) by <gh-user:marjus45> in <gh-pr:857>
+
+### Internal
+
+- 🔧 Replace black, isort, pyupgrade with ruff formatter by <gh-user:chrisjsewell> in <gh-pr:833>
+- 🔧 remove redundant mypy config by <gh-user:danieleades> in <gh-pr:866>
+- 🔧 Add additional Ruff lints (and fix issues) by <gh-user:danieleades> in <gh-pr:862>
+- 🔧 mypy- disallow 'any generics' by <gh-user:danieleades> in <gh-pr:865>
+- 🔧 Fix docutils deprecation in option parsing by <gh-user:agoose77> in <gh-pr:842>
+
+### Documentation
+
+- 📚 Fix a broken link in configuration.md by <gh-user:zupo> in <gh-pr:907>
+- 📚 Add linkify dependency to contributing docs. by <gh-user:jhcole> in <gh-pr:792>
+- 📚 Fix the double `used` in docs/syntax/math.md by <gh-user:ice-tong> in <gh-pr:810>
+- 📚 Also add linkify to pip install command in README by <gh-user:n-peugnet> in <gh-pr:851>
+- 📚 Fix the code section title in live preview by <gh-user:BoboTiG> in <gh-pr:875>
+- 📚 Fix admonition example by <gh-user:72757373656c6c> in <gh-pr:904>
+- 📚 Fix url for jupyter book gallery by <gh-user:72757373656c6c> in <gh-pr:905>
+- 📚 Update theme version by <gh-user:chrisjsewell> in <gh-pr:918>
+- 📚 Fix typo by <gh-user:blakeNaccarato> in <gh-pr:911>
+- 📚 Fix architecture typo (#855) by <gh-user:72757373656c6c> in <gh-pr:910>
+
+**Full Changelog**: [v2.0.0...v3.0.0](https://github.com/executablebooks/MyST-Parser/compare/v2.0.0...v3.0.0)
+
 ## 2.0.0 - 2023-06-13
 
 This release primarily updates core myst-parser dependencies,
