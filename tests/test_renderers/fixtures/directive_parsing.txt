@@ -57,6 +57,25 @@ options:
 warnings: []
 .
 
+note: comment in option
+.
+```{note}
+:class: name  # oops
+a
+```
+.
+arguments: []
+body:
+- a
+content_offset: 1
+options:
+  class:
+  - name
+warnings:
+- 'ParseWarnings(msg=''Directive options has # comments, which may not be supported
+  in future versions.'', lineno=0, type=<MystWarnings.DIRECTIVE_OPTION_COMMENTS: ''directive_comments''>)'
+.
+
 note: content after option with new line
 .
 ```{note}

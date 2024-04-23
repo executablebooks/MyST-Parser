@@ -163,9 +163,14 @@ class TokenizeError(Exception):
         return "\n".join(lines)
 
 
+@dataclass
+class State:
+    has_comments: bool = False
+
+
 def to_items(
     text: str, line_offset: int = 0, column_offset: int = 0
-) -> Iterable[tuple[str, str]]:
+) -> tuple[list[tuple[str, str]], State]:
     """Parse a directive option block into (key, value) tuples.
 
     :param text: The directive option text.
@@ -174,12 +179,17 @@ def to_items(
 
     :raises: `TokenizeError`
     """
-    for key_token, value_token in to_tokens(text, line_offset, column_offset):
-        yield key_token.value, value_token.value if value_token is not None else ""
+    output = []
+    state = State()
+    for key_token, value_token in _to_tokens(text, state, line_offset, column_offset):
+        output.append(
+            (key_token.value, value_token.value if value_token is not None else "")
+        )
+    return output, state
 
 
-def to_tokens(
-    text: str, line_offset: int = 0, column_offset: int = 0
+def _to_tokens(
+    text: str, state: State, line_offset: int = 0, column_offset: int = 0
 ) -> Iterable[tuple[KeyToken, ValueToken | None]]:
     """Parse a directive option, and yield key/value token pairs.
 
@@ -191,7 +201,7 @@ def to_tokens(
     """
     key_token: KeyToken | None = None
     try:
-        for token in tokenize(text):
+        for token in _tokenize(text, state):
             if isinstance(token, KeyToken):
                 if key_token is not None:
                     yield key_token, None
@@ -207,12 +217,12 @@ def to_tokens(
         raise
 
 
-def tokenize(text: str) -> Iterable[Token]:
+def _tokenize(text: str, state: State) -> Iterable[Token]:
     """Yield tokens from a directive option stream."""
     stream = StreamBuffer(text)
 
     while True:
-        _scan_to_next_token(stream)
+        _scan_to_next_token(stream, state)
 
         if stream.peek() == _CHARS_END:
             break
@@ -227,9 +237,9 @@ def tokenize(text: str) -> Iterable[Token]:
         if ch in ("'", '"'):
             yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=True)
         else:
-            yield _scan_plain_scalar(stream, is_key=True)
+            yield _scan_plain_scalar(stream, state, is_key=True)
 
-        _scan_to_next_token(stream)
+        _scan_to_next_token(stream, state)
 
         # check next char is colon + space
         if stream.peek() != ":":
@@ -240,21 +250,21 @@ def tokenize(text: str) -> Iterable[Token]:
         end_mark = stream.get_position()
         yield ColonToken(start_mark, end_mark)
 
-        _scan_to_next_token(stream)
+        _scan_to_next_token(stream, state)
 
         # now find value
         ch = stream.peek()
         if stream.column == 0:
             pass
         elif ch in ("|", ">"):
-            yield _scan_block_scalar(stream, cast(Literal["|", ">"], ch))
+            yield _scan_block_scalar(stream, cast(Literal["|", ">"], ch), state)
         elif ch in ("'", '"'):
             yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=False)
         else:
-            yield _scan_plain_scalar(stream, is_key=False)
+            yield _scan_plain_scalar(stream, state, is_key=False)
 
 
-def _scan_to_next_token(stream: StreamBuffer) -> None:
+def _scan_to_next_token(stream: StreamBuffer, state: State) -> None:
     """Skip spaces, line breaks and comments.
 
     The byte order mark is also stripped,
@@ -267,6 +277,7 @@ def _scan_to_next_token(stream: StreamBuffer) -> None:
         while stream.peek() == " ":
             stream.forward()
         if stream.peek() == "#":
+            state.has_comments = True
             while stream.peek() not in _CHARS_END_NEWLINE:
                 stream.forward()
         if not _scan_line_break(stream):
@@ -274,7 +285,7 @@ def _scan_to_next_token(stream: StreamBuffer) -> None:
 
 
 def _scan_plain_scalar(
-    stream: StreamBuffer, is_key: bool = False
+    stream: StreamBuffer, state: State, is_key: bool = False
 ) -> KeyToken | ValueToken:
     chunks = []
     start_mark = stream.get_position()
@@ -284,6 +295,7 @@ def _scan_plain_scalar(
     while True:
         length = 0
         if stream.peek() == "#":
+            state.has_comments = True
             break
         while True:
             ch = stream.peek(length)
@@ -302,6 +314,8 @@ def _scan_plain_scalar(
         end_mark = stream.get_position()
         spaces = _scan_plain_spaces(stream, allow_newline=(not is_key))
         if not spaces or stream.peek() == "#" or (stream.column < indent):
+            if stream.peek() == "#":
+                state.has_comments = True
             break
 
     return (
@@ -472,7 +486,9 @@ def _scan_flow_scalar_breaks(stream: StreamBuffer) -> list[str]:
             return chunks
 
 
-def _scan_block_scalar(stream: StreamBuffer, style: Literal["|", ">"]) -> ValueToken:
+def _scan_block_scalar(
+    stream: StreamBuffer, style: Literal["|", ">"], state: State
+) -> ValueToken:
     indent = 0
     folded = style == ">"
     chunks = []
@@ -481,7 +497,7 @@ def _scan_block_scalar(stream: StreamBuffer, style: Literal["|", ">"]) -> ValueT
     # Scan the header.
     stream.forward()
     chomping, increment = _scan_block_scalar_indicators(stream, start_mark)
-    _scan_block_scalar_ignored_line(stream, start_mark)
+    _scan_block_scalar_ignored_line(stream, start_mark, state)
 
     # Determine the indentation level and go to the first non-empty line.
     min_indent = indent + 1
@@ -575,10 +591,13 @@ def _scan_block_scalar_indicators(
     return chomping, increment
 
 
-def _scan_block_scalar_ignored_line(stream: StreamBuffer, start_mark: Position) -> None:
+def _scan_block_scalar_ignored_line(
+    stream: StreamBuffer, start_mark: Position, state: State
+) -> None:
     while stream.peek() == " ":
         stream.forward()
     if stream.peek() == "#":
+        state.has_comments = True
         while stream.peek() not in _CHARS_END_NEWLINE:
             stream.forward()
     ch = stream.peek()
