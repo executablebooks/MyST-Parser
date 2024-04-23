@@ -48,7 +48,7 @@ def override_mathjax(app: Sphinx):
         and "mathjax" in app.registry.html_block_math_renderers
     ):
         app.registry.html_block_math_renderers["mathjax"] = (
-            html_visit_displaymath,  # type: ignore[assignment]
+            html_visit_displaymath,
             None,
         )
 

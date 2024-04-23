@@ -57,7 +57,7 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
     for name, default, field in MdParserConfig().as_triple():
         if "sphinx" not in field.metadata.get("omit", []):
             # TODO add types?
-            app.add_config_value(f"myst_{name}", default, "env", types=Any)
+            app.add_config_value(f"myst_{name}", default, "env", types=Any)  # type: ignore[arg-type]
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
@@ -68,7 +68,7 @@ def create_myst_config(app):
     from sphinx.util import logging
 
     # Ignore type checkers because the attribute is dynamically assigned
-    from sphinx.util.console import bold  # type: ignore[attr-defined]
+    from sphinx.util.console import bold
 
     from myst_parser import __version__
     from myst_parser.config.main import MdParserConfig
