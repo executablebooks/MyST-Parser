@@ -49,8 +49,7 @@ from docutils.parsers.rst.states import MarkupError
 
 from myst_parser.warnings_ import MystWarnings
 
-from .options import TokenizeError
-from .options import to_items as options_to_items
+from .options import TokenizeError, options_to_items
 
 
 @dataclass

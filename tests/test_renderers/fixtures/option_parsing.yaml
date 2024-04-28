@@ -182,3 +182,22 @@ folded values:
       ],
       "comments": false
     }
+
+empty_final_value:
+  content: |-
+    key1: val1
+    key2:
+  expected: |-
+    {
+      "dict": [
+        [
+          "key1",
+          "val1"
+        ],
+        [
+          "key2",
+          ""
+        ]
+      ],
+      "comments": false
+    }

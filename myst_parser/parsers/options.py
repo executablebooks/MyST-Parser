@@ -168,7 +168,7 @@ class State:
     has_comments: bool = False
 
 
-def to_items(
+def options_to_items(
     text: str, line_offset: int = 0, column_offset: int = 0
 ) -> tuple[list[tuple[str, str]], State]:
     """Parse a directive option block into (key, value) tuples.
@@ -211,6 +211,8 @@ def _to_tokens(
                     raise TokenizeError("expected key before value", token.start)
                 yield key_token, token
                 key_token = None
+        if key_token is not None:
+            yield key_token, None
     except TokenizeError as exc:
         if line_offset or column_offset:
             raise exc.clone(line_offset, column_offset) from exc

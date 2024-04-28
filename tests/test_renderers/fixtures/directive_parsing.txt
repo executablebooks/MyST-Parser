@@ -257,3 +257,47 @@ error: missing argument
 .
 error: 1 argument(s) required, 0 supplied
 .
+
+option_flags_std
+.
+```{code-block}
+:linenos:
+:lineno-start: 2
+:force:
+
+body
+```
+.
+arguments: []
+body:
+- body
+content_offset: 4
+options:
+  force: null
+  lineno-start: 2
+  linenos: null
+warnings: []
+.
+
+option_flags_delimited
+.
+```{code-block}
+---
+linenos:
+lineno-start: 2
+force:
+---
+
+body
+```
+.
+arguments: []
+body:
+- body
+content_offset: 6
+options:
+  force: null
+  lineno-start: 2
+  linenos: null
+warnings: []
+.
