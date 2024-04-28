@@ -6,10 +6,10 @@ import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
 from markdown_it import MarkdownIt
+from sphinx.directives.code import CodeBlock
 
 from myst_parser.parsers.directives import MarkupError, parse_directive_text
-from myst_parser.parsers.options import TokenizeError
-from myst_parser.parsers.options import to_items as options_to_items
+from myst_parser.parsers.options import TokenizeError, options_to_items
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -50,6 +50,8 @@ def test_parsing(file_params):
         klass = Note
     elif name == "{admonition}":
         klass = Admonition
+    elif name == "{code-block}":
+        klass = CodeBlock
     else:
         raise AssertionError(f"Unknown directive: {name}")
     try:
