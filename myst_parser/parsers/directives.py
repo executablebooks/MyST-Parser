@@ -175,34 +175,34 @@ def _parse_directive_options(
 
     :returns: (content, options, validation_errors)
     """
-    yaml_block: None | str = None
+    options_block: None | str = None
     if content.startswith("---"):
         line = None if line is None else line + 1
         content = "\n".join(content.splitlines()[1:])
         match = re.search(r"^-{3,}", content, re.MULTILINE)
         if match:
-            yaml_block = content[: match.start()]
+            options_block = content[: match.start()]
             content = content[match.end() + 1 :]  # TODO advance line number
         else:
-            yaml_block = content
+            options_block = content
             content = ""
-        yaml_block = dedent(yaml_block)
-    elif content.startswith(":"):
+        options_block = dedent(options_block)
+    elif content.lstrip().startswith(":"):
         content_lines = content.splitlines()
         yaml_lines = []
         while content_lines:
-            if not content_lines[0].startswith(":"):
+            if not content_lines[0].lstrip().startswith(":"):
                 break
-            yaml_lines.append(content_lines.pop(0)[1:])
-        yaml_block = "\n".join(yaml_lines)
+            yaml_lines.append(content_lines.pop(0).lstrip()[1:])
+        options_block = "\n".join(yaml_lines)
         content = "\n".join(content_lines)
 
-    has_options_block = yaml_block is not None
+    has_options_block = options_block is not None
 
     if as_yaml:
         yaml_errors: list[ParseWarnings] = []
         try:
-            yaml_options = yaml.safe_load(yaml_block or "") or {}
+            yaml_options = yaml.safe_load(options_block or "") or {}
         except (yaml.parser.ParserError, yaml.scanner.ScannerError):
             yaml_options = {}
             yaml_errors.append(
@@ -226,9 +226,9 @@ def _parse_directive_options(
     validation_errors: list[ParseWarnings] = []
 
     options: dict[str, str] = {}
-    if yaml_block is not None:
+    if options_block is not None:
         try:
-            _options, state = options_to_items(yaml_block)
+            _options, state = options_to_items(options_block)
             options = dict(_options)
         except TokenizeError as err:
             return _DirectiveOptions(
