@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.1 - 2024-04-28
+
+### 🐛 Bug Fixes
+
+- Account for the final directive option having an empty value, by <gh-user:chrisjsewell> in <gh-pr:924>
+- Re-allow indented directive option blocks, by <gh-user:chrisjsewell> in <gh-pr:925>
+
+**Full Changelog**: [v3.0.1...v3.0.0](https://github.com/executablebooks/MyST-Parser/compare/v3.0.1...v3.0.0)
+
 ## 3.0.0 - 2024-04-23
 
 ### Upgraded dependencies
