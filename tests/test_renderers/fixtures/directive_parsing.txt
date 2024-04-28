@@ -258,6 +258,24 @@ error: missing argument
 error: 1 argument(s) required, 0 supplied
 .
 
+indented_options
+.
+```{note}
+  :class: name
+
+body
+```
+.
+arguments: []
+body:
+- body
+content_offset: 2
+options:
+  class:
+  - name
+warnings: []
+.
+
 option_flags_std
 .
 ```{code-block}
