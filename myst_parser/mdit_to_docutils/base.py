@@ -288,6 +288,14 @@ class DocutilsRenderer(RendererProtocol):
         for foot_label, foot_ref_nodes in foot_refs.items():
             foot_def_tokens = self.md_env["footnote_definitions"].get(foot_label, [])
             if len(foot_def_tokens) < 1:
+                if (
+                    self.document.current_source
+                    and self.document.current_source.endswith("<translated>")
+                ):
+                    # TODO this is a bit of a hack for now, to detect if we are parsing a translation snippet
+                    # in which case we won't have the definition loaded and should not warn/remove
+                    # I think in the future we should look to move this footnote logic to a transform
+                    continue
                 for node in foot_ref_nodes:
                     self.create_warning(
                         f"No footnote definition found for label: '{foot_label}'",
