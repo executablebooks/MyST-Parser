@@ -61,11 +61,8 @@ def create_md_parser(
         .use(front_matter_plugin)
         .use(myst_block_plugin)
         .use(myst_role_plugin)
-        .use(footnote_plugin)
+        .use(footnote_plugin, inline=False, move_to_end=False, always_match_refs=True)
         .use(wordcount_plugin, per_minute=config.words_per_minute)
-        .disable("footnote_inline")
-        # disable this for now, because it need a new implementation in the renderer
-        .disable("footnote_tail")
     )
 
     typographer = False

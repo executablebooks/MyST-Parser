@@ -295,13 +295,5 @@ that are not separated by a blank line
 This is not part of the footnote.
 :::
 
-````{important}
-Although footnote references can be used just fine within directives, e.g.[^myref],
-it is recommended that footnote definitions are not set within directives,
-unless they will only be referenced within that same directive:
-
-This is because, they may not be available to reference in text outside that particular directive.
-````
-
 By default, a transition line (with a `footnotes` class) will be placed before any footnotes.
 This can be turned off by adding `myst_footnote_transition = False` to the config file.

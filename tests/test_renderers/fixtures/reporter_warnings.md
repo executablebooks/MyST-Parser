@@ -110,14 +110,28 @@ Non-consecutive headings:
 <string>:2: (WARNING/2) Non-consecutive header level increase; H1 to H3 [myst.header]
 .
 
-multiple footnote definitions
+footnote reference with no definition
+.
+[^a]
+.
+<string>:1: (WARNING/2) No footnote definition found for label: 'a' [myst.footnote]
+.
+
+footnote definition with no reference
+.
+[^a]: definition
+.
+<string>:1: (WARNING/2) Footnote definition not referenced: 'a' [myst.footnote]
+.
+
+duplicate footnote definition
 .
 [^a]
 
 [^a]: definition 1
 [^a]: definition 2
 .
-<string>:: (WARNING/2) Multiple footnote definitions found for label: 'a' [myst.footnote]
+<string>:4: (WARNING/2) Duplicate footnote definition found for label: 'a' [myst.footnote]
 .
 
 Warnings in eval-rst
