@@ -121,7 +121,7 @@ footnote definition with no reference
 .
 [^a]: definition
 .
-<string>:1: (WARNING/2) Footnote definition not referenced: 'a' [myst.footnote]
+<string>:1: (WARNING/2) Footnote definition not referenced: 'a' [myst.footnote_unused]
 .
 
 duplicate footnote definition
