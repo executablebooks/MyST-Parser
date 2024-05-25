@@ -1504,13 +1504,13 @@ class DocutilsRenderer(RendererProtocol):
 
         refnode = nodes.footnote_reference(f"[^{target}]")
         self.add_line_and_source_path(refnode, token)
-        if not target.isdigit():
+        if target.isdigit():
+            # a manually numbered footnote, similar to rST ``[1]_``
+            refnode += nodes.Text(target)
+        else:
             # an auto-numbered footnote, similar to rST ``[#label]_``
             refnode["auto"] = 1
             self.document.note_autofootnote_ref(refnode)
-        else:
-            # a manually numbered footnote, similar to rST ``[1]_``
-            refnode += nodes.Text(target)
 
         refnode["refname"] = target
         self.document.note_footnote_ref(refnode)
@@ -1524,14 +1524,14 @@ class DocutilsRenderer(RendererProtocol):
         footnote = nodes.footnote()
         self.add_line_and_source_path(footnote, token)
         footnote["names"].append(target)
-        if not target.isdigit():
-            # an auto-numbered footnote, similar to rST ``.. [#label]``
-            footnote["auto"] = 1
-            self.document.note_autofootnote(footnote)
-        else:
+        if target.isdigit():
             # a manually numbered footnote, similar to rST ``.. [1]``
             footnote += nodes.label("", target)
             self.document.note_footnote(footnote)
+        else:
+            # an auto-numbered footnote, similar to rST ``.. [#label]``
+            footnote["auto"] = 1
+            self.document.note_autofootnote(footnote)
 
         self.document.note_explicit_target(footnote, footnote)
         with self.current_node_context(footnote, append=True):
