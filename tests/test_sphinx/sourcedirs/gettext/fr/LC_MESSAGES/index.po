@@ -125,3 +125,6 @@ msgid ".. image:: fun-fish.png\n"
 "   :alt: Fun Fish 3"
 msgstr ".. image:: poisson-amusant.png\n"
 "   :alt: Poisson amusant 3"
+
+msgid "1. numbered title"
+msgstr "1. titre numéroté"

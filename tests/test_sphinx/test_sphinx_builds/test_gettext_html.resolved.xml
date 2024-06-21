@@ -91,3 +91,6 @@
         <image alt="Poisson amusant 2" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
         <figure>
             <image alt="Poisson amusant 3" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
+        <section ids="numbered-title" names="1.\ numbered\ title 1.\ titre\ numéroté">
+            <title>
+                1. titre numéroté
