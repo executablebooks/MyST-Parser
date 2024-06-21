@@ -41,7 +41,7 @@
                         texte 8 en 
                         <strong>
                             gras
-        <table classes="colwidths-auto">
+        <table>
             <tgroup cols="1">
                 <colspec colwidth="100">
                 <thead>
