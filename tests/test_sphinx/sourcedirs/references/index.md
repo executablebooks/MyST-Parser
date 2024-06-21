@@ -8,6 +8,8 @@
 
 [nested *syntax*](https://example.com)
 
+[query params](https://example.com?foo=bar&a=1)
+
 [](title)
 
 [plain text](title)

@@ -1,5 +1,6 @@
 """MyST Markdown parser for docutils."""
 
+import re
 from dataclasses import Field
 from typing import (
     Any,
@@ -268,6 +269,10 @@ class Parser(RstParser):
         HTMLTranslator.depart_rubric = depart_rubric_html
         HTMLTranslator.visit_container = visit_container_html
         HTMLTranslator.depart_container = depart_container_html
+        HTMLTranslator.special_chars_no_amp = {  # needed by encode_fixed
+            k: v for k, v in HTMLTranslator.special_characters.items() if k != ord("&")
+        }
+        HTMLTranslator.encode = encode_fixed
 
         self.setup_parse(inputstring, document)
 
@@ -515,3 +520,12 @@ def depart_container_html(self, node: nodes.Node):
     See explanation in `visit_container_html`
     """
     self.body.append("</div>\n")
+
+
+def encode_fixed(self, text: str):
+    """Override the default encode method to prevent `&` characters from getting encoded
+    multiple times.
+    """
+    text = str(text)
+    translated = text.translate(self.special_chars_no_amp)
+    return re.sub(r"(&)(?!amp;)", "&amp;", translated)

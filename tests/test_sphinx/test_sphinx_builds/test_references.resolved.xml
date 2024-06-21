@@ -19,6 +19,9 @@
                 <emphasis>
                     syntax
         <paragraph>
+            <reference refuri="https://example.com?foo=bar&amp;a=1">
+                query params
+        <paragraph>
             <reference internal="True" refid="title">
                 <inline classes="std std-ref">
                     Title with nested a=1
