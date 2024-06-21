@@ -477,6 +477,8 @@ def test_gettext_html(
             '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
             # which was fixed to a different translation in sphinx 7.3
             '"Lien vers cette rubrique"': '"Lien permanent vers cette rubrique"',
+            # changed in docutils>0.19
+            ' role="note">': ' role="doc-footnote">',
         },
     )
 

@@ -38,7 +38,7 @@ dependencies = [
     "docutils>=0.18,<0.22",
     "jinja2", # required for substitutions, but let sphinx choose version
     "markdown-it-py~=3.0",
-    "mdit-py-plugins~=0.4",
+    "mdit-py-plugins~=0.4,>=0.4.1",
     "pyyaml",
     "sphinx>=6,<8",
 ]

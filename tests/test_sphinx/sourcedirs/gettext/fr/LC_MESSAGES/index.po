@@ -125,3 +125,15 @@ msgid ".. image:: fun-fish.png\n"
 "   :alt: Fun Fish 3"
 msgstr ".. image:: poisson-amusant.png\n"
 "   :alt: Poisson amusant 3"
+
+#: ../../index.md:65
+msgid "footnote references [^1] [^a]"
+msgstr "références aux notes de bas de page [^1] [^a]"
+
+#: ../../index.md:67
+msgid "footnote 1"
+msgstr "note de bas de page 1"
+
+#: ../../index.md:69
+msgid "footnote a"
+msgstr "note de bas de page a"
