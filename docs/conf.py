@@ -209,7 +209,7 @@ latex_engine = "xelatex"
 latex_elements = {
     # For other unicode characters
     "preamble": r"""
-\usepackage{commonunicode}
+\setmainfont{Latin Modern Roman}
 """,
 }
 
