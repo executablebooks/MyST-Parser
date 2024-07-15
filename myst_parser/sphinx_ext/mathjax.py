@@ -61,7 +61,7 @@ def override_mathjax(app: Sphinx):
 
     if "mathjax3_config" in app.config:
         # sphinx 4 + mathjax 3
-        app.config.mathjax3_config = app.config.mathjax3_config or {}  # type: ignore[attr-defined]
+        app.config.mathjax3_config = app.config.mathjax3_config or {}
         app.config.mathjax3_config.setdefault("options", {})
         if (
             "processHtmlClass" in app.config.mathjax3_config["options"]
@@ -77,7 +77,7 @@ def override_mathjax(app: Sphinx):
         app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
     elif "mathjax_config" in app.config:
         # sphinx 3 + mathjax 2
-        app.config.mathjax_config = app.config.mathjax_config or {}  # type: ignore[attr-defined]
+        app.config.mathjax_config = app.config.mathjax_config or {}
         app.config.mathjax_config.setdefault("tex2jax", {})
         if (
             "processClass" in app.config.mathjax_config["tex2jax"]
