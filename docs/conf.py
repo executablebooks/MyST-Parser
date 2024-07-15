@@ -206,12 +206,6 @@ tippy_rtd_urls = [
 # -- LaTeX output -------------------------------------------------
 
 latex_engine = "xelatex"
-latex_elements = {
-    # For other unicode characters
-    "preamble": r"""
-\setmainfont{Latin Modern Roman}
-""",
-}
 
 # -- Local Sphinx extensions -------------------------------------------------
 
