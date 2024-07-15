@@ -55,7 +55,7 @@ jobs:
       # TODO getting: Missing character: There is no 🚀 (U+1F680) in font [FreeSansBold.otf]
       run: |
         sed -i 's/🚀 /-/g' docs/intro.md
-        sed -i 's/⚡<fe0f> /-/g' docs/live-preview.md
+        sed -i 's/⚡ /-/g' docs/live-preview.md
     - name: Build docs
       run: |
         sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
