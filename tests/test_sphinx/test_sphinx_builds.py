@@ -432,6 +432,8 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
+    if sphinx.version_info < (7, 4):
+        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
@@ -512,6 +514,8 @@ def test_gettext_additional_targets(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
+    if sphinx.version_info < (7, 4):
+        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 

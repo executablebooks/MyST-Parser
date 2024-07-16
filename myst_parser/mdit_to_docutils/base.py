@@ -1596,7 +1596,7 @@ class DocutilsRenderer(RendererProtocol):
                             term = make_glossary_term(
                                 self.sphinx_env,  # type: ignore[arg-type]
                                 term.children,
-                                None,  # type: ignore[arg-type]
+                                None,
                                 term.source,
                                 term.line,
                                 node_id=None,

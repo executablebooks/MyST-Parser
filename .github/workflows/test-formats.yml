@@ -54,23 +54,23 @@ jobs:
     - name: Build docs
       run: |
         sphinx-build -nW --keep-going -b ${{ matrix.format }} docs/ docs/_build/${{ matrix.format }}
-
-    - name: Make PDF
-      uses: xu-cheng/latex-action@v2
-      with:
-        working_directory: docs/_build/latex
-        root_file: "mystparser.tex"
-        # https://github.com/marketplace/actions/github-action-for-latex#it-fails-due-to-xindy-cannot-be-found
-        pre_compile: |
-          ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/xindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/xindy
-          ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/texindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/texindy
-          wget https://sourceforge.net/projects/xindy/files/xindy-source-components/2.4/xindy-kernel-3.0.tar.gz
-          tar xf xindy-kernel-3.0.tar.gz
-          cd xindy-kernel-3.0/src
-          apk add make
-          apk add clisp --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-          make
-          cp -f xindy.mem /opt/texlive/texdir/bin/x86_64-linuxmusl/
-          cd ../../
-      env:
-        XINDYOPTS: -L english -C utf8  -M sphinx.xdy
+    # TODO https://github.com/sphinx-doc/sphinx/issues/12594
+    # - name: Make PDF
+    #   uses: xu-cheng/latex-action@v2
+    #   with:
+    #     working_directory: docs/_build/latex
+    #     root_file: "mystparser.tex"
+    #     # https://github.com/marketplace/actions/github-action-for-latex#it-fails-due-to-xindy-cannot-be-found
+    #     pre_compile: |
+    #       ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/xindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/xindy
+    #       ln -sf /opt/texlive/texdir/texmf-dist/scripts/xindy/texindy.pl /opt/texlive/texdir/bin/x86_64-linuxmusl/texindy
+    #       wget https://sourceforge.net/projects/xindy/files/xindy-source-components/2.4/xindy-kernel-3.0.tar.gz
+    #       tar xf xindy-kernel-3.0.tar.gz
+    #       cd xindy-kernel-3.0/src
+    #       apk add make
+    #       apk add clisp --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    #       make
+    #       cp -f xindy.mem /opt/texlive/texdir/bin/x86_64-linuxmusl/
+    #       cd ../../
+    #   env:
+    #     XINDYOPTS: -L english -C utf8  -M sphinx.xdy
