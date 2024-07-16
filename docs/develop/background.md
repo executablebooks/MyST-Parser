@@ -11,7 +11,7 @@ but there is no community standard around various syntactic choices for these fe
 Sphinx is a documentation generation framework written in Python. It heavily-utilizes
 reStructuredText syntax, which is another markup language for writing documents. In
 particular, Sphinx defines two extension points that are extremely useful:
-**{ref}`in-line roles<sphinx:rst-roles-alt>`** and **{ref}`block-level directives <sphinx:rst-directives>`**.
+**{ref}`in-line roles<sphinx:rst-roles>`** and **{ref}`block-level directives <sphinx:rst-directives>`**.
 
 **This project is an attempt at combining the simplicity and readability of Markdown
 with the power and flexibility of reStructuredText and the Sphinx platform.** It
