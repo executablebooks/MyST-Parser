@@ -106,7 +106,7 @@ def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None
         )
         if node["number"]:
             number = get_node_equation_number(self, node)
-            self.body.append('<span class="eqno">(%s)' % number)
+            self.body.append(f'<span class="eqno">({number})')
             self.add_permalink_ref(node, _("Permalink to this equation"))
             self.body.append("</span>")
         prefix, suffix = self.builder.config.mathjax_display

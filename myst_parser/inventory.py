@@ -97,7 +97,7 @@ def load(stream: IO, base_url: str | None = None) -> InventoryType:
     elif line == "# Sphinx inventory version 2":
         return _load_v2(reader, base_url)
     else:
-        raise ValueError("invalid inventory header: %s" % line)
+        raise ValueError(f"invalid inventory header: {line}")
 
 
 def _load_v1(stream: InventoryFileReader, base_url: str | None) -> InventoryType:
@@ -137,7 +137,7 @@ def _load_v2(stream: InventoryFileReader, base_url: str | None) -> InventoryType
     }
     line = stream.readline()
     if "zlib" not in line:
-        raise ValueError("invalid inventory header (not compressed): %s" % line)
+        raise ValueError(f"invalid inventory header (not compressed): {line}")
 
     for line in stream.read_compressed_lines():
         # be careful to handle names with embedded spaces correctly
