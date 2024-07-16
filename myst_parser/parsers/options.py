@@ -440,7 +440,7 @@ def _scan_flow_scalar_non_spaces(
                 chunks.extend(_scan_flow_scalar_breaks(stream))
             else:
                 raise TokenizeError(
-                    "found unknown escape character %r" % ch,
+                    f"found unknown escape character {ch!r}",
                     stream.get_position(),
                     "while scanning a double-quoted scalar",
                     start_mark,
@@ -585,7 +585,7 @@ def _scan_block_scalar_indicators(
     ch = stream.peek()
     if ch not in _CHARS_END_SPACE_NEWLINE:
         raise TokenizeError(
-            "expected chomping or indentation indicators, but found %r" % ch,
+            f"expected chomping or indentation indicators, but found {ch!r}",
             stream.get_position(),
             "while scanning a block scalar",
             start_mark,
@@ -605,7 +605,7 @@ def _scan_block_scalar_ignored_line(
     ch = stream.peek()
     if ch not in _CHARS_END_NEWLINE:
         raise TokenizeError(
-            "expected a comment or a line break, but found %r" % ch,
+            f"expected a comment or a line break, but found {ch!r}",
             stream.get_position(),
             "while scanning a block scalar",
             start_mark,

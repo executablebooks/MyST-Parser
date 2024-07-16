@@ -96,10 +96,7 @@ class _ConfigBase(SphinxDirective):
         ftypes = (
             get_args(field.type) if get_origin(field.type) is Union else [field.type]
         )
-        ctype = " | ".join(
-            str("None" if ftype == type(None) else ftype)  # type: ignore[comparison-overlap]
-            for ftype in ftypes
-        )
+        ctype = " | ".join(str("None" if ftype is None else ftype) for ftype in ftypes)
         ctype = " ".join(ctype.splitlines())
         ctype = ctype.replace("typing.", "")
         ctype = ctype.replace("typing_extensions.", "")
