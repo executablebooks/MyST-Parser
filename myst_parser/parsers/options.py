@@ -17,8 +17,9 @@ https://stackoverflow.com/a/21699210/5033292
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, replace
-from typing import ClassVar, Final, Iterable, Literal, cast
+from typing import ClassVar, Final, Literal, cast
 
 
 @dataclass

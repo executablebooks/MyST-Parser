@@ -57,22 +57,22 @@ class ResolveAnchorIds(Transform):
             if implicit_title is None:
                 # handle sections and and other captioned elements
                 for subnode in node:
-                    if isinstance(subnode, (nodes.caption, nodes.title)):
+                    if isinstance(subnode, nodes.caption | nodes.title):
                         implicit_title = clean_astext(subnode)
                         break
             if implicit_title is None:
                 # handle definition lists and field lists
                 if (
-                    isinstance(node, (nodes.definition_list, nodes.field_list))
+                    isinstance(node, nodes.definition_list | nodes.field_list)
                     and node.children
                 ):
                     node = node[0]
                 if (
-                    isinstance(node, (nodes.field, nodes.definition_list_item))
+                    isinstance(node, nodes.field | nodes.definition_list_item)
                     and node.children
                 ):
                     node = node[0]
-                if isinstance(node, (nodes.term, nodes.field_name)):
+                if isinstance(node, nodes.term | nodes.field_name):
                     implicit_title = clean_astext(node)
 
             explicit[name] = (labelid, implicit_title)

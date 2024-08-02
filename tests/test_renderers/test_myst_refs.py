@@ -1,4 +1,5 @@
 import pytest
+from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
 
@@ -23,7 +24,7 @@ def test_parse(
     sphinx_doctree: CreateDoctree,
     file_regression,
 ):
-    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "show_warning_types": True})
     result = sphinx_doctree(text, "index.md")
     assert not result.warnings
 
@@ -38,7 +39,5 @@ def test_parse(
     doctree.attributes.pop("translation_progress", None)
     outcome = doctree.pformat()
     if result.warnings.strip():
-        outcome += "\n\n" + result.warnings.strip().replace("[91m", "").replace(
-            "[39;49;00m", ""
-        )
+        outcome += "\n\n" + strip_colors(result.warnings.strip())
     file_regression.check(outcome, basename=test_name, extension=".xml")

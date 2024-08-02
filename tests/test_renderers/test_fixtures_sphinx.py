@@ -20,7 +20,9 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_syntax_elements.md")
 def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
-    sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
+    sphinx_doctree_no_tr.set_conf(
+        {"extensions": ["myst_parser"], "show_warning_types": True}
+    )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     pformat = result.pformat("index")
     # changed in docutils 0.20.1

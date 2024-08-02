@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from docutils import __version_info__
 from docutils.core import Publisher, publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
@@ -44,8 +43,6 @@ def test_syntax_elements(file_params, monkeypatch):
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_link_resolution.md")
 def test_link_resolution(file_params):
     """Test that Markdown links resolve to the correct target, or give the correct warning."""
-    if "explicit>implicit" in file_params.title and __version_info__ < (0, 18):
-        pytest.skip("ids changed in docutils 0.18+")
     settings = settings_from_cmdline(file_params.description)
     report_stream = StringIO()
     settings["warning_stream"] = report_stream
@@ -76,18 +73,7 @@ def test_docutils_roles(file_params, monkeypatch):
         parser=Parser(),
     )
 
-    ptree = doctree.pformat()
-    # docutils >=0.19 changes:
-    ptree = ptree.replace(
-        'refuri="http://tools.ietf.org/html/rfc1.html"',
-        'refuri="https://tools.ietf.org/html/rfc1.html"',
-    )
-    ptree = ptree.replace(
-        'refuri="http://www.python.org/dev/peps/pep-0000"',
-        'refuri="https://peps.python.org/pep-0000"',
-    )
-
-    file_params.assert_expected(ptree, rstrip_lines=True)
+    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")

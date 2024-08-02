@@ -23,8 +23,9 @@ from __future__ import annotations
 import inspect
 import itertools
 from collections import abc, deque
+from collections.abc import Callable, Iterable, Iterator
 from html.parser import HTMLParser
-from typing import Any, Callable, Iterable, Iterator
+from typing import Any
 
 
 class Attribute(dict):

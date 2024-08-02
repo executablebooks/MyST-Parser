@@ -1,18 +1,10 @@
 """MyST Markdown parser for docutils."""
 
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import Field
 from typing import (
     Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
     Literal,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Union,
     get_args,
     get_origin,
 )
@@ -45,7 +37,7 @@ def _validate_int(
 
 def _validate_comma_separated_set(
     setting, value, option_parser, config_parser=None, config_section=None
-) -> Set[str]:
+) -> set[str]:
     """Validate an integer setting."""
     value = frontend.validate_comma_separated_list(
         setting, value, option_parser, config_parser, config_section
@@ -53,7 +45,7 @@ def _validate_comma_separated_set(
     return set(value)
 
 
-def _create_validate_tuple(length: int) -> Callable[..., Tuple[str, ...]]:
+def _create_validate_tuple(length: int) -> Callable[..., tuple[str, ...]]:
     """Create a validator for a tuple of length `length`."""
 
     def _validate(
@@ -125,7 +117,7 @@ def _validate_url_schemes(
     return output
 
 
-def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[Dict[str, Any], str]:
+def _attr_to_optparse_option(at: Field, default: Any) -> tuple[dict[str, Any], str]:
     """Convert a field into a Docutils optparse options dict.
 
     :returns: (option_dict, default)
@@ -160,22 +152,22 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[Dict[str, Any], s
             "metavar": "<comma-delimited>",
             "validator": frontend.validate_comma_separated_list,
         }, ",".join(default)
-    if at.type == Set[str]:
+    if at.type == set[str]:
         return {
             "metavar": "<comma-delimited>",
             "validator": _validate_comma_separated_set,
         }, ",".join(default)
-    if at.type == Tuple[str, str]:
+    if at.type == tuple[str, str]:
         return {
             "metavar": "<str,str>",
             "validator": _create_validate_tuple(2),
         }, ",".join(default)
-    if at.type == Union[int, type(None)]:
+    if at.type == int | type(None):
         return {
             "metavar": "<null|int>",
             "validator": _validate_int,
         }, str(default)
-    if at.type == Union[Iterable[str], type(None)]:
+    if at.type == Iterable[str] | type(None):
         return {
             "metavar": "<null|comma-delimited>",
             "validator": frontend.validate_comma_separated_list,
@@ -192,7 +184,7 @@ def _attr_to_optparse_option(at: Field, default: Any) -> Tuple[Dict[str, Any], s
 
 def attr_to_optparse_option(
     attribute: Field, default: Any, prefix: str = "myst_"
-) -> Tuple[str, List[str], Dict[str, Any]]:
+) -> tuple[str, list[str], dict[str, Any]]:
     """Convert an ``MdParserConfig`` attribute into a Docutils setting tuple.
 
     :returns: A tuple of ``(help string, option flags, optparse kwargs)``.
@@ -238,7 +230,7 @@ def create_myst_config(
 class Parser(RstParser):
     """Docutils parser for Markedly Structured Text (MyST)."""
 
-    supported: Tuple[str, ...] = ("md", "markdown", "myst")
+    supported: tuple[str, ...] = ("md", "markdown", "myst")
     """Aliases this parser supports."""
 
     settings_spec = (
@@ -346,7 +338,7 @@ class SimpleWriter(Writer):
         self.translator_class = SimpleTranslator
 
 
-def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]]):
+def _run_cli(writer_name: str, writer_description: str, argv: list[str] | None):
     """Run the command line interface for a particular writer."""
     publish_cmdline(
         parser=Parser(),
@@ -358,17 +350,17 @@ def _run_cli(writer_name: str, writer_description: str, argv: Optional[List[str]
     )
 
 
-def cli_html(argv: Optional[List[str]] = None) -> None:
+def cli_html(argv: list[str] | None = None) -> None:
     """Cmdline entrypoint for converting MyST to HTML."""
     _run_cli("html", "(X)HTML documents", argv)
 
 
-def cli_html5(argv: Optional[List[str]] = None):
+def cli_html5(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to HTML5."""
     _run_cli("html5", "HTML5 documents", argv)
 
 
-def cli_html5_demo(argv: Optional[List[str]] = None):
+def cli_html5_demo(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to simple HTML5 demonstrations.
 
     This is a special case of the HTML5 writer,
@@ -406,17 +398,17 @@ def to_html5_demo(inputstring: str, **kwargs) -> str:
     )
 
 
-def cli_latex(argv: Optional[List[str]] = None):
+def cli_latex(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to LaTeX."""
     _run_cli("latex", "LaTeX documents", argv)
 
 
-def cli_xml(argv: Optional[List[str]] = None):
+def cli_xml(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to XML."""
     _run_cli("xml", "Docutils-native XML", argv)
 
 
-def cli_pseudoxml(argv: Optional[List[str]] = None):
+def cli_pseudoxml(argv: list[str] | None = None):
     """Cmdline entrypoint for converting MyST to pseudo-XML."""
     _run_cli("pseudoxml", "pseudo-XML", argv)
 
