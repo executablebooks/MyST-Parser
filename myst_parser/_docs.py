@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import contextlib
 import io
-from typing import Sequence, Union, get_args, get_origin
+from collections.abc import Sequence
+from typing import Union, get_args, get_origin
 
 from docutils import nodes
 from docutils.core import Publisher
@@ -28,7 +29,7 @@ class StripUnsupportedLatex(SphinxPostTransform):
 
     default_priority = 900
 
-    def run(self):
+    def run(self, **kwargs):
         if self.app.builder.format != "latex":
             return
         from docutils import nodes
@@ -46,7 +47,7 @@ class NumberSections(SphinxPostTransform):
     default_priority = 710  # same as docutils.SectNum
     formats = ("html",)
 
-    def run(self):
+    def run(self, **kwargs):
         min_heading_level = 2
         max_heading_level = 3
         stack: list[tuple[list[int], nodes.Element]] = [([], self.document)]

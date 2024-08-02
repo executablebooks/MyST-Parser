@@ -37,9 +37,10 @@ This is to allow for separation between the option block and content.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Callable
+from typing import Any
 
 import yaml
 from docutils.parsers.rst import Directive

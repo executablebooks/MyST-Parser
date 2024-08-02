@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import dataclasses as dc
-from typing import Any, Protocol, Sequence
+from collections.abc import Sequence
+from typing import Any, Protocol
 
 
 def validate_field(inst: Any, field: dc.Field, value: Any) -> None:

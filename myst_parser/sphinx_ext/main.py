@@ -69,8 +69,6 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
 def create_myst_config(app):
     """Create the myst config object and add it to the sphinx environment."""
     from sphinx.util import logging
-
-    # Ignore type checkers because the attribute is dynamically assigned
     from sphinx.util.console import bold
 
     from myst_parser import __version__

@@ -102,18 +102,6 @@ to modify parsing behaviour and access extended syntax features.
 [Convert existing ReStructuredText files to Markdown][rst-to-myst]
 : Use the [rst-to-myst] CLI or [the MySTyc interactive web interface](https://astrojuanlu.github.io/mystyc/).
 
-[MyST-NB](https://myst-nb.readthedocs.io)
-: A Sphinx and Docutils extension for compiling Jupyter Notebooks into high quality documentation formats, built on top of the MyST-Parser.
-
-[Jupyter Book](https://jupyterbook.org)
-: An open source project for building beautiful, publication-quality books and documents from computational material, built on top of the MyST-Parser and MyST-NB.
-
-[The Jupyter Book gallery](https://executablebooks.org/en/latest/gallery)
-: Examples of documents built with MyST.
-
-[Javascript MyST parser][mystjs]
-: The [mystjs] Javascript parser, allows you to parse MyST in websites.
-
 [markdown-it-py]
 : A CommonMark-compliant and extensible Markdown parser, used by MyST-Parser to parse source text to tokens.
 
@@ -182,4 +170,3 @@ apidocs/index.rst
 [markdown-it-py]: https://markdown-it-py.readthedocs.io/
 [markdown-it]: https://markdown-it.github.io/
 [rst-to-myst]: https://rst-to-myst.readthedocs.io
-[mystjs]: https://github.com/executablebooks/mystjs

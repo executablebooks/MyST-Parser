@@ -64,12 +64,7 @@ class MystReferenceResolver(ReferencesResolver):
         ):
             return
 
-        LOGGER.warning(
-            msg + f" [myst.{subtype.value}]",
-            type="myst",
-            subtype=subtype.value,
-            **kwargs,
-        )
+        LOGGER.warning(msg, type="myst", subtype=subtype.value, **kwargs)
 
     def run(self, **kwargs: Any) -> None:
         self.document: document
