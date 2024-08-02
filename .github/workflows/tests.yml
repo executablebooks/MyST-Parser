@@ -38,6 +38,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    name: "pytest: py${{ matrix.python-version }}, sphinx${{ matrix.sphinx }}, on ${{ matrix.os }}"
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
