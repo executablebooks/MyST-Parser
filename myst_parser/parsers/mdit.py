@@ -4,7 +4,7 @@ which creates a parser from the config.
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererProtocol

@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pytest
 import sphinx
-from docutils import VersionInfo, __version_info__
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -85,7 +84,10 @@ def test_basic(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "references"),
     freshenv=True,
-    confoverrides={"myst_enable_extensions": ["dollarmath"]},
+    confoverrides={
+        "myst_enable_extensions": ["dollarmath"],
+        "show_warning_types": True,
+    },
 )
 def test_references(
     app,
@@ -319,10 +321,6 @@ def test_include_from_rst(
     )
 
 
-@pytest.mark.skipif(
-    __version_info__ < VersionInfo(0, 19, 0, "final", 0, True),
-    reason="Footnote HTML changed in docutils 0.19",
-)
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "footnotes"), freshenv=True
 )
@@ -432,6 +430,8 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
+    if sphinx.version_info < (7, 4):
+        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
@@ -514,6 +514,8 @@ def test_gettext_additional_targets(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
+    if sphinx.version_info < (7, 4):
+        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 

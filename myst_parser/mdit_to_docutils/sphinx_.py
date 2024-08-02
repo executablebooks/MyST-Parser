@@ -235,7 +235,7 @@ class SphinxRenderer(DocutilsRenderer):
         node["docname"] = self.sphinx_env.docname
 
         # create target node
-        node_id = nodes.make_id("equation-%s" % node["label"])
+        node_id = nodes.make_id("equation-{}".format(node["label"]))
         target = nodes.target("", "", ids=[node_id])
         self.document.note_explicit_target(target)
         return target

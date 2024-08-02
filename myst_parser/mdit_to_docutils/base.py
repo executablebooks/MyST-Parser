@@ -7,25 +7,21 @@ import json
 import os
 import posixpath
 import re
+from collections.abc import Callable, Iterable, Iterator, MutableMapping, Sequence
 from contextlib import contextmanager, suppress
 from datetime import date, datetime
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Iterable,
-    Iterator,
-    MutableMapping,
-    Sequence,
     cast,
 )
 from urllib.parse import urlparse
 
-import docutils
 import jinja2
 import yaml
 from docutils import nodes
+from docutils.frontend import get_default_settings
 from docutils.languages import get_language
 from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
@@ -63,14 +59,7 @@ if TYPE_CHECKING:
 
 def make_document(source_path="notset", parser_cls=RSTParser) -> nodes.document:
     """Create a new docutils document, with the parser classes' default settings."""
-    if docutils.__version_info__[:2] >= (0, 19):
-        from docutils.frontend import get_default_settings
-
-        settings = get_default_settings(parser_cls)
-    else:
-        from docutils.frontend import OptionParser
-
-        settings = OptionParser(components=(parser_cls,)).get_default_values()
+    settings = get_default_settings(parser_cls)
     return new_document(source_path, settings=settings)
 
 
@@ -696,7 +685,7 @@ class DocutilsRenderer(RendererProtocol):
                         MystWarnings.INVALID_ATTRIBUTE,
                         line=line,
                     )
-            if isinstance(emphasize_lines, (list, tuple)):
+            if isinstance(emphasize_lines, list | tuple):
                 # TODO emphasize_lines in docutils?
                 if "highlight_args" not in node:
                     node["highlight_args"] = {}
@@ -888,7 +877,7 @@ class DocutilsRenderer(RendererProtocol):
         )
         if not (
             parent_of_temp_root
-            or isinstance(self.current_node, (nodes.document, nodes.section))
+            or isinstance(self.current_node, nodes.document | nodes.section)
         ):
             # if this is not the case, we create a rubric node instead
             rubric = nodes.rubric(token.content, "", level=level)
@@ -1359,7 +1348,7 @@ class DocutilsRenderer(RendererProtocol):
         bibliofields = get_language(language_code).bibliographic_fields
 
         for key, value in data.items():
-            if not isinstance(value, (str, int, float, date, datetime)):
+            if not isinstance(value, str | int | float | date | datetime):
                 value = json.dumps(value)
             value = str(value)
             body = nodes.paragraph()
@@ -1433,9 +1422,10 @@ class DocutilsRenderer(RendererProtocol):
                     "text-align:center",
                 ):
                     entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
-                with self.current_node_context(
-                    entry, append=True
-                ), self.current_node_context(para, append=True):
+                with (
+                    self.current_node_context(entry, append=True),
+                    self.current_node_context(para, append=True),
+                ):
                     self.render_children(child)
 
     def render_s(self, token: SyntaxTreeNode) -> None:
@@ -1627,7 +1617,7 @@ class DocutilsRenderer(RendererProtocol):
                             term = make_glossary_term(
                                 self.sphinx_env,  # type: ignore[arg-type]
                                 term.children,
-                                None,  # type: ignore[arg-type]
+                                None,
                                 term.source,
                                 term.line,
                                 node_id=None,

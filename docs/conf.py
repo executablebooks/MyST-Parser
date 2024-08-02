@@ -4,9 +4,7 @@
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import hashlib
 from datetime import date
-from pathlib import Path
 
 from sphinx.application import Sphinx
 
@@ -56,7 +54,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 suppress_warnings = ["myst.strikethrough"]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
+    "python": ("https://docs.python.org/3.10", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
     "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
 }
@@ -234,16 +232,4 @@ def setup(app: Sphinx):
     app.add_directive("myst-to-html", MystToHTMLDirective)
     app.add_post_transform(StripUnsupportedLatex)
     app.add_post_transform(NumberSections)
-    app.connect("html-page-context", add_version_to_css)
     app.add_lexer("myst", MystLexer)
-
-
-def add_version_to_css(app: Sphinx, pagename, templatename, context, doctree):
-    """Add the version number to the local.css file, to bust the cache for changes."""
-    if app.builder.name != "html":
-        return
-    if "_static/local.css" in context.get("css_files", {}):
-        css = Path(app.srcdir, "_static/local.css").read_text("utf8")
-        hashed = hashlib.sha256(css.encode("utf-8")).hexdigest()
-        index = context["css_files"].index("_static/local.css")
-        context["css_files"][index] = f"_static/local.css?hash={hashed}"

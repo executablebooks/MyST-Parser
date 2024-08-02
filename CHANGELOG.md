@@ -69,7 +69,7 @@ with some minor changes to parsing behaviour:
   * No significant changes, see <https://docutils.sourceforge.io/RELEASE-NOTES.html#release-0-20-2023-05-04>
 
 * ⬆️ UPGRADE: Add support for `sphinx` v7, and remove v5 support (<gh-pr:776>)
-  * No significant changes, see <https://www.sphinx-doc.org/en/master/changes.html>
+  * No significant changes, see <https://www.sphinx-doc.org/en/master/changes/index.html>
 
 * ⬆️ UPGRADE: Remove Python 3.7 support and add testing for Python 3.11 (<gh-pr:772>)
 
@@ -135,7 +135,7 @@ Full Changelog: [v0.18.1...v0.19.0](https://github.com/executablebooks/MyST-Pars
 ### 📚 Rewritten documentation
 
 The documentation has been almost completely rewritten,
-with a clearer structure, many more examples, rich hover tips, and a new live preview page ⚡️ (powered by [pyscript](https://pyscript.readthedocs.io/), <gh-pr:717>).
+with a clearer structure, many more examples, rich hover tips, and a new live preview page (powered by [pyscript](https://pyscript.readthedocs.io/), <gh-pr:717>).
 
 The code base API is also now fully documented by [sphinx-autodoc2](https://sphinx-autodoc2.readthedocs.io/), which even allows for MyST docstrings! (<gh-pr:704>).
 

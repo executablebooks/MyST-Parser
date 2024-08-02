@@ -121,7 +121,7 @@ The following options are recognized:
 : "auto" delegates the determination of column widths to the output builder.
 
 ``class``
-: A space-separated list of CSS classes to add to the image.
+: A space-separated list of CSS classes to add to the table.
 
 ``name``
 : A reference target for the admonition (see [cross-referencing](#syntax/referencing)).
@@ -192,7 +192,7 @@ The following options are recognized:
 : Sets the width of the table to the specified length or percentage of the line width. If omitted, the renderer determines the width of the table based on its contents or the column widths.
 
 ``class``
-: A space-separated list of CSS classes to add to the image.
+: A space-separated list of CSS classes to add to the table.
 
 ``name``
 : A reference target for the admonition (see [cross-referencing](#syntax/referencing)).
