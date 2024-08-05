@@ -6,6 +6,7 @@ import typing as t
 
 from docutils import nodes
 from docutils.transforms import Transform
+from docutils.transforms.references import Footnotes
 from markdown_it.common.normalize_url import normalizeLink
 
 from myst_parser._compat import findall
@@ -13,8 +14,132 @@ from myst_parser.mdit_to_docutils.base import clean_astext
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 
+class UnreferencedFootnotesDetector(Transform):
+    """Detect unreferenced footnotes and emit warnings.
+
+    Replicates https://github.com/sphinx-doc/sphinx/pull/12730,
+    but also allows for use in docutils (without sphinx).
+    """
+
+    default_priority = Footnotes.default_priority + 2
+
+    # document: nodes.document
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+
+        for node in self.document.footnotes:
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node["backrefs"] and node["names"]:
+                create_warning(
+                    self.document,
+                    "Footnote [{}] is not referenced.".format(node["names"][0])
+                    if node["names"]
+                    else node["dupnames"][0],
+                    wtype="ref",
+                    subtype="footnote",
+                    node=node,
+                )
+        for node in self.document.symbol_footnotes:
+            if not node["backrefs"]:
+                create_warning(
+                    self.document,
+                    "Footnote [*] is not referenced.",
+                    wtype="ref",
+                    subtype="footnote",
+                    node=node,
+                )
+        for node in self.document.autofootnotes:
+            # note we do not warn on duplicate footnotes here
+            # (i.e. where the name has been moved to dupnames)
+            # since this is already reported by docutils
+            if not node["backrefs"] and node["names"]:
+                create_warning(
+                    self.document,
+                    "Footnote [#] is not referenced.",
+                    wtype="ref",
+                    subtype="footnote",
+                    node=node,
+                )
+
+
+class SortFootnotes(Transform):
+    """Sort auto-numbered, labelled footnotes by the order they are referenced.
+
+    This is run before the docutils ``Footnote`` transform, where numbered labels are assigned.
+    """
+
+    default_priority = Footnotes.default_priority - 2
+
+    # document: nodes.document
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        if not self.document.settings.myst_footnote_sort:
+            return
+
+        ref_order: list[str] = [
+            node["refname"]
+            for node in self.document.autofootnote_refs
+            if "refname" in node
+        ]
+
+        def _sort_key(node: nodes.footnote) -> int:
+            if node["names"] and node["names"][0] in ref_order:
+                return ref_order.index(node["names"][0])
+            return 999
+
+        self.document.autofootnotes.sort(key=_sort_key)
+
+
+class CollectFootnotes(Transform):
+    """Transform to move footnotes to the end of the document, and sort by label."""
+
+    default_priority = Footnotes.default_priority + 3
+
+    # document: nodes.document
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        if not self.document.settings.myst_footnote_sort:
+            return
+
+        footnotes: list[tuple[str, nodes.footnote]] = []
+        for footnote in (
+            self.document.symbol_footnotes
+            + self.document.footnotes
+            + self.document.autofootnotes
+        ):
+            label = footnote.children[0]
+            footnotes.append((label.astext(), footnote))
+
+        if (
+            footnotes
+            and self.document.settings.myst_footnote_transition
+            # avoid warning: Document or section may not begin with a transition
+            and not all(isinstance(c, nodes.footnote) for c in self.document.children)
+        ):
+            transition = nodes.transition(classes=["footnotes"])
+            transition.source = self.document.source
+            self.document += transition
+
+        def _sort_key(footnote: tuple[str, nodes.footnote]) -> int | str:
+            label, _ = footnote
+            try:
+                # ensure e.g 10 comes after 2
+                return int(label)
+            except ValueError:
+                return label
+
+        for _, footnote in sorted(footnotes, key=_sort_key):
+            footnote.parent.remove(footnote)
+            self.document += footnote
+
+
 class ResolveAnchorIds(Transform):
-    """Directive for resolving `[name](#id)` type links."""
+    """Transform for resolving `[name](#id)` type links."""
 
     default_priority = 879  # this is the same as Sphinx's StandardDomain.process_doc
 

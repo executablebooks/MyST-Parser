@@ -432,7 +432,7 @@ Link Definition in nested directives:
     <note>
 .
 
-Footnotes:
+Footnotes [APPLY TRANSFORMS]:
 .
 [^a]
 
@@ -440,16 +440,19 @@ Footnotes:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <footnote_reference auto="1" ids="id1" refname="a">
+        <footnote_reference auto="1" docname="index" ids="id1" refid="a">
+            1
     <transition classes="footnotes">
-    <footnote auto="1" ids="a" names="a">
+    <footnote auto="1" backrefs="id1" docname="index" ids="a" names="a">
+        <label>
+            1
         <paragraph>
             footnote
             <emphasis>
                 text
 .
 
-Footnotes nested blocks:
+Footnotes nested blocks [APPLY TRANSFORMS]:
 .
 [^a]
 
@@ -468,11 +471,14 @@ finish
 .
 <document source="<src>/index.md">
     <paragraph>
-        <footnote_reference auto="1" ids="id1" refname="a">
+        <footnote_reference auto="1" docname="index" ids="id1" refid="a">
+            1
     <paragraph>
         finish
     <transition classes="footnotes">
-    <footnote auto="1" ids="a" names="a">
+    <footnote auto="1" backrefs="id1" docname="index" ids="a" names="a">
+        <label>
+            1
         <paragraph>
             footnote
             <emphasis>

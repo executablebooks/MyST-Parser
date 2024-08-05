@@ -3,60 +3,77 @@
         <title>
             Footnotes with Markdown
         <paragraph>
+            c
             <footnote_reference auto="1" docname="footnote_md" ids="id1" refid="c">
-                1
+                2
         <note>
             <paragraph>
+                d
                 <footnote_reference auto="1" docname="footnote_md" ids="id2" refid="d">
-                    2
+                    3
         <paragraph>
+            a
             <footnote_reference auto="1" docname="footnote_md" ids="id3" refid="a">
-                3
-        <paragraph>
-            <footnote_reference auto="1" docname="footnote_md" ids="id4" refid="b">
                 4
         <paragraph>
-            <footnote_reference docname="footnote_md" ids="id5" refid="id8">
+            b
+            <footnote_reference auto="1" docname="footnote_md" ids="id4" refid="b">
+                5
+        <paragraph>
+            123
+            <footnote_reference docname="footnote_md" ids="id5" refid="id7">
                 123
-             
-            <footnote_reference docname="footnote_md" ids="id6" refid="id8">
+             123
+            <footnote_reference docname="footnote_md" ids="id6" refid="id7">
                 123
         <paragraph>
-            <footnote_reference auto="1" docname="footnote_md" ids="id7" refid="e">
-                5
+            e
+            <footnote_reference auto="1" docname="footnote_md" ids="id8" refid="e">
+                6
         <block_quote>
             <bullet_list bullet="-">
                 <list_item>
-        <transition classes="footnotes">
-        <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
-            <label>
-                1
-            <paragraph>
-                a footnote referenced first
-        <footnote auto="1" backrefs="id2" docname="footnote_md" ids="d" names="d">
-            <label>
-                2
-            <paragraph>
-                a footnote referenced in a directive
-        <footnote auto="1" backrefs="id3" docname="footnote_md" ids="a" names="a">
-            <label>
-                3
-            <paragraph>
-                some footnote 
-                <emphasis>
-                    text
-        <footnote auto="1" backrefs="id4" docname="footnote_md" ids="b" names="b">
-            <label>
-                4
-            <paragraph>
-                a footnote before its reference
-        <footnote backrefs="id5 id6" docname="footnote_md" ids="id8" names="123">
-            <label>
-                123
-            <paragraph>
-                multiple references footnote
-        <footnote auto="1" backrefs="id7" docname="footnote_md" ids="e" names="e">
-            <label>
-                5
-            <paragraph>
-                footnote definition in a block element
+    <transition classes="footnotes">
+    <footnote docname="footnote_md" ids="id9" names="1">
+        <label>
+            1
+        <paragraph>
+            unreferenced footnote (1)
+    <footnote auto="1" backrefs="id1" docname="footnote_md" ids="c" names="c">
+        <label>
+            2
+        <paragraph>
+            a footnote referenced first (c)
+    <footnote auto="1" backrefs="id2" docname="footnote_md" ids="d" names="d">
+        <label>
+            3
+        <paragraph>
+            a footnote referenced in a directive (d)
+    <footnote auto="1" backrefs="id3" docname="footnote_md" ids="a" names="a">
+        <label>
+            4
+        <paragraph>
+            some footnote 
+            <emphasis>
+                text
+             (a)
+    <footnote auto="1" backrefs="id4" docname="footnote_md" ids="b" names="b">
+        <label>
+            5
+        <paragraph>
+            a footnote before its reference (b)
+    <footnote auto="1" backrefs="id8" docname="footnote_md" ids="e" names="e">
+        <label>
+            6
+        <paragraph>
+            footnote definition in a block element (e)
+    <footnote auto="1" docname="footnote_md" ids="x" names="x">
+        <label>
+            7
+        <paragraph>
+            another unreferenced footnote (x)
+    <footnote backrefs="id5 id6" docname="footnote_md" ids="id7" names="123">
+        <label>
+            123
+        <paragraph>
+            multiple references footnote (123)

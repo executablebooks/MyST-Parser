@@ -23,7 +23,12 @@ from myst_parser.config.main import (
     read_topmatter,
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
-from myst_parser.mdit_to_docutils.transforms import ResolveAnchorIds
+from myst_parser.mdit_to_docutils.transforms import (
+    CollectFootnotes,
+    ResolveAnchorIds,
+    SortFootnotes,
+    UnreferencedFootnotesDetector,
+)
 from myst_parser.parsers.mdit import create_md_parser
 from myst_parser.warnings_ import MystWarnings, create_warning
 
@@ -246,7 +251,12 @@ class Parser(RstParser):
     translate_section_name = None
 
     def get_transforms(self):
-        return super().get_transforms() + [ResolveAnchorIds]
+        return super().get_transforms() + [
+            UnreferencedFootnotesDetector,
+            SortFootnotes,
+            CollectFootnotes,
+            ResolveAnchorIds,
+        ]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.

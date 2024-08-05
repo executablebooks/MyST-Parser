@@ -14,7 +14,11 @@ from myst_parser.config.main import (
     read_topmatter,
 )
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
-from myst_parser.mdit_to_docutils.transforms import ResolveAnchorIds
+from myst_parser.mdit_to_docutils.transforms import (
+    CollectFootnotes,
+    ResolveAnchorIds,
+    SortFootnotes,
+)
 from myst_parser.parsers.mdit import create_md_parser
 from myst_parser.warnings_ import create_warning
 
@@ -46,7 +50,11 @@ class MystParser(SphinxParser):
     translate_section_name = None
 
     def get_transforms(self):
-        return super().get_transforms() + [ResolveAnchorIds]
+        return super().get_transforms() + [
+            SortFootnotes,
+            CollectFootnotes,
+            ResolveAnchorIds,
+        ]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
         """Parse source text.

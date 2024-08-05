@@ -158,8 +158,9 @@ class DocutilsRenderer(RendererProtocol):
     def create_warning(
         self,
         message: str,
-        subtype: MystWarnings,
+        subtype: MystWarnings | str,
         *,
+        wtype: str | None = None,
         line: int | None = None,
         append_to: nodes.Element | None = None,
     ) -> nodes.system_message | None:
@@ -172,6 +173,7 @@ class DocutilsRenderer(RendererProtocol):
             self.document,
             message,
             subtype,
+            wtype=wtype,
             line=line,
             append_to=append_to,
         )
@@ -189,22 +191,6 @@ class DocutilsRenderer(RendererProtocol):
 
         # nest tokens
         node_tree = SyntaxTreeNode(tokens)
-
-        # move footnote definitions to env
-        self.md_env.setdefault("footnote_definitions", {})
-        for node in node_tree.walk(include_self=True):
-            new_children = []
-            for child in node.children:
-                if child.type == "footnote_reference":
-                    label = child.meta["label"]
-                    self.md_env["footnote_definitions"].setdefault(label, []).append(
-                        child
-                    )
-                else:
-                    new_children.append(child)
-
-            node.children = new_children
-
         # render
         for child in node_tree.children:
             # skip hidden?
@@ -255,6 +241,12 @@ class DocutilsRenderer(RendererProtocol):
                 self._heading_slugs
             )
 
+        # ensure these settings are set for later footnote transforms
+        self.document.settings.myst_footnote_transition = (
+            self.md_config.footnote_transition
+        )
+        self.document.settings.myst_footnote_sort = self.md_config.footnote_sort
+
         # log warnings for duplicate reference definitions
         # "duplicate_refs": [{"href": "ijk", "label": "B", "map": [4, 5], "title": ""}],
         for dup_ref in self.md_env.get("duplicate_refs", []):
@@ -264,59 +256,6 @@ class DocutilsRenderer(RendererProtocol):
                 line=dup_ref["map"][0] + 1,
                 append_to=self.document,
             )
-
-        # we don't use the foot_references stored in the env
-        # since references within directives/roles will have been added after
-        # those from the initial markdown parse
-        # instead we gather them from a walk of the created document
-        foot_refs: dict[str, list[nodes.footnote_reference]] = {}
-        for refnode in findall(self.document)(nodes.footnote_reference):
-            foot_refs.setdefault(refnode["refname"], []).append(refnode)
-        if foot_refs and self.md_config.footnote_transition:
-            self.current_node.append(nodes.transition(classes=["footnotes"]))
-        for foot_label, foot_ref_nodes in foot_refs.items():
-            foot_def_tokens = self.md_env["footnote_definitions"].get(foot_label, [])
-            if len(foot_def_tokens) < 1:
-                if (
-                    self.document.current_source
-                    and self.document.current_source.endswith("<translated>")
-                ):
-                    # TODO this is a bit of a hack for now, to detect if we are parsing a translation snippet
-                    # in which case we won't have the definition loaded and should not warn/remove
-                    # I think in the future we should look to move this footnote logic to a transform
-                    continue
-                for node in foot_ref_nodes:
-                    self.create_warning(
-                        f"No footnote definition found for label: '{foot_label}'",
-                        MystWarnings.MD_FOOTNOTE_MISSING,
-                        line=node.line,
-                        append_to=self.current_node,
-                    )
-                    # lets remove the footnote references, so that docutils does not produce any more warnings
-                    # we need to replace them with an element though, so that ids can be moved over (otherwise docutils excepts)
-                    if node.get("auto"):
-                        self.document.autofootnote_refs.remove(node)
-                    node.replace_self(nodes.inline(text=f"[^{node['refname']}]"))
-            else:
-                # render the first one, create a warning for any duplicates
-                self.render_footnote_reference(foot_def_tokens[0])
-                for foot_def_token in foot_def_tokens[1:]:
-                    self.create_warning(
-                        f"Duplicate footnote definition found for label: '{foot_label}'",
-                        MystWarnings.MD_FOOTNOTE_DUPE,
-                        line=token_line(foot_def_token),
-                        append_to=self.current_node,
-                    )
-        # finally lets warn about any unused footnotes definitions
-        for foot_label, foot_def_tokens in self.md_env["footnote_definitions"].items():
-            if foot_label not in foot_refs:
-                for foot_def_token in foot_def_tokens:
-                    self.create_warning(
-                        f"Footnote definition not referenced: '{foot_label}'",
-                        MystWarnings.MD_FOOTNOTE_UNUSED,
-                        line=token_line(foot_def_token),
-                        append_to=self.current_node,
-                    )
 
         # Add the wordcount, generated by the ``mdit_py_plugins.wordcount_plugin``.
         wordcount_metadata = self.md_env.get("wordcount", {})
@@ -1510,6 +1449,21 @@ class DocutilsRenderer(RendererProtocol):
     def render_footnote_reference(self, token: SyntaxTreeNode) -> None:
         """Despite the name, this is actually a footnote definition, e.g. `[^a]: ...`"""
         target = token.meta["label"]
+
+        if target in self.document.nameids:
+            # note we chose to directly omit these footnotes in the parser,
+            # rather than let docutils/sphinx handle them, since otherwise you end up with a confusing warning:
+            # WARNING: Duplicate explicit target name: "x". [docutils]
+            # we use [ref.footnote] as the type/subtype, rather than a myst specific warning,
+            # to make it more aligned with sphinx warnings for unreferenced footnotes
+            self.create_warning(
+                f"Duplicate footnote definition found for label: '{target}'",
+                "footnote",
+                wtype="ref",
+                line=token_line(token),
+                append_to=self.current_node,
+            )
+            return
 
         footnote = nodes.footnote()
         self.add_line_and_source_path(footnote, token)

@@ -1,27 +1,31 @@
 # Footnotes with Markdown
 
-[^c]
+c[^c]
 
 ```{note}
-[^d]
+d[^d]
 ```
 
-[^a]
+a[^a]
 
-[^a]: some footnote *text*
+[^a]: some footnote *text* (a)
 
-[^b]: a footnote before its reference
+[^b]: a footnote before its reference (b)
 
-[^b]
+b[^b]
 
-[^c]: a footnote referenced first
+[^c]: a footnote referenced first (c)
 
-[^d]: a footnote referenced in a directive
+[^d]: a footnote referenced in a directive (d)
 
-[^123] [^123]
+123[^123] 123[^123]
 
-[^123]: multiple references footnote
+[^123]: multiple references footnote (123)
 
-[^e]
+e[^e]
 
-> - [^e]: footnote definition in a block element
+> - [^e]: footnote definition in a block element (e)
+
+[^1]: unreferenced footnote (1)
+
+[^x]: another unreferenced footnote (x)

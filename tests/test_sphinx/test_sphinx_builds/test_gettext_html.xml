@@ -98,14 +98,14 @@
              
             <footnote_reference auto="1" docname="index" ids="id2" refid="a">
                 2
-        <transition classes="footnotes">
-        <footnote backrefs="id1" docname="index" ids="id3" names="1">
-            <label>
-                1
-            <paragraph>
-                note de bas de page 1
-        <footnote auto="1" backrefs="id2" docname="index" ids="a" names="a">
-            <label>
-                2
-            <paragraph>
-                note de bas de page a
+    <transition classes="footnotes">
+    <footnote backrefs="id1" docname="index" ids="id3" names="1">
+        <label>
+            1
+        <paragraph>
+            note de bas de page 1
+    <footnote auto="1" backrefs="id2" docname="index" ids="a" names="a">
+        <label>
+            2
+        <paragraph>
+            note de bas de page a
