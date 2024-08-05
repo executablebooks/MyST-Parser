@@ -1,5 +1,22 @@
 # Changelog
 
+## 4.0.0 - 2024-08-05
+
+This release bumps the supported versions of:
+
+- Python to ``3.10`` and greater
+- Sphinx to ``>=7,<9``
+- Docutils to ``>=0.19,<0.22``
+
+Additionally, footnotes are now parsed similar to the corresponding reStructuredText, in that resolution (between definitions and references) and ordering is now deferred to transforms on the doctree (in <gh-pr:931>).
+
+This allows for the proper interaction with other docutils/sphinx transforms, including those that perform translations,
+and logging of warnings for duplicate/unreferenced footnote definitions and also for footnote references with no definitions.
+
+See the [footnotes guide](#syntax/footnotes) for more information.
+
+**Full Changelog**: [v3.0.1...v4.0.0](https://github.com/executablebooks/MyST-Parser/compare/v3.0.1...v4.0.0)
+
 ## 3.0.1 - 2024-04-28
 
 ### 🐛 Bug Fixes
@@ -7,7 +24,7 @@
 - Account for the final directive option having an empty value, by <gh-user:chrisjsewell> in <gh-pr:924>
 - Re-allow indented directive option blocks, by <gh-user:chrisjsewell> in <gh-pr:925>
 
-**Full Changelog**: [v3.0.1...v3.0.0](https://github.com/executablebooks/MyST-Parser/compare/v3.0.1...v3.0.0)
+**Full Changelog**: [v3.0.0...v3.0.1](https://github.com/executablebooks/MyST-Parser/compare/v3.0.0...v3.0.1)
 
 ## 3.0.0 - 2024-04-23
 
