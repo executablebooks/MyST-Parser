@@ -3,7 +3,7 @@ py-config:
   splashscreen:
     autoclose: true
   packages:
-    - myst-docutils==3.0
+    - myst-docutils==4.0
     - docutils==0.20
     - pygments
 ---
