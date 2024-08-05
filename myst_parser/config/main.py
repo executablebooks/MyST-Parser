@@ -319,11 +319,19 @@ class MdParserConfig:
         },
     )
 
+    footnote_sort: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Move all footnotes to the end of the document, and sort by reference order",
+        },
+    )
+
     footnote_transition: bool = dc.field(
         default=True,
         metadata={
             "validator": instance_of(bool),
-            "help": "Place a transition before any footnotes",
+            "help": "Place a transition before sorted footnotes",
         },
     )
 

@@ -23,4 +23,6 @@ Footnotes with rST
 
 .. [#123] multiple references footnote
 
-.. [#x] an unreferenced footnote
+.. [1] unreferenced footnote
+
+.. [#x] another unreferenced footnote

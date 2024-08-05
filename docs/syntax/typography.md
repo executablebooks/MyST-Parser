@@ -295,13 +295,16 @@ that are not separated by a blank line
 This is not part of the footnote.
 :::
 
-````{important}
-Although footnote references can be used just fine within directives, e.g.[^myref],
-it is recommended that footnote definitions are not set within directives,
-unless they will only be referenced within that same directive:
+By default, the footnotes will be collected, sorted and moved to the end of the document,
+with a transition line placed before any footnotes (that has a `footnotes` class).
 
-This is because, they may not be available to reference in text outside that particular directive.
-````
+This behaviour can be modified using the [configuration options](#sphinx/config-options):
 
-By default, a transition line (with a `footnotes` class) will be placed before any footnotes.
-This can be turned off by adding `myst_footnote_transition = False` to the config file.
+```python
+myst_footnote_sort = False
+myst_footnote_transition = False
+```
+
+```{versionadded} 4.0.0
+``myst_footnote_sort`` configuration option
+```

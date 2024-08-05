@@ -195,13 +195,13 @@ tasklist
 (myst-warnings)=
 ## Build Warnings
 
-Below lists the MyST specific warnings that may be emitted during the build process. These will be prepended to the end of the warning message, e.g.
+Below lists the MyST specific warnings that may be emitted during the build process. These will be prepended to the end of the warning message (see also <inv:sphinx#show_warning_types>), e.g.
 
 ```
 WARNING: Non-consecutive header level increase; H1 to H3 [myst.header]
 ```
 
-**In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.**
+In general, if your build logs any warnings, you should either fix them or [raise an Issue](https://github.com/executablebooks/MyST-Parser/issues/new/choose) if you think the warning is erroneous.
 
 However, in some circumstances if you wish to suppress the warning you can use the <inv:sphinx#suppress_warnings> configuration option, e.g.
 

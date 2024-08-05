@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 
 import pytest
+from docutils.core import Publisher
+from pytest_param_files import ParamTestData
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
@@ -19,11 +21,18 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_syntax_elements.md")
-def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
-    sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "show_warning_types": True}
-    )
-    result = sphinx_doctree_no_tr(file_params.content, "index.md")
+def test_syntax_elements(
+    file_params: ParamTestData, sphinx_doctree: CreateDoctree, monkeypatch
+):
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "show_warning_types": True})
+
+    def _apply_transforms(self):
+        pass
+
+    if "[APPLY TRANSFORMS]" not in file_params.title:
+        monkeypatch.setattr(Publisher, "apply_transforms", _apply_transforms)
+
+    result = sphinx_doctree(file_params.content, "index.md")
     pformat = result.pformat("index")
     # changed in docutils 0.20.1
     pformat = pformat.replace(
@@ -33,7 +42,7 @@ def test_syntax_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_link_resolution.md")
-def test_link_resolution(file_params, sphinx_doctree: CreateDoctree):
+def test_link_resolution(file_params: ParamTestData, sphinx_doctree: CreateDoctree):
     sphinx_doctree.set_conf(
         {"extensions": ["myst_parser"], **settings_from_json(file_params.description)}
     )
@@ -59,21 +68,25 @@ def settings_from_json(string: str | None):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "tables.md")
-def test_tables(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_tables(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "directive_options.md")
-def test_directive_options(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_directive_options(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree
+):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_directives.md")
-def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_sphinx_directives(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree
+):
     # TODO fix skipped directives
     # TODO test domain directives
     if file_params.title.startswith("SKIP") or file_params.title.startswith(
@@ -114,7 +127,7 @@ def test_sphinx_directives(file_params, sphinx_doctree_no_tr: CreateDoctree):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_roles.md")
-def test_sphinx_roles(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree):
     if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
 
@@ -132,7 +145,7 @@ def test_sphinx_roles(file_params, sphinx_doctree_no_tr: CreateDoctree):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "dollarmath.md")
-def test_dollarmath(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_dollarmath(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["dollarmath"]}
     )
@@ -141,7 +154,9 @@ def test_dollarmath(file_params, sphinx_doctree_no_tr: CreateDoctree):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "amsmath.md")
-def test_amsmath(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
+def test_amsmath(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, monkeypatch
+):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["amsmath"]}
@@ -151,7 +166,9 @@ def test_amsmath(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "containers.md")
-def test_containers(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatch):
+def test_containers(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, monkeypatch
+):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["colon_fence"]}
@@ -161,14 +178,18 @@ def test_containers(file_params, sphinx_doctree_no_tr: CreateDoctree, monkeypatc
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "eval_rst.md")
-def test_evalrst_elements(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_evalrst_elements(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree
+):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "definition_lists.md")
-def test_definition_lists(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_definition_lists(
+    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree
+):
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]}
     )
@@ -177,7 +198,7 @@ def test_definition_lists(file_params, sphinx_doctree_no_tr: CreateDoctree):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "attributes.md")
-def test_attributes(file_params, sphinx_doctree_no_tr: CreateDoctree):
+def test_attributes(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf(
         {
             "extensions": ["myst_parser"],

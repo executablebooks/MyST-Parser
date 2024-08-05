@@ -5,7 +5,11 @@ from typing import Any
 import sphinx
 from docutils import nodes
 from sphinx.application import Sphinx
+from sphinx.transforms import (
+    UnreferencedFootnotesDetector as SphinxUnreferencedFootnotesDetector,
+)
 
+from myst_parser.mdit_to_docutils.transforms import UnreferencedFootnotesDetector
 from myst_parser.parsers.docutils_ import (
     depart_container_html,
     depart_rubric_html,
@@ -38,6 +42,12 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
 
     app.add_role("sub-ref", SubstitutionReferenceRole())
     app.add_directive("figure-md", FigureMarkdown)
+
+    # TODO currently we globally replace sphinx's transform,
+    # to overcome issues it has (https://github.com/sphinx-doc/sphinx/pull/12730),
+    # but once this PR is merged/released, we should remove this
+    app.registry.transforms.remove(SphinxUnreferencedFootnotesDetector)
+    app.add_transform(UnreferencedFootnotesDetector)
 
     app.add_post_transform(MystReferenceResolver)
 

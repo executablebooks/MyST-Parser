@@ -127,3 +127,15 @@ msgstr ""
 #: ../../index.md:61
 msgid "Fun Fish 3"
 msgstr ""
+
+#: ../../index.md:65
+msgid "footnote references [^1] [^a]"
+msgstr ""
+
+#: ../../index.md:67
+msgid "footnote 1"
+msgstr ""
+
+#: ../../index.md:69
+msgid "footnote a"
+msgstr ""

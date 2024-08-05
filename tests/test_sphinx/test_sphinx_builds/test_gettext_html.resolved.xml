@@ -91,3 +91,21 @@
         <image alt="Poisson amusant 2" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
         <figure>
             <image alt="Poisson amusant 3" candidates="{'*': 'fun-fish.png'}" uri="fun-fish.png">
+        <paragraph>
+            références aux notes de bas de page 
+            <footnote_reference docname="index" ids="id1" refid="id3">
+                1
+             
+            <footnote_reference auto="1" docname="index" ids="id2" refid="a">
+                2
+    <transition classes="footnotes">
+    <footnote backrefs="id1" docname="index" ids="id3" names="1">
+        <label>
+            1
+        <paragraph>
+            note de bas de page 1
+    <footnote auto="1" backrefs="id2" docname="index" ids="a" names="a">
+        <label>
+            2
+        <paragraph>
+            note de bas de page a

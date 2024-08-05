@@ -61,3 +61,9 @@ doctest block
 ```{figure} fun-fish.png
 :alt: Fun Fish 3
 ```
+
+footnote references [^1] [^a]
+
+[^1]: footnote 1
+
+[^a]: footnote a

@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 import sphinx
+from sphinx.util.console import strip_colors
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -335,8 +336,19 @@ def test_footnotes(
     app.build()
 
     assert "build succeeded" in status.getvalue()  # Build succeeded
-    warnings = warning.getvalue().strip()
-    assert warnings == ""
+    warnings = strip_colors(warning.getvalue()).replace(
+        str(app.srcdir) + os.path.sep, "source/"
+    )
+    # print(warnings)
+    assert (
+        warnings.strip()
+        == """
+source/footnote_md.md:29: WARNING: Footnote [1] is not referenced. [ref.footnote]
+source/footnote_md.md:31: WARNING: Footnote [#] is not referenced. [ref.footnote]
+source/footnote_rst.rst:26: WARNING: Footnote [1] is not referenced. [ref.footnote]
+source/footnote_rst.rst:28: WARNING: Footnote [#] is not referenced. [ref.footnote]
+""".strip()
+    )
 
     try:
         get_sphinx_app_doctree(app, docname="footnote_md", regress=True)
@@ -477,6 +489,8 @@ def test_gettext_html(
             '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
             # which was fixed to a different translation in sphinx 7.3
             '"Lien vers cette rubrique"': '"Lien permanent vers cette rubrique"',
+            # changed in docutils>0.19
+            ' role="note">': ' role="doc-footnote">',
         },
     )
 
