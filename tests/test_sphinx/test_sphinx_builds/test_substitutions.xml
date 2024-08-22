@@ -48,6 +48,12 @@
     <literal_block language="python" xml:space="preserve">
         {{ text_with_nest }}
     <paragraph>
+        Test substitutions are processed within eval-rst
+    <paragraph>
+        a 
+        - text
+         b
+    <paragraph>
         Using env and filters:
     <paragraph>
         INDEX
