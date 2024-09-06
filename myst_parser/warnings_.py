@@ -55,7 +55,7 @@ class MystWarnings(Enum):
 
     # extensions
     HEADING_SLUG = "heading_slug"
-    """An error occured computing a heading slug."""
+    """An error occurred computing a heading slug."""
     STRIKETHROUGH = "strikethrough"
     """Strikethrough warning, since only implemented in HTML."""
     HTML_PARSE = "html"

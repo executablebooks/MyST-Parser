@@ -71,7 +71,7 @@ Conversely `\\` will negate the escaping, so `\\$a$` renders as \\$a$.
 
 Enabling the [amsmath](#syntax/amsmath) extension will directly parse the following top-level math environments:
 
-> equation, multline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
+> equation, multiline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
 
 As expected, environments ending in `*` will not be numbered, for example:
 

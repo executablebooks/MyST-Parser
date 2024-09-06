@@ -182,7 +182,7 @@ class SphinxRenderer(DocutilsRenderer):
         )
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
-        """Render math with referencable labels, e.g. ``$a=1$ (label)``."""
+        """Render math with referenceable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
         content = token.content
         node = nodes.math_block(

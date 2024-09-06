@@ -22,7 +22,7 @@ syntax pieces to utilize the most powerful parts of reStructuredText.
 The CommonMark community has been discussing an "official" extension syntax for many
 years now (for example, see
 [this seven-year-old thread about directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444) as well as
-[this more recent converstaion](https://talk.commonmark.org/t/support-for-extension-token/2771),
+[this more recent conversation](https://talk.commonmark.org/t/support-for-extension-token/2771),
 and [this comment listing several more threads on this topic](https://talk.commonmark.org/t/extension-terminology-and-rules/1233)).
 
 We have chosen a "roles and directives" syntax that seems reasonable and follows other
