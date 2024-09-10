@@ -47,6 +47,6 @@ In list:
             <target ids="equation-mock-uuid">
             <math_block classes="amsmath" docname="index" label="mock-uuid" nowrap="True" number="1" xml:space="preserve">
                 \begin{equation}
-                  a = 1
-                  \end{equation}
+                a = 1
+                \end{equation}
 .
