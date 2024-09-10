@@ -168,8 +168,8 @@ The `docutils` parser now supports many more features, and improvements to suppo
 - `myst_meta_html` and `myst_substitutions` options are now supported (<gh-pr:672>)
 - `myst_heading_anchors` option is now supported (<gh-pr:678>)
 - Math block labels syntax is now supported (<gh-pr:668>)
-- Missing directive/role errors errors are now suppressable warnings (<gh-pr:687>)
-- Non-fatal directive parsing errors are now suppressable warnings (<gh-pr:682>)
+- Missing directive/role errors errors are now suppressible warnings (<gh-pr:687>)
+- Non-fatal directive parsing errors are now suppressible warnings (<gh-pr:682>)
 - Most of the extended markdown syntax below is also supported
 
 ### 🔗 Extended Markdown links

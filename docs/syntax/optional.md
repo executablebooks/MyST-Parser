@@ -218,7 +218,7 @@ By adding `"amsmath"` to `myst_enable_extensions` (in the {{ confpy }}),
 you can enable direct parsing of [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations.
 These top-level math environments will then be directly parsed:
 
-> equation, multline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
+> equation, multiline, gather, align, alignat, flalign, matrix, pmatrix, bmatrix, Bmatrix, vmatrix, Vmatrix, eqnarray.
 
 As expected, environments ending in `*` will not be numbered, for example:
 

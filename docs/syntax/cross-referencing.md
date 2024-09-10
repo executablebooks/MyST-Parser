@@ -14,7 +14,7 @@ Targets are used to define custom anchors that you can refer to elsewhere in you
 There are three primary ways to create targets:
 
 1. Annotating a syntax block with `(target)=`
-2. Annotating a syntax bloc/inline/span with an `{#id}` attribute (using the [attrs_block](#syntax/attributes/block) and [attrs_inline](#syntax/attributes/inline) extensions)
+2. Annotating a syntax block/inline/span with an `{#id}` attribute (using the [attrs_block](#syntax/attributes/block) and [attrs_inline](#syntax/attributes/inline) extensions)
 3. Adding a `name` option to a directive
 
 ::::{myst-example}

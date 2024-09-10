@@ -269,19 +269,19 @@ def _parse_directive_options(
     value: str | None
     for name, value in options.items():
         try:
-            convertor = options_spec[name]
+            converter = options_spec[name]
         except KeyError:
             unknown_options.append(name)
             continue
         if not value:
             # restructured text parses empty option values as None
             value = None
-        if convertor is flag:
+        if converter is flag:
             # flag will error if value is not empty,
             # but to be more permissive we allow any value
             value = None
         try:
-            converted_value = convertor(value)
+            converted_value = converter(value)
         except (ValueError, TypeError) as error:
             validation_errors.append(
                 ParseWarnings(
