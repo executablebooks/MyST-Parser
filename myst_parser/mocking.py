@@ -353,7 +353,7 @@ class MockIncludeDirective:
         self,
         renderer: DocutilsRenderer,
         name: str,
-        klass: Include,
+        klass: type[Include],
         arguments: list[str],
         options: dict[str, Any],
         body: list[str],
