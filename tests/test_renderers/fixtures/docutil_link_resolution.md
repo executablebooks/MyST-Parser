@@ -169,7 +169,7 @@ c  | d
 [explicit](#table)
 .
 <document source="<src>/index.md">
-    <table classes="colwidths-auto" ids="table" names="table">
+    <table ids="table" names="table">
         <title>
             caption
         <tgroup cols="2">
