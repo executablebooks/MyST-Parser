@@ -253,9 +253,6 @@ Euler's identity, equation {math:numref}`euler`, was elected one of the
 most beautiful mathematical formulas.
 :::
 
-Euler's identity, equation {math:numref}`euler`, was elected one of the
-most beautiful mathematical formulas.
-
 #### How roles parse content
 
 The content of roles is parsed differently depending on the role that you've used.
