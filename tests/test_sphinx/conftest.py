@@ -79,6 +79,10 @@ def get_sphinx_app_output(file_regression):
             # pygments 2.11.0 introduces a whitespace tag
             for pygment_whitespace in doc_div.select("pre > span.w"):
                 pygment_whitespace.replace_with(pygment_whitespace.text)
+            # something changed in sphinx 8 (or new docutils) to introduce this, although I couldn't find the actual commit,
+            # but in any case, it's not important for the regression test
+            for clearer_div in doc_div.findAll("div", {"class": "clearer"}):
+                clearer_div.decompose()
             text = doc_div.prettify()
             # changed in sphinx 7.2
             text = text.replace('"Link to this', '"Permalink to this')

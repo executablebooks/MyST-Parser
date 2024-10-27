@@ -178,6 +178,8 @@ def test_references_singlehtml(
             # changed in sphinx 7.3
             '="#document-index': '="index.html#document-index',
             '="#document-other': '="index.html#document-other',
+            # change in sphinx 8
+            'href="index.html#': 'href="#',
         },
     )
 
