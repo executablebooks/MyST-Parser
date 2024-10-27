@@ -52,6 +52,12 @@ This will not process the substitution
 {{ text_with_nest }}
 ```
 
+Test substitutions are processed within eval-rst
+
+```{eval-rst}
+a |text| b
+```
+
 Using env and filters:
 
 {{ env.docname | upper }}
