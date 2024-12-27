@@ -427,8 +427,7 @@ def _scan_flow_scalar_non_spaces(
                 for k in range(length):
                     if stream.peek(k) not in "0123456789ABCDEFabcdef":
                         raise TokenizeError(
-                            "expected escape sequence of %d hexadecimal numbers, but found %r"
-                            % (length, stream.peek(k)),
+                            f"expected escape sequence of {length} hexadecimal numbers, but found {stream.peek(k)!r}",
                             stream.get_position(),
                             "while scanning a double-quoted scalar",
                             start_mark,
