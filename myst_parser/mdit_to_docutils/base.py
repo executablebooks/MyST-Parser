@@ -716,8 +716,9 @@ class DocutilsRenderer(RendererProtocol):
         if not name and self.sphinx_env is not None:
             # use the current highlight setting, via the ``highlight`` directive,
             # or ``highlight_language`` configuration.
-            name = self.sphinx_env.temp_data.get(
-                "highlight_language", self.sphinx_env.config.highlight_language
+            name = (
+                self.sphinx_env.temp_data.get("highlight_language")
+                or self.sphinx_env.config.highlight_language
             )
 
         lineno_start = 1
