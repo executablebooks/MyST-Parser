@@ -307,6 +307,20 @@ class MdParserConfig:
         },
     )
 
+    fully_normalize_name_slug_func: Callable[[str], str] | None = dc.field(
+        default=None,
+        metadata={
+            "validator": check_heading_slug_func,
+            "help": (
+                "Return a case- and whitespace-normalized name."
+                "or a python import path e.g. `my_package.my_module.my_function`"
+                "It can be used to transliterate any language to valid  stable html identifiers"
+            ),
+            "global_only": True,
+            "doc_type": "None | Callable[[str], str] | str",
+        },
+    )
+
     html_meta: dict[str, str] = dc.field(
         default_factory=dict,
         metadata={
