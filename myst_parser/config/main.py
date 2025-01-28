@@ -312,7 +312,7 @@ class MdParserConfig:
         metadata={
             "validator": check_heading_slug_func,
             "help": (
-                "Function for normalizing text to valid html id value"
+                "Return a case- and whitespace-normalized name."
                 "or a python import path e.g. `my_package.my_module.my_function`"
                 "It can be used to transliterate any language to valid  stable html identifiers"
             ),
@@ -536,7 +536,8 @@ def merge_file_level(
     if "html_meta" in topmatter:
         warning(
             MystWarnings.MD_TOPMATTER,
-            "top-level 'html_meta' key is deprecated, place under 'myst' key instead",
+            "top-level 'html_meta' key is deprecated, "
+            "place under 'myst' key instead",
         )
         updates["html_meta"] = topmatter["html_meta"]
     if "substitutions" in topmatter:
