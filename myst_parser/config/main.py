@@ -312,8 +312,8 @@ class MdParserConfig:
         metadata={
             "validator": check_heading_slug_func,
             "help": (
-                "Return a case- and whitespace-normalized name."
-                "or a python import path e.g. `my_package.my_module.my_function`"
+                "Function for normalizing text to valid html id value, "
+                "or a python import path e.g. `my_package.my_module.my_function` "
                 "It can be used to transliterate any language to valid  stable html identifiers"
             ),
             "global_only": True,
