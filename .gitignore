@@ -133,5 +133,7 @@ _archive/
 
 .vscode/
 .DS_Store
+.idea/
+
 
 docs/apidocs
