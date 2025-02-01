@@ -14,12 +14,11 @@ bar
 .
 <document source="<src>/index.md">
     <paragraph>
-        foo
-        <raw format="html" xml:space="preserve">
-            <br />
-        <raw format="latex" xml:space="preserve">
-            \\
-        bar
+        <line_block>
+            <line>
+                foo
+            <line>
+                bar
 .
 
 Strong:
