@@ -522,8 +522,7 @@ def merge_file_level(
     if "html_meta" in topmatter:
         warning(
             MystWarnings.MD_TOPMATTER,
-            "top-level 'html_meta' key is deprecated, "
-            "place under 'myst' key instead",
+            "top-level 'html_meta' key is deprecated, place under 'myst' key instead",
         )
         updates["html_meta"] = topmatter["html_meta"]
     if "substitutions" in topmatter:
