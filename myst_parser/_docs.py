@@ -211,7 +211,7 @@ class DirectiveDoc(SphinxDirective):
 :Name: `{name}`
 :Description: {content}
 :Arguments: {klass.required_arguments} required, {klass.optional_arguments} optional
-:Content: {'yes' if klass.has_content else 'no'}
+:Content: {"yes" if klass.has_content else "no"}
 :Options:
 """
         if klass.option_spec:
