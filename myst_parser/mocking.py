@@ -461,8 +461,7 @@ class MockIncludeDirective:
                         3, ":number-lines: with non-integer start value"
                     ) from err
                 endline = startline + len(file_content.splitlines())
-                if file_content.endswith("\n"):
-                    file_content = file_content[:-1]
+                file_content = file_content.removesuffix("\n")
                 tokens = NumberLines([([], file_content)], startline, endline)
                 for classes, value in tokens:
                     if classes:
