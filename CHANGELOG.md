@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.1 - 2025-02-12
+
+🔧 Minor fix for Sphinx 8.2 compatibility (in <gh-pr:1013>)
+
 ## 4.0.0 - 2024-08-05
 
 This release bumps the supported versions of:

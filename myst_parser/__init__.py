@@ -3,7 +3,7 @@ with bridges to [docutils](https://docutils.sourceforge.io/)
 and [Sphinx](https://github.com/sphinx-doc/sphinx).
 """
 
-__version__ = "4.0.0"
+__version__ = "4.0.1"
 
 
 def setup(app):
