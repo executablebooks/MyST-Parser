@@ -36,8 +36,6 @@ requires-python = ">=3.10"
 dependencies = [
     "docutils>=0.19,<0.22",
     "jinja2", # required for substitutions, but let sphinx choose version
-    "markdown-it-py~=4.0",
-    "mdit-py-plugins~=0.5",
     "pyyaml",
     "sphinx>=7,<9",
 ]
