@@ -976,8 +976,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         """Render a link token like `<project:...>`."""
         destination = cast(str, token.attrGet("href") or "")
-        if destination.startswith("project:"):
-            destination = destination[8:]
+        destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
         self.create_warning(
@@ -1796,13 +1795,13 @@ class DocutilsRenderer(RendererProtocol):
             )
             return [error_msg]
 
-        assert isinstance(
-            result, list
-        ), f'Directive "{name}" must return a list of nodes.'
+        assert isinstance(result, list), (
+            f'Directive "{name}" must return a list of nodes.'
+        )
         for i in range(len(result)):
-            assert isinstance(
-                result[i], nodes.Node
-            ), f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
+            assert isinstance(result[i], nodes.Node), (
+                f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
+            )
         return result
 
     def render_substitution_inline(self, token: SyntaxTreeNode) -> None:
