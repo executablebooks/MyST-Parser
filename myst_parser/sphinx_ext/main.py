@@ -70,7 +70,7 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
     for name, default, field in MdParserConfig().as_triple():
         if "sphinx" not in field.metadata.get("omit", []):
             # TODO add types?
-            app.add_config_value(f"myst_{name}", default, "env", types=Any)  # type: ignore[arg-type]
+            app.add_config_value(f"myst_{name}", default, "env", types=Any)
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
