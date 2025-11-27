@@ -200,6 +200,8 @@ tippy_rtd_urls = [
     "https://www.sphinx-doc.org/en/master",
     "https://markdown-it-py.readthedocs.io/en/latest",
 ]
+# TODO failing
+tippy_enable_wikitips = False
 
 # -- LaTeX output -------------------------------------------------
 
