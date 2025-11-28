@@ -34,6 +34,16 @@ class MockInliner:
     This is parsed to role functions.
     """
 
+    # Override the ``__class__`` attribute to enable runtime type checking.
+    # See https://beartype.readthedocs.io/en/latest/faq/#mock-types.
+    @property
+    def __class__(self) -> type:
+        return Inliner
+
+    @__class__.setter
+    def __class__(self, value: type) -> None:
+        raise NotImplementedError
+
     def __init__(self, renderer: DocutilsRenderer):
         """Initialize the mock inliner."""
         self._renderer = renderer
