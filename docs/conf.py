@@ -54,7 +54,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 suppress_warnings = ["myst.strikethrough"]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.10", None),
+    "python": ("https://docs.python.org/3.11", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
     "markdown_it": ("https://markdown-it-py.readthedocs.io/en/latest", None),
 }
@@ -200,6 +200,8 @@ tippy_rtd_urls = [
     "https://www.sphinx-doc.org/en/master",
     "https://markdown-it-py.readthedocs.io/en/latest",
 ]
+# TODO failing
+tippy_enable_wikitips = False
 
 # -- LaTeX output -------------------------------------------------
 

@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 
 import pytest
-import sphinx
 from sphinx.util.console import strip_colors
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
@@ -41,10 +40,7 @@ def test_basic(
             app,
             docname="content",
             regress=True,
-            replace={
-                # changed in sphinx 7.1
-                '<literal classes="code" language="">': '<literal classes="code">',
-            },
+            replace={},
         )
     finally:
         get_sphinx_app_doctree(
@@ -52,10 +48,7 @@ def test_basic(
             docname="content",
             resolve=True,
             regress=True,
-            replace={
-                # changed in sphinx 7.1
-                '<literal classes="code" language="">': '<literal classes="code">',
-            },
+            replace={},
         )
     get_sphinx_app_output(
         app,
@@ -162,9 +155,6 @@ def test_references_singlehtml(
             regress=True,
             replace={
                 "other\\other.md": "other/other.md",
-                # changed in sphinx 7.3
-                '="#document-index': '="index.html#document-index',
-                '="#document-other': '="index.html#document-other',
             },
         )
 
@@ -444,8 +434,6 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    if sphinx.version_info < (7, 4):
-        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
@@ -528,8 +516,6 @@ def test_gettext_additional_targets(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    if sphinx.version_info < (7, 4):
-        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
@@ -577,20 +563,7 @@ def test_fieldlist_extension(
             app,
             docname="index",
             regress=True,
-            replace={
-                # changed in sphinx 7.2 for desc_sig_name node
-                'classes="n n"': 'classes="n"',
-                # changed in sphinx 7.2 for desc_parameterlist node
-                'multi_line_parameter_list="False" ': "",
-                # changed in sphinx 7.1 (but fixed in 7.2) for desc_signature/desc_name nodes
-                'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
-                'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',
-                # changed in sphinx 7.2 (#11533)
-                (
-                    'no-contents-entry="False" no-index="False" '
-                    'no-index-entry="False" no-typesetting="False" '
-                ): "",
-            },
+            replace={},
         )
     finally:
         get_sphinx_app_output(
@@ -614,9 +587,6 @@ def test_texinfo(app, status, warning):
     assert warnings == ""
 
 
-@pytest.mark.skipif(
-    sphinx.version_info < (7, 2, 5), reason="include-read event added in sphinx 7.2.5"
-)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "includes"),

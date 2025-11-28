@@ -80,7 +80,7 @@ def to_sphinx(inv: InventoryType) -> SphinxInventoryType:
     for domain_name, obj_types in inv["objects"].items():
         for obj_type, refs in obj_types.items():
             for refname, refdata in refs.items():
-                objs.setdefault(f"{domain_name}:{obj_type}", {})[refname] = (
+                objs.setdefault(f"{domain_name}:{obj_type}", {})[refname] = (  # type: ignore[assignment]
                     inv["name"],
                     inv["version"],
                     refdata["loc"],

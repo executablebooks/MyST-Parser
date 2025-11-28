@@ -26,7 +26,7 @@
             \begin{equation}
             b=2
             \end{equation}
-        <math_block docname="index" label="True" nowrap="False" number="True" xml:space="preserve">
+        <math_block docname="index" label="True" no-wrap="False" nowrap="False" number="True" xml:space="preserve">
             c=3
             
             d=4

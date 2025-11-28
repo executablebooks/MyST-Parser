@@ -72,8 +72,7 @@ class SphinxRenderer(DocutilsRenderer):
 
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         destination = cast(str, token.attrGet("href") or "")
-        if destination.startswith("project:"):
-            destination = destination[8:]
+        destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
 
@@ -108,8 +107,7 @@ class SphinxRenderer(DocutilsRenderer):
 
     def render_link_path(self, token: SyntaxTreeNode) -> None:
         destination = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
-        if destination.startswith("path:"):
-            destination = destination[5:]
+        destination = destination.removeprefix("path:")
         destination = self._handle_relative_docs(destination)
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
         wrap_node = addnodes.download_reference(
