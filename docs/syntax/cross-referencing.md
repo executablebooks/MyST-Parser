@@ -376,7 +376,7 @@ Here are some examples:
 
 Sphinx offers numerous [roles for referencing](#usage/restructuredtext/roles) specific objects.
 
-These can also within MyST documents, although it is recommended to use the Markdown syntax where possible, which is more portable and native to MyST.
+These can also be used within MyST documents, although it is recommended to use the Markdown syntax where possible, which is more portable and native to MyST.
 
 :::{myst-example}
 - {ref}`syntax/referencing`, {ref}`Explicit text <syntax/referencing>`
