@@ -3,18 +3,18 @@
         <title>
             Other Title
         <paragraph>
-            <reference internal="True" refuri="index.html#document-other/other2">
+            <reference internal="True" refuri="#document-other/other2">
                 <inline classes="doc">
                     Other 2 Title
         <paragraph>
-            <reference internal="True" refuri="index.html#document-other/other2">
+            <reference internal="True" refuri="#document-other/other2">
                 <inline classes="doc doc doc">
                     Other 2 Title
         <paragraph>
-            <reference internal="True" refuri="index.html#document-other/other2">
+            <reference internal="True" refuri="#document-other/other2">
                 <inline classes="std std-doc">
                     Other 2 Title
         <paragraph>
-            <reference internal="True" refuri="index.html#document-index#title">
+            <reference internal="True" refuri="#document-index#title">
                 <inline classes="std std-ref">
                     Title

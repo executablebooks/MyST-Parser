@@ -14,10 +14,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - uses: pre-commit/action@v3.0.1
 
   tests:
@@ -25,16 +25,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
-        sphinx: [">=8,<8.2"]
+        python-version: ["3.11", "3.12", "3.13"]
+        sphinx: [">=8,<9"]
         os: [ubuntu-latest]
         include:
-        - os: ubuntu-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
+        # - os: ubuntu-latest
+        #   python-version: "3.11"
+        #   sphinx: ">=7,<8"
         - os: windows-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
+          python-version: "3.11"
+          sphinx: ">=8,<9"
 
     runs-on: ${{ matrix.os }}
 
@@ -56,7 +56,7 @@ jobs:
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
     - name: Upload to Codecov
-      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.10 && matrix.os == 'ubuntu-latest'
+      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -78,10 +78,10 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install setup
       run: |
         python -m pip install --upgrade pip
@@ -133,10 +133,10 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: install flit
       run: |
         pip install flit~=3.4
@@ -156,10 +156,10 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: install flit and tomlkit
       run: |
         pip install flit~=3.4 tomlkit
