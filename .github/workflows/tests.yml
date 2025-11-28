@@ -25,16 +25,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13"]
         sphinx: [">=8,<8.2"]
         os: [ubuntu-latest]
         include:
-        - os: ubuntu-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
+        # - os: ubuntu-latest
+        #   python-version: "3.11"
+        #   sphinx: ">=7,<8"
         - os: windows-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
+          python-version: "3.11"
+          sphinx: ">=8,<8.2"
 
     runs-on: ${{ matrix.os }}
 
