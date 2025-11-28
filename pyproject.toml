@@ -74,7 +74,7 @@ testing = [
     "pytest-regressions",
     "pytest-param-files~=0.6.0",
     "sphinx-pytest",
-    "pygments<2.19",  # TODO fix test regression with 2.19"
+    "pygments<2.20",  # TODO fix test regression with 2.19"
 ]
 testing-docutils = [
     "pygments",

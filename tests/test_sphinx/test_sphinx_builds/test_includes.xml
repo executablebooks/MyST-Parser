@@ -53,6 +53,7 @@
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="keyword">
                     def
+                <inline classes="whitespace">
 
                 <inline classes="name function">
                     a_func
@@ -78,6 +79,7 @@
                     0
                 <inline classes="keyword">
                     def
+                <inline classes="whitespace">
 
                 <inline classes="name function">
                     a_func
