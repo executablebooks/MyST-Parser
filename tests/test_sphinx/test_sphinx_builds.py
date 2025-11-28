@@ -474,14 +474,7 @@ def test_gettext_html(
         filename="index.html",
         regress_html=True,
         regress_ext=".html",
-        replace={
-            # upstream bug https://github.com/sphinx-doc/sphinx/issues/11689
-            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
-            # which was fixed to a different translation in sphinx 7.3
-            '"Lien vers cette rubrique"': '"Lien permanent vers cette rubrique"',
-            # changed in docutils>0.19
-            ' role="note">': ' role="doc-footnote">',
-        },
+        replace={},
     )
 
 
