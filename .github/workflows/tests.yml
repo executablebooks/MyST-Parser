@@ -57,7 +57,7 @@ jobs:
         coverage xml
     - name: Upload to Codecov
       if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         name: myst-parser-pytests
