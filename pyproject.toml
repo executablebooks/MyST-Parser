@@ -38,7 +38,7 @@ dependencies = [
     "markdown-it-py~=4.0",
     "mdit-py-plugins~=0.5",
     "pyyaml",
-    "sphinx>=8,<9",
+    "sphinx>=8,<10",
 ]
 
 [project.urls]
