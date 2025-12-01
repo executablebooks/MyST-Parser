@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.11"
     - uses: pre-commit/action@v3.0.1
@@ -41,9 +41,9 @@ jobs:
     name: "pytest: py${{ matrix.python-version }}, sphinx${{ matrix.sphinx }}, on ${{ matrix.os }}"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
@@ -55,15 +55,16 @@ jobs:
       run: |
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
-    - name: Upload to Codecov
-      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        name: myst-parser-pytests
-        flags: pytests
-        file: ./coverage.xml
-        fail_ci_if_error: true
+    # TODO there is currently problem with this action and pull-requests from external forks
+    # - name: Upload to Codecov
+    #   if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     name: myst-parser-pytests
+    #     flags: pytests
+    #     file: ./coverage.xml
+    #     fail_ci_if_error: true
 
   check-myst-docutils:
 
@@ -77,9 +78,9 @@ jobs:
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.11"
     - name: Install setup
@@ -132,9 +133,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.11"
     - name: install flit
@@ -155,9 +156,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.11"
     - name: install flit and tomlkit
