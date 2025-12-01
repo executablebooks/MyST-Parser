@@ -55,15 +55,16 @@ jobs:
       run: |
         pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
         coverage xml
-    - name: Upload to Codecov
-      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        name: myst-parser-pytests
-        flags: pytests
-        file: ./coverage.xml
-        fail_ci_if_error: true
+    # TODO there is currently problem with this action and pull-requests from external forks
+    # - name: Upload to Codecov
+    #   if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     name: myst-parser-pytests
+    #     flags: pytests
+    #     file: ./coverage.xml
+    #     fail_ci_if_error: true
 
   check-myst-docutils:
 
