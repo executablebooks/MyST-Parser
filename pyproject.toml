@@ -69,7 +69,7 @@ testing = [
     "beautifulsoup4",
     "coverage[toml]",
     "defusedxml",  # required by sphinx 7.3 testing utils
-    "pytest>=8,<10",
+    "pytest>=9,<10",
     "pytest-cov",
     "pytest-regressions",
     "pytest-param-files~=0.6.0",
