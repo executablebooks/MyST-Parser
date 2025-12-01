@@ -56,7 +56,7 @@ rtd = [
     "sphinx-book-theme~=1.1",
     "sphinx-design",
     "sphinx-copybutton",
-    "sphinxext-rediraffe~=0.2.7",
+    "sphinxext-rediraffe~=0.3.0",
     # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed
     # "sphinxcontrib.mermaid~=0.7.1",
     "sphinxext-opengraph~=0.9.0",
