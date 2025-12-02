@@ -172,6 +172,15 @@ Image empty:
         <image alt="" uri="">
 .
 
+Image without alt:
+.
+![](src)
+.
+<document source="<src>/index.md">
+    <paragraph>
+        <image alt="src" uri="src">
+.
+
 Image with alt and title:
 .
 ![alt](src "title")
