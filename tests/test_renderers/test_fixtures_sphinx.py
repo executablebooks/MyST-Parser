@@ -38,9 +38,9 @@ def test_syntax_elements(
         # changed in docutils 0.20.1
         '<literal classes="code" language="">': '<literal classes="code">',
         # changed in sphinx 9
-        '<image alt="" uri="">': "<image alt=\"\" candidates=\"{'*': '.'}\" original_uri=\"\" uri=\".\">",
-        '<image alt="alt" title="title" uri="src">': "<image alt=\"alt\" candidates=\"{'*': 'src'}\" title=\"title\" uri=\"src\">",
-        '<image alt="alt" uri=\"http://www.google%3C%3E.com\">': "<image alt=\"alt\" candidates=\"{'?': 'http://www.google%3C%3E.com'}\" uri=\"http://www.google%3C%3E.com\">",
+        '<image alt="" uri="">': '<image alt="" candidates="{\'*\': \'.\'}" original_uri="" uri=".">',
+        '<image alt="alt" title="title" uri="src">': '<image alt="alt" candidates="{\'*\': \'src\'}" title="title" uri="src">',
+        '<image alt="alt" uri="http://www.google%3C%3E.com">': '<image alt="alt" candidates="{\'?\': \'http://www.google%3C%3E.com\'}" uri="http://www.google%3C%3E.com">',
     }
     for old, new in replacements.items():
         pformat = pformat.replace(old, new)
