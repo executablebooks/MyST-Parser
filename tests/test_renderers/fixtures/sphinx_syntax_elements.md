@@ -169,7 +169,7 @@ Image empty:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="" uri="">
+        <image alt="" candidates="{'*': '.'}" original_uri="" uri=".">
 .
 
 Image with alt and title:
@@ -178,7 +178,7 @@ Image with alt and title:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="alt" title="title" uri="src">
+        <image alt="alt" candidates="{'*': 'src'}" title="title" uri="src">
 .
 
 Image with escapable html:
@@ -187,7 +187,7 @@ Image with escapable html:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="alt" uri="http://www.google%3C%3E.com">
+        <image alt="alt" candidates="{'?': 'http://www.google%3C%3E.com'}" uri="http://www.google%3C%3E.com">
 .
 
 Block Quote:

@@ -34,10 +34,16 @@ def test_syntax_elements(
 
     result = sphinx_doctree(file_params.content, "index.md")
     pformat = result.pformat("index")
-    # changed in docutils 0.20.1
-    pformat = pformat.replace(
-        '<literal classes="code" language="">', '<literal classes="code">'
-    )
+    replacements = {
+        # changed in docutils 0.20.1
+        '<literal classes="code" language="">': '<literal classes="code">',
+        # changed in sphinx 9
+        '<image alt="" uri="">': "<image alt=\"\" candidates=\"{'*': '.'}\" original_uri=\"\" uri=\".\">",
+        '<image alt="alt" title="title" uri="src">': "<image alt=\"alt\" candidates=\"{'*': 'src'}\" title=\"title\" uri=\"src\">",
+        '<image alt="alt" uri=\"http://www.google%3C%3E.com\">': "<image alt=\"alt\" candidates=\"{'?': 'http://www.google%3C%3E.com'}\" uri=\"http://www.google%3C%3E.com\">",
+    }
+    for old, new in replacements.items():
+        pformat = pformat.replace(old, new)
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
@@ -89,9 +95,7 @@ def test_sphinx_directives(
 ):
     # TODO fix skipped directives
     # TODO test domain directives
-    if file_params.title.startswith("SKIP") or file_params.title.startswith(
-        "SPHINX4-SKIP"
-    ):
+    if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
