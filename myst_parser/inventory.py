@@ -378,7 +378,9 @@ def filter_sphinx_inventories(
                             version=data_target.project_version,
                             base_url=None,
                             loc=data_target.uri,
-                            text=None if (not display_name or display_name == "-") else display_name,
+                            text=None
+                            if (not display_name or display_name == "-")
+                            else display_name,
                         )
                     )
 
