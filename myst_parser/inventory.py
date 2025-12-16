@@ -366,18 +366,19 @@ def filter_sphinx_inventories(
                 continue
             for target in data:
                 if match_with_wildcard(target, targets):
-                    project, version, loc, text = data[target]
+                    data_target = data[target]
+                    display_name = data_target.display_name
                     yield (
                         InvMatch(
                             inv=inv_name,
                             domain=domain_name,
                             otype=obj_type,
                             name=target,
-                            project=project,
-                            version=version,
+                            project=data_target.project_name,
+                            version=data_target.project_version,
                             base_url=None,
-                            loc=loc,
-                            text=None if (not text or text == "-") else text,
+                            loc=data_target.uri,
+                            text=None if (not display_name or display_name == "-") else display_name,
                         )
                     )
 
