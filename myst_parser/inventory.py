@@ -13,6 +13,7 @@ import functools
 import json
 import re
 import zlib
+import sphinx
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
 from typing import IO, TYPE_CHECKING, TypedDict
