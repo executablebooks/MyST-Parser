@@ -18,6 +18,7 @@ from dataclasses import asdict, dataclass
 from typing import IO, TYPE_CHECKING, TypedDict
 from urllib.request import urlopen
 
+import sphinx
 import yaml
 
 if TYPE_CHECKING:
@@ -366,18 +367,27 @@ def filter_sphinx_inventories(
                 continue
             for target in data:
                 if match_with_wildcard(target, targets):
-                    project, version, loc, text = data[target]
+                    data_target = data[target]
+                    if sphinx.__version_info__[:2] >= (8, 2):
+                        project_name = data_target.project_name
+                        project_version = data_target.project_version
+                        uri = data_target.uri
+                        display_name = data_target.display_name
+                    else:
+                        project_name, project_version, uri, display_name = data[target]
                     yield (
                         InvMatch(
                             inv=inv_name,
                             domain=domain_name,
                             otype=obj_type,
                             name=target,
-                            project=project,
-                            version=version,
+                            project=data_target.project_name,
+                            version=data_target.project_version,
                             base_url=None,
-                            loc=loc,
-                            text=None if (not text or text == "-") else text,
+                            loc=data_target.uri,
+                            text=None
+                            if (not display_name or display_name == "-")
+                            else display_name,
                         )
                     )
 
