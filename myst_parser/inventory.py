@@ -367,7 +367,13 @@ def filter_sphinx_inventories(
             for target in data:
                 if match_with_wildcard(target, targets):
                     data_target = data[target]
-                    display_name = data_target.display_name
+                    if sphinx.__version_info__[:2] >= (8, 2):
+                        project_name = data_target.project_name
+                        project_version= data_target.project_version
+                        uri = data_target.uri
+                        display_name = data_target.display_name
+                    else:
+                        project_name, project_version, uri, display_name = data[target]
                     yield (
                         InvMatch(
                             inv=inv_name,
