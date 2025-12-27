@@ -674,38 +674,10 @@ myst:
 ---
 .
 <document source="<src>/index.md">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="Sphinx, documentation, builder" name="keywords">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="An amusing story" lang="en" name="description">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="Un histoire amusant" lang="fr" name="description">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+    <meta content="Sphinx, documentation, builder" name="keywords">
+    <meta content="An amusing story" lang="en" name="description">
+    <meta content="Un histoire amusant" lang="fr" name="description">
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
 .
 
 Full Test:
