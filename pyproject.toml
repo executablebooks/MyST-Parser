@@ -83,6 +83,16 @@ testing-docutils = [
     "pytest-param-files~=0.6.0",
 ]
 
+[dependency-groups]
+mypy = [
+    "mypy==1.19.1",
+    "types-urllib3",
+    "sphinx~=8.2",
+    "markdown-it-py~=4.0",
+    "mdit-py-plugins~=0.5.0",
+]
+ruff = ["ruff==0.14.11"]
+
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
 myst-inv = "myst_parser.inventory:inventory_cli"
