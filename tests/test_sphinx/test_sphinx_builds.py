@@ -571,6 +571,10 @@ def test_mathjax_warning(
     )
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unicode encoding issues on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "fieldlist"),
