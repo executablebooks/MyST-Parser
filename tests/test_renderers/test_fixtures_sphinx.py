@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 from docutils.core import Publisher
 from pytest_param_files import ParamTestData
+from sphinx.transforms import SphinxTransformer
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
@@ -31,13 +32,21 @@ def test_syntax_elements(
 
     if "[APPLY TRANSFORMS]" not in file_params.title:
         monkeypatch.setattr(Publisher, "apply_transforms", _apply_transforms)
+        # in sphinx >= 9.0.0 SphinxTransformer is used
+        monkeypatch.setattr(SphinxTransformer, "apply_transforms", _apply_transforms)
 
     result = sphinx_doctree(file_params.content, "index.md")
     pformat = result.pformat("index")
-    # changed in docutils 0.20.1
-    pformat = pformat.replace(
-        '<literal classes="code" language="">', '<literal classes="code">'
-    )
+    replacements = {
+        # changed in docutils 0.20.1
+        '<literal classes="code" language="">': '<literal classes="code">',
+        # changed in sphinx 9
+        '<image alt="" uri="">': '<image alt="" candidates="{\'*\': \'.\'}" original_uri="" uri=".">',
+        '<image alt="alt" title="title" uri="src">': '<image alt="alt" candidates="{\'*\': \'src\'}" title="title" uri="src">',
+        '<image alt="alt" uri="http://www.google%3C%3E.com">': '<image alt="alt" candidates="{\'?\': \'http://www.google%3C%3E.com\'}" uri="http://www.google%3C%3E.com">',
+    }
+    for old, new in replacements.items():
+        pformat = pformat.replace(old, new)
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
@@ -89,9 +98,7 @@ def test_sphinx_directives(
 ):
     # TODO fix skipped directives
     # TODO test domain directives
-    if file_params.title.startswith("SKIP") or file_params.title.startswith(
-        "SPHINX4-SKIP"
-    ):
+    if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
@@ -117,6 +124,9 @@ def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDo
         ' refuri="http://www.python.org/dev/peps/pep-0001">',
         ' refuri="http://www.python.org/dev/peps/pep-0001/">',
     )
+    if file_params.title == "js:class (`sphinx.domains.javascript.JSConstructor`):":
+        # sphinx 9 change
+        pformat = pformat.replace("a()", "a")
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
