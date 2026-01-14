@@ -52,9 +52,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
-      run: |
-        pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
-        coverage xml
+      run: pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
+    - name: Create coverage report
+      run: coverage xml
     # TODO there is currently problem with this action and pull-requests from external forks
     # - name: Upload to Codecov
     #   if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
