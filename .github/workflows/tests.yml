@@ -26,18 +26,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
-        sphinx: [">=8,<9"]
+        sphinx: [">=8,<9", ">=9,<10"]
         os: [ubuntu-latest]
         include:
-        # - os: ubuntu-latest
-        #   python-version: "3.11"
-        #   sphinx: ">=7,<8"
         - os: windows-latest
           python-version: "3.11"
           sphinx: ">=8,<9"
         - os: windows-latest
           python-version: "3.14"
-          sphinx: ">=8,<9"
+          sphinx: ">=9,<10"
 
     runs-on: ${{ matrix.os }}
 
@@ -55,9 +52,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
-      run: |
-        pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
-        coverage xml
+      run: pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
+    - name: Create coverage report
+      run: coverage xml
     # TODO there is currently problem with this action and pull-requests from external forks
     # - name: Upload to Codecov
     #   if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'

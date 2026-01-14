@@ -228,7 +228,7 @@ js:class (`sphinx.domains.javascript.JSConstructor`):
     <paragraph>
         <pending_xref js:module="True" js:object="True" refdoc="index" refdomain="js" refexplicit="False" reftarget="a" reftype="class" refwarn="False">
             <literal classes="xref js js-class">
-                a()
+                a
 .
 
 js:data (`sphinx.domains.javascript.JSObject`):

@@ -386,7 +386,7 @@ term 2 : B
                         Definition of both terms.
 .
 
-SPHINX4-SKIP productionlist (`sphinx.domains.std.ProductionList`):
+SKIP productionlist (`sphinx.domains.std.ProductionList`):
 .
 ```{productionlist} try_stmt: try1_stmt | try2_stmt
 ```
@@ -426,7 +426,7 @@ rst:directive (`sphinx.domains.rst.ReSTDirective`):
         <desc_content>
 .
 
-SPHINX4-SKIP rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
+SKIP rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 .
 ```{rst:directive:option} a
 ```
