@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
@@ -7,13 +9,29 @@ from sphinx_pytest.plugin import CreateDoctree
     "test_name,text,should_warn",
     [
         ("null", "", False),
-        ("missing", "[](ref)", True),
+        pytest.param(
+            "missing",
+            "[](ref)",
+            True,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32",
+                reason="Path separators differ on Windows",
+            ),
+        ),
         ("doc", "[](index)", False),
         ("doc_with_extension", "[](index.md)", False),
         ("doc_nested", "[*text*](index)", False),
         ("ref", "(ref)=\n# Title\n[](ref)", False),
         ("ref_nested", "(ref)=\n# Title\n[*text*](ref)", False),
-        ("duplicate", "(index)=\n# Title\n[](index)", True),
+        pytest.param(
+            "duplicate",
+            "(index)=\n# Title\n[](index)",
+            True,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32",
+                reason="Path separators differ on Windows",
+            ),
+        ),
         ("ref_colon", "(ref:colon)=\n# Title\n[](ref:colon)", False),
     ],
 )

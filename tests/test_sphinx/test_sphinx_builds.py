@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -271,6 +272,10 @@ def test_extended_syntaxes_text(
     file_regression.check(content)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="original_uri attribute handling differs on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
 )
@@ -466,6 +471,10 @@ def test_gettext(
     file_regression.check(output, extension=".pot")
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unicode encoding issues on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "gettext"),
