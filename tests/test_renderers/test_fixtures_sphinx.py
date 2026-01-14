@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 from docutils.core import Publisher
 from pytest_param_files import ParamTestData
+from sphinx.transforms import SphinxTransformer
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
@@ -31,6 +32,8 @@ def test_syntax_elements(
 
     if "[APPLY TRANSFORMS]" not in file_params.title:
         monkeypatch.setattr(Publisher, "apply_transforms", _apply_transforms)
+        # in sphinx >= 9.0.0 SphinxTransformer is used
+        monkeypatch.setattr(SphinxTransformer, "apply_transforms", _apply_transforms)
 
     result = sphinx_doctree(file_params.content, "index.md")
     pformat = result.pformat("index")
