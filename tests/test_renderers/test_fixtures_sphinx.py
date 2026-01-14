@@ -124,6 +124,9 @@ def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDo
         ' refuri="http://www.python.org/dev/peps/pep-0001">',
         ' refuri="http://www.python.org/dev/peps/pep-0001/">',
     )
+    if file_params.title == "js:class (`sphinx.domains.javascript.JSConstructor`):":
+        # sphinx 9 change
+        pformat = pformat.replace("a()", "a")
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
