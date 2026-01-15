@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 from conftest import normalize_doctree_xml
+from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_doctree
 from pytest_param_files import ParamTestData
 
@@ -51,6 +52,11 @@ def test_link_resolution(file_params: ParamTestData):
     settings = settings_from_cmdline(file_params.description)
     report_stream = StringIO()
     settings["warning_stream"] = report_stream
+    if file_params.title == "explicit>implicit":
+        if docutils_version < (0, 22):
+            # reporting changed in docutils 0.22
+            pytest.skip("different in docutils>=0.22")
+        settings["report_level"] = 0
     doctree = publish_doctree(
         file_params.content,
         source_path="<src>/index.md",

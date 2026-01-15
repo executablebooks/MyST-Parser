@@ -85,7 +85,8 @@ tox -e py311-sphinx8
 # Run with coverage
 tox -- --cov=myst_parser
 
-# Update regression test fixtures
+# Update regression test fixtures (this will initially produce an error code if the files change)
+# but note, these files must pass for all python/sphinx/docutils versions
 tox -- --regen-file-failure --force-regen
 ```
 
@@ -337,5 +338,6 @@ flowchart TB
 - [markdown-it-py Documentation](https://markdown-it-py.readthedocs.io/)
 - [Docutils Repository](https://github.com/live-clones/docutils)
 - [Docutils Documentation](https://docutils.sourceforge.io/)
+- [Docutils release log](https://docutils.sourceforge.io/RELEASE-NOTES.html)
 - [Sphinx Repository](https://github.com/sphinx-doc/sphinx)
 - [Sphinx Extension Development](https://www.sphinx-doc.org/en/master/extdev/index.html)
