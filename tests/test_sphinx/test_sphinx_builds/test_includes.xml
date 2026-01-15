@@ -76,7 +76,7 @@
                     )
             <literal_block classes="code python" source="include_code.py" xml:space="preserve">
                 <inline classes="ln">
-                    0
+                    1
                 <inline classes="keyword">
                     def
                 <inline classes="whitespace">
@@ -92,7 +92,7 @@
                 <inline classes="whitespace">
 
                 <inline classes="ln">
-                    1
+                    2
                 <inline classes="whitespace">
 
                 <inline classes="name builtin">

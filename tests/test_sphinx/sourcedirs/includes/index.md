@@ -14,7 +14,7 @@
 
 ```{include} include_code.py
 :code: python
-:number-lines: 0
+:number-lines: 1
 ```
 
 ```{include} include_literal.txt

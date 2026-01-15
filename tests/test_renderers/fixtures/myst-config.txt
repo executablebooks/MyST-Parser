@@ -263,6 +263,12 @@ a
 <document source="<string>">
     <paragraph>
         a
+    <section classes="system-messages">
+        <title>
+            Docutils System Messages
+        <system_message level="2" source="<string>" type="WARNING">
+            <paragraph>
+                The `attrs_image` extension is deprecated, please use `attrs_inline` instead. [myst.deprecated]
 
 <string>:: (WARNING/2) The `attrs_image` extension is deprecated, please use `attrs_inline` instead. [myst.deprecated]
 .

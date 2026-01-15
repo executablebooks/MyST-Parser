@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from conftest import normalize_doctree_xml
+from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_doctree
 from pytest_param_files import ParamTestData
 
@@ -37,7 +39,9 @@ def test_syntax_elements(file_params: ParamTestData, monkeypatch):
     )
 
     # in docutils 0.18 footnote ids have changed
-    outcome = doctree.pformat().replace('"footnote-reference-1"', '"id1"')
+    outcome = normalize_doctree_xml(doctree.pformat()).replace(
+        '"footnote-reference-1"', '"id1"'
+    )
     outcome = outcome.replace(' language=""', "")
     file_params.assert_expected(outcome, rstrip_lines=True)
 
@@ -48,13 +52,18 @@ def test_link_resolution(file_params: ParamTestData):
     settings = settings_from_cmdline(file_params.description)
     report_stream = StringIO()
     settings["warning_stream"] = report_stream
+    if file_params.title == "explicit>implicit":
+        if docutils_version < (0, 22):
+            # reporting changed in docutils 0.22
+            pytest.skip("different in docutils>=0.22")
+        settings["report_level"] = 0
     doctree = publish_doctree(
         file_params.content,
         source_path="<src>/index.md",
         parser=Parser(),
         settings_overrides=settings,
     )
-    outcome = doctree.pformat()
+    outcome = normalize_doctree_xml(doctree.pformat())
     if report_stream.getvalue().strip():
         outcome += "\n\n" + report_stream.getvalue().strip()
     file_params.assert_expected(outcome, rstrip_lines=True)
@@ -75,7 +84,9 @@ def test_docutils_roles(file_params: ParamTestData, monkeypatch):
         parser=Parser(),
     )
 
-    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(doctree.pformat()), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")
@@ -95,7 +106,9 @@ def test_docutils_directives(file_params: ParamTestData, monkeypatch):
         parser=Parser(),
     )
 
-    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(doctree.pformat()), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_extensions.txt")
@@ -109,7 +122,9 @@ def test_syntax_extensions(file_params: ParamTestData):
         parser=Parser(),
         settings_overrides=settings,
     )
-    file_params.assert_expected(doctree.pformat(), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(doctree.pformat()), rstrip_lines=True
+    )
 
 
 def settings_from_cmdline(cmdline: str | None) -> dict[str, Any]:
