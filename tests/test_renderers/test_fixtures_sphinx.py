@@ -13,9 +13,11 @@ from pathlib import Path
 import pytest
 from docutils.core import Publisher
 from pytest_param_files import ParamTestData
+from sphinx.transforms import SphinxTransformer
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
+from tests.conftest import normalize_doctree_xml
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -31,13 +33,21 @@ def test_syntax_elements(
 
     if "[APPLY TRANSFORMS]" not in file_params.title:
         monkeypatch.setattr(Publisher, "apply_transforms", _apply_transforms)
+        # in sphinx >= 9.0.0 SphinxTransformer is used
+        monkeypatch.setattr(SphinxTransformer, "apply_transforms", _apply_transforms)
 
     result = sphinx_doctree(file_params.content, "index.md")
-    pformat = result.pformat("index")
-    # changed in docutils 0.20.1
-    pformat = pformat.replace(
-        '<literal classes="code" language="">', '<literal classes="code">'
-    )
+    pformat = normalize_doctree_xml(result.pformat("index"))
+    replacements = {
+        # changed in docutils 0.20.1
+        '<literal classes="code" language="">': '<literal classes="code">',
+        # changed in sphinx 9
+        '<image alt="" uri="">': '<image alt="" candidates="{\'*\': \'.\'}" original_uri="" uri=".">',
+        '<image alt="alt" title="title" uri="src">': '<image alt="alt" candidates="{\'*\': \'src\'}" title="title" uri="src">',
+        '<image alt="alt" uri="http://www.google%3C%3E.com">': '<image alt="alt" candidates="{\'?\': \'http://www.google%3C%3E.com\'}" uri="http://www.google%3C%3E.com">',
+    }
+    for old, new in replacements.items():
+        pformat = pformat.replace(old, new)
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
@@ -49,7 +59,7 @@ def test_link_resolution(file_params: ParamTestData, sphinx_doctree: CreateDoctr
     sphinx_doctree.srcdir.joinpath("test.txt").touch()
     sphinx_doctree.srcdir.joinpath("other.rst").write_text(":orphan:\n\nTest\n====")
     result = sphinx_doctree(file_params.content, "index.md")
-    outcome = result.pformat("index")
+    outcome = normalize_doctree_xml(result.pformat("index"))
     if result.warnings.strip():
         outcome += "\n\n" + result.warnings.strip()
     file_params.assert_expected(outcome, rstrip_lines=True)
@@ -71,7 +81,9 @@ def settings_from_json(string: str | None):
 def test_tables(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "directive_options.md")
@@ -80,7 +92,9 @@ def test_directive_options(
 ):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_directives.md")
@@ -89,13 +103,13 @@ def test_sphinx_directives(
 ):
     # TODO fix skipped directives
     # TODO test domain directives
-    if file_params.title.startswith("SKIP") or file_params.title.startswith(
-        "SPHINX4-SKIP"
-    ):
+    if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
-    pformat = sphinx_doctree_no_tr(file_params.content, "index.md").pformat("index")
+    pformat = normalize_doctree_xml(
+        sphinx_doctree_no_tr(file_params.content, "index.md").pformat("index")
+    )
     # see https://github.com/executablebooks/MyST-Parser/issues/522
     if sys.maxsize == 2147483647:
         pformat = pformat.replace('"2147483647"', '"9223372036854775807"')
@@ -108,7 +122,9 @@ def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDo
         pytest.skip(file_params.title)
 
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
-    pformat = sphinx_doctree_no_tr(file_params.content, "index.md").pformat("index")
+    pformat = normalize_doctree_xml(
+        sphinx_doctree_no_tr(file_params.content, "index.md").pformat("index")
+    )
     # sphinx 3 adds a parent key
     pformat = re.sub('cpp:parent_key="[^"]*"', 'cpp:parent_key=""', pformat)
     # sphinx >= 4.5.0 adds a trailing slash to PEP URLs,
@@ -117,6 +133,9 @@ def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDo
         ' refuri="http://www.python.org/dev/peps/pep-0001">',
         ' refuri="http://www.python.org/dev/peps/pep-0001/">',
     )
+    if file_params.title == "js:class (`sphinx.domains.javascript.JSConstructor`):":
+        # sphinx 9 change
+        pformat = pformat.replace("a()", "a")
     file_params.assert_expected(pformat, rstrip_lines=True)
 
 
@@ -126,7 +145,9 @@ def test_dollarmath(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoct
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["dollarmath"]}
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "amsmath.md")
@@ -138,7 +159,9 @@ def test_amsmath(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["amsmath"]}
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "containers.md")
@@ -150,7 +173,9 @@ def test_containers(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["colon_fence"]}
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "eval_rst.md")
@@ -159,7 +184,9 @@ def test_evalrst_elements(
 ):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "definition_lists.md")
@@ -170,7 +197,9 @@ def test_definition_lists(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]}
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "attributes.md")
@@ -182,4 +211,6 @@ def test_attributes(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoct
         }
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(result.pformat("index"), rstrip_lines=True)
+    file_params.assert_expected(
+        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
+    )
