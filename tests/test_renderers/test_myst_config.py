@@ -5,6 +5,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from conftest import normalize_doctree_xml
 from docutils.core import Publisher, publish_string
 from pytest_param_files import ParamTestData
 
@@ -36,6 +37,7 @@ def test_cmdline(file_params: ParamTestData):
         writer_name="pseudoxml",
         settings_overrides=settings,
     )
+    output = normalize_doctree_xml(output)
     warnings = report_stream.getvalue()
     if warnings:
         output += "\n" + warnings

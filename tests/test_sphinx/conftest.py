@@ -41,6 +41,7 @@ from bs4 import BeautifulSoup
 from docutils import nodes
 
 from myst_parser._compat import findall
+from tests.conftest import normalize_doctree_xml
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -125,7 +126,7 @@ def get_sphinx_app_doctree(file_regression):
             node.attributes.pop("translated", None)
 
         if regress:
-            text = doctree.pformat()  # type: str
+            text = normalize_doctree_xml(doctree.pformat())  # type: str
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
             if rstrip_lines:

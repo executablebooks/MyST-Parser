@@ -13,6 +13,8 @@ from pathlib import Path
 import pytest
 from sphinx.util.console import strip_colors
 
+from tests.conftest import normalize_doctree_xml
+
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
 
@@ -441,7 +443,9 @@ def test_substitutions(
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
         file_regression.check(
-            get_sphinx_app_doctree(app, docname="other").pformat(),
+            normalize_doctree_xml(
+                get_sphinx_app_doctree(app, docname="other").pformat()
+            ),
             extension=".other.xml",
         )
     finally:

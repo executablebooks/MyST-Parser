@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from conftest import normalize_doctree_xml
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -55,7 +56,7 @@ def test_parse(
 
     doctree["source"] = "root/index.md"
     doctree.attributes.pop("translation_progress", None)
-    outcome = doctree.pformat()
+    outcome = normalize_doctree_xml(doctree.pformat())
     if result.warnings.strip():
         outcome += "\n\n" + strip_colors(result.warnings.strip())
     file_regression.check(outcome, basename=test_name, extension=".xml")

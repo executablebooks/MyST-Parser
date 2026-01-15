@@ -3,6 +3,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from conftest import normalize_doctree_xml
 from docutils.core import publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
@@ -24,7 +25,11 @@ def test_render(file_params, tmp_path, monkeypatch):
     )
 
     doctree["source"] = "tmpdir/test.md"
-    output = doctree.pformat().replace(str(tmp_path) + os.sep, "tmpdir/").rstrip()
+    output = (
+        normalize_doctree_xml(doctree.pformat())
+        .replace(str(tmp_path) + os.sep, "tmpdir/")
+        .rstrip()
+    )
 
     file_params.assert_expected(output, rstrip=True)
 
