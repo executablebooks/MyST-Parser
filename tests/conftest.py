@@ -4,7 +4,6 @@ import re
 
 from docutils import __version_info__ as docutils_version_info
 
-# docutils 0.22+ serializes boolean attributes as "1"/"0" instead of "True"/"False"
 DOCUTILS_0_22_PLUS = docutils_version_info >= (0, 22)
 
 
@@ -12,13 +11,13 @@ def normalize_doctree_xml(text: str) -> str:
     """Normalize docutils XML output for cross-version compatibility.
 
     In docutils 0.22+, boolean attributes are serialized as "1"/"0"
-    instead of "True"/"False". This function normalizes to the new format
+    instead of "True"/"False". This function normalizes to the old format
     for consistent test fixtures.
     """
     if DOCUTILS_0_22_PLUS:
-        # Normalize new format (True/False) to old format (1/0)
+        # Normalize new format (1/0) to old format (1/0)
         # Only replace when it's clearly a boolean attribute value
-        # Pattern: attribute="True" or attribute="False"
+        # Pattern: attribute="1" or attribute="0"
         attrs = [
             "force",
             "glob",
