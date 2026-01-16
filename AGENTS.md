@@ -197,6 +197,43 @@ def test_example(app, status, warning, get_sphinx_app_output):
     assert warnings == ""
 ```
 
+## Testing Philosophy
+
+1. **Always add tests** for new features and bug fixes
+2. **Unit tests should be atomic** – fast and focused
+3. **Document test purpose** – explain *why* the test exists
+4. **Use parameterized tests** (rstest/pytest) for multiple scenarios
+5. **Use snapshot tests** (insta/syrupy) for complex outputs
+
+## Commit Message Format
+
+Use this format:
+
+```
+<EMOJI> <KEYWORD>: Summarize in 72 chars or less (#<PR>)
+
+Optional detailed explanation.
+```
+
+Keywords:
+
+- `✨ NEW:` – New feature
+- `🐛 FIX:` – Bug fix
+- `👌 IMPROVE:` – Improvement (no breaking changes)
+- `‼️ BREAKING:` – Breaking change
+- `📚 DOCS:` – Documentation
+- `🔧 MAINTAIN:` – Maintenance changes only (typos, etc.)
+- `🧪 TEST:` – Tests or CI changes only
+- `♻️ REFACTOR:` – Refactoring
+
+If the commit only makes changes to a single package,
+consider including the name in the title.
+
+## PR title and description format
+
+Use the same as for the commit message format,
+but for the title you can omit the `KEYWORD` and only use `EMOJI`
+
 ## Pull Request Requirements
 
 When submitting changes:
