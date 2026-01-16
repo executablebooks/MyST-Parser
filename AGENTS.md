@@ -197,13 +197,6 @@ def test_example(app, status, warning, get_sphinx_app_output):
     assert warnings == ""
 ```
 
-## Testing Philosophy
-
-1. **Always add tests** for new features and bug fixes
-2. **Unit tests should be atomic** – fast and focused
-3. **Document test purpose** – explain *why* the test exists
-4. **Use parameterized tests** (rstest/pytest) for multiple scenarios
-5. **Use snapshot tests** (insta/syrupy) for complex outputs
 
 ## Commit Message Format
 
