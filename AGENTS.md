@@ -197,7 +197,6 @@ def test_example(app, status, warning, get_sphinx_app_output):
     assert warnings == ""
 ```
 
-
 ## Commit Message Format
 
 Use this format:
