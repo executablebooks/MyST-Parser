@@ -5,7 +5,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from conftest import normalize_doctree_xml
+from tests.conftest import normalize_doctree_xml
 from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_string
 from pytest_param_files import ParamTestData

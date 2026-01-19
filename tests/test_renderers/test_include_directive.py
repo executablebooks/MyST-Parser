@@ -3,7 +3,7 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from conftest import normalize_doctree_xml
+from tests.conftest import normalize_doctree_xml
 from docutils.core import publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser

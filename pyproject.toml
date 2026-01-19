@@ -148,6 +148,7 @@ filterwarnings = [
     "ignore:.*The default for the setting.*:FutureWarning",
     "ignore:.*:PendingDeprecationWarning",
 ]
+addopts = "--import-mode=importlib"
 
 [tool.coverage.run]
 omit = ["*/_docs.py"]

@@ -1,7 +1,7 @@
 import sys
 
 import pytest
-from conftest import normalize_doctree_xml
+from tests.conftest import normalize_doctree_xml
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
