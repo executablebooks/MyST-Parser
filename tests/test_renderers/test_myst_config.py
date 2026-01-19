@@ -5,12 +5,12 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from tests.conftest import normalize_doctree_xml
 from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_string
 from pytest_param_files import ParamTestData
 
 from myst_parser.parsers.docutils_ import Parser
+from tests.conftest import normalize_doctree_xml
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 INV_PATH = Path(__file__).parent.parent.absolute() / "static" / "objects_v2.inv"

@@ -11,12 +11,12 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from tests.conftest import normalize_doctree_xml
 from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_doctree
 from pytest_param_files import ParamTestData
 
 from myst_parser.parsers.docutils_ import Parser
+from tests.conftest import normalize_doctree_xml
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 

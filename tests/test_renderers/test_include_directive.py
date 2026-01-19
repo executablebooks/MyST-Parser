@@ -3,10 +3,10 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from tests.conftest import normalize_doctree_xml
 from docutils.core import publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
+from tests.conftest import normalize_doctree_xml
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
