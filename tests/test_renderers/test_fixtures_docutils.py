@@ -89,7 +89,7 @@ def test_docutils_roles(file_params: ParamTestData, monkeypatch, normalize_doctr
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")
-def test_docutils_directives(file_params: ParamTestData, monkeypatch):
+def test_docutils_directives(file_params: ParamTestData, monkeypatch, normalize_doctree_xml):
     """Test output of docutils directives."""
     if "SKIP" in file_params.description:  # line-block directive not yet supported
         pytest.skip(file_params.description)
@@ -111,7 +111,7 @@ def test_docutils_directives(file_params: ParamTestData, monkeypatch):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_extensions.txt")
-def test_syntax_extensions(file_params: ParamTestData):
+def test_syntax_extensions(file_params: ParamTestData, normalize_doctree_xml):
     """The description is parsed as a docutils commandline"""
     settings = settings_from_cmdline(file_params.description)
     report_stream = StringIO()
