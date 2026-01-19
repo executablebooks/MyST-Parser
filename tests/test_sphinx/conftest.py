@@ -41,7 +41,6 @@ from bs4 import BeautifulSoup
 from docutils import nodes
 
 from myst_parser._compat import findall
-from tests.conftest import normalize_doctree_xml
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
@@ -95,7 +94,7 @@ def get_sphinx_app_output(file_regression):
 
 
 @pytest.fixture
-def get_sphinx_app_doctree(file_regression):
+def get_sphinx_app_doctree(file_regression, normalize_doctree_xml):
     def read(
         app,
         docname="index",

@@ -3,7 +3,6 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from conftest import normalize_doctree_xml
 from docutils.core import publish_doctree
 
 from myst_parser.parsers.docutils_ import Parser
@@ -12,7 +11,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "mock_include.md")
-def test_render(file_params, tmp_path, monkeypatch):
+def test_render(file_params, tmp_path, monkeypatch, normalize_doctree_xml):
     monkeypatch.chdir(tmp_path)
 
     tmp_path.joinpath("other.md").write_text("a\nb\nc")
