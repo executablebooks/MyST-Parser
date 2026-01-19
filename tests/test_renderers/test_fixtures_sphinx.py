@@ -23,7 +23,10 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_syntax_elements.md")
 def test_syntax_elements(
-    file_params: ParamTestData, sphinx_doctree: CreateDoctree, monkeypatch, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree: CreateDoctree,
+    monkeypatch,
+    normalize_doctree_xml,
 ):
     sphinx_doctree.set_conf({"extensions": ["myst_parser"], "show_warning_types": True})
 
@@ -51,7 +54,9 @@ def test_syntax_elements(
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_link_resolution.md")
-def test_link_resolution(file_params: ParamTestData, sphinx_doctree: CreateDoctree, normalize_doctree_xml):
+def test_link_resolution(
+    file_params: ParamTestData, sphinx_doctree: CreateDoctree, normalize_doctree_xml
+):
     sphinx_doctree.set_conf(
         {"extensions": ["myst_parser"], **settings_from_json(file_params.description)}
     )
@@ -77,7 +82,11 @@ def settings_from_json(string: str | None):
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "tables.md")
-def test_tables(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml):
+def test_tables(
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
+):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
     file_params.assert_expected(
@@ -87,7 +96,9 @@ def test_tables(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree,
 
 @pytest.mark.param_file(FIXTURE_PATH / "directive_options.md")
 def test_directive_options(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
 ):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
@@ -98,7 +109,9 @@ def test_directive_options(
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_directives.md")
 def test_sphinx_directives(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
 ):
     # TODO fix skipped directives
     # TODO test domain directives
@@ -116,7 +129,11 @@ def test_sphinx_directives(
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "sphinx_roles.md")
-def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml):
+def test_sphinx_roles(
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
+):
     if file_params.title.startswith("SKIP"):
         pytest.skip(file_params.title)
 
@@ -139,7 +156,11 @@ def test_sphinx_roles(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDo
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "dollarmath.md")
-def test_dollarmath(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml):
+def test_dollarmath(
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
+):
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["dollarmath"]}
     )
@@ -151,7 +172,10 @@ def test_dollarmath(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoct
 
 @pytest.mark.param_file(FIXTURE_PATH / "amsmath.md")
 def test_amsmath(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, monkeypatch, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    monkeypatch,
+    normalize_doctree_xml,
 ):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
@@ -165,7 +189,10 @@ def test_amsmath(
 
 @pytest.mark.param_file(FIXTURE_PATH / "containers.md")
 def test_containers(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, monkeypatch, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    monkeypatch,
+    normalize_doctree_xml,
 ):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
@@ -179,7 +206,9 @@ def test_containers(
 
 @pytest.mark.param_file(FIXTURE_PATH / "eval_rst.md")
 def test_evalrst_elements(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
 ):
     sphinx_doctree_no_tr.set_conf({"extensions": ["myst_parser"]})
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
@@ -190,7 +219,9 @@ def test_evalrst_elements(
 
 @pytest.mark.param_file(FIXTURE_PATH / "definition_lists.md")
 def test_definition_lists(
-    file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
 ):
     sphinx_doctree_no_tr.set_conf(
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["deflist"]}
@@ -202,7 +233,11 @@ def test_definition_lists(
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "attributes.md")
-def test_attributes(file_params: ParamTestData, sphinx_doctree_no_tr: CreateDoctree, normalize_doctree_xml):
+def test_attributes(
+    file_params: ParamTestData,
+    sphinx_doctree_no_tr: CreateDoctree,
+    normalize_doctree_xml,
+):
     sphinx_doctree_no_tr.set_conf(
         {
             "extensions": ["myst_parser"],

@@ -54,7 +54,9 @@ def normalize_doctree_xml():
             text = re.sub(rf' ({"|".join(attrs)})="1"', r' \1="True"', text)
             text = re.sub(rf' ({"|".join(attrs)})="0"', r' \1="False"', text)
             # numbered is changed in math_block, but not in toctree, so we have to be more precise
-            text = re.sub(r' numbered="1" xml:space', r' numbered="True" xml:space', text)
+            text = re.sub(
+                r' numbered="1" xml:space', r' numbered="True" xml:space', text
+            )
         return text
 
     return _normalize

@@ -21,7 +21,9 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_elements.md")
-def test_syntax_elements(file_params: ParamTestData, monkeypatch, normalize_doctree_xml):
+def test_syntax_elements(
+    file_params: ParamTestData, monkeypatch, normalize_doctree_xml
+):
     """Test conversion of Markdown to docutils AST (before transforms are applied)."""
 
     def _apply_transforms(self):
@@ -89,7 +91,9 @@ def test_docutils_roles(file_params: ParamTestData, monkeypatch, normalize_doctr
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_directives.md")
-def test_docutils_directives(file_params: ParamTestData, monkeypatch, normalize_doctree_xml):
+def test_docutils_directives(
+    file_params: ParamTestData, monkeypatch, normalize_doctree_xml
+):
     """Test output of docutils directives."""
     if "SKIP" in file_params.description:  # line-block directive not yet supported
         pytest.skip(file_params.description)
