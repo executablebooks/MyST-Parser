@@ -5,7 +5,6 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from conftest import normalize_doctree_xml
 from docutils import __version_info__ as docutils_version
 from docutils.core import Publisher, publish_string
 from pytest_param_files import ParamTestData
@@ -17,7 +16,7 @@ INV_PATH = Path(__file__).parent.parent.absolute() / "static" / "objects_v2.inv"
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "myst-config.txt")
-def test_cmdline(file_params: ParamTestData):
+def test_cmdline(file_params: ParamTestData, normalize_doctree_xml):
     """The description is parsed as a docutils commandline"""
     if file_params.title == "attrs_image" and docutils_version < (0, 22):
         # loose system messages are also output to ast in 0.22 https://github.com/live-clones/docutils/commit/dc4e16315b4fbe391417a6f7aad215b9389a9c74

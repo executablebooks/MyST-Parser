@@ -13,8 +13,6 @@ from pathlib import Path
 import pytest
 from sphinx.util.console import strip_colors
 
-from tests.conftest import normalize_doctree_xml
-
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
 
 
@@ -433,6 +431,7 @@ def test_substitutions(
     get_sphinx_app_doctree,
     get_sphinx_app_output,
     file_regression,
+    normalize_doctree_xml,
 ):
     """test setting addition configuration values."""
     app.build()

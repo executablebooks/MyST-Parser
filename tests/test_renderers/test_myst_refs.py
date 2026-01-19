@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-from conftest import normalize_doctree_xml
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -42,6 +41,7 @@ def test_parse(
     should_warn: bool,
     sphinx_doctree: CreateDoctree,
     file_regression,
+    normalize_doctree_xml,
 ):
     sphinx_doctree.set_conf({"extensions": ["myst_parser"], "show_warning_types": True})
     result = sphinx_doctree(text, "index.md")
