@@ -344,15 +344,19 @@ class DocutilsRenderer(RendererProtocol):
     def render_children(self, token: SyntaxTreeNode) -> None:
         """Render the children of a token."""
         for child in token.children or []:
-            if f"render_{child.type}" in self.rules:
-                self.rules[f"render_{child.type}"](child)
-            else:
-                self.create_warning(
-                    f"No render method for: {child.type}",
-                    MystWarnings.RENDER_METHOD,
-                    line=token_line(child, default=0),
-                    append_to=self.current_node,
-                )
+            self.render_token(child)
+
+    def render_token(self, token: SyntaxTreeNode) -> None:
+        """Render a token."""
+        if f"render_{token.type}" in self.rules:
+            self.rules[f"render_{token.type}"](token)
+        else:
+            self.create_warning(
+                f"No render method for: {token.type}",
+                MystWarnings.RENDER_METHOD,
+                line=token_line(token, default=0),
+                append_to=self.current_node,
+            )
 
     def add_line_and_source_path(self, node, token: SyntaxTreeNode) -> None:
         """Copy the line number and document source path to the docutils node."""
@@ -478,7 +482,36 @@ class DocutilsRenderer(RendererProtocol):
             self.render_children(token)
 
     def render_inline(self, token: SyntaxTreeNode) -> None:
-        self.render_children(token)
+        needs_lineblock = False
+        for child in token.children or []:
+            if child.type == "hardbreak":
+                needs_lineblock = True
+                break
+
+        if not needs_lineblock:
+            self.render_children(token)
+            return
+
+        # if we have any hard breaks, we will build a line block and
+        # prepare line nodes for each group of children between these
+        # breaks
+        lineblock = nodes.line_block()
+        self.add_line_and_source_path(lineblock, token)
+        self.current_node.append(lineblock)
+
+        current_line = nodes.line()
+        self.add_line_and_source_path(current_line, token)
+        lineblock.append(current_line)
+
+        for child in token.children or []:
+            if child.type == "hardbreak":
+                current_line = nodes.line()
+                self.add_line_and_source_path(current_line, token)
+                lineblock.append(current_line)
+                continue
+
+            with self.current_node_context(current_line):
+                self.render_token(child)
 
     def render_text(self, token: SyntaxTreeNode) -> None:
         self.current_node.append(nodes.Text(token.content))
