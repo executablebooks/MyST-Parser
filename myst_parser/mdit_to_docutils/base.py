@@ -279,6 +279,17 @@ class DocutilsRenderer(RendererProtocol):
                     substitution_node, f"wordcount-{key}"
                 )
 
+        for key, value in self.md_config.substitutions.items():
+            if value is None:
+                continue
+
+            substitution_node = nodes.substitution_definition(
+                str(value), nodes.Text(str(value))
+            )
+            substitution_node.source = self.document["source"]
+            substitution_node["names"].append(key)
+            self.document.note_substitution_def(substitution_node, key)
+
     def nested_render_text(
         self,
         text: str,
