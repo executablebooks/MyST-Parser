@@ -1173,7 +1173,7 @@ class DocutilsRenderer(RendererProtocol):
 
         img_node["uri"] = destination
 
-        img_node["alt"] = self.renderInlineAsText(token.children or [])
+        img_node["alt"] = self.renderInlineAsText(token.children or []) or destination
 
         self.copy_attributes(
             token,
