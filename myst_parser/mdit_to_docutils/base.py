@@ -1771,8 +1771,13 @@ class DocutilsRenderer(RendererProtocol):
                 lineno=position,
                 # the line offset of the first line of the content
                 content_offset=parsed.body_offset,
-                # a string containing the entire directive
-                block_text="\n".join(parsed.body),
+                # A string containing the entire directive, including options and full,
+                # unparsed content.
+                # XXX Ideally, and to mirros rST's behavior, it should also contain the
+                # complete directive header (i.e the "```{name} {arguments}" line), and
+                # the directive closing line (i.e. the "```" line), but that is not
+                # currently possible unless we refactor the parser.
+                block_text=content,
                 state=state,
                 state_machine=state_machine,
             )
