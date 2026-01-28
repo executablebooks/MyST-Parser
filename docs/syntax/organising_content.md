@@ -15,11 +15,11 @@ All headings at the root level of the document are included in the Table of Cont
 
 Many HTML themes will already include this ToC in a sidebar, but you can also include it in the main content of the page using the contents {{directive}}:
 
-:::{myst-example}
+````md
 ```{contents} Table of Contents
 :depth: 3
 ```
-:::
+````
 
 Options:
 

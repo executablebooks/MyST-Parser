@@ -387,8 +387,6 @@ These can also be used within MyST documents, although it is recommended to use 
 - {external:class}`sphinx.application.Sphinx`, {external:class}`Explicit text <sphinx.application.Sphinx>`
 - {external+sphinx:ref}`code-examples`, {external+sphinx:ref}`Explicit text <code-examples>`
 
----
-
 - <project:#syntax/referencing>, [][syntax], [Explicit text][syntax]
 - [](<#my other term>)
 - <project:../intro.md>, [Explicit text](../intro.md)
