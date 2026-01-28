@@ -84,8 +84,6 @@ def get_sphinx_app_output(file_regression):
             for clearer_div in doc_div.findAll("div", {"class": "clearer"}):
                 clearer_div.decompose()
             text = doc_div.prettify()
-            # changed in sphinx 7.2
-            text = text.replace('"Link to this', '"Permalink to this')
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
             file_regression.check(text, extension=regress_ext, encoding="utf8")
@@ -96,7 +94,7 @@ def get_sphinx_app_output(file_regression):
 
 
 @pytest.fixture
-def get_sphinx_app_doctree(file_regression):
+def get_sphinx_app_doctree(file_regression, normalize_doctree_xml):
     def read(
         app,
         docname="index",
@@ -127,7 +125,7 @@ def get_sphinx_app_doctree(file_regression):
             node.attributes.pop("translated", None)
 
         if regress:
-            text = doctree.pformat()  # type: str
+            text = normalize_doctree_xml(doctree.pformat())  # type: str
             for find, rep in (replace or {}).items():
                 text = text.replace(find, rep)
             if rstrip_lines:

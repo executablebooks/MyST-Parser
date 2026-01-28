@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v6
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - uses: pre-commit/action@v3.0.1
 
   tests:
@@ -25,25 +25,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
-        sphinx: [">=8,<9"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        sphinx: [">=8,<9", ">=9,<10"]
         os: [ubuntu-latest]
         include:
-        - os: ubuntu-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
         - os: windows-latest
-          python-version: "3.10"
-          sphinx: ">=7,<8"
+          python-version: "3.11"
+          sphinx: ">=8,<9"
+        - os: windows-latest
+          python-version: "3.14"
+          sphinx: ">=9,<10"
 
     runs-on: ${{ matrix.os }}
 
     name: "pytest: py${{ matrix.python-version }}, sphinx${{ matrix.sphinx }}, on ${{ matrix.os }}"
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
@@ -52,18 +52,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[linkify,testing]" "sphinx${{ matrix.sphinx }}"
     - name: Run pytest
-      run: |
-        pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
-        coverage xml
-    - name: Upload to Codecov
-      if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.10 && matrix.os == 'ubuntu-latest'
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        name: myst-parser-pytests
-        flags: pytests
-        file: ./coverage.xml
-        fail_ci_if_error: true
+      run: pytest --cov=myst_parser --cov-report=xml --cov-report=term-missing
+    - name: Create coverage report
+      run: coverage xml
+    # TODO there is currently problem with this action and pull-requests from external forks
+    # - name: Upload to Codecov
+    #   if: github.repository == 'executablebooks/MyST-Parser' && matrix.python-version == 3.11 && matrix.os == 'ubuntu-latest'
+    #   uses: codecov/codecov-action@v4
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     name: myst-parser-pytests
+    #     flags: pytests
+    #     file: ./coverage.xml
+    #     fail_ci_if_error: true
 
   check-myst-docutils:
 
@@ -73,15 +74,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        docutils-version: ["0.19", "0.20", "0.21"]
+        docutils-version: ["0.20", "0.21", "0.22"]
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+      uses: actions/checkout@v6
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install setup
       run: |
         python -m pip install --upgrade pip
@@ -132,11 +133,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+      uses: actions/checkout@v6
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: install flit
       run: |
         pip install flit~=3.4
@@ -155,11 +156,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source
-      uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+      uses: actions/checkout@v6
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: install flit and tomlkit
       run: |
         pip install flit~=3.4 tomlkit

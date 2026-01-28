@@ -54,7 +54,7 @@ The `table` directive can be used to create a table with a caption:
 
 The following options are recognized:
 
-:::{admonition} List table options
+:::{admonition} Table options
 :class: hint
 
 `align` : "left", "center", or "right"

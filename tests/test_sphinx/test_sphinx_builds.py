@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 
 import pytest
-import sphinx
 from sphinx.util.console import strip_colors
 
 SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
@@ -41,10 +41,7 @@ def test_basic(
             app,
             docname="content",
             regress=True,
-            replace={
-                # changed in sphinx 7.1
-                '<literal classes="code" language="">': '<literal classes="code">',
-            },
+            replace={},
         )
     finally:
         get_sphinx_app_doctree(
@@ -52,10 +49,7 @@ def test_basic(
             docname="content",
             resolve=True,
             regress=True,
-            replace={
-                # changed in sphinx 7.1
-                '<literal classes="code" language="">': '<literal classes="code">',
-            },
+            replace={},
         )
     get_sphinx_app_output(
         app,
@@ -162,9 +156,6 @@ def test_references_singlehtml(
             regress=True,
             replace={
                 "other\\other.md": "other/other.md",
-                # changed in sphinx 7.3
-                '="#document-index': '="index.html#document-index',
-                '="#document-other': '="index.html#document-other',
             },
         )
 
@@ -252,6 +243,39 @@ def test_extended_syntaxes(
         )
 
 
+@pytest.mark.sphinx(
+    buildername="text",
+    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    freshenv=True,
+)
+def test_extended_syntaxes_text(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+    monkeypatch,
+    file_regression,
+):
+    """test setting addition configuration values."""
+    from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
+
+    monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+    content = get_sphinx_app_output(
+        app,
+        buildername="text",
+        filename="index.txt",
+    )
+    file_regression.check(content)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="original_uri attribute handling differs on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html", srcdir=os.path.join(SOURCE_DIR, "includes"), freshenv=True
 )
@@ -407,6 +431,7 @@ def test_substitutions(
     get_sphinx_app_doctree,
     get_sphinx_app_output,
     file_regression,
+    normalize_doctree_xml,
 ):
     """test setting addition configuration values."""
     app.build()
@@ -417,7 +442,9 @@ def test_substitutions(
     try:
         get_sphinx_app_doctree(app, docname="index", regress=True)
         file_regression.check(
-            get_sphinx_app_doctree(app, docname="other").pformat(),
+            normalize_doctree_xml(
+                get_sphinx_app_doctree(app, docname="other").pformat()
+            ),
             extension=".other.xml",
         )
     finally:
@@ -444,11 +471,13 @@ def test_gettext(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    if sphinx.version_info < (7, 4):
-        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unicode encoding issues on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "gettext"),
@@ -486,14 +515,7 @@ def test_gettext_html(
         filename="index.html",
         regress_html=True,
         regress_ext=".html",
-        replace={
-            # upstream bug https://github.com/sphinx-doc/sphinx/issues/11689
-            '"Permalink to this heading"': '"Lien permanent vers cette rubrique"',
-            # which was fixed to a different translation in sphinx 7.3
-            '"Lien vers cette rubrique"': '"Lien permanent vers cette rubrique"',
-            # changed in docutils>0.19
-            ' role="note">': ' role="doc-footnote">',
-        },
+        replace={},
     )
 
 
@@ -528,8 +550,6 @@ def test_gettext_additional_targets(
     output = re.sub(r"POT-Creation-Date: [0-9: +-]+", "POT-Creation-Date: ", output)
     output = re.sub(r"Copyright \(C\) [0-9]{4}", "Copyright (C) XXXX", output)
 
-    if sphinx.version_info < (7, 4):
-        output = output.replace("Python ", "Project name not set ")
     file_regression.check(output, extension=".pot")
 
 
@@ -554,6 +574,10 @@ def test_mathjax_warning(
     )
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unicode encoding issues on Windows",
+)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "fieldlist"),
@@ -577,20 +601,7 @@ def test_fieldlist_extension(
             app,
             docname="index",
             regress=True,
-            replace={
-                # changed in sphinx 7.2 for desc_sig_name node
-                'classes="n n"': 'classes="n"',
-                # changed in sphinx 7.2 for desc_parameterlist node
-                'multi_line_parameter_list="False" ': "",
-                # changed in sphinx 7.1 (but fixed in 7.2) for desc_signature/desc_name nodes
-                'classes="sig sig-object sig sig-object"': 'classes="sig sig-object"',
-                'classes="sig-name descname sig-name descname"': 'classes="sig-name descname"',
-                # changed in sphinx 7.2 (#11533)
-                (
-                    'no-contents-entry="False" no-index="False" '
-                    'no-index-entry="False" no-typesetting="False" '
-                ): "",
-            },
+            replace={},
         )
     finally:
         get_sphinx_app_output(
@@ -614,9 +625,6 @@ def test_texinfo(app, status, warning):
     assert warnings == ""
 
 
-@pytest.mark.skipif(
-    sphinx.version_info < (7, 2, 5), reason="include-read event added in sphinx 7.2.5"
-)
 @pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "includes"),

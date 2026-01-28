@@ -64,7 +64,7 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
     if isinstance(value, list | tuple):
         if not all(isinstance(v, str) for v in value):
             raise TypeError(f"'{field.name}' is not a list of strings: {value!r}")
-        value = {v: None for v in value}
+        value = dict.fromkeys(value)
 
     if not isinstance(value, dict):
         raise TypeError(f"'{field.name}' is not a dictionary: {value!r}")
@@ -536,8 +536,7 @@ def merge_file_level(
     if "html_meta" in topmatter:
         warning(
             MystWarnings.MD_TOPMATTER,
-            "top-level 'html_meta' key is deprecated, "
-            "place under 'myst' key instead",
+            "top-level 'html_meta' key is deprecated, place under 'myst' key instead",
         )
         updates["html_meta"] = topmatter["html_meta"]
     if "substitutions" in topmatter:

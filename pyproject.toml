@@ -15,10 +15,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -32,14 +32,14 @@ keywords = [
     "docutils",
     "sphinx",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "docutils>=0.19,<0.22",
+    "docutils>=0.20,<0.23",
     "jinja2", # required for substitutions, but let sphinx choose version
-    "markdown-it-py~=3.0",
-    "mdit-py-plugins~=0.4,>=0.4.1",
+    "markdown-it-py~=4.0",
+    "mdit-py-plugins~=0.5",
     "pyyaml",
-    "sphinx>=7,<9",
+    "sphinx>=8,<10",
 ]
 
 [project.urls]
@@ -52,15 +52,15 @@ code_style = ["pre-commit~=4.0"]
 linkify = ["linkify-it-py~=2.0"]
 # Note: This is only required for internal use
 rtd = [
-    "sphinx>=7",
+    "sphinx>=8",
     "ipython",
     "sphinx-book-theme~=1.1",
     "sphinx-design",
     "sphinx-copybutton",
-    "sphinxext-rediraffe~=0.2.7",
+    "sphinxext-rediraffe~=0.3.0",
     # TODO this can uncommented once https://github.com/mgaitan/sphinxcontrib-mermaid/issues/109 is fixed
     # "sphinxcontrib.mermaid~=0.7.1",
-    "sphinxext-opengraph~=0.9.0",
+    "sphinxext-opengraph~=0.13.0",
     "sphinx-pyscript",
     "sphinx-tippy>=0.4.3",
     "sphinx-autodoc2~=0.5.0",
@@ -70,18 +70,28 @@ testing = [
     "beautifulsoup4",
     "coverage[toml]",
     "defusedxml",  # required by sphinx 7.3 testing utils
-    "pytest>=8,<9",
+    "pytest>=9,<10",
     "pytest-cov",
     "pytest-regressions",
     "pytest-param-files~=0.6.0",
-    "sphinx-pytest",
-    "pygments<2.19",  # TODO fix test regression with 2.19"
+    "sphinx-pytest~=0.3.0",
+    "pygments<2.20",  # TODO fix test regression with 2.19"
 ]
 testing-docutils = [
     "pygments",
-    "pytest>=8,<9",
+    "pytest>=9,<10",
     "pytest-param-files~=0.6.0",
 ]
+
+[dependency-groups]
+mypy = [
+    "mypy==1.19.1",
+    "types-urllib3",
+    "sphinx~=8.2",
+    "markdown-it-py~=4.0",
+    "mdit-py-plugins~=0.5.0",
+]
+ruff = ["ruff==0.14.11"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
@@ -136,6 +146,7 @@ disallow_any_generics = false
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:.*The default for the setting.*:FutureWarning",
+    "ignore:.*:PendingDeprecationWarning",
 ]
 
 [tool.coverage.run]

@@ -116,7 +116,7 @@ def _validate_url_schemes(
     except Exception as err:
         raise ValueError("Invalid YAML string") from err
     if isinstance(output, str):
-        output = {k: None for k in output.split(",")}
+        output = dict.fromkeys(output.split(","))
     if not isinstance(output, dict):
         raise ValueError("Expecting a comma-delimited str or YAML dictionary")
     return output
@@ -281,7 +281,7 @@ class Parser(RstParser):
             for i, line in enumerate(inputstring.split("\n")):
                 if len(line) > document.settings.line_length_limit:
                     error = document.reporter.error(
-                        f"Line {i+1} exceeds the line-length-limit:"
+                        f"Line {i + 1} exceeds the line-length-limit:"
                         f" {document.settings.line_length_limit}."
                     )
                     document.append(error)
@@ -482,7 +482,7 @@ def visit_rubric_html(self, node):
     So here we override the visit/depart methods to output the correct <h> element
     """
     if "level" in node:
-        self.body.append(self.starttag(node, f'h{node["level"]}', "", CLASS="rubric"))
+        self.body.append(self.starttag(node, f"h{node['level']}", "", CLASS="rubric"))
     else:
         self.body.append(self.starttag(node, "p", "", CLASS="rubric"))
 
@@ -493,7 +493,7 @@ def depart_rubric_html(self, node):
     See explanation in `visit_rubric_html`
     """
     if "level" in node:
-        self.body.append(f'</h{node["level"]}>\n')
+        self.body.append(f"</h{node['level']}>\n")
     else:
         self.body.append("</p>\n")
 

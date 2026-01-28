@@ -21,7 +21,7 @@ object (`sphinx.directives.ObjectDescription`):
 .
 <document source="<src>/index.md">
     <index entries="">
-    <desc classes="object" desctype="object" domain="" nocontentsentry="False" noindex="False" noindexentry="False" objtype="object">
+    <desc classes="object" desctype="object" domain="" no-contents-entry="False" no-index="False" no-index-entry="False" no-typesetting="False" nocontentsentry="False" noindex="False" noindexentry="False" objtype="object">
         <desc_signature _toc_name="" _toc_parts="()" classes="sig sig-object">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 something
@@ -323,7 +323,7 @@ math (`sphinx.directives.patches.MathDirective`):
 ```
 .
 <document source="<src>/index.md">
-    <math_block docname="index" label="True" nowrap="False" number="True" xml:space="preserve">
+    <math_block docname="index" label="True" no-wrap="False" nowrap="False" number="True" xml:space="preserve">
 .
 
 deprecated (`sphinx.domains.changeset.VersionChange`):
@@ -347,7 +347,7 @@ versionadded (`sphinx.domains.changeset.VersionChange`):
     <versionmodified type="versionadded" version="0.2">
         <paragraph translatable="False">
             <inline classes="versionmodified added">
-                New in version 0.2.
+                Added in version 0.2.
 .
 
 versionchanged (`sphinx.domains.changeset.VersionChange`):
@@ -372,7 +372,7 @@ term 2 : B
 ```
 .
 <document source="<src>/index.md">
-    <glossary>
+    <glossary sorted="False">
         <definition_list classes="glossary">
             <definition_list_item>
                 <term ids="term-term-1">
@@ -386,7 +386,7 @@ term 2 : B
                         Definition of both terms.
 .
 
-SPHINX4-SKIP productionlist (`sphinx.domains.std.ProductionList`):
+SKIP productionlist (`sphinx.domains.std.ProductionList`):
 .
 ```{productionlist} try_stmt: try1_stmt | try2_stmt
 ```
@@ -404,7 +404,7 @@ cmdoption (`sphinx.domains.std.Cmdoption`):
 .
 <document source="<src>/index.md">
     <index entries="('pair',\ 'command\ line\ option;\ a',\ 'cmdoption-arg-a',\ '',\ None)">
-    <desc classes="std cmdoption" desctype="cmdoption" domain="std" nocontentsentry="False" noindex="False" noindexentry="False" objtype="cmdoption">
+    <desc classes="std cmdoption" desctype="cmdoption" domain="std" no-contents-entry="False" no-index="False" no-index-entry="False" no-typesetting="False" nocontentsentry="False" noindex="False" noindexentry="False" objtype="cmdoption">
         <desc_signature _toc_name="" _toc_parts="()" allnames="a" classes="sig sig-object" ids="cmdoption-arg-a">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 a
@@ -419,14 +419,14 @@ rst:directive (`sphinx.domains.rst.ReSTDirective`):
 .
 <document source="<src>/index.md">
     <index entries="('single',\ 'a\ (directive)',\ 'directive-a',\ '',\ None)">
-    <desc classes="rst directive" desctype="directive" domain="rst" nocontentsentry="False" noindex="False" noindexentry="False" objtype="directive">
+    <desc classes="rst directive" desctype="directive" domain="rst" no-contents-entry="False" no-index="False" no-index-entry="False" no-typesetting="False" nocontentsentry="False" noindex="False" noindexentry="False" objtype="directive">
         <desc_signature _toc_name=".. a::" _toc_parts="('a',)" classes="sig sig-object" fullname="a" ids="directive-a">
             <desc_name classes="sig-name descname" xml:space="preserve">
                 .. a::
         <desc_content>
 .
 
-SPHINX4-SKIP rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
+SKIP rst:directive:option (`sphinx.domains.rst.ReSTDirectiveOption`):
 .
 ```{rst:directive:option} a
 ```

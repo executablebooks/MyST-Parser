@@ -1,5 +1,43 @@
 # Changelog
 
+## 5.0.0 - 2026-01-15
+
+This release significantly bumps the supported versions of core dependencies:
+
+### ‼️ Breaking Changes
+
+This release updates the minimum supported versions:
+
+- **Python**: `>=3.11` (dropped Python 3.10, tests up to 3.14)
+- **Sphinx**: `>=8,<10` (dropped Sphinx 7, added Sphinx 9)
+- **Docutils**: `>=0.20,<0.23` (dropped docutils 0.19, added docutils 0.22)
+- **markdown-it-py**: `~=4.0` (upgraded from v3)
+
+### ⬆️ Dependency Upgrades
+
+- ⬆️ Upgrade to markdown-it-py v4 by <gh-user:chrisjsewell> in <gh-pr:1060>
+- ⬆️ Drop Python 3.10 and Sphinx 7 by <gh-user:chrisjsewell> in <gh-pr:1059>
+- ⬆️ Drop docutils 0.19 by <gh-user:chrisjsewell> in <gh-pr:1061>
+- ⬆️ Add support for Python 3.14 by <gh-user:chrisjsewell> in <gh-pr:1075>
+- ⬆️ Support Sphinx v9 by <gh-user:chrisjsewell> in <gh-pr:1076>
+- ⬆️ Allow docutils 0.22 by <gh-user:chrisjsewell> in <gh-pr:1084>
+
+### 👌 Improvements
+
+- 👌 Improve generation of meta nodes by <gh-user:AA-Turner> in <gh-pr:1080>
+
+### 📚 Documentation
+
+- 📚 Fix typo in tables.md by <gh-user:electricalgorithm> in <gh-pr:1034>
+- 📚 Fix minor typo in `cross-referencing.md` by <gh-user:krassowski> in <gh-pr:1036>
+
+### 🔧 Internal / Maintenance
+
+- 🔧 Update pre-commit by <gh-user:chrisjsewell> in <gh-pr:1058>
+- 🔧 Add `AGENTS.md` by <gh-user:chrisjsewell> in <gh-pr:1083>
+
+**Full Changelog**: [v4.0.1...v5.0.0](https://github.com/executablebooks/MyST-Parser/compare/v4.0.1...v5.0.0)
+
 ## 4.0.1 - 2025-02-12
 
 🔧 Minor fix for Sphinx 8.2 compatibility (in <gh-pr:1013>)

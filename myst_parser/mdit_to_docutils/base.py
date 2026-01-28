@@ -28,7 +28,6 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
-from docutils.transforms.components import Filter
 from docutils.utils import Reporter, SystemMessage, new_document
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
@@ -980,8 +979,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         """Render a link token like `<project:...>`."""
         destination = cast(str, token.attrGet("href") or "")
-        if destination.startswith("project:"):
-            destination = destination[8:]
+        destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
         self.create_warning(
@@ -1800,13 +1798,13 @@ class DocutilsRenderer(RendererProtocol):
             )
             return [error_msg]
 
-        assert isinstance(
-            result, list
-        ), f'Directive "{name}" must return a list of nodes.'
+        assert isinstance(result, list), (
+            f'Directive "{name}" must return a list of nodes.'
+        )
         for i in range(len(result)):
-            assert isinstance(
-                result[i], nodes.Node
-            ), f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
+            assert isinstance(result[i], nodes.Node), (
+                f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'
+            )
         return result
 
     def render_substitution_inline(self, token: SyntaxTreeNode) -> None:
@@ -1888,7 +1886,7 @@ class DocutilsRenderer(RendererProtocol):
 
 def html_meta_to_nodes(
     data: dict[str, Any], document: nodes.document, line: int, reporter: Reporter
-) -> list[nodes.pending | nodes.system_message]:
+) -> list[nodes.meta | nodes.system_message]:
     """Replicate the `meta` directive,
     by converting a dictionary to a list of pending meta nodes
 
@@ -1922,14 +1920,8 @@ def html_meta_to_nodes(
         except ValueError as error:
             msg = reporter.error(f'Error parsing meta tag attribute "{key}": {error}.')
             output.append(msg)
-            continue
-
-        pending = nodes.pending(
-            Filter,
-            {"component": "writer", "format": "html", "nodes": [meta_node]},
-        )
-        document.note_pending(pending)
-        output.append(pending)
+        else:
+            output.append(meta_node)
 
     return output
 
