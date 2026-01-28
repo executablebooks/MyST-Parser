@@ -771,7 +771,11 @@ class DocutilsRenderer(RendererProtocol):
         # during ref resolution, and is not stored in the document.
         # TODO this is purely to mimic docutils, but maybe we don't need it?
         # (since we have the slugify logic below)
-        name = nodes.fully_normalize_name(implicit_text)
+
+        if self.md_config.fully_normalize_name_slug_func is not None:
+            name = self.md_config.fully_normalize_name_slug_func(implicit_text)
+        else:
+            name = nodes.fully_normalize_name(implicit_text)
         node["names"].append(name)
         self.document.note_implicit_target(node, node)
 
