@@ -113,12 +113,19 @@ Heading Levels:
 
 Nested heading
 .
+# Main heading
 > # heading
+> ## sub-heading
 .
 <document source="<src>/index.md">
-    <block_quote>
-        <rubric ids="heading" level="1" names="heading">
-            heading
+    <section ids="main-heading" names="main\ heading">
+        <title>
+            Main heading
+        <block_quote>
+            <rubric heading-level="2" ids="heading" level="2" names="heading">
+                heading
+            <rubric heading-level="3" ids="sub-heading" level="3" names="sub-heading">
+                sub-heading
 .
 
 Nested heading in object

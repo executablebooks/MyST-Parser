@@ -825,8 +825,11 @@ class DocutilsRenderer(RendererProtocol):
             parent_of_temp_root
             or isinstance(self.current_node, nodes.document | nodes.section)
         ):
+            level_offset = max(self._level_to_section.keys())
+            level += level_offset
             # if this is not the case, we create a rubric node instead
             rubric = nodes.rubric(token.content, "", level=level)
+            rubric["heading-level"] = level
             self.add_line_and_source_path(rubric, token)
             self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
