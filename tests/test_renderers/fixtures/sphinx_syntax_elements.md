@@ -121,6 +121,37 @@ Nested heading
             heading
 .
 
+Nested heading in object
+.
+```{object} foo
+bar
+# level 1
+wunderbar
+## level 2
+wunderbar
+```
+.
+<document source="<src>/index.md">
+    <index entries="">
+    <desc classes="object" desctype="object" domain="" no-contents-entry="False" no-index="False" no-index-entry="False" no-typesetting="False" nocontentsentry="False" noindex="False" noindexentry="False" objtype="object">
+        <desc_signature _toc_name="" _toc_parts="()" classes="sig sig-object">
+            <desc_name classes="sig-name descname" xml:space="preserve">
+                foo
+        <desc_content>
+            <paragraph>
+                bar
+            <section ids="level-1" names="level\ 1">
+                <title>
+                    level 1
+                <paragraph>
+                    wunderbar
+                <section ids="level-2" names="level\ 2">
+                    <title>
+                        level 2
+                    <paragraph>
+                        wunderbar
+.
+
 Block Code:
 .
     foo
