@@ -136,7 +136,7 @@ myst_url_schemes = {
     },
 }
 myst_number_code_blocks = ["typescript"]
-myst_heading_anchors = 2
+myst_heading_anchors = 3
 myst_footnote_transition = True
 myst_dmath_double_inline = True
 myst_enable_checkboxes = True

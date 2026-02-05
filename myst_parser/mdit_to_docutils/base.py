@@ -416,28 +416,35 @@ class DocutilsRenderer(RendererProtocol):
                         continue
                 node[key] = value
 
-    def update_section_level_state(self, section: nodes.section, level: int) -> None:
+    def update_section_level_state(
+        self,
+        section: nodes.section,
+        level: int,
+        *,
+        parent: nodes.Element | None = None,
+    ) -> None:
         """Update the section level state, with the new current section and level."""
         # find the closest parent section
-        parent_level = max(
-            section_level
-            for section_level in self._level_to_section
-            if level > section_level
-        )
-        parent = self._level_to_section[parent_level]
-
-        # if we are jumping up to a non-consecutive level,
-        # then warn about this, since this will not be propagated in the docutils AST
-        if (level > parent_level) and (parent_level + 1 != level):
-            msg = f"Non-consecutive header level increase; H{parent_level} to H{level}"
-            if parent_level == 0:
-                msg = f"Document headings start at H{level}, not H1"
-            self.create_warning(
-                msg,
-                MystWarnings.MD_HEADING_NON_CONSECUTIVE,
-                line=section.line,
-                append_to=self.current_node,
+        if parent is None:
+            parent_level = max(
+                section_level
+                for section_level in self._level_to_section
+                if level > section_level
             )
+            parent = self._level_to_section[parent_level]
+
+            # if we are jumping up to a non-consecutive level,
+            # then warn about this, since this will not be propagated in the docutils AST
+            if (level > parent_level) and (parent_level + 1 != level):
+                msg = f"Non-consecutive header level increase; H{parent_level} to H{level}"
+                if parent_level == 0:
+                    msg = f"Document headings start at H{level}, not H1"
+                self.create_warning(
+                    msg,
+                    MystWarnings.MD_HEADING_NON_CONSECUTIVE,
+                    line=section.line,
+                    append_to=self.current_node,
+                )
 
         # append the new section to the parent
         parent.append(section)
@@ -818,8 +825,11 @@ class DocutilsRenderer(RendererProtocol):
             parent_of_temp_root
             or isinstance(self.current_node, nodes.document | nodes.section)
         ):
+            level_offset = max(self._level_to_section.keys())
+            level += level_offset
             # if this is not the case, we create a rubric node instead
             rubric = nodes.rubric(token.content, "", level=level)
+            rubric["heading-level"] = level
             self.add_line_and_source_path(rubric, token)
             self.copy_attributes(token, rubric, ("class", "id"))
             with self.current_node_context(rubric, append=True):
@@ -838,7 +848,11 @@ class DocutilsRenderer(RendererProtocol):
             new_section["classes"].extend(["tex2jax_ignore", "mathjax_ignore"])
 
         # update the state of the section levels
-        self.update_section_level_state(new_section, level)
+        self.update_section_level_state(
+            new_section,
+            level,
+            parent=self.current_node if parent_of_temp_root else None,
+        )
 
         # create the title for this section
         title_node = nodes.title(token.children[0].content if token.children else "")
