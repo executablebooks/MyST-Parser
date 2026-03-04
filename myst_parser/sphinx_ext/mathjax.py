@@ -67,12 +67,11 @@ def override_mathjax(app: Sphinx):
     if mathjax_opt is not None:
         # sphinx 4 + mathjax 3
         # sphinx 9 + mathjax 4
-        config = getattr(app.config, opt, {}) or {} 
+        config = getattr(app.config, opt, {}) or {}
         config.setdefault("options", {})
         if (
             "processHtmlClass" in config["options"]
-            and config["options"]["processHtmlClass"]
-            != mjax_classes
+            and config["options"]["processHtmlClass"] != mjax_classes
         ):
             log_override_warning(
                 app,
