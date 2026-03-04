@@ -59,22 +59,29 @@ def override_mathjax(app: Sphinx):
 
     mjax_classes = app.env.myst_config.mathjax_classes  # type: ignore[attr-defined]
 
-    if "mathjax3_config" in app.config:
+    mathjax_opt = None
+    for opt in ("mathjax4_config", "mathjax3_config"):
+        if getattr(app.config, opt, None):
+            mathjax_opt = opt
+            break
+    if mathjax_opt is not None:
         # sphinx 4 + mathjax 3
-        app.config.mathjax3_config = app.config.mathjax3_config or {}
-        app.config.mathjax3_config.setdefault("options", {})
+        # sphinx 9 + mathjax 4
+        config = getattr(app.config, opt, {}) or {} 
+        config.setdefault("options", {})
         if (
-            "processHtmlClass" in app.config.mathjax3_config["options"]
-            and app.config.mathjax3_config["options"]["processHtmlClass"]
+            "processHtmlClass" in config["options"]
+            and config["options"]["processHtmlClass"]
             != mjax_classes
         ):
             log_override_warning(
                 app,
                 3,
-                app.config.mathjax3_config["options"]["processHtmlClass"],
+                config["options"]["processHtmlClass"],
                 mjax_classes,
             )
-        app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
+        config["options"]["processHtmlClass"] = mjax_classes
+        setattr(app.config, opt, config)
     elif "mathjax_config" in app.config:
         # sphinx 3 + mathjax 2
         app.config.mathjax_config = app.config.mathjax_config or {}
