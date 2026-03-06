@@ -11,7 +11,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "mock_include.md")
-def test_render(file_params, tmp_path, monkeypatch):
+def test_render(file_params, tmp_path, monkeypatch, normalize_doctree_xml):
     monkeypatch.chdir(tmp_path)
 
     tmp_path.joinpath("other.md").write_text("a\nb\nc")
@@ -24,7 +24,11 @@ def test_render(file_params, tmp_path, monkeypatch):
     )
 
     doctree["source"] = "tmpdir/test.md"
-    output = doctree.pformat().replace(str(tmp_path) + os.sep, "tmpdir/").rstrip()
+    output = (
+        normalize_doctree_xml(doctree.pformat())
+        .replace(str(tmp_path) + os.sep, "tmpdir/")
+        .rstrip()
+    )
 
     file_params.assert_expected(output, rstrip=True)
 

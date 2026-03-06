@@ -454,12 +454,18 @@ class MockIncludeDirective:
             literal_block.line = 1  # TODO don;t think this should be 1?
             self.add_name(literal_block)
             if "number-lines" in self.options:
-                try:
-                    startline = int(self.options["number-lines"] or 1)
-                except ValueError as err:
-                    raise DirectiveError(
-                        3, ":number-lines: with non-integer start value"
-                    ) from err
+                # note starting in docutils 0.22 this option is now an integer instead of a string, see: https://github.com/live-clones/docutils/commit/f39ac1413e56a330c8fea6e0d080fed0ff2b8483
+                if self.options["number-lines"] is None:
+                    startline = 1
+                elif isinstance(self.options["number-lines"], int):
+                    startline = self.options["number-lines"]
+                else:
+                    try:
+                        startline = int(self.options["number-lines"] or 1)
+                    except ValueError as err:
+                        raise DirectiveError(
+                            3, ":number-lines: with non-integer start value"
+                        ) from err
                 endline = startline + len(file_content.splitlines())
                 file_content = file_content.removesuffix("\n")
                 tokens = NumberLines([([], file_content)], startline, endline)

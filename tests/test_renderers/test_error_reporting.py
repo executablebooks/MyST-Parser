@@ -20,4 +20,9 @@ def test_basic(file_params):
         parser=Parser(),
         settings_overrides={"warning_stream": report_stream},
     )
-    file_params.assert_expected(report_stream.getvalue(), rstrip=True)
+    text = report_stream.getvalue()
+    # changed in docutils 0.23
+    text = text.replace(
+        "corresponding footnote available", "corresponding footnotes available"
+    )
+    file_params.assert_expected(text, rstrip=True)

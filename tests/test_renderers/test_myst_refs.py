@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
@@ -7,13 +9,29 @@ from sphinx_pytest.plugin import CreateDoctree
     "test_name,text,should_warn",
     [
         ("null", "", False),
-        ("missing", "[](ref)", True),
+        pytest.param(
+            "missing",
+            "[](ref)",
+            True,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32",
+                reason="Path separators differ on Windows",
+            ),
+        ),
         ("doc", "[](index)", False),
         ("doc_with_extension", "[](index.md)", False),
         ("doc_nested", "[*text*](index)", False),
         ("ref", "(ref)=\n# Title\n[](ref)", False),
         ("ref_nested", "(ref)=\n# Title\n[*text*](ref)", False),
-        ("duplicate", "(index)=\n# Title\n[](index)", True),
+        pytest.param(
+            "duplicate",
+            "(index)=\n# Title\n[](index)",
+            True,
+            marks=pytest.mark.skipif(
+                sys.platform == "win32",
+                reason="Path separators differ on Windows",
+            ),
+        ),
         ("ref_colon", "(ref:colon)=\n# Title\n[](ref:colon)", False),
     ],
 )
@@ -23,6 +41,7 @@ def test_parse(
     should_warn: bool,
     sphinx_doctree: CreateDoctree,
     file_regression,
+    normalize_doctree_xml,
 ):
     sphinx_doctree.set_conf({"extensions": ["myst_parser"], "show_warning_types": True})
     result = sphinx_doctree(text, "index.md")
@@ -37,7 +56,7 @@ def test_parse(
 
     doctree["source"] = "root/index.md"
     doctree.attributes.pop("translation_progress", None)
-    outcome = doctree.pformat()
+    outcome = normalize_doctree_xml(doctree.pformat())
     if result.warnings.strip():
         outcome += "\n\n" + strip_colors(result.warnings.strip())
     file_regression.check(outcome, basename=test_name, extension=".xml")

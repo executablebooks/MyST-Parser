@@ -29,7 +29,7 @@ def mock_renderer():
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "html_to_nodes.md")
-def test_html_to_nodes(file_params, mock_renderer):
+def test_html_to_nodes(file_params, mock_renderer, normalize_doctree_xml):
     output = nodes.container()
     output += html_to_nodes(file_params.content, line_number=0, renderer=mock_renderer)
-    file_params.assert_expected(output.pformat(), rstrip=True)
+    file_params.assert_expected(normalize_doctree_xml(output.pformat()), rstrip=True)

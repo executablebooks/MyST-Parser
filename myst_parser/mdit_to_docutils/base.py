@@ -28,7 +28,6 @@ from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
-from docutils.transforms.components import Filter
 from docutils.utils import Reporter, SystemMessage, new_document
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
@@ -1883,7 +1882,7 @@ class DocutilsRenderer(RendererProtocol):
 
 def html_meta_to_nodes(
     data: dict[str, Any], document: nodes.document, line: int, reporter: Reporter
-) -> list[nodes.pending | nodes.system_message]:
+) -> list[nodes.meta | nodes.system_message]:
     """Replicate the `meta` directive,
     by converting a dictionary to a list of pending meta nodes
 
@@ -1917,14 +1916,8 @@ def html_meta_to_nodes(
         except ValueError as error:
             msg = reporter.error(f'Error parsing meta tag attribute "{key}": {error}.')
             output.append(msg)
-            continue
-
-        pending = nodes.pending(
-            Filter,
-            {"component": "writer", "format": "html", "nodes": [meta_node]},
-        )
-        document.note_pending(pending)
-        output.append(pending)
+        else:
+            output.append(meta_node)
 
     return output
 

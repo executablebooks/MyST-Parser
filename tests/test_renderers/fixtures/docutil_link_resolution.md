@@ -128,14 +128,15 @@
         Test
     <subtitle ids="other test-1" names="other test">
         Other
-    <system_message backrefs="test-1" level="1" line="3" source="<src>/index.md" type="INFO">
-        <paragraph>
-            Duplicate implicit target name: "test".
     <target refid="test-1">
     <paragraph>
         <reference id_link="True" refid="test-1">
             <inline classes="std std-ref">
                 Other
+
+
+<src>/index.md:3: (INFO/1) Target name overrides implicit target name "test".
+<src>/index.md:3: (INFO/1) Hyperlink target "test-1" is not referenced.
 .
 
 [id-with-spaces] 

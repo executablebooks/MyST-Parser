@@ -169,7 +169,7 @@ Image empty:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="" uri="">
+        <image alt="" candidates="{'*': '.'}" original_uri="" uri=".">
 .
 
 Image with alt and title:
@@ -178,7 +178,7 @@ Image with alt and title:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="alt" title="title" uri="src">
+        <image alt="alt" candidates="{'*': 'src'}" title="title" uri="src">
 .
 
 Image with escapable html:
@@ -187,7 +187,7 @@ Image with escapable html:
 .
 <document source="<src>/index.md">
     <paragraph>
-        <image alt="alt" uri="http://www.google%3C%3E.com">
+        <image alt="alt" candidates="{'?': 'http://www.google%3C%3E.com'}" uri="http://www.google%3C%3E.com">
 .
 
 Block Quote:
@@ -674,38 +674,10 @@ myst:
 ---
 .
 <document source="<src>/index.md">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="Sphinx, documentation, builder" name="keywords">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="An amusing story" lang="en" name="description">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="Un histoire amusant" lang="fr" name="description">
-    <pending>
-        .. internal attributes:
-             .transform: docutils.transforms.components.Filter
-             .details:
-               component: 'writer'
-               format: 'html'
-               nodes:
-                 <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+    <meta content="Sphinx, documentation, builder" name="keywords">
+    <meta content="An amusing story" lang="en" name="description">
+    <meta content="Un histoire amusant" lang="fr" name="description">
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
 .
 
 Full Test:
