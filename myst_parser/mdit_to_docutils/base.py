@@ -31,7 +31,6 @@ from docutils.statemachine import StringList
 from docutils.utils import Reporter, SystemMessage, new_document
 from docutils.utils.code_analyzer import Lexer, LexerError, NumberLines
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import escapeHtml
 from markdown_it.renderer import RendererProtocol
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
@@ -954,7 +953,7 @@ class DocutilsRenderer(RendererProtocol):
             if "classes" in conversion:
                 ref_node["classes"].extend(conversion["classes"])
 
-        ref_node["refuri"] = escapeHtml(uri)
+        ref_node["refuri"] = uri
         if implicit_text is not None:
             with self.current_node_context(ref_node, append=True):
                 self.current_node.append(nodes.Text(implicit_text))
