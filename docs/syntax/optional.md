@@ -28,12 +28,14 @@ To enable all the syntaxes explained below:
 
 ```python
 myst_enable_extensions = [
+    "alert",
     "amsmath",
     "attrs_inline",
     "colon_fence",
     "deflist",
     "dollarmath",
     "fieldlist",
+    "gfm_autolink",
     "html_admonition",
     "html_image",
     "linkify",
@@ -88,6 +90,12 @@ text  | converted
 
 The `strikethrough` extension allows text within `~~` delimiters to have a strikethrough (horizontal line) placed over it.
 For example, `~~strikethrough with *emphasis*~~` renders as: ~~strikethrough with *emphasis*~~.
+
+```{versionadded} 5.1.0
+`myst_strikethrough_single_tilde` option
+```
+
+To also allow single tilde delimiters (e.g. `~strikethrough~`), set `myst_strikethrough_single_tilde = True` in your {{ confpy }}.
 
 :::{warning}
 This extension is currently only supported for HTML output,
@@ -296,6 +304,27 @@ This extension requires that [linkify-it-py](https://github.com/tsutsu3/linkify-
 Either directly; `pip install linkify-it-py` or *via* `pip install myst-parser[linkify]`.
 :::
 
+(syntax/gfm-autolink)=
+## GFM Autolinks
+
+```{versionadded} 5.1.0
+```
+
+Adding `"gfm_autolink"` to `myst_enable_extensions` (in the {{ confpy }}) will enable the [GitHub Flavored Markdown autolink extension](https://github.github.com/gfm/#autolinks-extension-).
+This recognises bare `www.` URLs, `http(s)://` URLs, and email addresses, converting them to hyperlinks.
+
+Unlike the `linkify` extension, `gfm_autolink` does **not** require any additional package to be installed.
+It follows the GFM specification for determining URL boundaries.
+
+:::{note}
+`gfm_autolink` and `linkify` should not both be enabled at the same time, as they serve the same purpose with different matching algorithms.
+
+Key differences:
+
+- **`linkify`** matches schema-less domains (e.g. `example.com` with `fuzzy_link=True`), supports many protocols, and requires `linkify-it-py`.
+- **`gfm_autolink`** only matches `www.`-prefixed URLs, `http(s)://`/`mailto:`/`xmpp:` URLs, and email addresses. It has no extra dependency and follows GFM URL boundary rules exactly.
+:::
+
 (syntax/substitutions)=
 
 ## Substitutions (with Jinja2)
@@ -411,6 +440,13 @@ you can also use `:::` delimiters to denote directives, instead of ```` ``` ````
 
 Using colons instead of back-ticks has the benefit of allowing the content to be rendered correctly, when you are working in any standard Markdown editor.
 It is ideal for admonition type directives (as documented in [Directives](syntax/directives)) or tables with titles, for example:
+
+```{versionadded} 5.1.0
+`myst_colon_fence_exact_match` option
+```
+
+By default, a closing colon fence with *at least* as many colons as the opening fence will close the block (matching the behaviour of backtick fences).
+To require the closing fence to have *exactly* the same number of colons as the opening, set `myst_colon_fence_exact_match = True` in your {{ confpy }}.
 
 :::::{myst-example}
 
@@ -589,6 +625,38 @@ and are applied to markdown list items starting with `[ ]` or `[x]`:
 - [ ] An item that needs doing
 - [x] An item that is complete
 :::
+
+(syntax/alerts)=
+## Alerts (GitHub-style callouts)
+
+```{versionadded} 5.1.0
+```
+
+By adding `"alert"` to `myst_enable_extensions` (in the {{ confpy }}),
+you can use [GitHub-style alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) (also known as callouts).
+These are rendered as admonition nodes in the output.
+
+The syntax is a blockquote beginning with a special marker like `[!NOTE]`:
+
+:::{myst-example}
+> [!NOTE]
+> This is a note alert.
+
+> [!TIP]
+> This is a tip alert.
+
+> [!IMPORTANT]
+> This is an important alert.
+
+> [!WARNING]
+> This is a warning alert.
+
+> [!CAUTION]
+> This is a caution alert.
+:::
+
+The five supported alert types map to the following docutils admonition nodes:
+`NOTE`, `TIP`, `IMPORTANT`, `WARNING`, and `CAUTION`.
 
 (syntax/fieldlists)=
 ## Field Lists
