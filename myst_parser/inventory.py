@@ -366,7 +366,15 @@ def filter_sphinx_inventories(
                 continue
             for target in data:
                 if match_with_wildcard(target, targets):
-                    project, version, loc, text = data[target]
+                    data_target = data[target]
+                    if hasattr(data_target, "project_name"):
+                        # Sphinx >= 8.2
+                        project = data_target.project_name
+                        version = data_target.project_version
+                        loc = data_target.uri
+                        text = data_target.display_name
+                    else:
+                        project, version, loc, text = data_target
                     yield (
                         InvMatch(
                             inv=inv_name,
