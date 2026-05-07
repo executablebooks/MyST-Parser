@@ -28,6 +28,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
         raise TypeError(f"'{field.name}' not iterable: {value}")
     diff = set(value).difference(
         [
+            "alert",
             "amsmath",
             "attrs_image",
             "attrs_inline",
@@ -36,6 +37,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "deflist",
             "dollarmath",
             "fieldlist",
+            "gfm_autolink",
             "html_admonition",
             "html_image",
             "linkify",
@@ -437,6 +439,24 @@ class MdParserConfig:
             "validator": instance_of(bool),
             "help": "Enable checkboxes",
             "extension": "tasklist",
+        },
+    )
+
+    strikethrough_single_tilde: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Allow single tilde (~) for strikethrough, in addition to double (~~)",
+            "extension": "strikethrough",
+        },
+    )
+
+    colon_fence_exact_match: bool = dc.field(
+        default=False,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Require closing colon fence to have exactly the same number of colons as the opening",
+            "extension": "colon_fence",
         },
     )
 

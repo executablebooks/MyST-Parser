@@ -96,6 +96,7 @@ nitpick_ignore = [
 # -- MyST settings ---------------------------------------------------
 
 myst_enable_extensions = [
+    "alert",
     "dollarmath",
     "amsmath",
     "deflist",
