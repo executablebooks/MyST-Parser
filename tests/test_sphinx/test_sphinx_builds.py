@@ -452,6 +452,27 @@ def test_substitutions(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "substitutions_missing"),
+    freshenv=True,
+)
+def test_substitutions_missing(
+    app,
+    status,
+    warning,
+):
+    """Test that missing substitution generate warning without '.rst' suffix in location."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip().splitlines()
+    assert len(warnings) == 1
+    assert (
+        "index.md:5: WARNING: Substitution error:UndefinedError: 'missing' is undefined [myst.substitution]"
+        in warnings[0]
+    )
+
+
+@pytest.mark.sphinx(
     buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
 )
 def test_gettext(

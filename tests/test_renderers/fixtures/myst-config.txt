@@ -143,7 +143,7 @@ www.commonmark.org/he<lp
         <reference refuri="http://www.google.com/search?q=(business))+ok">
             www.google.com/search?q=(business))+ok
     <paragraph>
-        <reference refuri="http://www.google.com/search?q=commonmark&amp;hl=en">
+        <reference refuri="http://www.google.com/search?q=commonmark&hl=en">
             www.google.com/search?q=commonmark&hl=en
     <paragraph>
         <reference refuri="http://www.google.com/search?q=commonmark">
