@@ -85,7 +85,7 @@ testing-docutils = [
 
 [dependency-groups]
 mypy = [
-    "mypy==1.19.1",
+    "mypy==2.0.0",
     "types-urllib3",
     "sphinx~=8.2",
     "markdown-it-py~=4.2",
