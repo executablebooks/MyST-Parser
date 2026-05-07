@@ -140,16 +140,15 @@ www.commonmark.org/he<lp
         <reference refuri="http://www.google.com/search?q=Markup+(business)">
             www.google.com/search?q=Markup+(business)
     <paragraph>
-        <reference refuri="http://www.google.com/search?q=(business)">
-            www.google.com/search?q=(business)
-        )+ok
+        <reference refuri="http://www.google.com/search?q=(business))+ok">
+            www.google.com/search?q=(business))+ok
     <paragraph>
-        <reference refuri="http://www.google.com/search?q=commonmark&amp;hl=en">
+        <reference refuri="http://www.google.com/search?q=commonmark&hl=en">
             www.google.com/search?q=commonmark&hl=en
     <paragraph>
-        <reference refuri="http://www.google.com/search?q=commonmark&amp;hl">
-            www.google.com/search?q=commonmark&hl
-        ;
+        <reference refuri="http://www.google.com/search?q=commonmark">
+            www.google.com/search?q=commonmark
+        &hl;
     <paragraph>
         <reference refuri="http://www.commonmark.org/he">
             www.commonmark.org/he
@@ -166,13 +165,13 @@ www.commonmark.org/he<lp
         <list_item classes="task-list-item enabled">
             <paragraph>
                 <raw format="html" xml:space="preserve">
-                    <input class="task-list-item-checkbox"  type="checkbox">
-                 a
+                    <input class="task-list-item-checkbox" type="checkbox">
+                a
         <list_item classes="task-list-item enabled">
             <paragraph>
                 <raw format="html" xml:space="preserve">
-                    <input class="task-list-item-checkbox" checked="checked"  type="checkbox">
-                 b
+                    <input class="task-list-item-checkbox" checked="checked" type="checkbox">
+                b
 .
 
 [url_schemes] --myst-url-schemes="{'ab': null, 'cd': '{{path}}', 'ef': {'url': 'https://{{path}}#{{fragment}}', 'title': 'My {{query}}', 'classes': ['xyz']}}"

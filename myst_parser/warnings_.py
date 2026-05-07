@@ -126,7 +126,9 @@ def create_warning(
             message,
             type=type_str,
             subtype=subtype_str,
-            location=node if node is not None else (document["source"], line),
+            location=node
+            if node is not None
+            else (document.settings.env.docname, line),
         )
         if _is_suppressed_warning(
             type_str, subtype_str, document.settings.env.config.suppress_warnings
