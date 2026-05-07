@@ -91,7 +91,7 @@ mypy = [
     "markdown-it-py~=4.2",
     "mdit-py-plugins~=0.6.0",
 ]
-ruff = ["ruff==0.14.11"]
+ruff = ["ruff==0.15.10"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
