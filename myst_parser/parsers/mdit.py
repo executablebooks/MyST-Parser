@@ -50,6 +50,7 @@ def create_md_parser(
             tasklists_editable=config.enable_checkboxes,
         )
         md.use(wordcount_plugin, per_minute=config.words_per_minute)
+        md.options.update({"myst_config": config})
         return md
 
     md = (
