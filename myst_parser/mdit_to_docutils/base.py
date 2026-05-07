@@ -515,7 +515,7 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(item_node, token)
         with self.current_node_context(item_node, append=True):
             # Handle built-in tasklist checkbox (markdown-it-py >= 4.1)
-            meta = token.meta if token.meta else {}
+            meta = token.meta or {}
             if "checked" in meta:
                 checked = meta["checked"]
                 editable = self.md.options.get("tasklists_editable", False)
