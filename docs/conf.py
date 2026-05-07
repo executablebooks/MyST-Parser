@@ -197,8 +197,9 @@ rediraffe_redirects = {
 tippy_skip_anchor_classes = ("headerlink", "sd-stretched-link", "sd-rounded-pill")
 tippy_anchor_parent_selector = "article.bd-article"
 tippy_rtd_urls = [
-    "https://www.sphinx-doc.org/en/master",
-    "https://markdown-it-py.readthedocs.io/en/latest",
+    # TODO these are failing the build: Expecting value: line 1 column 1 (char 0)
+    # "https://www.sphinx-doc.org/en/master",
+    # "https://markdown-it-py.readthedocs.io/en/latest",
 ]
 # TODO failing
 tippy_enable_wikitips = False
