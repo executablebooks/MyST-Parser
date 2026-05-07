@@ -514,7 +514,40 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(token, item_node, keys=("class", "id"))
         self.add_line_and_source_path(item_node, token)
         with self.current_node_context(item_node, append=True):
-            self.render_children(token)
+            # Handle built-in tasklist checkbox (markdown-it-py >= 4.1)
+            meta = token.meta if token.meta else {}
+            if "checked" in meta:
+                checked = meta["checked"]
+                editable = self.md.options.get("tasklists_editable", False)
+                if editable:
+                    item_node["classes"].append("enabled")
+                checked_attr = 'checked="checked" ' if checked else ""
+                disabled_attr = "" if editable else 'disabled="disabled" '
+                checkbox_html = (
+                    f'<input class="task-list-item-checkbox" '
+                    f'{checked_attr}{disabled_attr}type="checkbox">'
+                )
+                self.render_children(token)
+                # The first child is always a paragraph: markdown-it-py emits
+                # paragraph_open/close for both tight and loose lists (tight
+                # lists mark them hidden, but we render them regardless).
+                # Tasklist items by definition start with `[ ]`/`[x]` text
+                # content, so a paragraph is always the first block child.
+                if item_node.children and isinstance(
+                    item_node.children[0], nodes.paragraph
+                ):
+                    item_node.children[0].insert(
+                        0, nodes.raw("", checkbox_html, format="html")
+                    )
+                else:
+                    self.create_warning(
+                        "Tasklist item has no leading paragraph for checkbox",
+                        MystWarnings.RENDER_METHOD,
+                        line=token_line(token, 0),
+                        append_to=self.current_node,
+                    )
+            else:
+                self.render_children(token)
 
     def render_em(self, token: SyntaxTreeNode) -> None:
         node = nodes.emphasis()
@@ -550,6 +583,30 @@ class DocutilsRenderer(RendererProtocol):
                         token_line(token, 0),
                         inline=True,
                     )
+
+    _alert_node_mapping: dict[str, type[nodes.Element]] = {
+        "NOTE": nodes.note,
+        "TIP": nodes.tip,
+        "IMPORTANT": nodes.important,
+        "WARNING": nodes.warning,
+        "CAUTION": nodes.caution,
+    }
+
+    def render_alert(self, token: SyntaxTreeNode) -> None:
+        """Render a GitHub-style alert as a docutils admonition."""
+        kind = token.info.upper() if token.info else ""
+        node_cls = self._alert_node_mapping.get(kind, nodes.admonition)
+        admonition = node_cls()
+        if node_cls is nodes.admonition:
+            # Generic admonition needs a title
+            title = nodes.title("", kind.capitalize())
+            admonition += title
+        self.add_line_and_source_path(admonition, token)
+        with self.current_node_context(admonition, append=True):
+            self.render_children(token)
+
+    def render_alert_title(self, token: SyntaxTreeNode) -> None:
+        """Skip the alert title — docutils admonitions generate their own."""
 
     def render_hr(self, token: SyntaxTreeNode) -> None:
         node = nodes.transition()
