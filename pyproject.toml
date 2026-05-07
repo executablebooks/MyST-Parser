@@ -36,8 +36,8 @@ requires-python = ">=3.11"
 dependencies = [
     "docutils>=0.20,<0.23",
     "jinja2", # required for substitutions, but let sphinx choose version
-    "markdown-it-py~=4.0",
-    "mdit-py-plugins~=0.5",
+    "markdown-it-py~=4.2",
+    "mdit-py-plugins~=0.6",
     "pyyaml",
     "sphinx>=8,<10",
 ]
@@ -88,8 +88,8 @@ mypy = [
     "mypy==1.19.1",
     "types-urllib3",
     "sphinx~=8.2",
-    "markdown-it-py~=4.0",
-    "mdit-py-plugins~=0.5.0",
+    "markdown-it-py~=4.2",
+    "mdit-py-plugins~=0.6.0",
 ]
 ruff = ["ruff==0.15.10"]
 

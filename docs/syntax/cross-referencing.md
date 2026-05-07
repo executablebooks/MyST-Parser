@@ -379,6 +379,8 @@ Sphinx offers numerous [roles for referencing](#usage/restructuredtext/roles) sp
 These can also be used within MyST documents, although it is recommended to use the Markdown syntax where possible, which is more portable and native to MyST.
 
 :::{myst-example}
+Sphinx roles:
+
 - {ref}`syntax/referencing`, {ref}`Explicit text <syntax/referencing>`
 - {term}`my other term`
 - {doc}`../intro`, {doc}`Explicit text <../intro>`
@@ -387,7 +389,7 @@ These can also be used within MyST documents, although it is recommended to use 
 - {external:class}`sphinx.application.Sphinx`, {external:class}`Explicit text <sphinx.application.Sphinx>`
 - {external+sphinx:ref}`code-examples`, {external+sphinx:ref}`Explicit text <code-examples>`
 
----
+MyST native:
 
 - <project:#syntax/referencing>, [][syntax], [Explicit text][syntax]
 - [](<#my other term>)
