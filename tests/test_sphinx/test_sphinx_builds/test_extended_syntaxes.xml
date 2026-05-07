@@ -100,12 +100,12 @@
                 <paragraph>
                     <raw format="html" xml:space="preserve">
                         <input class="task-list-item-checkbox" disabled="disabled" type="checkbox">
-                     hallo
+                    hallo
             <list_item classes="task-list-item">
                 <paragraph>
                     <raw format="html" xml:space="preserve">
                         <input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">
-                     there
+                    there
         <paragraph>
             Numbered code block:
         <literal_block language="typescript" linenos="True" xml:space="preserve">

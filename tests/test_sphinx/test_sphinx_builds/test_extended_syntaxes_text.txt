@@ -54,9 +54,9 @@ Hallo *there*
 
 linkify URL: www.example.com
 
-*  hallo
+* hallo
 
-*  there
+* there
 
 Numbered code block:
 

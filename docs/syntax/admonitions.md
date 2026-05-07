@@ -3,6 +3,10 @@
 Admonitions (also known as callouts) highlight a particular block of text,
 that exists slightly apart from the narrative of your page, such as a note or a warning.
 
+:::{seealso}
+The [alert extension](syntax/alerts) provides GitHub-style alerts as a lightweight alternative syntax for admonitions.
+:::
+
 Admonitions are a special case of {{directive}} extensions.
 It is advised to use admonitions with the [colon_fence](#syntax/colon_fence) extension, which signify that the content of the block is also MyST Markdown.
 

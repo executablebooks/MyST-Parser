@@ -747,3 +747,33 @@ a = 1
         <paragraph>
             <reference refname="target">
 .
+
+URL with ampersand in query string
+.
+[link](https://example.com/search?q=foo&bar=baz)
+.
+<document source="notset">
+    <paragraph>
+        <reference refuri="https://example.com/search?q=foo&bar=baz">
+            link
+.
+
+URL with angle brackets (percent-encoded by normalizeLink, not HTML-escaped)
+.
+[link](https://example.com/path<with>brackets)
+.
+<document source="notset">
+    <paragraph>
+        <reference refuri="https://example.com/path%3Cwith%3Ebrackets">
+            link
+.
+
+URL with double quotes (percent-encoded by normalizeLink, not HTML-escaped)
+.
+[link](https://example.com/path"with"quotes)
+.
+<document source="notset">
+    <paragraph>
+        <reference refuri="https://example.com/path%22with%22quotes">
+            link
+.
