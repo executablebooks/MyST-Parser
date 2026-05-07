@@ -8,18 +8,19 @@ from collections.abc import Callable
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererProtocol
+from markdown_it.rules_block import make_fence_rule
 from mdit_py_plugins.amsmath import amsmath_plugin
 from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
-from mdit_py_plugins.colon_fence import colon_fence_plugin
 from mdit_py_plugins.deflist import deflist_plugin
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 from mdit_py_plugins.field_list import fieldlist_plugin
 from mdit_py_plugins.footnote import footnote_plugin
 from mdit_py_plugins.front_matter import front_matter_plugin
+from mdit_py_plugins.gfm import gfm_plugin
+from mdit_py_plugins.gfm_autolink import gfm_autolink_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
 from mdit_py_plugins.substitution import substitution_plugin
-from mdit_py_plugins.tasklists import tasklists_plugin
 from mdit_py_plugins.wordcount import wordcount_plugin
 
 from myst_parser.config.main import MdParserConfig
@@ -43,15 +44,12 @@ def create_md_parser(
 
     if config.gfm_only:
         # see https://github.github.com/gfm/
-        md = (
-            MarkdownIt("commonmark", renderer_cls=renderer)
-            # note, strikethrough currently only supported tentatively for HTML
-            .enable("strikethrough")
-            .enable("table")
-            .use(tasklists_plugin, enabled=config.enable_checkboxes)
-            .enable("linkify")
-            .use(wordcount_plugin, per_minute=config.words_per_minute)
+        md = MarkdownIt("commonmark", renderer_cls=renderer)
+        md.use(
+            gfm_plugin,
+            tasklists_editable=config.enable_checkboxes,
         )
+        md.use(wordcount_plugin, per_minute=config.words_per_minute)
         md.options.update({"linkify": True, "myst_config": config})
         return md
 
@@ -76,8 +74,11 @@ def create_md_parser(
         md.enable("linkify")
         if md.linkify is not None:
             md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
+    if "gfm_autolink" in config.enable_extensions:
+        md.use(gfm_autolink_plugin)
     if "strikethrough" in config.enable_extensions:
         md.enable("strikethrough")
+        md.options["strikethrough_single_tilde"] = config.strikethrough_single_tilde
     if "dollarmath" in config.enable_extensions:
         md.use(
             dollarmath_plugin,
@@ -87,7 +88,17 @@ def create_md_parser(
             double_inline=config.dmath_double_inline,
         )
     if "colon_fence" in config.enable_extensions:
-        md.use(colon_fence_plugin)
+        colon_fence = make_fence_rule(
+            markers=(":",),
+            token_type="colon_fence",
+            exact_match=config.colon_fence_exact_match,
+        )
+        md.block.ruler.before(
+            "fence",
+            "colon_fence",
+            colon_fence,
+            {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
+        )
     if "amsmath" in config.enable_extensions:
         md.use(amsmath_plugin)
     if "deflist" in config.enable_extensions:
@@ -95,7 +106,10 @@ def create_md_parser(
     if "fieldlist" in config.enable_extensions:
         md.use(fieldlist_plugin)
     if "tasklist" in config.enable_extensions:
-        md.use(tasklists_plugin, enabled=config.enable_checkboxes)
+        md.options["tasklists"] = True
+        md.options["tasklists_editable"] = config.enable_checkboxes
+    if "alert" in config.enable_extensions:
+        md.options["alerts"] = True
     if "substitution" in config.enable_extensions:
         md.use(substitution_plugin, *config.sub_delimiters)
     if "attrs_inline" in config.enable_extensions:
