@@ -534,10 +534,19 @@ class DocutilsRenderer(RendererProtocol):
                 # lists mark them hidden, but we render them regardless).
                 # Tasklist items by definition start with `[ ]`/`[x]` text
                 # content, so a paragraph is always the first block child.
-                assert isinstance(item_node.children[0], nodes.paragraph)
-                item_node.children[0].insert(
-                    0, nodes.raw("", checkbox_html, format="html")
-                )
+                if item_node.children and isinstance(
+                    item_node.children[0], nodes.paragraph
+                ):
+                    item_node.children[0].insert(
+                        0, nodes.raw("", checkbox_html, format="html")
+                    )
+                else:
+                    self.create_warning(
+                        "Tasklist item has no leading paragraph for checkbox",
+                        MystWarnings.RENDER_METHOD,
+                        line=token_line(token, 0),
+                        append_to=self.current_node,
+                    )
             else:
                 self.render_children(token)
 
