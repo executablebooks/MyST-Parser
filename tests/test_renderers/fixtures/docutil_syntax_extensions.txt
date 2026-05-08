@@ -126,7 +126,23 @@ content
             </s>
 .
 
-[tasklist] --myst-enable-extensions=tasklist
+[strikethrough-single-tilde] --myst-enable-extensions=strikethrough --myst-strikethrough-single-tilde="true"
+.
+~foo~
+.
+<document source="<string>">
+    <paragraph>
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Strikethrough is currently only supported in HTML output [myst.strikethrough]
+        <raw format="html" xml:space="preserve">
+            <s>
+        foo
+        <raw format="html" xml:space="preserve">
+            </s>
+.
+
+[tasklist-tight] --myst-enable-extensions=tasklist
 .
 - [ ] foo
 - [x] bar
@@ -137,10 +153,123 @@ content
             <paragraph>
                 <raw format="html" xml:space="preserve">
                     <input class="task-list-item-checkbox" disabled="disabled" type="checkbox">
-                 foo
+                foo
         <list_item classes="task-list-item">
             <paragraph>
                 <raw format="html" xml:space="preserve">
                     <input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">
-                 bar
+                bar
+.
+
+[tasklist-loose] --myst-enable-extensions=tasklist
+.
+- [ ] loose foo
+
+  extra paragraph
+
+- [x] loose bar
+.
+<document source="<string>">
+    <bullet_list bullet="-" classes="contains-task-list">
+        <list_item classes="task-list-item">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox" disabled="disabled" type="checkbox">
+                loose foo
+            <paragraph>
+                extra paragraph
+        <list_item classes="task-list-item">
+            <paragraph>
+                <raw format="html" xml:space="preserve">
+                    <input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox">
+                loose bar
+.
+
+[alert-note] --myst-enable-extensions=alert
+.
+> [!NOTE]
+> This is a note.
+.
+<document source="<string>">
+    <note>
+        <paragraph>
+            This is a note.
+.
+
+[alert-tip] --myst-enable-extensions=alert
+.
+> [!TIP]
+> This is a tip.
+.
+<document source="<string>">
+    <tip>
+        <paragraph>
+            This is a tip.
+.
+
+[alert-important] --myst-enable-extensions=alert
+.
+> [!IMPORTANT]
+> This is important.
+.
+<document source="<string>">
+    <important>
+        <paragraph>
+            This is important.
+.
+
+[alert-warning] --myst-enable-extensions=alert
+.
+> [!WARNING]
+> This is a warning.
+.
+<document source="<string>">
+    <warning>
+        <paragraph>
+            This is a warning.
+.
+
+[alert-caution] --myst-enable-extensions=alert
+.
+> [!CAUTION]
+> This is a caution.
+.
+<document source="<string>">
+    <caution>
+        <paragraph>
+            This is a caution.
+.
+
+[alert-multiline] --myst-enable-extensions=alert
+.
+> [!NOTE]
+> First paragraph.
+>
+> Second paragraph.
+.
+<document source="<string>">
+    <note>
+        <paragraph>
+            First paragraph.
+        <paragraph>
+            Second paragraph.
+.
+
+[gfm_autolink] --myst-enable-extensions=gfm_autolink
+.
+Visit www.example.com for info.
+
+Contact user@example.com for help.
+.
+<document source="<string>">
+    <paragraph>
+        Visit
+        <reference refuri="http://www.example.com">
+            www.example.com
+         for info.
+    <paragraph>
+        Contact
+        <reference refuri="mailto:user@example.com">
+            user@example.com
+         for help.
 .

@@ -3,6 +3,7 @@
 [alt2](https://www.google.com)
 [](https://www.google.com)
 <https://www.google.com>
+<https://example.com?foo=bar&a=1>
 .
 <document source="<src>/index.md">
     <paragraph>
@@ -13,6 +14,9 @@
 
         <reference refuri="https://www.google.com">
             https://www.google.com
+
+        <reference refuri="https://example.com?foo=bar&a=1">
+            https://example.com?foo=bar&a=1
 .
 
 [missing] 
