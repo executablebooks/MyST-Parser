@@ -3,7 +3,7 @@
 This fixes two issues:
 
 1. Mathjax should not search for ``$`` delimiters, nor LaTeX amsmath environments,
-   since we already achieve this with the dollarmath and amsmath mrakdown-it-py plugins
+   since we already achieve this with the dollarmath and amsmath markdown-it-py plugins
 2. amsmath math blocks should be wrapped in mathjax delimiters (default ``\\[...\\]``),
    and assigned an equation number
 
@@ -20,17 +20,13 @@ from sphinx.writers.html import HTMLTranslator
 logger = logging.getLogger(__name__)
 
 
-def log_override_warning(app: Sphinx, version: int, current: str, new: str) -> None:
+def log_override_warning(app: Sphinx, config_name: str, current: str, new: str) -> None:
     """Log a warning if MathJax configuration being overridden."""
     if logging.is_suppressed_warning("myst", "mathjax", app.config.suppress_warnings):
         return
-    config_name = (
-        "mathjax3_config['options']['processHtmlClass']"
-        if version == 3
-        else "mathjax_config['tex2jax']['processClass']"
-    )
     logger.warning(
-        f"`{config_name}` is being overridden by myst-parser: '{current}' -> '{new}'. "
+        f"`{config_name}['options']['processHtmlClass']` "
+        f"is being overridden by myst-parser: '{current}' -> '{new}'. "
         "Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or "
         "`myst_update_mathjax=False` if this is undesirable."
     )
@@ -59,37 +55,35 @@ def override_mathjax(app: Sphinx):
 
     mjax_classes = app.env.myst_config.mathjax_classes  # type: ignore[attr-defined]
 
-    if "mathjax3_config" in app.config:
-        # sphinx 4 + mathjax 3
-        app.config.mathjax3_config = app.config.mathjax3_config or {}
-        app.config.mathjax3_config.setdefault("options", {})
-        if (
-            "processHtmlClass" in app.config.mathjax3_config["options"]
-            and app.config.mathjax3_config["options"]["processHtmlClass"]
-            != mjax_classes
-        ):
-            log_override_warning(
-                app,
-                3,
-                app.config.mathjax3_config["options"]["processHtmlClass"],
-                mjax_classes,
-            )
-        app.config.mathjax3_config["options"]["processHtmlClass"] = mjax_classes
-    elif "mathjax_config" in app.config:
-        # sphinx 3 + mathjax 2
-        app.config.mathjax_config = app.config.mathjax_config or {}
-        app.config.mathjax_config.setdefault("tex2jax", {})
-        if (
-            "processClass" in app.config.mathjax_config["tex2jax"]
-            and app.config.mathjax_config["tex2jax"]["processClass"] != mjax_classes
-        ):
-            log_override_warning(
-                app,
-                2,
-                app.config.mathjax_config["tex2jax"]["processClass"],
-                mjax_classes,
-            )
-        app.config.mathjax_config["tex2jax"]["processClass"] = mjax_classes
+    # Determine which mathjax config to modify:
+    # prefer whichever the user has explicitly set, falling back to
+    # the Sphinx version's default (mathjax4_config for Sphinx 9+, mathjax3_config for 8).
+    # Note: if a user sets both mathjax3_config and mathjax4_config, we only update
+    # the v4 config (Sphinx emits both but v4 clobbers v3 at runtime anyway).
+    has_mjax4 = hasattr(app.config, "mathjax4_config")
+    if has_mjax4 and app.config.mathjax4_config:
+        config_attr = "mathjax4_config"
+    elif app.config.mathjax3_config:
+        config_attr = "mathjax3_config"
+    elif has_mjax4:
+        config_attr = "mathjax4_config"
+    else:
+        config_attr = "mathjax3_config"
+
+    config: dict = getattr(app.config, config_attr) or {}  # type: ignore[type-arg]
+    config.setdefault("options", {})
+    if (
+        "processHtmlClass" in config["options"]
+        and config["options"]["processHtmlClass"] != mjax_classes
+    ):
+        log_override_warning(
+            app,
+            config_attr,
+            config["options"]["processHtmlClass"],
+            mjax_classes,
+        )
+    config["options"]["processHtmlClass"] = mjax_classes
+    setattr(app.config, config_attr, config)
 
 
 def html_visit_displaymath(self: HTMLTranslator, node: nodes.math_block) -> None:

@@ -595,6 +595,107 @@ def test_mathjax_warning(
     )
 
 
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax_default"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
+)
+def test_mathjax_default(
+    app,
+    status,
+    warning,
+):
+    """Test mathjax processHtmlClass is set even without user config."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    warnings = warning.getvalue().strip()
+    assert "overridden by myst-parser" not in warnings
+    # Verify processHtmlClass was applied to the appropriate config
+    if hasattr(app.config, "mathjax4_config"):
+        config = app.config.mathjax4_config
+    else:
+        config = app.config.mathjax3_config
+    assert config["options"]["processHtmlClass"] == (
+        "tex2jax_process|mathjax_process|math|output_area"
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax_default"),
+    freshenv=True,
+    confoverrides={
+        "myst_enable_extensions": ["dollarmath"],
+        "myst_update_mathjax": False,
+    },
+)
+def test_mathjax_no_override(
+    app,
+    status,
+    warning,
+):
+    """Test that myst_update_mathjax=False prevents config override."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    # processHtmlClass should NOT have been set
+    if hasattr(app.config, "mathjax4_config"):
+        assert app.config.mathjax4_config is None
+    else:
+        assert app.config.mathjax3_config is None
+
+
+@pytest.mark.skipif(
+    int(__import__("sphinx").__version__.split(".")[0]) < 9,
+    reason="mathjax4_config not available before Sphinx 9",
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax4"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
+)
+def test_mathjax4_warning(
+    app,
+    status,
+    warning,
+):
+    """Test mathjax4_config override warning (Sphinx 9+)."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    warnings = warning.getvalue().strip()
+    assert (
+        "overridden by myst-parser: 'other' -> 'tex2jax_process|mathjax_process|math|output_area'"
+        in warnings
+    )
+
+
+@pytest.mark.skipif(
+    int(__import__("sphinx").__version__.split(".")[0]) < 9,
+    reason="mathjax4_config not available before Sphinx 9",
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
+)
+def test_mathjax3_config_on_sphinx9(
+    app,
+    status,
+    warning,
+):
+    """Test that explicit mathjax3_config is still respected on Sphinx 9."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    warnings = warning.getvalue().strip()
+    # mathjax3_config was explicitly set, so myst should modify it (not mathjax4_config)
+    assert "mathjax3_config" in warnings
+    assert app.config.mathjax3_config["options"]["processHtmlClass"] == (
+        "tex2jax_process|mathjax_process|math|output_area"
+    )
+
+
 @pytest.mark.skipif(
     sys.platform == "win32",
     reason="Unicode encoding issues on Windows",
