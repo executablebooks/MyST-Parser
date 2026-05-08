@@ -3,7 +3,7 @@
 This fixes two issues:
 
 1. Mathjax should not search for ``$`` delimiters, nor LaTeX amsmath environments,
-   since we already achieve this with the dollarmath and amsmath mrakdown-it-py plugins
+   since we already achieve this with the dollarmath and amsmath markdown-it-py plugins
 2. amsmath math blocks should be wrapped in mathjax delimiters (default ``\\[...\\]``),
    and assigned an equation number
 
@@ -57,7 +57,9 @@ def override_mathjax(app: Sphinx):
 
     # Determine which mathjax config to modify:
     # prefer whichever the user has explicitly set, falling back to
-    # the Sphinx version's default (mathjax4_config for Sphinx 9+, mathjax3_config for 8)
+    # the Sphinx version's default (mathjax4_config for Sphinx 9+, mathjax3_config for 8).
+    # Note: if a user sets both mathjax3_config and mathjax4_config, we only update
+    # the v4 config (Sphinx emits both but v4 clobbers v3 at runtime anyway).
     has_mjax4 = hasattr(app.config, "mathjax4_config")
     if has_mjax4 and app.config.mathjax4_config:
         config_attr = "mathjax4_config"

@@ -671,6 +671,32 @@ def test_mathjax4_warning(
 
 
 @pytest.mark.skipif(
+    int(__import__("sphinx").__version__.split(".")[0]) < 9,
+    reason="mathjax4_config not available before Sphinx 9",
+)
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "mathjax"),
+    freshenv=True,
+    confoverrides={"myst_enable_extensions": ["dollarmath"]},
+)
+def test_mathjax3_config_on_sphinx9(
+    app,
+    status,
+    warning,
+):
+    """Test that explicit mathjax3_config is still respected on Sphinx 9."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    warnings = warning.getvalue().strip()
+    # mathjax3_config was explicitly set, so myst should modify it (not mathjax4_config)
+    assert "mathjax3_config" in warnings
+    assert app.config.mathjax3_config["options"]["processHtmlClass"] == (
+        "tex2jax_process|mathjax_process|math|output_area"
+    )
+
+
+@pytest.mark.skipif(
     sys.platform == "win32",
     reason="Unicode encoding issues on Windows",
 )
