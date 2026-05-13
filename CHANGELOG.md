@@ -1,5 +1,34 @@
 # Changelog
 
+## 5.1.0 - 2026-05-13
+
+### ✨ New Features
+
+- ✨ Add `"alert"` syntax extension for [GFM alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) (e.g. `> [!NOTE]`), see [](syntax/alerts) by <gh-user:chrisjsewell> in <gh-pr:1128>
+- ✨ Add `"gfm_autolink"` syntax extension for [GFM autolinks](https://github.github.com/gfm/#autolinks-extension-), see [](syntax/gfm-autolink) by <gh-user:chrisjsewell> in <gh-pr:1128>
+- ✨ Add `myst_strikethrough_single_tilde` [config option](sphinx/config-options) to allow single tilde (`~`) for strikethrough by <gh-user:chrisjsewell> in <gh-pr:1128>
+- ✨ Add `myst_colon_fence_exact_match` [config option](sphinx/config-options) to require the closing colon fence to have exactly the same number of colons as the opening, see [](syntax/colon_fence) by <gh-user:chrisjsewell> in <gh-pr:1128>
+
+### 👌 Improvements
+
+- 👌 Update [`myst_gfm_only`](sphinx/config-options) mode to use the unified `gfm_plugin`, which now includes GFM autolinks, alerts, and improved strikethrough/tasklist handling by <gh-user:chrisjsewell> in <gh-pr:1128>
+- 👌 Improve MathJax 4 compatibility for Sphinx 9 by <gh-user:chrisjsewell> in <gh-pr:1110>
+- 👌 Stop directive-option parsing at colon fences, fixing nested colon fence directives by <gh-user:chrisjsewell> in <gh-pr:1133>
+
+### 🐛 Bug Fixes
+
+- 🐛 Use docname instead of source path in warning locations by <gh-user:chrisjsewell> in <gh-pr:1114>
+- 🐛 Correctly encode `&` in Markdown URLs by not HTML-escaping `refuri` by <gh-user:chrisjsewell> in <gh-pr:1126>
+- 🐛 Fix `RemovedInSphinx10Warning` for inventory item iteration by <gh-user:chrisjsewell> in <gh-pr:1129>
+- 🐛 Pin `mdit-py-plugins>=0.6.1` for nested field list fix by <gh-user:chrisjsewell> in <gh-pr:1134>
+
+### ⬆️ Dependency Upgrades
+
+- ⬆️ Upgrade to `markdown-it-py~=4.2` and `mdit-py-plugins~=0.6` by <gh-user:chrisjsewell> in <gh-pr:1128>
+- ⬆️ Update pygments requirement from `<2.20` to `<2.21` by <gh-user:chrisjsewell> in <gh-pr:1117>
+
+**Full Changelog**: [v5.0.0...v5.1.0](https://github.com/executablebooks/MyST-Parser/compare/v5.0.0...v5.1.0)
+
 ## 5.0.0 - 2026-01-15
 
 This release significantly bumps the supported versions of core dependencies:
