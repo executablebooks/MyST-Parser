@@ -192,7 +192,10 @@ def _parse_directive_options(
         content_lines = content.splitlines()
         yaml_lines = []
         while content_lines:
-            if not content_lines[0].lstrip().startswith(":"):
+            stripped = content_lines[0].lstrip()
+            # Stop at lines that don't start with a colon or have 3+ colons, which are colon fences
+            # (e.g. nested directives like `::::{other}`)
+            if not stripped.startswith(":") or stripped.startswith(":::"):
                 break
             yaml_lines.append(content_lines.pop(0).lstrip()[1:])
         options_block = "\n".join(yaml_lines)

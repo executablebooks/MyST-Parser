@@ -120,3 +120,10 @@ def test_additional_options():
     )
     assert len(result.warnings) == 1
     assert "Unknown option" in result.warnings[0].msg
+
+
+def test_colon_options_stop_at_colon_fence():
+    """Options parsing should stop when encountering a colon fence (3+ colons)."""
+    result = parse_directive_text(Note, "", ":class: xxx\n::::{other}\ncontent\n::::")
+    assert result.options == {"class": ["xxx"]}
+    assert result.body == ["::::{other}", "content", "::::"]
