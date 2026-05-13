@@ -236,6 +236,43 @@ table (`sphinx.directives.patches.RSTTable`):
 ```
 .
 <document source="<src>/index.md">
+    <table ids="name" names="name">
+        <title>
+            <emphasis>
+                title
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+table widths auto (`sphinx.directives.patches.RSTTable`):
+.
+```{table} *title*
+:name: name
+:widths: auto
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<src>/index.md">
     <table classes="colwidths-auto" ids="name" names="name">
         <title>
             <emphasis>
@@ -243,6 +280,80 @@ table (`sphinx.directives.patches.RSTTable`):
         <tgroup cols="2">
             <colspec colwidth="50">
             <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+table widths grid (`sphinx.directives.patches.RSTTable`):
+.
+```{table} *title*
+:name: name
+:widths: grid
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<src>/index.md">
+    <table classes="colwidths-given" ids="name" names="name">
+        <title>
+            <emphasis>
+                title
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+table widths given (`sphinx.directives.patches.RSTTable`):
+.
+```{table} *title*
+:name: name
+:widths: 1 2
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<src>/index.md">
+    <table classes="colwidths-given" ids="name" names="name">
+        <title>
+            <emphasis>
+                title
+        <tgroup cols="2">
+            <colspec colwidth="1">
+            <colspec colwidth="2">
             <thead>
                 <row>
                     <entry>
