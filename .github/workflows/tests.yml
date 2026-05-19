@@ -126,49 +126,43 @@ jobs:
 
   publish:
 
-    name: Publish myst-parser to PyPi
+    name: Publish myst-parser to PyPI
     needs:
     - check
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/p/myst-parser
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v6
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v6
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
       with:
         python-version: "3.11"
-    - name: install flit
-      run: |
-        pip install flit~=3.4
-    - name: Build and publish
-      run: |
-        flit publish
-      env:
-        FLIT_USERNAME: __token__
-        FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
+    - run: pip install flit~=3.4
+    - run: flit build
+    - uses: pypa/gh-action-pypi-publish@release/v1
 
   publish-docutils:
 
-    name: Publish myst-docutils to PyPi
+    name: Publish myst-docutils to PyPI
     needs: [publish]
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    environment:
+      name: pypi
+      url: https://pypi.org/p/myst-docutils
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v6
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v6
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
       with:
         python-version: "3.11"
-    - name: install flit and tomlkit
-      run: |
-        pip install flit~=3.4 tomlkit
+    - run: pip install flit~=3.4 tomlkit
     - name: Modify setup
       run: python .github/workflows/docutils_setup.py pyproject.toml README.md
-    - name: Build and publish
-      run: |
-        flit publish
-      env:
-        FLIT_USERNAME: __token__
-        FLIT_PASSWORD: ${{ secrets.PYPI_KEY_DOCUTILS }}
+    - run: flit build
+    - uses: pypa/gh-action-pypi-publish@release/v1
