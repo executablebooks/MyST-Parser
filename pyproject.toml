@@ -34,7 +34,7 @@ keywords = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "docutils>=0.20,<0.23",
+    "docutils>=0.20,<0.24",
     "jinja2", # required for substitutions, but let sphinx choose version
     "markdown-it-py~=4.2",
     "mdit-py-plugins~=0.6,>=0.6.1",
