@@ -159,8 +159,8 @@ class AddSlugIds(Transform):
         """Apply the transform."""
         if not getattr(self.document.settings, "myst_heading_anchors_html_ids", True):
             return
-        for node in findall(self.document)():
-            slug = node.get("slug") if isinstance(node, nodes.Element) else None
+        for node in findall(self.document)(nodes.Element):
+            slug = node.get("slug")
             if (
                 slug
                 # a custom slug_func may produce whitespace,
@@ -184,7 +184,9 @@ class PrioritiseExplicitIds(Transform):
     fragments keep working.
     """
 
-    default_priority = 261  # directly after docutils' PropagateTargets (260)
+    # strictly after docutils' PropagateTargets (260) and sphinx's SortIds
+    # (261), so the ordering does not depend on transform insertion order
+    default_priority = 262
 
     def apply(self, **kwargs: t.Any) -> None:
         """Apply the transform."""

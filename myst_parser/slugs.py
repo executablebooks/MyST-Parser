@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Container
 
-_GITHUB_CLEAN = re.compile(r"[^\w一-鿿\- ]")
+_GITHUB_CLEAN = re.compile(r"[^\w\u4e00-\u9fff\- ]")
 
 
 def github_slugify(title: str) -> str:

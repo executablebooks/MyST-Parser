@@ -2075,7 +2075,7 @@ def clean_astext(node: nodes.Element) -> str:
 def default_slugify(title: str) -> str:
     """Default slugify function (GitHub-style).
 
-    .. deprecated:: 5.2
+    .. deprecated:: 5.2.0
         Use :func:`myst_parser.slugs.github_slugify` instead.
     """
     return github_slugify(title)

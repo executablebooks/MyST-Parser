@@ -404,6 +404,23 @@ def test_slug_id_cannot_steal_later_ids():
     assert "ubuntu-2004-1" not in ids[1]
 
 
+def test_whitespace_slug_not_emitted_as_id():
+    """A custom slug_func returning whitespace does not produce an HTML id."""
+    doctree = publish_doctree(
+        source="# ab cd\n",
+        parser=Parser(),
+        settings_overrides={
+            "myst_heading_anchors": 1,
+            "doctitle_xform": False,
+            # reverses the title, producing "dc ba" (contains a space)
+            "myst_heading_slug_func": "myst_parser.config.main._test_slug_func",
+        },
+    )
+    section = next(doctree.findall(nodes.section))
+    assert section["slug"] == "dc ba"
+    assert section["ids"] == ["ab-cd"]
+
+
 def test_heading_slug_func_unknown_preset():
     """An unknown ``heading_slug_func`` string errors, naming the presets."""
     from myst_parser.config.main import MdParserConfig

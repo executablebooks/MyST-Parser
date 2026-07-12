@@ -152,7 +152,7 @@ def check_heading_slug_func(
                 module_path, function_name = value.rsplit(".", 1)
                 mod = import_module(module_path)
                 value = getattr(mod, function_name)
-            except ImportError as exc:
+            except (ImportError, AttributeError, ValueError) as exc:
                 raise TypeError(
                     f"'{field.name}' could not be loaded from string: {value!r}"
                 ) from exc

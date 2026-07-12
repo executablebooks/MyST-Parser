@@ -108,6 +108,23 @@ def test_local_implicit_fallback_beyond_anchor_depth(sphinx_doctree: CreateDoctr
     assert ref.get("refid") == "deep-two", ref.attributes
 
 
+def test_heading_anchors_html_ids_disabled_sphinx(sphinx_doctree: CreateDoctree):
+    """The `myst_heading_anchors_html_ids=False` escape hatch works under sphinx."""
+    sphinx_doctree.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "myst_heading_anchors": 2,
+            "myst_heading_anchors_html_ids": False,
+        }
+    )
+    result = sphinx_doctree("# One\n\n## Ubuntu 20.04\n", "index.md")
+    doctree = result.get_resolved_doctree("index")
+    from docutils import nodes as docutils_nodes
+
+    for section in doctree.findall(docutils_nodes.section):
+        assert section["slug"] not in section["ids"], section["ids"]
+
+
 def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
     """Sphinx's SortIds must not promote a slug to a section's primary id.
 

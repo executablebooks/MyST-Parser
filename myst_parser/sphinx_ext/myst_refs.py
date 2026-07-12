@@ -108,6 +108,7 @@ class MystReferenceResolver(ReferencesResolver):
                 refid = node["reflocalid"]
                 newnode = nodes.reference()
                 newnode["refid"] = refid
+                newnode["internal"] = True
                 inner = cast(nodes.TextElement, node[0].deepcopy())
                 if not inner.children:
                     local_node = self.document.ids.get(refid)
