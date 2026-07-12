@@ -122,7 +122,9 @@ def test_heading_anchors_html_ids_disabled_sphinx(sphinx_doctree: CreateDoctree)
     from docutils import nodes as docutils_nodes
 
     for section in doctree.findall(docutils_nodes.section):
-        assert section["slug"] not in section["ids"], section["ids"]
+        # only the docutils id: no secondary slug id was emitted
+        assert len(section["ids"]) == 1, section["ids"]
+        assert "slug" in section.attributes, section.attributes
 
 
 def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
