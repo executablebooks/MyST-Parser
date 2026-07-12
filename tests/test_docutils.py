@@ -13,7 +13,6 @@ from markdown_it.token import Token
 
 from myst_parser.config.main import MdParserConfig
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer, make_document
-from myst_parser.parsers.mdit import create_md_parser
 from myst_parser.parsers.docutils_ import (
     Parser,
     attr_to_optparse_option,
@@ -25,6 +24,7 @@ from myst_parser.parsers.docutils_ import (
     cli_xml,
     to_html5_demo,
 )
+from myst_parser.parsers.mdit import create_md_parser
 
 
 def test_attr_to_optparse_option():

@@ -98,10 +98,7 @@ def create_myst_config(app):
             subtype=MystWarnings.DEPRECATED.value,
         )
 
-    if (
-        "linkify" in app.env.myst_config.enable_extensions
-        and not linkify_available()
-    ):
+    if "linkify" in app.env.myst_config.enable_extensions and not linkify_available():
         logger.warning(
             "The `linkify` extension is enabled, but the `linkify-it-py` package "
             "is not installed, so it has been disabled "
