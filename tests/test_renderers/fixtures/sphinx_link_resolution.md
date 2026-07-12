@@ -86,7 +86,7 @@
 .
 <document source="<src>/index.md">
     <target refid="target">
-    <section ids="test target" names="test target">
+    <section ids="target test" names="test target">
         <title>
             Test
         <paragraph>
@@ -119,7 +119,7 @@
         <title>
             Test
         <target refid="id1">
-        <section ids="other id1" names="other test">
+        <section ids="id1 other" names="other test">
             <title>
                 Other
             <paragraph>

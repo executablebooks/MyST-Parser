@@ -1,6 +1,6 @@
 <document source="index.md">
     <target refid="title">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="title-with-nested-a-1 title" names="title\ with\ nested\ a=1 title" slug="title-with-nested-">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="title title-with-nested-a-1 title-with-nested-" names="title\ with\ nested\ a=1 title" slug="title-with-nested-">
         <title>
             Title with 
             <strong>
@@ -98,7 +98,7 @@
             <paragraph>
                 <pending_xref refdoc="index" refdomain="doc" refexplicit="False" reftarget="subfolder/other2" reftargetid="title-anchors" reftype="myst">
                     <inline classes="xref myst">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="intersphinx-via" names="intersphinx\ via\ #" slug="intersphinx-via-">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="intersphinx-via intersphinx-via-" names="intersphinx\ via\ #" slug="intersphinx-via-">
         <title>
             Intersphinx via 
             <literal>
@@ -131,7 +131,7 @@
             Ambiguous 
             <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="duplicate" reftype="myst">
                 <inline classes="xref myst">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="image-in-title" names="image\ in\ title" slug="image-in-title-">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="image-in-title image-in-title-" names="image\ in\ title" slug="image-in-title-">
         <title>
             Image in title 
             <image alt="badge" candidates="{'?': 'https://shields.io/or/something.svg'}" uri="https://shields.io/or/something.svg">

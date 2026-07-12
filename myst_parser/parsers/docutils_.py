@@ -25,6 +25,7 @@ from myst_parser.config.main import (
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 from myst_parser.mdit_to_docutils.transforms import (
     CollectFootnotes,
+    PrioritiseExplicitIds,
     ResolveAnchorIds,
     SortFootnotes,
     UnreferencedFootnotesDetector,
@@ -255,6 +256,7 @@ class Parser(RstParser):
             UnreferencedFootnotesDetector,
             SortFootnotes,
             CollectFootnotes,
+            PrioritiseExplicitIds,
             ResolveAnchorIds,
         ]
 

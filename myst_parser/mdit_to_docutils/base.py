@@ -7,7 +7,14 @@ import json
 import os
 import posixpath
 import re
-from collections.abc import Callable, Iterable, Iterator, MutableMapping, Sequence
+from collections.abc import (
+    Callable,
+    Container,
+    Iterable,
+    Iterator,
+    MutableMapping,
+    Sequence,
+)
 from contextlib import contextmanager, suppress
 from datetime import date, datetime
 from types import ModuleType
@@ -51,6 +58,7 @@ from myst_parser.parsers.directives import (
     MarkupError,
     parse_directive_text,
 )
+from myst_parser.slugs import github_slugify, unique_slug
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 from .html_to_nodes import html_to_nodes
@@ -859,6 +867,20 @@ class DocutilsRenderer(RendererProtocol):
             )
         else:
             node["slug"] = slug
+            if (
+                self.md_config.heading_anchors_html_ids
+                and slug
+                # a custom slug_func may produce whitespace,
+                # which is invalid in an HTML id
+                and not re.search(r"\s", slug)
+                and slug not in self.document.ids
+            ):
+                # also emit the slug as a (secondary) id, so that the anchor
+                # actually exists in published HTML output; the docutils id
+                # stays first, so all previously published fragments,
+                # and the targets of resolved references, are unchanged
+                node["ids"].append(slug)
+                self.document.ids[slug] = node
             self._heading_slugs[slug] = (node.line, node["ids"][0], implicit_text)
 
     def render_heading(self, token: SyntaxTreeNode) -> None:
@@ -2055,30 +2077,22 @@ def clean_astext(node: nodes.Element) -> str:
     return node.astext()
 
 
-_SLUGIFY_CLEAN_REGEX = re.compile(r"[^\w\u4e00-\u9fff\- ]")
-
-
 def default_slugify(title: str) -> str:
-    """Default slugify function.
+    """Default slugify function (GitHub-style).
 
-    This aims to mimic the GitHub Markdown format, see:
-
-    - https://github.com/jch/html-pipeline/blob/master/lib/html/pipeline/toc_filter.rb
-    - https://gist.github.com/asabaylus/3071099
+    .. deprecated:: 5.2
+        Use :func:`myst_parser.slugs.github_slugify` instead.
     """
-    return _SLUGIFY_CLEAN_REGEX.sub("", title.lower().replace(" ", "-"))
+    return github_slugify(title)
 
 
 def compute_unique_slug(
     token_tree: SyntaxTreeNode,
-    slugs: Iterable[str],
+    slugs: Container[str],
     slug_func: None | Callable[[str], str] = None,
 ) -> str:
-    """Compute the slug for a token.
-
-    This directly mirrors the logic in `mdit_py_plugins.anchors_plugin`
-    """
-    slug_func = default_slugify if slug_func is None else slug_func
+    """Compute the slug for a heading token, unique against existing slugs."""
+    slug_func = github_slugify if slug_func is None else slug_func
     tokens = token_tree.to_tokens()
     inline_token = tokens[1]
     title = "".join(
@@ -2086,9 +2100,4 @@ def compute_unique_slug(
         for child in (inline_token.children or [])
         if child.type in ["text", "code_inline"]
     )
-    slug = slug_func(title)
-    i = 1
-    while slug in slugs:
-        slug = f"{slug}-{i}"
-        i += 1
-    return slug
+    return unique_slug(slug_func(title), slugs)

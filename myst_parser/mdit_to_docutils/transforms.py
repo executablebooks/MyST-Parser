@@ -138,6 +138,33 @@ class CollectFootnotes(Transform):
             self.document += footnote
 
 
+class PrioritiseExplicitIds(Transform):
+    """Reorder ``section["ids"]`` so an explicitly named target's id is first.
+
+    Docutils' ``PropagateTargets`` (priority 260) appends propagated target
+    ids *after* the section's implicit id, so themes, tocs, permalinks and
+    ``objects.inv`` pick up the (unstable) implicit id.  This moves the first
+    explicitly named id to the front; the implicit id remains in the list,
+    as a secondary anchor, so previously published fragments keep working.
+    """
+
+    default_priority = 261  # directly after docutils' PropagateTargets (260)
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        explicit_ids = {
+            self.document.nameids[name]
+            for name, is_explicit in self.document.nametypes.items()
+            if is_explicit and self.document.nameids.get(name)
+        }
+        for section in findall(self.document)(nodes.section):
+            ids = section["ids"]
+            first = next((id_ for id_ in ids if id_ in explicit_ids), None)
+            if first is not None and ids[0] != first:
+                ids.remove(first)
+                ids.insert(0, first)
+
+
 class ResolveAnchorIds(Transform):
     """Transform for resolving `[name](#id)` type links."""
 
@@ -229,6 +256,31 @@ class ResolveAnchorIds(Transform):
                     refnode += nodes.inline(
                         implicit_title, implicit_title, classes=["std", "std-ref"]
                     )
+                continue
+
+            # now search implicit docutils names and ids: these cover e.g.
+            # headings not assigned a slug (beyond the `heading_anchors`
+            # depth), whose anchors nonetheless exist in the output, so
+            # should resolve locally rather than falling through to
+            # project-wide resolution (or a warning)
+            labelid = self.document.nameids.get(target) or (
+                target if target in self.document.ids else None
+            )
+            node = self.document.ids.get(labelid) if labelid else None
+            if node is not None and not (
+                node.tagname == "footnote"
+                or "refuri" in node
+                or node.tagname.startswith("desc_")
+            ):
+                refnode["refid"] = labelid
+                if not refnode.children:
+                    implicit_title = None
+                    for subnode in node:
+                        if isinstance(subnode, nodes.caption | nodes.title):
+                            implicit_title = clean_astext(subnode)
+                            break
+                    text = implicit_title or ("#" + target)
+                    refnode += nodes.inline(text, text, classes=["std", "std-ref"])
                 continue
 
             # if still not found, and using sphinx, then create a pending_xref

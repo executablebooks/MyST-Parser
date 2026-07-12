@@ -126,6 +126,17 @@ class MystReferenceResolver(ReferencesResolver):
 
             node.replace_self(newnode)
 
+    def _std_label_in_doc(self, docname: str, ref_id: str) -> bool:
+        """Whether ``ref_id`` is a std-domain label (name or id) in ``docname``."""
+        std = self.env.domaindata.get("std", {})
+        for name, entry in std.get("labels", {}).items():
+            if entry[0] == docname and ref_id in (name, entry[1]):
+                return True
+        for name, entry in std.get("anonlabels", {}).items():
+            if entry[0] == docname and ref_id in (name, entry[1]):
+                return True
+        return False
+
     def resolve_myst_ref_doc(self, node: pending_xref):
         """Resolve a reference, from a markdown link, to another document,
         optionally with a target id within that document.
@@ -150,7 +161,16 @@ class MystReferenceResolver(ReferencesResolver):
 
         if ref_id:
             slug_to_section = self.env.metadata[ref_docname].get("myst_slugs", {})
-            if ref_id not in slug_to_section:
+            if ref_id in slug_to_section:
+                _, targetid, implicit_text = slug_to_section[ref_id]
+            elif any(
+                sect_id == ref_id for _, sect_id, _ in slug_to_section.values()
+            ) or self._std_label_in_doc(ref_docname, ref_id):
+                # the id demonstrably exists in the target document
+                # (a section's docutils id, or an explicit target),
+                # so resolve silently rather than warn
+                targetid = ref_id
+            else:
                 self.log_warning(
                     ref_id,
                     f"local id not found in doc {ref_docname!r}: {ref_id!r}",
@@ -158,8 +178,6 @@ class MystReferenceResolver(ReferencesResolver):
                     location=node,
                 )
                 targetid = ref_id
-            else:
-                _, targetid, implicit_text = slug_to_section[ref_id]
             inner_classes = ["std", "std-ref"]
         else:
             implicit_text = clean_astext(self.env.titles[ref_docname])

@@ -16,6 +16,7 @@ from myst_parser.config.main import (
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
 from myst_parser.mdit_to_docutils.transforms import (
     CollectFootnotes,
+    PrioritiseExplicitIds,
     ResolveAnchorIds,
     SortFootnotes,
 )
@@ -53,6 +54,7 @@ class MystParser(SphinxParser):
         return super().get_transforms() + [
             SortFootnotes,
             CollectFootnotes,
+            PrioritiseExplicitIds,
             ResolveAnchorIds,
         ]
 

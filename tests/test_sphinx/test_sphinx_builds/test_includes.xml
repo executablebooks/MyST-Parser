@@ -9,7 +9,7 @@
             <reference refuri="http://example.com/">
                 target
         <target refid="inc-header">
-        <section ids="a-sub-heading-in-include inc-header" names="a\ sub-heading\ in\ include inc_header">
+        <section ids="inc-header a-sub-heading-in-include" names="a\ sub-heading\ in\ include inc_header">
             <title>
                 A Sub-Heading in Include
             <paragraph>

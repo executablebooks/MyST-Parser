@@ -16,7 +16,7 @@
                 dark
              side
     <target refid="target">
-    <section classes="tex2jax_ignore mathjax_ignore" ids="header target" names="header target">
+    <section classes="tex2jax_ignore mathjax_ignore" ids="target header" names="header target">
         <title>
             Header
         <comment xml:space="preserve">

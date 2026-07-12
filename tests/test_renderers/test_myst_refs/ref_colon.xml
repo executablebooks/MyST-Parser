@@ -1,6 +1,6 @@
 <document source="root/index.md">
     <target refid="ref-colon">
-    <section ids="title ref-colon" names="title ref:colon">
+    <section ids="ref-colon title" names="title ref:colon">
         <title>
             Title
         <paragraph>
