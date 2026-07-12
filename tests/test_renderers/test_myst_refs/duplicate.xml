@@ -1,6 +1,6 @@
 <document source="root/index.md">
     <target refid="index">
-    <section ids="title index" names="title index">
+    <section ids="index title" names="title index">
         <title>
             Title
         <paragraph>

@@ -473,10 +473,10 @@ My paragraph
 
 [reversed](#eltit)
 .
-<document dupnames="title" ids="title" slug="eltit" source="<string>" title="title">
+<document dupnames="title" ids="title eltit" slug="eltit" source="<string>" title="title">
     <title>
         title
-    <section dupnames="title" ids="title-1" slug="eltit-1">
+    <section dupnames="title" ids="title-1 eltit-1" slug="eltit-1">
         <title>
             title
     <section ids="title-a-b-c" names="title\ a\ b\ c" slug="c b a eltit">

@@ -138,19 +138,30 @@ def check_inventories(_: "MdParserConfig", field: dc.Field, value: Any) -> None:
 def check_heading_slug_func(
     inst: "MdParserConfig", field: dc.Field, value: Any
 ) -> None:
-    """Check that the heading_slug_func is a callable."""
+    """Check that the heading_slug_func is a preset name or a callable."""
     if value is None:
         return
     if isinstance(value, str):
-        # attempt to load the function as a python import
-        try:
-            module_path, function_name = value.rsplit(".", 1)
-            mod = import_module(module_path)
-            value = getattr(mod, function_name)
-        except ImportError as exc:
+        from myst_parser.slugs import SLUG_PRESETS
+
+        if value in SLUG_PRESETS:
+            value = SLUG_PRESETS[value]
+        elif "." in value:
+            # attempt to load the function as a python import (legacy form)
+            try:
+                module_path, function_name = value.rsplit(".", 1)
+                mod = import_module(module_path)
+                value = getattr(mod, function_name)
+            except (ImportError, AttributeError, ValueError) as exc:
+                raise TypeError(
+                    f"'{field.name}' could not be loaded from string: {value!r}"
+                ) from exc
+        else:
             raise TypeError(
-                f"'{field.name}' could not be loaded from string: {value!r}"
-            ) from exc
+                f"'{field.name}' is not a known preset "
+                f"({', '.join(sorted(SLUG_PRESETS))}) "
+                f"or a python import path: {value!r}"
+            )
         setattr(inst, field.name, value)
     if not callable(value):
         raise TypeError(f"'{field.name}' is not callable: {value!r}")
@@ -301,11 +312,21 @@ class MdParserConfig:
         metadata={
             "validator": check_heading_slug_func,
             "help": (
-                "Function for creating heading anchors, "
-                "or a python import path e.g. `my_package.my_module.my_function`"
+                "Function for creating heading anchors: "
+                'a preset name ("github", "gitlab"), '
+                "or (legacy) a python import path "
+                "e.g. `my_package.my_module.my_function`"
             ),
             "global_only": True,
-            "doc_type": "None | Callable[[str], str] | str",
+            "doc_type": "None | str | Callable[[str], str]",
+        },
+    )
+
+    heading_anchors_html_ids: bool = dc.field(
+        default=True,
+        metadata={
+            "validator": instance_of(bool),
+            "help": "Also emit heading anchor slugs as (additional) HTML ids",
         },
     )
 

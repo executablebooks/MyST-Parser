@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import typing as t
 
 from docutils import nodes
@@ -138,6 +139,70 @@ class CollectFootnotes(Transform):
             self.document += footnote
 
 
+class AddSlugIds(Transform):
+    """Emit each heading's anchor slug as an additional (secondary) id.
+
+    This makes the anchor actually exist in published HTML output.
+
+    It must run only after *all* other id assignment — docutils'
+    ``PropagateTargets`` (260) and sphinx's ``SortIds`` (261) included —
+    so that a slug can neither claim an id another element would otherwise
+    receive, nor become a section's primary id: primary ids (used by
+    tocs, permalinks and ``objects.inv``) are unchanged by this transform.
+    Slugs are registered in ``document.ids`` directly (not via ``set_id``),
+    deliberately bypassing ``id_prefix``: the raw slug is the anchor.
+    """
+
+    default_priority = 700  # after all id assignment, before ResolveAnchorIds
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        if not getattr(self.document.settings, "myst_heading_anchors_html_ids", True):
+            return
+        for node in findall(self.document)(nodes.Element):
+            slug = node.get("slug")
+            if (
+                slug
+                # a custom slug_func may produce whitespace,
+                # which is invalid in an HTML id
+                and not re.search(r"\s", slug)
+                and slug not in self.document.ids
+            ):
+                node["ids"].append(slug)
+                self.document.ids[slug] = node
+
+
+class PrioritiseExplicitIds(Transform):
+    """Reorder ``section["ids"]`` so an explicitly named target's id is first.
+
+    Docutils' ``PropagateTargets`` (priority 260) appends propagated target
+    ids *after* the section's implicit id, so themes, tocs, permalinks and
+    ``objects.inv`` pick up the (unstable) implicit id.  This moves the
+    explicitly named id earliest in the id list (for multiple ``(name)=``
+    targets, that is the one nearest the heading) to the front; the implicit
+    id remains in the list, as a secondary anchor, so previously published
+    fragments keep working.
+    """
+
+    # strictly after docutils' PropagateTargets (260) and sphinx's SortIds
+    # (261), so the ordering does not depend on transform insertion order
+    default_priority = 262
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        explicit_ids = {
+            self.document.nameids[name]
+            for name, is_explicit in self.document.nametypes.items()
+            if is_explicit and self.document.nameids.get(name)
+        }
+        for section in findall(self.document)(nodes.section):
+            ids = section["ids"]
+            first = next((id_ for id_ in ids if id_ in explicit_ids), None)
+            if first is not None and ids[0] != first:
+                ids.remove(first)
+                ids.insert(0, first)
+
+
 class ResolveAnchorIds(Transform):
     """Transform for resolving `[name](#id)` type links."""
 
@@ -231,6 +296,37 @@ class ResolveAnchorIds(Transform):
                     )
                 continue
 
+            # candidate implicit local anchor: covers e.g. headings not
+            # assigned a slug (beyond the `heading_anchors` depth), whose
+            # anchors nonetheless exist in the output
+            labelid = self.document.nameids.get(target) or (
+                target if target in self.document.ids else None
+            )
+            node = self.document.ids.get(labelid) if labelid else None
+            if node is None or (
+                node.tagname == "footnote"
+                or "refuri" in node
+                or node.tagname.startswith("desc_")
+            ):
+                labelid = None
+
+            # in docutils (single-document) mode, resolve to the local
+            # anchor directly (previously these links warned);
+            # in sphinx mode it is only recorded on the pending_xref, as a
+            # last-resort fallback after project-wide resolution, so that
+            # the precedence of existing reference resolution is unchanged
+            if labelid and not hasattr(self.document.settings, "env"):
+                refnode["refid"] = labelid
+                if not refnode.children:
+                    implicit_title = None
+                    for subnode in node or []:
+                        if isinstance(subnode, nodes.caption | nodes.title):
+                            implicit_title = clean_astext(subnode)
+                            break
+                    text = implicit_title or ("#" + target)
+                    refnode += nodes.inline(text, text, classes=["std", "std-ref"])
+                continue
+
             # if still not found, and using sphinx, then create a pending_xref
             if hasattr(self.document.settings, "env"):
                 from sphinx import addnodes
@@ -242,6 +338,8 @@ class ResolveAnchorIds(Transform):
                     reftarget=target,
                     refexplicit=bool(refnode.children),
                 )
+                if labelid:
+                    pending["reflocalid"] = labelid
                 inner_node = nodes.inline(
                     "", "", classes=["xref", "myst"] + refnode["classes"]
                 )

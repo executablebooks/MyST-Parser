@@ -1,0 +1,155 @@
+{
+  "slugify": [
+    {
+      "preset": "github",
+      "input": "Ubuntu 20.04",
+      "expected": "ubuntu-2004"
+    },
+    {
+      "preset": "github",
+      "input": "lxc.env for environment variables",
+      "expected": "lxcenv-for-environment-variables"
+    },
+    {
+      "preset": "github",
+      "input": "2.0",
+      "expected": "20"
+    },
+    {
+      "preset": "github",
+      "input": "3rd party",
+      "expected": "3rd-party"
+    },
+    {
+      "preset": "github",
+      "input": "Привет Мир",
+      "expected": "привет-мир"
+    },
+    {
+      "preset": "github",
+      "input": "中文标题",
+      "expected": "中文标题"
+    },
+    {
+      "preset": "github",
+      "input": " a b c ",
+      "expected": "-a-b-c-"
+    },
+    {
+      "preset": "github",
+      "input": "Title with UPPER",
+      "expected": "title-with-upper"
+    },
+    {
+      "preset": "github",
+      "input": "Hello 🎉 World!",
+      "expected": "hello--world"
+    },
+    {
+      "preset": "gitlab",
+      "input": "Ubuntu 20.04",
+      "expected": "ubuntu-2004"
+    },
+    {
+      "preset": "gitlab",
+      "input": "lxc.env for environment variables",
+      "expected": "lxcenv-for-environment-variables"
+    },
+    {
+      "preset": "gitlab",
+      "input": "2.0",
+      "expected": "anchor-20"
+    },
+    {
+      "preset": "gitlab",
+      "input": "3rd party",
+      "expected": "3rd-party"
+    },
+    {
+      "preset": "gitlab",
+      "input": "Привет Мир",
+      "expected": "привет-мир"
+    },
+    {
+      "preset": "gitlab",
+      "input": "中文标题",
+      "expected": "中文标题"
+    },
+    {
+      "preset": "gitlab",
+      "input": " Spaced ",
+      "expected": "spaced"
+    },
+    {
+      "preset": "gitlab",
+      "input": "Title with UPPER",
+      "expected": "title-with-upper"
+    },
+    {
+      "preset": "gitlab",
+      "input": "Hello 🎉 World!",
+      "expected": "hello-world"
+    },
+    {
+      "preset": "gitlab",
+      "input": "a  -  b",
+      "expected": "a-b"
+    },
+    {
+      "preset": "github",
+      "input": "!!!",
+      "expected": ""
+    },
+    {
+      "preset": "gitlab",
+      "input": "!!!",
+      "expected": ""
+    }
+  ],
+  "unique": [
+    {
+      "existing": [],
+      "slug": "a",
+      "expected": "a"
+    },
+    {
+      "existing": [
+        "a"
+      ],
+      "slug": "a",
+      "expected": "a-1"
+    },
+    {
+      "existing": [
+        "a",
+        "a-1"
+      ],
+      "slug": "a",
+      "expected": "a-2"
+    },
+    {
+      "existing": [
+        "a",
+        "a-1",
+        "a-2"
+      ],
+      "slug": "a",
+      "expected": "a-3"
+    },
+    {
+      "existing": [
+        "a",
+        "a-1"
+      ],
+      "slug": "a",
+      "expected": "a-2"
+    },
+    {
+      "existing": [
+        "a-1"
+      ],
+      "slug": "a",
+      "expected": "a"
+    }
+  ]
+}

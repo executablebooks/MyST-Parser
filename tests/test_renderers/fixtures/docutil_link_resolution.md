@@ -1,4 +1,4 @@
-[external] 
+[external]
 .
 [alt2](https://www.google.com)
 [](https://www.google.com)
@@ -19,7 +19,7 @@
             https://example.com?foo=bar&a=1
 .
 
-[missing] 
+[missing]
 .
 [](#test)
 <project:#test>
@@ -92,7 +92,7 @@
                     explicit
 .
 
-[explicit-heading] 
+[explicit-heading]
 .
 (target)=
 # Test
@@ -101,7 +101,7 @@
 <project:#target>
 [explicit](#target)
 .
-<document ids="test target" names="test target" source="<src>/index.md" title="Test">
+<document ids="target test" names="test target" source="<src>/index.md" title="Test">
     <title>
         Test
     <target refid="target">
@@ -130,7 +130,7 @@
 <document dupnames="test" ids="test" slug="test" source="<src>/index.md" title="Test">
     <title>
         Test
-    <subtitle ids="other test-1" names="other test">
+    <subtitle ids="test-1 other" names="other test">
         Other
     <target refid="test-1">
     <paragraph>
@@ -143,7 +143,7 @@
 <src>/index.md:3: (INFO/1) Hyperlink target "test-1" is not referenced.
 .
 
-[id-with-spaces] 
+[id-with-spaces]
 .
 (name with spaces)=
 Paragraph
@@ -160,7 +160,7 @@ Paragraph
                 #name with spaces
 .
 
-[ref-table] 
+[ref-table]
 .
 ```{table} caption
 :name: table

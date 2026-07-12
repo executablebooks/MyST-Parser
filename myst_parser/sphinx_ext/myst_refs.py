@@ -99,6 +99,26 @@ class MystReferenceResolver(ReferencesResolver):
                 newnode = self._resolve_myst_ref_intersphinx(
                     node, contnode, target, search_domains
                 )
+            if newnode is None and node.get("reflocalid"):
+                # fall back to an implicit local anchor that demonstrably
+                # exists in the source document (e.g. a heading beyond the
+                # `heading_anchors` depth); only reached when project-wide
+                # and intersphinx resolution both failed, so the precedence
+                # of previously resolving references is unchanged
+                refid = node["reflocalid"]
+                newnode = nodes.reference()
+                newnode["refid"] = refid
+                newnode["internal"] = True
+                inner = cast(nodes.TextElement, node[0].deepcopy())
+                if not inner.children:
+                    local_node = self.document.ids.get(refid)
+                    for subnode in local_node or []:
+                        if isinstance(subnode, nodes.caption | nodes.title):
+                            title = clean_astext(subnode)
+                            inner += nodes.Text(title)
+                            break
+                newnode.append(inner)
+
             if newnode is None:
                 # if still not resolved, log a warning,
                 self.log_warning(
@@ -126,6 +146,24 @@ class MystReferenceResolver(ReferencesResolver):
 
             node.replace_self(newnode)
 
+    def _std_label_id_in_doc(self, docname: str, ref_id: str) -> str | None:
+        """Resolve ``ref_id`` against the std-domain labels of ``docname``.
+
+        Returns the label's id (the actual anchor) if ``ref_id`` is either
+        a label id or a label name in that document, else None.
+        """
+        std = self.env.domaindata.get("std", {})
+        for store in ("labels", "anonlabels"):
+            for name, entry in std.get(store, {}).items():
+                if entry[0] != docname:
+                    continue
+                if entry[1] == ref_id:
+                    return ref_id
+                if name == ref_id:
+                    # referenced by label name: point at its actual anchor
+                    return entry[1]
+        return None
+
     def resolve_myst_ref_doc(self, node: pending_xref):
         """Resolve a reference, from a markdown link, to another document,
         optionally with a target id within that document.
@@ -150,7 +188,17 @@ class MystReferenceResolver(ReferencesResolver):
 
         if ref_id:
             slug_to_section = self.env.metadata[ref_docname].get("myst_slugs", {})
-            if ref_id not in slug_to_section:
+            if ref_id in slug_to_section:
+                _, targetid, implicit_text = slug_to_section[ref_id]
+            elif any(sect_id == ref_id for _, sect_id, _ in slug_to_section.values()):
+                # the id demonstrably exists in the target document
+                # (a section's docutils id), so resolve silently
+                targetid = ref_id
+            elif (std_id := self._std_label_id_in_doc(ref_docname, ref_id)) is not None:
+                # an explicit target in the document, referenced by its
+                # id or name: point at its actual anchor
+                targetid = std_id
+            else:
                 self.log_warning(
                     ref_id,
                     f"local id not found in doc {ref_docname!r}: {ref_id!r}",
@@ -158,8 +206,6 @@ class MystReferenceResolver(ReferencesResolver):
                     location=node,
                 )
                 targetid = ref_id
-            else:
-                _, targetid, implicit_text = slug_to_section[ref_id]
             inner_classes = ["std", "std-ref"]
         else:
             implicit_text = clean_astext(self.env.titles[ref_docname])
