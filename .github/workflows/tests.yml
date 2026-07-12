@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Python 3.11
       uses: actions/setup-python@v6
       with:
@@ -41,7 +41,7 @@ jobs:
     name: "pytest: py${{ matrix.python-version }}, sphinx${{ matrix.sphinx }}, on ${{ matrix.os }}"
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
       with:
@@ -78,7 +78,7 @@ jobs:
 
     steps:
     - name: Checkout source
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Set up Python 3.11
       uses: actions/setup-python@v6
       with:
@@ -137,7 +137,7 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-parser
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-python@v6
       with:
         python-version: "3.11"
@@ -157,7 +157,7 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-docutils
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-python@v6
       with:
         python-version: "3.11"
