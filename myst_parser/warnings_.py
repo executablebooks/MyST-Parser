@@ -54,6 +54,8 @@ class MystWarnings(Enum):
     """A legacy domain found, which does not support `resolve_any_xref`."""
 
     # extensions
+    LINKIFY = "linkify"
+    """The linkify extension is enabled, but linkify-it-py is not installed."""
     HEADING_SLUG = "heading_slug"
     """An error occurred computing a heading slug."""
     STRIKETHROUGH = "strikethrough"
