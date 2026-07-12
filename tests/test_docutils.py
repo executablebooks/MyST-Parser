@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import sys
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
@@ -208,6 +209,163 @@ def test_linkify_no_warning_when_available():
         },
     )
     assert "[myst.linkify]" not in stream.getvalue()
+
+
+def test_html_deep_nesting_warns():
+    """Deeply nested HTML degrades to raw output with a warning.
+
+    Regression: rendering the HTML AST recurses once per nesting level,
+    and the resulting ``RecursionError`` escaped and aborted the build.
+    """
+    # rendering uses >=1 stack frame per nesting level, so this depth
+    # always overflows, whatever the currently available stack
+    depth = sys.getrecursionlimit()
+    # tags on separate lines, to stay under docutils' line-length-limit
+    source = (
+        '<div class="admonition"><p class="title">Title</p>\n'
+        + "<div>\n" * depth
+        + "content\n"
+        + "</div>\n" * depth
+        + "</div>\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["html_admonition"],
+            "warning_stream": stream,
+        },
+    )
+    assert "HTML is too deeply nested" in stream.getvalue()
+    assert "[myst.html]" in stream.getvalue()
+    # the original text is preserved as a raw HTML node
+    assert list(doctree.findall(nodes.raw))
+
+
+@pytest.mark.parametrize(
+    "yaml_line",
+    [
+        "title: !UnknownTag value",  # yaml.constructor.ConstructorError
+        "date: 2021-99-99",  # bare ValueError from an out-of-range timestamp
+    ],
+)
+def test_topmatter_hostile_yaml_warns(yaml_line):
+    """Front matter YAML errors beyond parser/scanner ones warn, not crash.
+
+    Regression: only ``ParserError``/``ScannerError`` were caught, so e.g. a
+    ``ConstructorError`` from an unknown tag aborted the whole build.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_line}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
+
+
+def test_footnote_label_matching_heading_name():
+    """A footnote label sharing a heading's name is not a duplicate.
+
+    Regression: the duplicate check used ``document.nameids``, which holds
+    every target name, so the footnote definition was silently dropped.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="# Note\n\n[^note]\n\n[^note]: the definition\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    footnotes = list(doctree.findall(nodes.footnote))
+    assert footnotes, "expected the footnote definition to be kept"
+    assert "the definition" in footnotes[0].astext()
+    assert "Duplicate footnote" not in stream.getvalue()
+
+
+def test_footnote_label_matching_explicit_target():
+    """A footnote label sharing an *explicit* target's name is dropped.
+
+    Registering it would strip the name from both nodes and so break
+    previously working references to the target, with confusing docutils
+    warnings; the pre-existing drop-with-warning behaviour is kept.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="(note)=\n\ntext\n\n[^note]: the definition\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "Duplicate footnote definition" in stream.getvalue()
+    assert "Duplicate explicit target name" not in stream.getvalue()
+    assert not list(doctree.findall(nodes.footnote))
+    # the original target keeps its name, so references to it still resolve
+    assert "note" in doctree.nameids
+    assert doctree.nameids["note"]
+
+
+def test_topmatter_deeply_nested_yaml_warns():
+    """Deeply nested front matter YAML warns instead of crashing.
+
+    Regression: PyYAML's composer recurses per nesting level, and the
+    resulting ``RecursionError`` is neither a ``YAMLError`` nor a
+    ``ValueError``, so it escaped and aborted the build.
+
+    The nesting must be a single-line flow sequence: spread over lines it
+    fails in the (iterative) scanner instead, never reaching the composer.
+    """
+    # pin the limit so the depth both overflows it and, as a single line,
+    # stays under docutils' line-length-limit (10000), whatever the runner
+    depth = 1000
+    limit = sys.getrecursionlimit()
+    source = "---\nkey: " + "[" * depth + "]" * depth + "\n---\n\ncontent\n"
+    stream = io.StringIO()
+    try:
+        sys.setrecursionlimit(depth)
+        doctree = publish_doctree(
+            source=source,
+            parser=Parser(),
+            settings_overrides={"warning_stream": stream},
+        )
+    finally:
+        sys.setrecursionlimit(limit)
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
+
+
+def test_topmatter_alias_expansion_bomb_warns():
+    """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
+
+    ``yaml.safe_load`` keeps aliased structures shared, so loading is cheap,
+    but serializing the field for display would expand ``9**20`` items.
+    """
+    lines = ["a0: &a0 [x, x, x, x, x, x, x, x, x]"]
+    for i in range(1, 20):
+        refs = ", ".join([f"*a{i - 1}"] * 9)
+        lines.append(f"a{i}: &a{i} [{refs}]")
+    source = "---\n" + "\n".join(lines) + "\n---\n\ncontent\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "too large to render" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
+
+
+def test_footnote_duplicate_definition_warns():
+    """A genuinely duplicated footnote definition still warns and is dropped."""
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="[^a]\n\n[^a]: first\n\n[^a]: second\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "Duplicate footnote definition" in stream.getvalue()
+    assert len(list(doctree.findall(nodes.footnote))) == 1
 
 
 def test_definition_list_orphan_definition():

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 
-from myst_parser.parsers.parse_html import Data, tokenize_html
+from myst_parser.parsers.parse_html import Data, Element, tokenize_html
 from myst_parser.warnings_ import MystWarnings
 
 if TYPE_CHECKING:
@@ -81,6 +81,30 @@ def html_to_nodes(
     ):
         return default_html(text, renderer.document["source"], line_number)
 
+    try:
+        return _html_ast_to_nodes(root, line_number, renderer)
+    except RecursionError:
+        msg_node = renderer.create_warning(
+            "HTML is too deeply nested to process",
+            MystWarnings.HTML_PARSE,
+            line=line_number,
+        )
+        return ([msg_node] if msg_node else []) + default_html(
+            text, renderer.document["source"], line_number
+        )
+
+
+def _html_ast_to_nodes(
+    root: Element, line_number: int, renderer: DocutilsRenderer
+) -> list[nodes.Element]:
+    """Convert the parsed HTML AST to docutils nodes,
+    by running the equivalent ``image``/``admonition`` directives.
+
+    Recursion depth scales with the HTML nesting depth
+    (via ``Element.render``/``Element.strip`` and the nested parse of
+    directive content, which can re-enter ``html_to_nodes``),
+    so callers must guard against ``RecursionError``.
+    """
     nodes_list = []
     for child in root:
         if child.name == "img":

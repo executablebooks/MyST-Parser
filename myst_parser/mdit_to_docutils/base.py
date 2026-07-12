@@ -46,7 +46,11 @@ from myst_parser.mocking import (
     MockState,
     MockStateMachine,
 )
-from myst_parser.parsers.directives import MarkupError, parse_directive_text
+from myst_parser.parsers.directives import (
+    YAML_LOAD_ERRORS,
+    MarkupError,
+    parse_directive_text,
+)
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 from .html_to_nodes import html_to_nodes
@@ -1262,7 +1266,7 @@ class DocutilsRenderer(RendererProtocol):
         if isinstance(token.content, str):
             try:
                 data = yaml.safe_load(token.content)
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+            except YAML_LOAD_ERRORS:
                 self.create_warning(
                     "Malformed YAML",
                     MystWarnings.MD_TOPMATTER,
@@ -1343,7 +1347,26 @@ class DocutilsRenderer(RendererProtocol):
 
         for key, value in data.items():
             if not isinstance(value, str | int | float | date | datetime):
-                value = json.dumps(value)
+                # YAML anchors/aliases can produce structures whose expanded
+                # size is exponential in the source size (a "billion laughs"
+                # bomb), or even self-referential; measure before serializing
+                if _expanded_length(value) > _FM_FIELD_MAX_LENGTH:
+                    self.create_warning(
+                        f"Front matter field {key!r} is too large to render",
+                        MystWarnings.MD_TOPMATTER,
+                        line=line,
+                    )
+                    continue
+                try:
+                    value = json.dumps(value)
+                except (ValueError, RecursionError):
+                    # e.g. a self-referential structure via a YAML alias
+                    self.create_warning(
+                        f"Front matter field {key!r} could not be serialized",
+                        MystWarnings.MD_TOPMATTER,
+                        line=line,
+                    )
+                    continue
             value = str(value)
             body = nodes.paragraph()
             body.source, body.line = self.document["source"], line
@@ -1505,10 +1528,16 @@ class DocutilsRenderer(RendererProtocol):
         """Despite the name, this is actually a footnote definition, e.g. `[^a]: ...`"""
         target = token.meta["label"]
 
-        if target in self.document.nameids:
-            # note we chose to directly omit these footnotes in the parser,
-            # rather than let docutils/sphinx handle them, since otherwise you end up with a confusing warning:
-            # WARNING: Duplicate explicit target name: "x". [docutils]
+        # A label sharing a name with an existing *explicit* target (another
+        # footnote, a `(name)=` target, a directive `:name:`, ...) is omitted
+        # here, rather than left to docutils/sphinx: registering it would
+        # emit a confusing warning (`Duplicate explicit target name`),
+        # strip the name from both nodes, and so break previously working
+        # references to the colliding target.
+        # A collision with an *implicit* target name (e.g. a section heading)
+        # keeps the footnote: explicit-over-implicit is standard docutils
+        # behaviour, reported at INFO level only.
+        if self.document.nametypes.get(target):
             # we use [ref.footnote] as the type/subtype, rather than a myst specific warning,
             # to make it more aligned with sphinx warnings for unreferenced footnotes
             self.create_warning(
@@ -1943,6 +1972,33 @@ class DocutilsRenderer(RendererProtocol):
                 self.nested_render_text(rendered, position)
         finally:
             self.document.sub_references.difference_update(references)
+
+
+_FM_FIELD_MAX_LENGTH = 100_000
+"""Maximum number of items a front matter field may expand to when rendered."""
+
+
+def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
+    """Return the total number of items ``value`` expands to when serialized.
+
+    Sub-structures are memoized by identity, so structures with shared
+    references (from YAML anchors/aliases), whose expanded size can be
+    exponential in the source size, are measured in linear time,
+    and self-referential structures terminate.
+    """
+    if isinstance(value, dict):
+        children: Iterable[Any] = value.values()
+    elif isinstance(value, list | tuple):
+        children = value
+    else:
+        return 1
+    if _memo is None:
+        _memo = {}
+    key = id(value)
+    if key not in _memo:
+        _memo[key] = 1  # occupied marker, in case value contains itself
+        _memo[key] = 1 + sum(_expanded_length(child, _memo) for child in children)
+    return _memo[key]
 
 
 def html_meta_to_nodes(

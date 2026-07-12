@@ -74,7 +74,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        docutils-version: ["0.20", "0.21", "0.22"]
+        docutils-version: ["0.20", "0.21", "0.22", "0.23"]
 
     steps:
     - name: Checkout source

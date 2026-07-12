@@ -61,7 +61,7 @@ class MystWarnings(Enum):
     STRIKETHROUGH = "strikethrough"
     """Strikethrough warning, since only implemented in HTML."""
     HTML_PARSE = "html"
-    """HTML could not be parsed."""
+    """Issue parsing or converting HTML."""
     INVALID_ATTRIBUTE = "attribute"
     """Invalid attribute value."""
     SUBSTITUTION = "substitution"
