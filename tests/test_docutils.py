@@ -128,3 +128,44 @@ def test_include_from_rst(tmp_path):
             """
         ).strip()
     )
+
+
+def test_field_list_body_source_line():
+    """A ``field_body`` node should carry its own source line.
+
+    Regression: ``render_field_list`` previously stamped the line/source onto the
+    ``field_name`` twice, leaving the ``field_body`` with no source mapping.
+    """
+    from docutils import nodes
+    from docutils.core import publish_doctree
+
+    doctree = publish_doctree(
+        source=":name: value\n",
+        parser=Parser(),
+        settings_overrides={"myst_enable_extensions": ["fieldlist"]},
+    )
+    bodies = list(doctree.findall(nodes.field_body))
+    assert bodies, "expected a field_body node"
+    field_name = bodies[0].parent[0]
+    assert bodies[0].line == field_name.line
+    assert bodies[0].line  # a real line, not 0/None
+
+
+def test_linkify_requires_linkify_it_py(monkeypatch):
+    """Enabling ``linkify`` without ``linkify-it-py`` raises a clear error.
+
+    Regression: previously the parse would fail later with an opaque
+    ``AttributeError`` on ``None``.
+    """
+    import markdown_it.main
+    import pytest
+
+    from myst_parser.config.main import MdParserConfig
+    from myst_parser.mdit_to_docutils.base import DocutilsRenderer
+    from myst_parser.parsers.mdit import create_md_parser
+
+    monkeypatch.setattr(markdown_it.main, "linkify_it", None)
+    with pytest.raises(ImportError, match="linkify-it-py"):
+        create_md_parser(
+            MdParserConfig(enable_extensions={"linkify"}), DocutilsRenderer
+        )

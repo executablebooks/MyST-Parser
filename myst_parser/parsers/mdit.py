@@ -71,9 +71,15 @@ def create_md_parser(
         md.enable("replacements")
         typographer = True
     if "linkify" in config.enable_extensions:
+        if md.linkify is None:
+            raise ImportError(
+                "The `linkify` extension requires the `linkify-it-py` package, "
+                "which is not installed. Install it with `pip install linkify-it-py` "
+                "(or `pip install myst-parser[linkify]`), "
+                "or remove `linkify` from `myst_enable_extensions`."
+            )
         md.enable("linkify")
-        if md.linkify is not None:
-            md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
+        md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
     if "gfm_autolink" in config.enable_extensions:
         md.use(gfm_autolink_plugin)
     if "strikethrough" in config.enable_extensions:

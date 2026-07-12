@@ -1644,6 +1644,7 @@ class DocutilsRenderer(RendererProtocol):
                             line=token_line(child),
                         )
                         self.current_node += [error]
+                        continue
                     with self.current_node_context(item):
                         definition = nodes.definition()
                         self.add_line_and_source_path(definition, child)
@@ -1690,7 +1691,7 @@ class DocutilsRenderer(RendererProtocol):
                 with self.current_node_context(field_name):
                     self.render_children(child)
                 field_body = nodes.field_body()
-                self.add_line_and_source_path(field_name, child)
+                self.add_line_and_source_path(field_body, child)
                 field += field_body
                 if children and children[0].type == "fieldlist_body":
                     child = children.pop(0)
