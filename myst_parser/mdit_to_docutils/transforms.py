@@ -317,7 +317,7 @@ class ResolveAnchorIds(Transform):
                 refnode["refid"] = labelid
                 if not refnode.children:
                     implicit_title = None
-                    for subnode in node:  # type: ignore[union-attr]
+                    for subnode in node or []:
                         if isinstance(subnode, nodes.caption | nodes.title):
                             implicit_title = clean_astext(subnode)
                             break
