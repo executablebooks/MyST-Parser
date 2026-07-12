@@ -593,6 +593,8 @@ def read_topmatter(text: str | Iterator[str]) -> dict[str, Any] | None:
     """
     import yaml
 
+    from myst_parser.parsers.directives import YAML_LOAD_ERRORS
+
     if isinstance(text, str):
         if not text.startswith("---"):  # skip creating the line list in memory
             return None
@@ -609,9 +611,7 @@ def read_topmatter(text: str | Iterator[str]) -> dict[str, Any] | None:
         top_matter.append(line.rstrip() + "\n")
     try:
         metadata = yaml.safe_load("".join(top_matter))
-    # ValueError: PyYAML lets it escape for some invalid scalars,
-    # e.g. out-of-range timestamps like `2021-99-99`
-    except (yaml.YAMLError, ValueError) as err:
+    except YAML_LOAD_ERRORS as err:
         raise TopmatterReadError("Malformed YAML") from err
     if not isinstance(metadata, dict):
         raise TopmatterReadError(f"YAML is not a dict: {type(metadata)}")

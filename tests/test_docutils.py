@@ -217,6 +217,8 @@ def test_html_deep_nesting_warns():
     Regression: rendering the HTML AST recurses once per nesting level,
     and the resulting ``RecursionError`` escaped and aborted the build.
     """
+    # rendering uses >=1 stack frame per nesting level, so this depth
+    # always overflows, whatever the currently available stack
     depth = sys.getrecursionlimit()
     # tags on separate lines, to stay under docutils' line-length-limit
     source = (
@@ -280,6 +282,71 @@ def test_footnote_label_matching_heading_name():
     assert footnotes, "expected the footnote definition to be kept"
     assert "the definition" in footnotes[0].astext()
     assert "Duplicate footnote" not in stream.getvalue()
+
+
+def test_footnote_label_matching_explicit_target():
+    """A footnote label sharing an *explicit* target's name is dropped.
+
+    Registering it would strip the name from both nodes and so break
+    previously working references to the target, with confusing docutils
+    warnings; the pre-existing drop-with-warning behaviour is kept.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="(note)=\n\ntext\n\n[^note]: the definition\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "Duplicate footnote definition" in stream.getvalue()
+    assert "Duplicate explicit target name" not in stream.getvalue()
+    assert not list(doctree.findall(nodes.footnote))
+    # the original target keeps its name, so references to it still resolve
+    assert "note" in doctree.nameids
+    assert doctree.nameids["note"]
+
+
+def test_topmatter_deeply_nested_yaml_warns():
+    """Deeply nested front matter YAML warns instead of crashing.
+
+    Regression: PyYAML's composer recurses per nesting level, and the
+    resulting ``RecursionError`` is neither a ``YAMLError`` nor a
+    ``ValueError``, so it escaped and aborted the build.
+    """
+    # brackets on separate lines, to stay under docutils' line-length-limit;
+    # composing uses >=1 stack frame per nesting level, so this depth
+    # always overflows, whatever the currently available stack
+    depth = sys.getrecursionlimit()
+    source = "---\nkey:\n" + "[\n" * depth + "]\n" * depth + "---\n\ncontent\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
+
+
+def test_topmatter_alias_expansion_bomb_warns():
+    """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
+
+    ``yaml.safe_load`` keeps aliased structures shared, so loading is cheap,
+    but serializing the field for display would expand ``9**20`` items.
+    """
+    lines = ["a0: &a0 [x, x, x, x, x, x, x, x, x]"]
+    for i in range(1, 20):
+        refs = ", ".join([f"*a{i - 1}"] * 9)
+        lines.append(f"a{i}: &a{i} [{refs}]")
+    source = "---\n" + "\n".join(lines) + "\n---\n\ncontent\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "too large to render" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
 
 
 def test_footnote_duplicate_definition_warns():

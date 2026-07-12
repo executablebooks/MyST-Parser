@@ -82,7 +82,7 @@ def html_to_nodes(
         return default_html(text, renderer.document["source"], line_number)
 
     try:
-        return _render_nodes(root, line_number, renderer)
+        return _html_ast_to_nodes(root, line_number, renderer)
     except RecursionError:
         msg_node = renderer.create_warning(
             "HTML is too deeply nested to process",
@@ -94,9 +94,17 @@ def html_to_nodes(
         )
 
 
-def _render_nodes(
+def _html_ast_to_nodes(
     root: Element, line_number: int, renderer: DocutilsRenderer
 ) -> list[nodes.Element]:
+    """Convert the parsed HTML AST to docutils nodes,
+    by running the equivalent ``image``/``admonition`` directives.
+
+    Recursion depth scales with the HTML nesting depth
+    (via ``Element.render``/``Element.strip`` and the nested parse of
+    directive content, which can re-enter ``html_to_nodes``),
+    so callers must guard against ``RecursionError``.
+    """
     nodes_list = []
     for child in root:
         if child.name == "img":

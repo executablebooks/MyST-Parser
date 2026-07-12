@@ -68,9 +68,10 @@ def test_link_resolution(file_params: ParamTestData, normalize_doctree_xml):
     # docutils >=0.23 also inserts info-level (severity 1) system messages
     # into the doctree; they are still written to the report stream,
     # which is what the fixtures capture, so drop them from the tree
-    for msg in list(doctree.findall(nodes.system_message)):
-        if msg["level"] < 2:
-            msg.parent.remove(msg)
+    if docutils_version >= (0, 23):
+        for msg in list(doctree.findall(nodes.system_message)):
+            if msg["level"] < 2:
+                msg.parent.remove(msg)
     outcome = normalize_doctree_xml(doctree.pformat())
     if report_stream.getvalue().strip():
         outcome += "\n\n" + report_stream.getvalue().strip()

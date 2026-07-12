@@ -52,6 +52,13 @@ from myst_parser.warnings_ import MystWarnings
 
 from .options import TokenizeError, options_to_items
 
+YAML_LOAD_ERRORS = (yaml.YAMLError, ValueError, RecursionError)
+"""Errors that ``yaml.safe_load`` can raise on invalid input:
+``ValueError`` escapes PyYAML for some invalid scalars
+(e.g. out-of-range timestamps like ``2021-99-99``),
+and ``RecursionError`` for deeply nested data.
+"""
+
 
 @dataclass
 class ParseWarnings:
@@ -207,7 +214,7 @@ def _parse_directive_options(
         yaml_errors: list[ParseWarnings] = []
         try:
             yaml_options = yaml.safe_load(options_block or "") or {}
-        except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+        except YAML_LOAD_ERRORS:
             yaml_options = {}
             yaml_errors.append(
                 ParseWarnings(
