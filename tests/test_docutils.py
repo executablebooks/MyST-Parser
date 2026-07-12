@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import sys
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
@@ -208,6 +209,89 @@ def test_linkify_no_warning_when_available():
         },
     )
     assert "[myst.linkify]" not in stream.getvalue()
+
+
+def test_html_deep_nesting_warns():
+    """Deeply nested HTML degrades to raw output with a warning.
+
+    Regression: rendering the HTML AST recurses once per nesting level,
+    and the resulting ``RecursionError`` escaped and aborted the build.
+    """
+    depth = sys.getrecursionlimit()
+    # tags on separate lines, to stay under docutils' line-length-limit
+    source = (
+        '<div class="admonition"><p class="title">Title</p>\n'
+        + "<div>\n" * depth
+        + "content\n"
+        + "</div>\n" * depth
+        + "</div>\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["html_admonition"],
+            "warning_stream": stream,
+        },
+    )
+    assert "HTML is too deeply nested" in stream.getvalue()
+    assert "[myst.html]" in stream.getvalue()
+    # the original text is preserved as a raw HTML node
+    assert list(doctree.findall(nodes.raw))
+
+
+@pytest.mark.parametrize(
+    "yaml_line",
+    [
+        "title: !UnknownTag value",  # yaml.constructor.ConstructorError
+        "date: 2021-99-99",  # bare ValueError from an out-of-range timestamp
+    ],
+)
+def test_topmatter_hostile_yaml_warns(yaml_line):
+    """Front matter YAML errors beyond parser/scanner ones warn, not crash.
+
+    Regression: only ``ParserError``/``ScannerError`` were caught, so e.g. a
+    ``ConstructorError`` from an unknown tag aborted the whole build.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_line}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert "content" in doctree.pformat()
+
+
+def test_footnote_label_matching_heading_name():
+    """A footnote label sharing a heading's name is not a duplicate.
+
+    Regression: the duplicate check used ``document.nameids``, which holds
+    every target name, so the footnote definition was silently dropped.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="# Note\n\n[^note]\n\n[^note]: the definition\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    footnotes = list(doctree.findall(nodes.footnote))
+    assert footnotes, "expected the footnote definition to be kept"
+    assert "the definition" in footnotes[0].astext()
+    assert "Duplicate footnote" not in stream.getvalue()
+
+
+def test_footnote_duplicate_definition_warns():
+    """A genuinely duplicated footnote definition still warns and is dropped."""
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="[^a]\n\n[^a]: first\n\n[^a]: second\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "Duplicate footnote definition" in stream.getvalue()
+    assert len(list(doctree.findall(nodes.footnote))) == 1
 
 
 def test_definition_list_orphan_definition():

@@ -1262,7 +1262,9 @@ class DocutilsRenderer(RendererProtocol):
         if isinstance(token.content, str):
             try:
                 data = yaml.safe_load(token.content)
-            except (yaml.parser.ParserError, yaml.scanner.ScannerError):
+            # ValueError: PyYAML lets it escape for some invalid scalars,
+            # e.g. out-of-range timestamps like `2021-99-99`
+            except (yaml.YAMLError, ValueError):
                 self.create_warning(
                     "Malformed YAML",
                     MystWarnings.MD_TOPMATTER,
@@ -1505,7 +1507,15 @@ class DocutilsRenderer(RendererProtocol):
         """Despite the name, this is actually a footnote definition, e.g. `[^a]: ...`"""
         target = token.meta["label"]
 
-        if target in self.document.nameids:
+        # check against existing footnote labels only, not `document.nameids`,
+        # which holds every target name (headings, `(name)=` targets, ...) and
+        # so would wrongly drop a footnote that merely shares a heading's name
+        existing_labels = {
+            name
+            for footnote in self.document.autofootnotes + self.document.footnotes
+            for name in footnote["names"]
+        }
+        if target in existing_labels:
             # note we chose to directly omit these footnotes in the parser,
             # rather than let docutils/sphinx handle them, since otherwise you end up with a confusing warning:
             # WARNING: Duplicate explicit target name: "x". [docutils]

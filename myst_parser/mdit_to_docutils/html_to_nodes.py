@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from docutils import nodes
 
-from myst_parser.parsers.parse_html import Data, tokenize_html
+from myst_parser.parsers.parse_html import Data, Element, tokenize_html
 from myst_parser.warnings_ import MystWarnings
 
 if TYPE_CHECKING:
@@ -81,6 +81,22 @@ def html_to_nodes(
     ):
         return default_html(text, renderer.document["source"], line_number)
 
+    try:
+        return _render_nodes(root, line_number, renderer)
+    except RecursionError:
+        msg_node = renderer.create_warning(
+            "HTML is too deeply nested to process",
+            MystWarnings.HTML_PARSE,
+            line=line_number,
+        )
+        return ([msg_node] if msg_node else []) + default_html(
+            text, renderer.document["source"], line_number
+        )
+
+
+def _render_nodes(
+    root: Element, line_number: int, renderer: DocutilsRenderer
+) -> list[nodes.Element]:
     nodes_list = []
     for child in root:
         if child.name == "img":
