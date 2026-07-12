@@ -208,6 +208,10 @@ tippy_enable_wikitips = False
 # -- LaTeX output -------------------------------------------------
 
 latex_engine = "xelatex"
+# drop the default "colorrows" style: colortbl in TeX Live 2026 breaks it
+# (https://github.com/sphinx-doc/sphinx/issues/14465);
+# it can be restored once CI runs a Sphinx release (>=9.1.1) containing the fix
+latex_table_style = ["booktabs"]
 
 # -- Local Sphinx extensions -------------------------------------------------
 

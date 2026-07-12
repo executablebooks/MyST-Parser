@@ -255,6 +255,35 @@ content
             Second paragraph.
 .
 
+[alert-code-fence] --myst-enable-extensions=alert
+.
+> [!NOTE]
+> Note
+>
+> ```py
+> "code"
+> ```
+>
+> other
+>
+> ```py
+> "other code"
+> ```
+.
+<document source="<string>">
+    <note>
+        <paragraph>
+            Note
+        <literal_block classes="code py" xml:space="preserve">
+            <inline classes="s2">
+                "code"
+        <paragraph>
+            other
+        <literal_block classes="code py" xml:space="preserve">
+            <inline classes="s2">
+                "other code"
+.
+
 [gfm_autolink] --myst-enable-extensions=gfm_autolink
 .
 Visit www.example.com for info.
