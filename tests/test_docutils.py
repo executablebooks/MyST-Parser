@@ -151,8 +151,8 @@ def test_field_list_body_source_line():
     assert bodies[0].line  # a real line, not 0/None
 
 
-def test_linkify_requires_linkify_it_py(monkeypatch):
-    """Enabling ``linkify`` without ``linkify-it-py`` raises a clear error.
+def test_linkify_disabled_without_linkify_it_py(monkeypatch):
+    """Enabling ``linkify`` without ``linkify-it-py`` warns and disables it.
 
     Regression: previously the parse would fail later with an opaque
     ``AttributeError`` on ``None``.
@@ -165,7 +165,10 @@ def test_linkify_requires_linkify_it_py(monkeypatch):
     from myst_parser.parsers.mdit import create_md_parser
 
     monkeypatch.setattr(markdown_it.main, "linkify_it", None)
-    with pytest.raises(ImportError, match="linkify-it-py"):
-        create_md_parser(
+    with pytest.warns(UserWarning, match="linkify-it-py"):
+        md = create_md_parser(
             MdParserConfig(enable_extensions={"linkify"}), DocutilsRenderer
         )
+    assert md.options["linkify"] is False
+    # the parse must no longer crash
+    md.parse("see https://example.com\n")

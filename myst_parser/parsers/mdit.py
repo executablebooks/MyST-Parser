@@ -4,6 +4,7 @@ which creates a parser from the config.
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Callable
 
 from markdown_it import MarkdownIt
@@ -72,14 +73,17 @@ def create_md_parser(
         typographer = True
     if "linkify" in config.enable_extensions:
         if md.linkify is None:
-            raise ImportError(
-                "The `linkify` extension requires the `linkify-it-py` package, "
-                "which is not installed. Install it with `pip install linkify-it-py` "
+            warnings.warn(
+                "The `linkify` extension is enabled, but the `linkify-it-py` package "
+                "is not installed, so it has been disabled. "
+                "Install it with `pip install linkify-it-py` "
                 "(or `pip install myst-parser[linkify]`), "
-                "or remove `linkify` from `myst_enable_extensions`."
+                "or remove `linkify` from `myst_enable_extensions`.",
+                stacklevel=2,
             )
-        md.enable("linkify")
-        md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
+        else:
+            md.enable("linkify")
+            md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
     if "gfm_autolink" in config.enable_extensions:
         md.use(gfm_autolink_plugin)
     if "strikethrough" in config.enable_extensions:
@@ -136,7 +140,9 @@ def create_md_parser(
     md.options.update(
         {
             "typographer": typographer,
-            "linkify": "linkify" in config.enable_extensions,
+            "linkify": (
+                "linkify" in config.enable_extensions and md.linkify is not None
+            ),
             "myst_config": config,
         }
     )
