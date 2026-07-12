@@ -528,27 +528,43 @@ The paths to other files should be relative to the current file:
 
 ### Anchor slug structure
 
-The anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger):
+By default the anchor "slugs" created aim to follow the [GitHub implementation](https://github.com/Flet/github-slugger):
 
 - lower-case text
 - remove punctuation
 - replace spaces with `-`
-- enforce uniqueness *via* suffix enumeration `-1`
+- enforce uniqueness *via* suffix enumeration: duplicates of `x` become `x`, `x-1`, `x-2`, ... (the base slug is never mutated)
 
-To change the slug generation function, set `myst_heading_slug_func` in your `conf.py` to a function that accepts a string and returns a string.
+The slug generation function is selected with the `myst_heading_slug_func` option in your `conf.py`.
+The recommended form is a named preset:
 
-:::{versionadded} 0.19.0
-`myst_heading_slug_func` can now also be set to a string,
-which will be interpreted as an import path to a function,
-e.g. `myst_heading_slug_func = "mypackage.mymodule.slugify"`.
+```python
+myst_heading_slug_func = "github"  # the default; also available: "gitlab"
+```
+
+The `"gitlab"` preset follows [GitLab's algorithm](https://docs.gitlab.com/ee/user/markdown.html#heading-ids-and-links) (which, unlike GitHub, strips surrounding whitespace, squeezes repeated hyphens and prefixes digit-only slugs with `anchor-`).
+
+:::{versionchanged} 5.2.0
+`myst_heading_slug_func` now accepts the preset names `"github"` (default) and `"gitlab"`.
+
+As a legacy form, it can still be set to an import path string
+(e.g. `myst_heading_slug_func = "mypackage.mymodule.slugify"`, added in 0.19.0)
+or, in `conf.py`, directly to a callable that accepts a string and returns a string.
+:::
+
+:::{note}
+Anchor slugs are additionally emitted as (secondary) HTML `id` attributes on the rendered headings, so that `#slug` fragments resolve in the published HTML.
+The primary docutils id is left first and unchanged, so previously published fragments keep working.
+Set `myst_heading_anchors_html_ids = False` to disable this and emit only the docutils id.
 :::
 
 ### Inspect the links that will be created
 
-You can inspect the links that will be created using the command-line tool:
+You can inspect the links that will be created using the command-line tool
+(use `--slug-func` to preview a preset, matching `myst_heading_slug_func`):
 
 ```console
-$ myst-anchors -l 2 docs/syntax/optional.md
+$ myst-anchors -l 2 --slug-func github docs/syntax/optional.md
 <h1 id="optional-myst-syntaxes"></h1>
 <h2 id="admonition-directives"></h2>
 <h2 id="auto-generated-header-anchors"></h2>

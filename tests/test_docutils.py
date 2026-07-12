@@ -356,6 +356,32 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "content" in doctree.pformat()
 
 
+def test_heading_anchors_html_ids_disabled():
+    """``myst_heading_anchors_html_ids=False`` restores lookup-only slugs."""
+    settings: dict = {"myst_heading_anchors": 1, "doctitle_xform": False}
+    doctree = publish_doctree(
+        source="# Ubuntu 20.04\n", parser=Parser(), settings_overrides=settings
+    )
+    section = next(doctree.findall(nodes.section))
+    assert section["ids"] == ["ubuntu-20-04", "ubuntu-2004"]
+    doctree = publish_doctree(
+        source="# Ubuntu 20.04\n",
+        parser=Parser(),
+        settings_overrides={**settings, "myst_heading_anchors_html_ids": False},
+    )
+    section = next(doctree.findall(nodes.section))
+    assert section["ids"] == ["ubuntu-20-04"]
+    assert section["slug"] == "ubuntu-2004"
+
+
+def test_heading_slug_func_unknown_preset():
+    """An unknown ``heading_slug_func`` string errors, naming the presets."""
+    from myst_parser.config.main import MdParserConfig
+
+    with pytest.raises(TypeError, match="github, gitlab"):
+        MdParserConfig(heading_slug_func="bogus")
+
+
 def test_footnote_duplicate_definition_warns():
     """A genuinely duplicated footnote definition still warns and is dropped."""
     stream = io.StringIO()

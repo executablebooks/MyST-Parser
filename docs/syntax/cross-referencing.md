@@ -69,7 +69,7 @@ Headings within documents can also be assigned an implicit target,
 by setting the `myst_heading_anchors` configuration option.
 This is should be set to an integer, between 1 and 6, indicating the depth of headings to assign targets to.
 
-The anchor "slugs" are created according to the [GitHub implementation](https://github.com/Flet/github-slugger): heading titles are lower cased, punctuation is removed, spaces are replaced with `-`, and uniqueness is enforced by suffix enumeration.
+By default the anchor "slugs" are created according to the [GitHub implementation](https://github.com/Flet/github-slugger): heading titles are lower cased, punctuation is removed, spaces are replaced with `-`, and uniqueness is enforced by suffix enumeration (`x`, `x-1`, `x-2`, ...). The slug function is configurable via `myst_heading_slug_func` (e.g. the `"gitlab"` preset); see [auto-generated header anchors](#syntax/header-anchors).
 
 For example, using `myst_heading_anchors = 2`:
 

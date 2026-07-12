@@ -33,6 +33,8 @@ from sphinx_pytest.plugin import CreateDoctree
             ),
         ),
         ("ref_colon", "(ref:colon)=\n# Title\n[](ref:colon)", False),
+        # a std-domain label id in the target doc resolves without warning
+        ("doc_with_target_id", "(ref)=\n# Title\n[](index.md#ref)", False),
     ],
 )
 def test_parse(

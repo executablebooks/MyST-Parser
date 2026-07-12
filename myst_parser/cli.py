@@ -7,6 +7,7 @@ from mdit_py_plugins.anchors import anchors_plugin
 
 from myst_parser.config.main import MdParserConfig
 from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.slugs import SLUG_PRESETS
 
 
 def print_anchors(args=None):
@@ -29,9 +30,17 @@ def print_anchors(args=None):
     arg_parser.add_argument(
         "-l", "--level", type=int, default=2, help="Maximum heading level."
     )
+    arg_parser.add_argument(
+        "--slug-func",
+        choices=sorted(SLUG_PRESETS),
+        default="github",
+        help="Slug preset for anchor ids (matches myst_heading_slug_func presets).",
+    )
     args = arg_parser.parse_args(args)
     parser = create_md_parser(MdParserConfig(), RendererHTML)
-    parser.use(anchors_plugin, max_level=args.level)
+    parser.use(
+        anchors_plugin, max_level=args.level, slug_func=SLUG_PRESETS[args.slug_func]
+    )
 
     def _filter_plugin(state: StateCore) -> None:
         state.tokens = [
