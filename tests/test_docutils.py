@@ -311,18 +311,25 @@ def test_topmatter_deeply_nested_yaml_warns():
     Regression: PyYAML's composer recurses per nesting level, and the
     resulting ``RecursionError`` is neither a ``YAMLError`` nor a
     ``ValueError``, so it escaped and aborted the build.
+
+    The nesting must be a single-line flow sequence: spread over lines it
+    fails in the (iterative) scanner instead, never reaching the composer.
     """
-    # brackets on separate lines, to stay under docutils' line-length-limit;
-    # composing uses >=1 stack frame per nesting level, so this depth
-    # always overflows, whatever the currently available stack
-    depth = sys.getrecursionlimit()
-    source = "---\nkey:\n" + "[\n" * depth + "]\n" * depth + "---\n\ncontent\n"
+    # pin the limit so the depth both overflows it and, as a single line,
+    # stays under docutils' line-length-limit (10000), whatever the runner
+    depth = 1000
+    limit = sys.getrecursionlimit()
+    source = "---\nkey: " + "[" * depth + "]" * depth + "\n---\n\ncontent\n"
     stream = io.StringIO()
-    doctree = publish_doctree(
-        source=source,
-        parser=Parser(),
-        settings_overrides={"warning_stream": stream},
-    )
+    try:
+        sys.setrecursionlimit(depth)
+        doctree = publish_doctree(
+            source=source,
+            parser=Parser(),
+            settings_overrides={"warning_stream": stream},
+        )
+    finally:
+        sys.setrecursionlimit(limit)
     assert "[myst.topmatter]" in stream.getvalue()
     assert "content" in doctree.pformat()
 
