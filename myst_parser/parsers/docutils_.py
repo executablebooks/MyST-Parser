@@ -29,7 +29,7 @@ from myst_parser.mdit_to_docutils.transforms import (
     SortFootnotes,
     UnreferencedFootnotesDetector,
 )
-from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.parsers.mdit import create_md_parser, linkify_available
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 
@@ -298,6 +298,16 @@ class Parser(RstParser):
                 "The `attrs_image` extension is deprecated, "
                 "please use `attrs_inline` instead.",
                 MystWarnings.DEPRECATED,
+            )
+
+        if "linkify" in config.enable_extensions and not linkify_available():
+            create_warning(
+                document,
+                "The `linkify` extension is enabled, "
+                "but the `linkify-it-py` package is not installed, "
+                "so it has been disabled "
+                "(install it with e.g. `pip install linkify-it-py`).",
+                MystWarnings.LINKIFY,
             )
 
         # update the global config with the file-level config

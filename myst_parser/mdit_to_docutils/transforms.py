@@ -160,8 +160,6 @@ class ResolveAnchorIds(Transform):
             labelid = self.document.nameids[name]
             if labelid is None:
                 continue
-            if labelid is None:
-                continue
             node = self.document.ids[labelid]
             if isinstance(node, nodes.target) and "refid" in node:
                 # indirect hyperlink targets
