@@ -386,7 +386,7 @@ My paragraph
             Chris Sewell
 .
 
-[inv_link] 
+[inv_link]
 .
 <inv:#index>
 [](inv:#index)
@@ -437,7 +437,7 @@ My paragraph
             Title
 .
 
-[inv_link_error] 
+[inv_link_error]
 .
 <inv:#other>
 
