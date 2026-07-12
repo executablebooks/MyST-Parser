@@ -251,6 +251,11 @@ class DocutilsRenderer(RendererProtocol):
                 self._heading_slugs
             )
 
+        # ensure this setting is set for the later slug-id transform
+        self.document.settings.myst_heading_anchors_html_ids = (
+            self.md_config.heading_anchors_html_ids
+        )
+
         # ensure these settings are set for later footnote transforms
         self.document.settings.myst_footnote_transition = (
             self.md_config.footnote_transition
@@ -867,20 +872,10 @@ class DocutilsRenderer(RendererProtocol):
             )
         else:
             node["slug"] = slug
-            if (
-                self.md_config.heading_anchors_html_ids
-                and slug
-                # a custom slug_func may produce whitespace,
-                # which is invalid in an HTML id
-                and not re.search(r"\s", slug)
-                and slug not in self.document.ids
-            ):
-                # also emit the slug as a (secondary) id, so that the anchor
-                # actually exists in published HTML output; the docutils id
-                # stays first, so all previously published fragments,
-                # and the targets of resolved references, are unchanged
-                node["ids"].append(slug)
-                self.document.ids[slug] = node
+            # note: the slug is additionally emitted as a (secondary) HTML id
+            # by the `AddSlugIds` transform, which runs only after *all*
+            # docutils/sphinx id assignment, so that it cannot claim an id
+            # another element would otherwise receive
             self._heading_slugs[slug] = (node.line, node["ids"][0], implicit_text)
 
     def render_heading(self, token: SyntaxTreeNode) -> None:

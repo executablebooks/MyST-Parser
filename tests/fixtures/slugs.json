@@ -94,6 +94,16 @@
       "preset": "gitlab",
       "input": "a  -  b",
       "expected": "a-b"
+    },
+    {
+      "preset": "github",
+      "input": "!!!",
+      "expected": ""
+    },
+    {
+      "preset": "gitlab",
+      "input": "!!!",
+      "expected": ""
     }
   ],
   "unique": [
@@ -133,6 +143,13 @@
       ],
       "slug": "a",
       "expected": "a-2"
+    },
+    {
+      "existing": [
+        "a-1"
+      ],
+      "slug": "a",
+      "expected": "a"
     }
   ]
 }

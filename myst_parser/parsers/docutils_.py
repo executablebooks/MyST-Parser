@@ -24,6 +24,7 @@ from myst_parser.config.main import (
 )
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 from myst_parser.mdit_to_docutils.transforms import (
+    AddSlugIds,
     CollectFootnotes,
     PrioritiseExplicitIds,
     ResolveAnchorIds,
@@ -143,7 +144,7 @@ def _attr_to_optparse_option(at: Field, default: Any) -> tuple[dict[str, Any], s
     if at.type is str or at.name == "heading_slug_func":
         return {
             "metavar": "<str>",
-        }, f"(default: '{default}')"
+        }, f"'{default}'"
     if get_origin(at.type) is Literal and all(
         isinstance(a, str) for a in get_args(at.type)
     ):
@@ -256,6 +257,7 @@ class Parser(RstParser):
             UnreferencedFootnotesDetector,
             SortFootnotes,
             CollectFootnotes,
+            AddSlugIds,
             PrioritiseExplicitIds,
             ResolveAnchorIds,
         ]

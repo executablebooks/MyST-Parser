@@ -374,6 +374,36 @@ def test_heading_anchors_html_ids_disabled():
     assert section["slug"] == "ubuntu-2004"
 
 
+def test_slug_id_cannot_steal_later_ids():
+    """A heading's slug id must not claim an id another element receives.
+
+    Regression: slugs were registered in ``document.ids`` at parse time,
+    so docutils deduplicated *later* elements' ids around them, silently
+    renaming previously published (or user-chosen) ids.
+    """
+    settings: dict = {"myst_heading_anchors": 1, "doctitle_xform": False}
+    # the first heading's slug == the second heading's docutils id:
+    # the second heading must keep its id, the colliding slug is skipped
+    doctree = publish_doctree(
+        source="# Ubuntu 20.04\n\n# Ubuntu 2004\n",
+        parser=Parser(),
+        settings_overrides=settings,
+    )
+    ids = [s["ids"] for s in doctree.findall(nodes.section)]
+    assert ids == [["ubuntu-20-04"], ["ubuntu-2004", "ubuntu-2004-1"]]
+    # the first heading's slug == a user's explicit target name:
+    # the explicit target keeps its id
+    doctree = publish_doctree(
+        source="# Ubuntu 20.04\n\n(ubuntu-2004)=\n\n# Other\n",
+        parser=Parser(),
+        settings_overrides=settings,
+    )
+    ids = [s["ids"] for s in doctree.findall(nodes.section)]
+    assert ids[0] == ["ubuntu-20-04"]
+    assert ids[1][0] == "ubuntu-2004"
+    assert "ubuntu-2004-1" not in ids[1]
+
+
 def test_heading_slug_func_unknown_preset():
     """An unknown ``heading_slug_func`` string errors, naming the presets."""
     from myst_parser.config.main import MdParserConfig

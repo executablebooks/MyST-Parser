@@ -1,0 +1,8 @@
+<document source="root/index.md">
+    <target refid="ref-colon">
+    <section ids="ref-colon title" names="title ref:colon">
+        <title>
+            Title
+        <paragraph>
+            <reference internal="True" refid="ref-colon">
+                <inline classes="std std-ref">

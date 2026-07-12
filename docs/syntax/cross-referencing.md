@@ -17,6 +17,12 @@ There are three primary ways to create targets:
 2. Annotating a syntax block/inline/span with an `{#id}` attribute (using the [attrs_block](#syntax/attributes/block) and [attrs_inline](#syntax/attributes/inline) extensions)
 3. Adding a `name` option to a directive
 
+```{versionchanged} 5.2.0
+An explicit target placed before a section heading now becomes the section's
+primary HTML id, used by tocs, permalinks and `objects.inv`; the implicit
+heading id is kept as a secondary anchor, so existing fragment links keep working.
+```
+
 ::::{myst-example}
 
 (heading-target)=
@@ -157,10 +163,15 @@ By default, MyST will resolve link destinations according to the following rules
 
    {style=lower-roman}
    1. First, explicit targets in the same file are searched for, if not found
-   2. Then, implicit targets in the same file are searched for, if not found
+   2. Then, implicit [heading anchors](#syntax/header-anchors) in the same file are searched for, if not found
    3. Then, explicit targets across the whole project are searched for, if not found
    4. Then, intersphinx references are searched for, if not found
-   5. A warning is emitted and the destination is left as an external link.
+   5. Then, any other anchor that exists in the same file is used (e.g. a heading beyond the `myst_heading_anchors` depth), if not found
+   6. A warning is emitted and the destination is left as an external link.
+
+   ```{versionchanged} 5.2.0
+   Step v was added: such links previously emitted a warning.
+   ```
 
 :::{note}
 Local file path resolution and cross-project references are not available in [single page builds](#myst-docutils)
