@@ -4,7 +4,6 @@ which creates a parser from the config.
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Callable
 
 from markdown_it import MarkdownIt
@@ -27,13 +26,18 @@ from mdit_py_plugins.wordcount import wordcount_plugin
 from myst_parser.config.main import MdParserConfig
 
 
+def linkify_available() -> bool:
+    """Return whether the optional ``linkify-it-py`` dependency is installed."""
+    # this is the same symbol that ``MarkdownIt`` consults internally
+    from markdown_it.main import linkify_it
+
+    return linkify_it is not None
+
+
 def create_md_parser(
     config: MdParserConfig, renderer: Callable[[MarkdownIt], RendererProtocol]
 ) -> MarkdownIt:
     """Return a Markdown parser with the required MyST configuration."""
-
-    # TODO warn if linkify required and linkify-it-py not installed
-    # (currently the parse will unceremoniously except)
 
     if config.commonmark_only:
         # see https://spec.commonmark.org/
@@ -71,19 +75,13 @@ def create_md_parser(
     if "replacements" in config.enable_extensions:
         md.enable("replacements")
         typographer = True
-    if "linkify" in config.enable_extensions:
-        if md.linkify is None:
-            warnings.warn(
-                "The `linkify` extension is enabled, but the `linkify-it-py` package "
-                "is not installed, so it has been disabled. "
-                "Install it with `pip install linkify-it-py` "
-                "(or `pip install myst-parser[linkify]`), "
-                "or remove `linkify` from `myst_enable_extensions`.",
-                stacklevel=2,
-            )
-        else:
-            md.enable("linkify")
-            md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
+    linkify_enabled = False
+    if "linkify" in config.enable_extensions and md.linkify is not None:
+        # if linkify-it-py is not installed, the extension is simply disabled here;
+        # a warning is emitted by the sphinx/docutils parsers (see linkify_available)
+        md.enable("linkify")
+        md.linkify.set({"fuzzy_link": config.linkify_fuzzy_links})
+        linkify_enabled = True
     if "gfm_autolink" in config.enable_extensions:
         md.use(gfm_autolink_plugin)
     if "strikethrough" in config.enable_extensions:
@@ -140,9 +138,7 @@ def create_md_parser(
     md.options.update(
         {
             "typographer": typographer,
-            "linkify": (
-                "linkify" in config.enable_extensions and md.linkify is not None
-            ),
+            "linkify": linkify_enabled,
             "myst_config": config,
         }
     )

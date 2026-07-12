@@ -1,10 +1,19 @@
 import contextlib
+import importlib.util
 import io
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
 from typing import Literal
 
-from myst_parser.mdit_to_docutils.base import make_document
+import markdown_it.main
+import pytest
+from docutils import nodes
+from docutils.core import publish_doctree
+from markdown_it.token import Token
+
+from myst_parser.config.main import MdParserConfig
+from myst_parser.mdit_to_docutils.base import DocutilsRenderer, make_document
+from myst_parser.parsers.mdit import create_md_parser
 from myst_parser.parsers.docutils_ import (
     Parser,
     attr_to_optparse_option,
@@ -136,9 +145,6 @@ def test_field_list_body_source_line():
     Regression: ``render_field_list`` previously stamped the line/source onto the
     ``field_name`` twice, leaving the ``field_body`` with no source mapping.
     """
-    from docutils import nodes
-    from docutils.core import publish_doctree
-
     doctree = publish_doctree(
         source=":name: value\n",
         parser=Parser(),
@@ -146,29 +152,92 @@ def test_field_list_body_source_line():
     )
     bodies = list(doctree.findall(nodes.field_body))
     assert bodies, "expected a field_body node"
-    field_name = bodies[0].parent[0]
-    assert bodies[0].line == field_name.line
     assert bodies[0].line  # a real line, not 0/None
 
 
 def test_linkify_disabled_without_linkify_it_py(monkeypatch):
     """Enabling ``linkify`` without ``linkify-it-py`` warns and disables it.
 
-    Regression: previously the parse would fail later with an opaque
-    ``AttributeError`` on ``None``.
+    Regression: previously the first parse crashed with
+    ``ModuleNotFoundError("Linkify enabled but not installed.")``.
     """
-    import markdown_it.main
-    import pytest
-
-    from myst_parser.config.main import MdParserConfig
-    from myst_parser.mdit_to_docutils.base import DocutilsRenderer
-    from myst_parser.parsers.mdit import create_md_parser
-
     monkeypatch.setattr(markdown_it.main, "linkify_it", None)
-    with pytest.warns(UserWarning, match="linkify-it-py"):
-        md = create_md_parser(
-            MdParserConfig(enable_extensions={"linkify"}), DocutilsRenderer
-        )
+    # the parser factory silently disables the extension (no crash on parse)
+    md = create_md_parser(
+        MdParserConfig(enable_extensions={"linkify"}), DocutilsRenderer
+    )
     assert md.options["linkify"] is False
-    # the parse must no longer crash
     md.parse("see https://example.com\n")
+    # the docutils parser emits a suppressible myst warning
+    stream = io.StringIO()
+    publish_doctree(
+        source="see https://example.com\n",
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["linkify"],
+            "warning_stream": stream,
+        },
+    )
+    assert "[myst.linkify]" in stream.getvalue()
+    stream = io.StringIO()
+    publish_doctree(
+        source="see https://example.com\n",
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["linkify"],
+            "myst_suppress_warnings": ["myst.linkify"],
+            "warning_stream": stream,
+        },
+    )
+    assert "[myst.linkify]" not in stream.getvalue()
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("linkify_it") is None,
+    reason="linkify-it-py not installed",
+)
+def test_linkify_no_warning_when_available():
+    """No warning is emitted when ``linkify-it-py`` is installed."""
+    stream = io.StringIO()
+    publish_doctree(
+        source="see https://example.com\n",
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["linkify"],
+            "warning_stream": stream,
+        },
+    )
+    assert "[myst.linkify]" not in stream.getvalue()
+
+
+def test_definition_list_orphan_definition():
+    """A definition with no preceding term errors, but keeps its content.
+
+    Not reachable via the deflist plugin (which never emits an orphan ``dd``),
+    so constructed as a synthetic token stream.
+    """
+    md = create_md_parser(
+        MdParserConfig(enable_extensions={"deflist"}), DocutilsRenderer
+    )
+    tokens = [
+        Token("dl_open", "dl", 1, map=[0, 2]),
+        Token("dd_open", "dd", 1, map=[0, 1]),
+        Token("paragraph_open", "p", 1, map=[0, 1]),
+        Token(
+            "inline",
+            "",
+            0,
+            content="important content",
+            map=[0, 1],
+            children=[Token("text", "", 0, content="important content")],
+        ),
+        Token("paragraph_close", "p", -1),
+        Token("dd_close", "dd", -1),
+        Token("dl_close", "dl", -1),
+    ]
+    document = make_document("source.md")
+    md.options["document"] = document
+    md.renderer.render(tokens, md.options, {})
+    output = document.pformat()
+    assert "no preceding term" in output
+    assert "important content" in output

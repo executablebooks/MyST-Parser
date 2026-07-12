@@ -13,6 +13,7 @@ from myst_parser.parsers.docutils_ import (
     depart_container_html,
     visit_container_html,
 )
+from myst_parser.parsers.mdit import linkify_available
 from myst_parser.warnings_ import MystWarnings
 
 
@@ -95,4 +96,17 @@ def create_myst_config(app):
             "please use `attrs_inline` instead.",
             type="myst",
             subtype=MystWarnings.DEPRECATED.value,
+        )
+
+    if (
+        "linkify" in app.env.myst_config.enable_extensions
+        and not linkify_available()
+    ):
+        logger.warning(
+            "The `linkify` extension is enabled, but the `linkify-it-py` package "
+            "is not installed, so it has been disabled "
+            "(install it with e.g. `pip install linkify-it-py` "
+            "or `pip install myst-parser[linkify]`).",
+            type="myst",
+            subtype=MystWarnings.LINKIFY.value,
         )
