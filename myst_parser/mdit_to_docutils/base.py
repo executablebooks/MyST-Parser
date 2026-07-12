@@ -1634,20 +1634,27 @@ class DocutilsRenderer(RendererProtocol):
                             )
                         self.current_node.append(term)
                 elif child.type == "dd":
+                    error = None
                     if item is None:
                         error = self.reporter.error(
                             (
                                 "Found a definition in a definition list, "
                                 "with no preceding term"
                             ),
-                            # nodes.literal_block(content, content),
                             line=token_line(child),
                         )
-                        self.current_node += [error]
+                        # create an item with an empty term,
+                        # so that the definition content is not dropped
+                        item = nodes.definition_list_item()
+                        self.add_line_and_source_path(item, child)
+                        self.current_node.append(item)
+                        item.append(nodes.term())
                     with self.current_node_context(item):
                         definition = nodes.definition()
                         self.add_line_and_source_path(definition, child)
                         with self.current_node_context(definition, append=True):
+                            if error is not None:
+                                self.current_node.append(error)
                             self.render_children(child)
                 else:
                     error_msg = self.reporter.error(
@@ -1690,10 +1697,12 @@ class DocutilsRenderer(RendererProtocol):
                 with self.current_node_context(field_name):
                     self.render_children(child)
                 field_body = nodes.field_body()
-                self.add_line_and_source_path(field_name, child)
+                self.add_line_and_source_path(field_body, child)
                 field += field_body
                 if children and children[0].type == "fieldlist_body":
                     child = children.pop(0)
+                    # prefer the body token for the source line, if available
+                    self.add_line_and_source_path(field_body, child)
                     with self.current_node_context(field_body):
                         self.render_children(child)
 
