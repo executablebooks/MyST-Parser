@@ -321,7 +321,9 @@ class DocutilsRenderer(RendererProtocol):
         if tokens and tokens[0].type == "front_matter":
             tokens.pop(0)
 
-        # update the line numbers
+        # update the line numbers,
+        # note the maps stay 0-based here;
+        # ``_render_tokens`` applies the final 0-based to 1-based conversion
         for token in tokens:
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
@@ -374,6 +376,10 @@ class DocutilsRenderer(RendererProtocol):
         """Copy the line number and document source path to the docutils node."""
         with suppress(ValueError):
             node.line = token_line(token)
+            # keep the document's current_line in sync, so that docutils'
+            # ``Node.setup_child`` stamps sensible lines onto line-less
+            # children (such as ``Text`` nodes), rather than a stale value
+            self.document.current_line = node.line
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
@@ -1783,12 +1789,22 @@ class DocutilsRenderer(RendererProtocol):
         :param arguments: The remaining text on the same line as the directive name.
         """
         position = token_line(token)
+        # reconstruct the directive's full text, so that ``block_text`` aligns
+        # with what an equivalent rST directive would receive
+        # (best-effort: the parser strips fence indentation and normalises
+        # the info string, so this may not be byte-identical to the source)
+        content_text = token.content
+        if content_text and not content_text.endswith("\n"):
+            # e.g. for an unterminated fence at the end of the document
+            content_text += "\n"
+        block_text = f"{token.markup}{token.info}\n{content_text}{token.markup}\n"
         nodes_list = self.run_directive(
             name,
             arguments,
             token.content,
             position,
             additional_options=additional_options,
+            block_text=block_text,
         )
         self.current_node += nodes_list
 
@@ -1799,6 +1815,8 @@ class DocutilsRenderer(RendererProtocol):
         content: str,
         position: int,
         additional_options: dict[str, str] | None = None,
+        *,
+        block_text: str | None = None,
     ) -> list[nodes.Element]:
         """Run a directive and return the generated nodes.
 
@@ -1809,6 +1827,8 @@ class DocutilsRenderer(RendererProtocol):
         :param position: The line number of the first line
         :param additional_options: Additional options to add to the directive,
             above those parsed from the content.
+        :param block_text: The full unparsed text of the directive,
+            defaulting to ``content`` if not given.
 
         """
         self.document.current_line = position
@@ -1838,7 +1858,10 @@ class DocutilsRenderer(RendererProtocol):
                 directive_class,
                 first_line,
                 content,
-                line=position,
+                # when no block_text is given, the content is synthesized
+                # (e.g. from HTML attributes) and has no source lines,
+                # so option warnings fall back to the directive's position
+                line=position if block_text is not None else None,
                 additional_options=additional_options,
             )
         except MarkupError as error:
@@ -1883,7 +1906,7 @@ class DocutilsRenderer(RendererProtocol):
                 # the line offset of the first line of the content
                 content_offset=parsed.body_offset,
                 # a string containing the entire directive
-                block_text="\n".join(parsed.body),
+                block_text=content if block_text is None else block_text,
                 state=state,
                 state_machine=state_machine,
             )

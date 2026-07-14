@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
+from dataclasses import field as dc_field
 from typing import ClassVar, Final, Literal, cast
 
 
@@ -167,6 +168,35 @@ class TokenizeError(Exception):
 @dataclass
 class State:
     has_comments: bool = False
+    comment_lines: list[int] = dc_field(default_factory=list)
+    """0-based lines (relative to the text) on which comments were found."""
+
+    def record_comment(self, line: int) -> None:
+        self.has_comments = True
+        # a comment may be scanned twice (at the end of a plain scalar,
+        # then again when skipping to the next token), and scanning is
+        # forward-only, so checking the last entry suffices to dedupe
+        if not self.comment_lines or self.comment_lines[-1] != line:
+            self.comment_lines.append(line)
+
+
+def options_to_tokens(
+    text: str, line_offset: int = 0, column_offset: int = 0
+) -> tuple[list[tuple[KeyToken, ValueToken | None]], State]:
+    """Parse a directive option block into (key, value) token pairs.
+
+    Token positions are 0-based and relative to the start of ``text``;
+    ``line_offset`` and ``column_offset`` apply only to error positions.
+
+    :param text: The directive option text.
+    :param line_offset: The line offset to apply to the error positions.
+    :param column_offset: The column offset to apply to the error positions.
+
+    :raises: `TokenizeError`
+    """
+    state = State()
+    tokens = list(_to_tokens(text, state, line_offset, column_offset))
+    return tokens, state
 
 
 def options_to_items(
@@ -180,13 +210,10 @@ def options_to_items(
 
     :raises: `TokenizeError`
     """
-    output = []
-    state = State()
-    for key_token, value_token in _to_tokens(text, state, line_offset, column_offset):
-        output.append(
-            (key_token.value, value_token.value if value_token is not None else "")
-        )
-    return output, state
+    tokens, state = options_to_tokens(text, line_offset, column_offset)
+    return [
+        (key.value, value.value if value is not None else "") for key, value in tokens
+    ], state
 
 
 def _to_tokens(
@@ -280,7 +307,7 @@ def _scan_to_next_token(stream: StreamBuffer, state: State) -> None:
         while stream.peek() == " ":
             stream.forward()
         if stream.peek() == "#":
-            state.has_comments = True
+            state.record_comment(stream.line)
             while stream.peek() not in _CHARS_END_NEWLINE:
                 stream.forward()
         if not _scan_line_break(stream):
@@ -298,7 +325,7 @@ def _scan_plain_scalar(
     while True:
         length = 0
         if stream.peek() == "#":
-            state.has_comments = True
+            state.record_comment(stream.line)
             break
         while True:
             ch = stream.peek(length)
@@ -318,7 +345,7 @@ def _scan_plain_scalar(
         spaces = _scan_plain_spaces(stream, allow_newline=(not is_key))
         if not spaces or stream.peek() == "#" or (stream.column < indent):
             if stream.peek() == "#":
-                state.has_comments = True
+                state.record_comment(stream.line)
             break
 
     return (
@@ -599,7 +626,7 @@ def _scan_block_scalar_ignored_line(
     while stream.peek() == " ":
         stream.forward()
     if stream.peek() == "#":
-        state.has_comments = True
+        state.record_comment(stream.line)
         while stream.peek() not in _CHARS_END_NEWLINE:
             stream.forward()
     ch = stream.peek()
