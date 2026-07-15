@@ -597,6 +597,48 @@ def test_text_node_line_stamping():
     assert lines["note body"] is None
 
 
+def test_empty_slug_means_no_anchor():
+    """A heading whose title slugifies to nothing gets no anchor.
+
+    In particular the empty slug takes no part in deduplication, so a later
+    empty-slugging heading must not receive a nonsense ``-1`` anchor id.
+    """
+    doctree = publish_doctree(
+        source="# !!!\n\n# ???\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "doctitle_xform": False,
+            "myst_heading_anchors": 2,
+        },
+    )
+    for section in doctree.findall(nodes.section):
+        assert "slug" not in section.attributes, section.attributes
+        assert section["ids"] and all(not i.startswith("-") for i in section["ids"]), (
+            section["ids"]
+        )
+
+
+def test_docutils_slug_preset():
+    """The ``docutils`` preset produces make_id-style anchors.
+
+    Non-Latin titles slugify to nothing under this preset, so those headings
+    get no anchor.
+    """
+    doctree = publish_doctree(
+        source="# Привет\n\n# 2.0\n\n# Hello World\n\n# Straße & Œuvre\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "doctitle_xform": False,
+            "myst_heading_anchors": 2,
+            "myst_heading_slug_func": "docutils",
+        },
+    )
+    slugs = [section.get("slug") for section in doctree.findall(nodes.section)]
+    assert slugs == [None, None, "hello-world", "strasze-oeuvre"]
+
+
 def test_definition_list_orphan_definition():
     """A definition with no preceding term errors, but keeps its content.
 

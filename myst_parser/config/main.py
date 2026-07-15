@@ -313,7 +313,7 @@ class MdParserConfig:
             "validator": check_heading_slug_func,
             "help": (
                 "Function for creating heading anchors: "
-                'a preset name ("github", "gitlab"), '
+                'a preset name ("docutils", "github", "gitlab"), '
                 "or (legacy) a python import path "
                 "e.g. `my_package.my_module.my_function`"
             ),

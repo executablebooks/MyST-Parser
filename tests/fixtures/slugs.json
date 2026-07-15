@@ -1,4 +1,6 @@
 {
+  "version": 1,
+  "description": "Normative conformance corpus for MyST heading-anchor slugs. 'slugify' rows pin SLUG_PRESETS[preset](input) == expected, byte-for-byte; 'unique' rows pin unique_slug(slug, existing) == expected. The set is append-only within a version; any semantic change to an existing vector or algorithm requires a version bump. An empty expected slug means the heading receives no anchor.",
   "slugify": [
     {
       "preset": "github",
@@ -104,6 +106,76 @@
       "preset": "gitlab",
       "input": "!!!",
       "expected": ""
+    },
+    {
+      "preset": "docutils",
+      "input": "Ubuntu 20.04",
+      "expected": "ubuntu-20-04"
+    },
+    {
+      "preset": "docutils",
+      "input": "lxc.env for environment variables",
+      "expected": "lxc-env-for-environment-variables"
+    },
+    {
+      "preset": "docutils",
+      "input": "2.0",
+      "expected": ""
+    },
+    {
+      "preset": "docutils",
+      "input": "3rd party",
+      "expected": "rd-party"
+    },
+    {
+      "preset": "docutils",
+      "input": "Привет Мир",
+      "expected": ""
+    },
+    {
+      "preset": "docutils",
+      "input": "中文标题",
+      "expected": ""
+    },
+    {
+      "preset": "docutils",
+      "input": " a b c ",
+      "expected": "a-b-c"
+    },
+    {
+      "preset": "docutils",
+      "input": "Title with UPPER",
+      "expected": "title-with-upper"
+    },
+    {
+      "preset": "docutils",
+      "input": "Hello 🎉 World!",
+      "expected": "hello-world"
+    },
+    {
+      "preset": "docutils",
+      "input": "!!!",
+      "expected": ""
+    },
+    {
+      "preset": "docutils",
+      "input": "Straße & Œuvre",
+      "expected": "strasze-oeuvre"
+    },
+    {
+      "preset": "docutils",
+      "input": "łódź ȸȹ",
+      "expected": "lodz-dbqp"
+    },
+    {
+      "preset": "docutils",
+      "input": "café  naïve",
+      "expected": "cafe-naive"
+    },
+    {
+      "preset": "docutils",
+      "input": "__init__ (API)",
+      "expected": "init-api"
     }
   ],
   "unique": [

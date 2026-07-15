@@ -539,13 +539,15 @@ The slug generation function is selected with the `myst_heading_slug_func` optio
 The recommended form is a named preset:
 
 ```python
-myst_heading_slug_func = "github"  # the default; also available: "gitlab"
+myst_heading_slug_func = "github"  # the default; also available: "gitlab", "docutils"
 ```
 
 The `"gitlab"` preset follows [GitLab's algorithm](https://docs.gitlab.com/ee/user/markdown.html#heading-ids-and-links) (which, unlike GitHub, strips surrounding whitespace, squeezes repeated hyphens and prefixes digit-only slugs with `anchor-`).
 
+The `"docutils"` preset produces slugs byte-compatible with `docutils.nodes.make_id` — the `id` style reStructuredText headings receive — for a uniform anchor style across mixed rST + Markdown projects; its slugs are ASCII-only, so a non-Latin title produces no anchor (see the anchor contract below).
+
 :::{versionchanged} 5.2.0
-`myst_heading_slug_func` now accepts the preset names `"github"` (default) and `"gitlab"`.
+`myst_heading_slug_func` now accepts the preset names `"github"` (default), `"gitlab"` and `"docutils"`.
 
 As a legacy form, it can still be set to an import path string
 (e.g. `myst_heading_slug_func = "mypackage.mymodule.slugify"`, added in 0.19.0)
@@ -573,6 +575,41 @@ $ myst-anchors -l 2 --slug-func github docs/syntax/optional.md
 <h2 id="markdown-figures"></h2>
 <h2 id="direct-latex-math"></h2>
 ```
+
+Note this is a quick preview using the underlying markdown-it plugin:
+it does not apply the renderer-only empty-slug rule described below,
+so a heading whose slug is empty is shown with a literal empty (or suffixed) id,
+where the renderer would emit no anchor at all.
+
+### The anchor contract
+
+:::{versionadded} 5.2.0
+:::
+
+- **Slug generation**: anchors are computed by the configured slug function.
+  The named presets are specified by `myst_parser/slugs.py` (pure and
+  standard-library-only, so alternative implementations can port them from that
+  one file) and pinned by the machine-readable corpus `tests/fixtures/slugs.json`
+  (versioned via a `version` field; append-only within a version, with a version
+  bump on any semantic change).
+- **Deduplication**: repeated slugs are given fixed-base suffixes `slug`,
+  `slug-1`, `slug-2`, ... by `unique_slug` — the base is never mutated. This
+  applies whatever the preset; in particular docutils' own duplicate-id scheme is
+  *not* emulated by the `docutils` preset, which governs the slug text only.
+- **Empty slugs**: a slug function may return an empty string (a punctuation-only
+  title, or any non-Latin title under `docutils`); such a heading gets no anchor
+  and takes no part in deduplication.
+- **Explicit-id priority**: an explicit target/id on a heading beats the
+  auto-slug as the primary id; the superseded slug is kept as a secondary anchor,
+  so previously published links keep working.
+- **HTML id emission**: slugs are emitted as real (secondary) HTML `id`s in the
+  output, so the anchors exist in the published HTML. The docutils `id_prefix`
+  setting is deliberately bypassed — the raw slug is the anchor. Set
+  `myst_heading_anchors_html_ids = False` to disable this.
+- **docutils drift policy**: the `docutils` preset is pinned byte-for-byte
+  against `docutils.nodes.make_id` by CI. If a future docutils changes `make_id`,
+  the preset and corpus stay byte-stable (they are the contract) and the
+  divergence will be documented.
 
 (syntax/definition-lists)=
 
