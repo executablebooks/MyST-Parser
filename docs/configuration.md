@@ -211,5 +211,13 @@ suppress_warnings = ["myst.header"]
 
 Or use `--myst-suppress-warnings="myst.header"` for the [docutils CLI](myst-docutils).
 
+:::{note}
+Two known limitations apply to the source lines reported by warnings:
+warnings for inline syntax (such as roles and links) report the first line of the enclosing paragraph,
+rather than the exact line of the syntax,
+and warnings within the rendered output of a [substitution](syntax/substitutions) may map beyond the substitution's own location,
+if that output spans more lines than the source.
+:::
+
 ```{myst-warnings}
 ```

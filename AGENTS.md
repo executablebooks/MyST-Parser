@@ -142,15 +142,20 @@ def parse_directive_text(
     first_line: str,
     content: str,
     *,
+    line: int | None = None,
     validate_options: bool = True,
-) -> tuple[list[str], dict[str, Any], list[str], int]:
+    additional_options: dict[str, str] | None = None,
+) -> DirectiveParsingResult:
     """Parse directive text into its components.
 
     :param directive_class: The directive class to parse for.
     :param first_line: The first line (arguments).
     :param content: The directive content.
+    :param line: The 1-based source line of the directive's opening line.
     :param validate_options: Whether to validate options against the directive spec.
-    :return: Tuple of (arguments, options, body_lines, body_offset).
+    :param additional_options: Additional options to add to the directive.
+    :return: A ``DirectiveParsingResult`` with fields
+        ``arguments``, ``options``, ``body``, ``body_offset`` and ``warnings``.
     :raises MarkupError: If the directive text is malformed.
     """
     ...

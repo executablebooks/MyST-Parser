@@ -441,6 +441,162 @@ def test_footnote_duplicate_definition_warns():
     assert len(list(doctree.findall(nodes.footnote))) == 1
 
 
+def test_directive_block_text_rst_parity():
+    """A fenced directive's ``self.block_text`` mirrors the rST full source.
+
+    The block text spans the opening fence, options block, body and closing
+    fence, while ``self.content``/``self.content_offset`` stay body-relative.
+    """
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst import directives as rst_directives
+
+    captured = {}
+
+    class _BlockTextEcho(Directive):
+        has_content = True
+        option_spec = {"class": rst_directives.class_option}
+
+        def run(self):
+            captured["block_text"] = self.block_text
+            captured["content"] = list(self.content)
+            captured["content_offset"] = self.content_offset
+            return []
+
+    rst_directives.register_directive("blocktextecho", _BlockTextEcho)
+    try:
+        publish_doctree(
+            source="```{blocktextecho}\n---\nclass: tip\n---\nbody line\n```\n",
+            parser=Parser(),
+            settings_overrides={"warning_stream": io.StringIO()},
+        )
+    finally:
+        rst_directives._directives.pop("blocktextecho", None)
+    assert captured["block_text"] == (
+        "```{blocktextecho}\n---\nclass: tip\n---\nbody line\n```\n"
+    )
+    assert captured["content"] == ["body line"]
+    assert captured["content_offset"] == 3
+
+
+def test_directive_block_text_fallback():
+    """Directives run from synthesized (non-source) content, such as HTML
+    admonitions, receive that content as ``block_text``."""
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst import directives as rst_directives
+
+    captured = {}
+
+    class _Echo(Directive):
+        required_arguments = 1
+        final_argument_whitespace = True
+        has_content = True
+        option_spec = {"class": rst_directives.class_option}
+
+        def run(self):
+            captured["block_text"] = self.block_text
+            return []
+
+    rst_directives.register_directive("admonition", _Echo)
+    try:
+        publish_doctree(
+            source='<div class="admonition">\nTitle text\n\nBody text here\n</div>\n',
+            parser=Parser(),
+            settings_overrides={
+                "warning_stream": io.StringIO(),
+                "myst_enable_extensions": ["html_admonition"],
+            },
+        )
+    finally:
+        rst_directives._directives.pop("admonition", None)
+    assert captured["block_text"] == ":class: admonition\n\nTitle text\n"
+
+
+def test_html_image_option_warning_line():
+    """Option warnings for HTML-synthesized directives point at the element.
+
+    The synthesized ``:key: value`` content has no source lines, so warnings
+    must fall back to the element's own line, not per-key arithmetic.
+    """
+    stream = io.StringIO()
+    publish_doctree(
+        source="para\n\npara two\n\n<img src='x.png' width='not!valid'>\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": stream,
+            "myst_enable_extensions": ["html_image"],
+        },
+    )
+    assert "<string>:5: (WARNING/2) 'image': Invalid option value for 'width'" in (
+        stream.getvalue()
+    )
+
+
+def test_colon_fence_option_warning_line():
+    """Per-key option warning lines also apply to ``:::`` fence directives."""
+    stream = io.StringIO()
+    publish_doctree(
+        source="para\n\n:::{note}\n:foo: bar\nbody\n:::\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": stream,
+            "myst_enable_extensions": ["colon_fence"],
+        },
+    )
+    assert "<string>:4: (WARNING/2) 'note': Unknown option key: 'foo'" in (
+        stream.getvalue()
+    )
+
+
+def test_include_literal_line(tmp_path):
+    """A literal ``include`` block's source line reflects ``start-line``."""
+    inc = tmp_path / "inc.txt"
+    inc.write_text("l1\nl2\nl3\nl4\nl5\n")
+    source_path = str(tmp_path / "main.md")
+
+    doctree = publish_doctree(
+        source=f"```{{include}} {inc}\n:literal: true\n:start-line: 2\n```\n",
+        source_path=source_path,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    literal_block = next(doctree.findall(nodes.literal_block))
+    assert literal_block.line == 3
+    assert literal_block.astext() == "l3\nl4\nl5"
+
+    doctree = publish_doctree(
+        source=f"```{{include}} {inc}\n:literal: true\n```\n",
+        source_path=source_path,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    literal_block = next(doctree.findall(nodes.literal_block))
+    assert literal_block.line == 1
+
+
+def test_text_node_line_stamping():
+    """Text nodes carry their enclosing block's line, not a stale one.
+
+    Regression for a directive's line being stamped
+    (via ``document.current_line`` and docutils' ``Node.setup_child``)
+    onto every subsequent ``Text`` node in the document.
+    """
+    source = (
+        "para one\n\n```{note}\n:class: tip\n\nnote body\n```\n\npara two\n\n- item\n"
+    )
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    lines = {text.astext(): text.line for text in doctree.findall(nodes.Text)}
+    assert lines["para one"] == 1
+    # previously stamped with the note directive's line (3)
+    assert lines["para two"] == 9
+    assert lines["item"] == 11
+    # created while detached from the document, so defers to ancestor lookup
+    assert lines["note body"] is None
+
+
 def test_definition_list_orphan_definition():
     """A definition with no preceding term errors, but keeps its content.
 
