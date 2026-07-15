@@ -877,6 +877,12 @@ class DocutilsRenderer(RendererProtocol):
                 append_to=self.current_node,
             )
         else:
+            if not slug:
+                # an empty slug (e.g. a punctuation-only title, or a
+                # non-Latin title under the docutils preset) means the
+                # heading gets no anchor; it also takes no part in
+                # deduplication, so a later empty slug is not suffixed -1
+                return
             node["slug"] = slug
             # note: the slug is additionally emitted as a (secondary) HTML id
             # by the `AddSlugIds` transform, which runs only after *all*
