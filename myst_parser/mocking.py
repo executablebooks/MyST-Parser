@@ -429,6 +429,10 @@ class MockIncludeDirective:
         # get required section of text
         startline = self.options.get("start-line", None)
         endline = self.options.get("end-line", None)
+        if startline is not None and startline < 0:
+            # resolve to the actual 0-based line, for source-line reporting
+            # (slicing semantics are unchanged by this)
+            startline = max(0, len(file_content.splitlines()) + startline)
         file_content = "\n".join(file_content.splitlines()[startline:endline])
         startline = startline or 0
         for split_on_type in ["start-after", "end-before"]:
@@ -442,7 +446,9 @@ class MockIncludeDirective:
                     f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
-                startline += split_index + len(split_on)
+                # advance by the number of *lines* removed, so that
+                # source-line reporting stays aligned
+                startline += file_content.count("\n", 0, split_index + len(split_on))
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
@@ -514,9 +520,12 @@ class MockIncludeDirective:
                     source_dir,
                     path.parent,
                 )
+            # ``nested_render_text`` expects the 0-based source line of the
+            # first line of the text (the final 0-based to 1-based conversion
+            # happens in ``_render_tokens``), which is exactly ``startline``
             self.renderer.nested_render_text(
                 file_content,
-                startline + 1,
+                startline,
                 heading_offset=self.options.get("heading-offset", 0),
             )
         finally:
