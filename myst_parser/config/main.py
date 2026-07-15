@@ -604,6 +604,8 @@ def merge_file_level(
         elif getattr(new, name) is before:
             # a converting validator (e.g. list -> set) assigns the converted
             # value itself; do not clobber that with the raw value
+            # (note for validator authors: converters must assign a *new*
+            # object, never normalise the existing value in place)
             setattr(new, name, value)
 
     return new
