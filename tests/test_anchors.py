@@ -34,6 +34,22 @@ def test_print_anchors_gitlab():
     assert re.findall(r'id="([^"]*)"', out) == ["anchor-20"]
 
 
+def test_print_anchors_docutils():
+    """``--slug-func docutils`` applies the make_id-style preset (with dedup)."""
+    out = _run_cli(
+        "# Hello World\n\n# Straße & Œuvre\n\n# Hello World",
+        "-l",
+        "1",
+        "--slug-func",
+        "docutils",
+    )
+    assert re.findall(r'id="([^"]*)"', out) == [
+        "hello-world",
+        "strasze-oeuvre",
+        "hello-world-1",
+    ]
+
+
 # a corpus exercising duplicates, dotted/digit titles, non-latin scripts,
 # inline code, emphasis and internal whitespace
 CROSS_CHECK_CORPUS = """\
@@ -76,6 +92,57 @@ def test_anchor_slugs_match_renderer():
         CROSS_CHECK_CORPUS,
         parser=Parser(),
         settings_overrides={"myst_heading_anchors": 6, "doctitle_xform": False},
+    )
+    doc_slugs = [
+        section["slug"]
+        for section in doctree.findall(nodes.section)
+        if "slug" in section
+    ]
+
+    assert cli_ids == doc_slugs
+
+
+# docutils cross-check corpus: duplicates, dotted/digit titles, digraphs,
+# inline code and internal whitespace, all with *non-empty* docutils slugs.
+# Empty-slug titles (e.g. `# 2.0`, `# 中文标题`) are deliberately excluded:
+# the renderer drops them from deduplication (empty slug -> no anchor), a
+# renderer-only rule that the CLI's anchors plugin does not implement.
+DOCUTILS_CROSS_CHECK_CORPUS = """\
+# Dup
+
+# Dup
+
+# Ubuntu 20.04
+
+# lxc.env for environment variables
+
+# 3rd party
+
+# Straße & Œuvre
+
+# Some `code` here
+
+# Some *emphasis* text
+
+# x  y
+"""
+
+
+def test_anchor_slugs_match_renderer_docutils():
+    """The CLI and the docutils renderer agree under the ``docutils`` preset."""
+    cli_out = _run_cli(
+        DOCUTILS_CROSS_CHECK_CORPUS, "-l", "6", "--slug-func", "docutils"
+    )
+    cli_ids = re.findall(r'id="([^"]*)"', cli_out)
+
+    doctree = publish_doctree(
+        DOCUTILS_CROSS_CHECK_CORPUS,
+        parser=Parser(),
+        settings_overrides={
+            "myst_heading_anchors": 6,
+            "doctitle_xform": False,
+            "myst_heading_slug_func": "docutils",
+        },
     )
     doc_slugs = [
         section["slug"]
