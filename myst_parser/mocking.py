@@ -515,7 +515,7 @@ class MockIncludeDirective:
                 )
             self.renderer.nested_render_text(
                 file_content,
-                startline + 1,
+                startline,
                 heading_offset=self.options.get("heading-offset", 0),
             )
         finally:
