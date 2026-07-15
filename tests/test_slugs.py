@@ -49,8 +49,9 @@ def test_slug_presets_keys():
     + [
         # extra fidelity vectors, beyond the corpus
         "Ærøskøbing",  # digraph + stroked o
-        "ǥȥȴȵȶȷȼȿɀɇɉɋɍɏ",  # the whole stroked/hooked translate table tail
-        "ƀƃƈƌƒƙƚƞƥƫƭƴƶ",  # ... and its head
+        "øđħıłŧ",  # the whole translate table: head ...
+        "ƀƃƈƌƒƙƚƞƥƫƭƴƶ",  # ... middle ...
+        "ǥȥȴȵȶȷȼȿɀɇɉɋɍɏ",  # ... and tail (6 + 13 + 14 = all 33 entries)
         "élégant",  # combining acute accents (NFKD)
         "① ² ⅓ Ⅳ",  # numeric compatibility forms
         "ﬁne ﬂow ǆungle",  # ligature compatibility forms

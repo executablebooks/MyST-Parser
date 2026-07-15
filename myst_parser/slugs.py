@@ -118,11 +118,13 @@ def docutils_slugify(title: str) -> str:
     mixed rST + Markdown projects.  Algorithm: lowercase the title; map the
     digraph letters ß æ œ ȸ ȹ and 33 further stroked/hooked Latin letters to
     ASCII equivalents; NFKD-normalize and drop every remaining non-ASCII
-    character; collapse each run of characters outside ``[a-z0-9]`` to a
-    single hyphen; strip leading digits/hyphens and trailing hyphens.
+    character; normalize whitespace runs to single spaces (kept for
+    ``make_id`` step-parity, though subsumed by the next step); collapse each
+    run of characters outside ``[a-z0-9]`` to a single hyphen; strip leading
+    digits/hyphens and trailing hyphens.
 
-    The result matches ``[a-z](-?[a-z0-9]+)*`` — in particular it is *empty*
-    for titles with no Latin letters (so such headings get no anchor), and
+    The result matches ``[a-z](-?[a-z0-9]+)*`` or is *empty* — the latter for
+    any title with no Latin letters (so such headings get no anchor), and
     docutils' own duplicate-id handling (``idN``) is not emulated:
     deduplication is governed by :func:`unique_slug`, whatever the preset.
     """

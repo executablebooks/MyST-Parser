@@ -576,6 +576,11 @@ $ myst-anchors -l 2 --slug-func github docs/syntax/optional.md
 <h2 id="direct-latex-math"></h2>
 ```
 
+Note this is a quick preview using the underlying markdown-it plugin:
+it does not apply the renderer-only empty-slug rule described below,
+so a heading whose slug is empty is shown with a literal empty (or suffixed) id,
+where the renderer would emit no anchor at all.
+
 ### The anchor contract
 
 :::{versionadded} 5.2.0
