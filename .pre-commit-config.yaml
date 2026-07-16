@@ -36,7 +36,7 @@ repos:
       - types-urllib3
       - sphinx~=8.2
       - markdown-it-py~=4.2
-      - mdit-py-plugins~=0.6.0
+      - mdit-py-plugins~=0.7.0
       files: >
         (?x)^(
             myst_parser/.*py|

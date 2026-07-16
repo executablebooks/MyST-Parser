@@ -110,3 +110,23 @@
             Numbered code block:
         <literal_block language="typescript" linenos="True" xml:space="preserve">
             type Result = "pass" | "fail"
+        <section ids="section-with-1-self-ref" names="section\ with\ §1\ self-ref">
+            <title>
+                Section with 
+                <inline classes="section-ref" section_numbers="1">
+                    §1
+                 self-ref
+            <paragraph>
+                Body referencing 
+                <reference classes="section-ref" internal="True" refid="section-with-1-self-ref" reftitle="Section with §1 self-ref">
+                    §1
+                 and 
+                <reference classes="section-ref" internal="True" refid="nested-section" reftitle="Nested section">
+                    §1.1
+                .
+            <section ids="nested-section" names="nested\ section">
+                <title>
+                    Nested section
+        <section ids="second-section" names="second\ section">
+            <title>
+                Second section

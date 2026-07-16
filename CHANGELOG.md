@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### ✨ New Features
+
+- ✨ Add `"section_ref"` syntax extension for section-sign references (e.g. `§1`, `§1.1`), which resolve to internal links to the correspondingly numbered heading in the document, see [](syntax/section-ref) by <gh-user:chrisjsewell> in <gh-pr:1170>
+  This extension requires `mdit-py-plugins >= 0.7`.
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features

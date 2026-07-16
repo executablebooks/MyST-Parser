@@ -40,6 +40,7 @@ myst_enable_extensions = [
     "html_image",
     "linkify",
     "replacements",
+    "section_ref",
     "smartquotes",
     "strikethrough",
     "substitution",
@@ -323,6 +324,50 @@ Key differences:
 
 - **`linkify`** matches schema-less domains (e.g. `example.com` with `fuzzy_link=True`), supports many protocols, and requires `linkify-it-py`.
 - **`gfm_autolink`** only matches `www.`-prefixed URLs, `http(s)://`/`mailto:`/`xmpp:` URLs, and email addresses. It has no extra dependency and follows GFM URL boundary rules exactly.
+:::
+
+(syntax/section-ref)=
+## Section references
+
+```{versionadded} 5.2.0
+```
+
+Adding `"section_ref"` to `myst_enable_extensions` (in the {{ confpy }}) will recognise section-sign references such as `§1`, `§1.1` and `§2.3.4`, and turn each into an internal link to the correspondingly numbered heading in the current document.
+
+For example, with the following document:
+
+```md
+# Title
+
+See §1 and §1.1, and also §2.
+
+## Section One
+
+### Sub One One
+
+## Section Two
+```
+
+`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*, each link also carrying the target heading's title as a hover tooltip.
+
+The numbering is **document-local** and purely **structural**, computed from the heading hierarchy (independent of any `toctree` `:numbered:` numbering):
+
+- If the document has a single top-level heading (the common `# Title` layout), its subsections are numbered `§1`, `§2`, … in order.
+- Otherwise the top-level headings themselves are numbered `§1`, `§2`, ….
+- Deeper levels are appended with dots, so the second subsection of the first section is `§1.2`, and so on.
+
+A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
+
+References that appear **inside a heading or inside link text** are intentionally left as styled text rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+
+:::{note}
+References resolve to positions **in the current document only**.
+If a reference cannot be resolved to a numbered heading (for example `§9.9` in a document with fewer sections), the reference is left as plain, `section-ref`-styled text and a `myst.section_ref` warning is emitted.
+This warning can be suppressed *via* [`suppress_warnings`](sphinx/config-options), e.g. `suppress_warnings = ["myst.section_ref"]`.
+
+In single-page docutils output, a document consisting solely of a `# Title` and one `## Section` promotes both to the document title and subtitle (standard docutils behaviour), leaving no numbered sections to reference.
+
+Cross-document section references may be supported in a future release.
 :::
 
 (syntax/substitutions)=

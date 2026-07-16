@@ -14,6 +14,7 @@ myst_enable_extensions = [
     "tasklist",
     "attrs_inline",
     "attrs_block",
+    "section_ref",
 ]
 myst_number_code_blocks = ["typescript"]
 myst_html_meta = {
