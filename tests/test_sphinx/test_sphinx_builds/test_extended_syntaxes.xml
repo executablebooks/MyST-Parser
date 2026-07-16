@@ -118,10 +118,10 @@
                  self-ref
             <paragraph>
                 Body referencing 
-                <reference classes="section-ref" internal="True" refid="section-with-1-self-ref">
+                <reference classes="section-ref" internal="True" refid="section-with-1-self-ref" reftitle="Section with §1 self-ref">
                     §1
                  and 
-                <reference classes="section-ref" internal="True" refid="nested-section">
+                <reference classes="section-ref" internal="True" refid="nested-section" reftitle="Nested section">
                     §1.1
                 .
             <section ids="nested-section" names="nested\ section">

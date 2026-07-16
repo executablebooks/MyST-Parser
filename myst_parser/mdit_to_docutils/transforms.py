@@ -464,6 +464,18 @@ class ResolveSectionRefs(Transform):
                     classes=["section-ref"],
                 )
                 ref += node.children
+                # add the target's title as a hover tooltip (``title="..."`` in
+                # sphinx HTML); the section's first child is its ``title``
+                title_node = next(
+                    (
+                        child
+                        for child in section.children
+                        if isinstance(child, nodes.title)
+                    ),
+                    None,
+                )
+                if title_node is not None:
+                    ref["reftitle"] = clean_astext(title_node)
                 node.parent.replace(node, ref)
             else:
                 create_warning(

@@ -15,13 +15,13 @@ Intro referencing §1, §1.1 and §2.
         Title
     <paragraph>
         Intro referencing
-        <reference classes="section-ref" internal="True" refid="section-one">
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
             §1
         ,
-        <reference classes="section-ref" internal="True" refid="sub-one-one">
+        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One">
             §1.1
          and
-        <reference classes="section-ref" internal="True" refid="section-two">
+        <reference classes="section-ref" internal="True" refid="section-two" reftitle="Section Two">
             §2
         .
     <section ids="section-one" names="section\ one">
@@ -46,10 +46,10 @@ See §1 and §2.
 <document source="<src>/index.md">
     <paragraph>
         See
-        <reference classes="section-ref" internal="True" refid="first">
+        <reference classes="section-ref" internal="True" refid="first" reftitle="First">
             §1
          and
-        <reference classes="section-ref" internal="True" refid="second">
+        <reference classes="section-ref" internal="True" refid="second" reftitle="Second">
             §2
         .
     <section ids="first" names="first">
@@ -80,7 +80,7 @@ Text in second.
             First
         <paragraph>
             Text in first, see
-            <reference classes="section-ref" internal="True" refid="second">
+            <reference classes="section-ref" internal="True" refid="second" reftitle="Second">
                 §2
             .
     <section ids="second" names="second">
@@ -140,10 +140,10 @@ A link [see §1](https://example.com) leaves §1 inert, but body §2 resolves.
                 <inline classes="section-ref" section_numbers="1">
                     §1
              leaves
-            <reference classes="section-ref" internal="True" refid="one">
+            <reference classes="section-ref" internal="True" refid="one" reftitle="One">
                 §1
              inert, but body
-            <reference classes="section-ref" internal="True" refid="two">
+            <reference classes="section-ref" internal="True" refid="two" reftitle="Two">
                 §2
              resolves.
 .
@@ -172,7 +172,7 @@ Body §1 resolves to the first section.
             Other
         <paragraph>
             Body
-            <reference classes="section-ref" internal="True" refid="heading-with-1-inside">
+            <reference classes="section-ref" internal="True" refid="heading-with-1-inside" reftitle="Heading with §1 inside">
                 §1
              resolves to the first section.
 .

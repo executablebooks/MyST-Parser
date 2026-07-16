@@ -348,7 +348,7 @@ See §1 and §1.1, and also §2.
 ## Section Two
 ```
 
-`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*.
+`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*, each link also carrying the target heading's title as a hover tooltip.
 
 The numbering is **document-local** and purely **structural**, computed from the heading hierarchy (independent of any `toctree` `:numbered:` numbering):
 

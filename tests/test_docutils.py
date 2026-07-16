@@ -232,10 +232,10 @@ def test_section_ref_resolution():
         settings_overrides={"myst_enable_extensions": ["section_ref"]},
     )
     refs = list(doctree.findall(nodes.reference))
-    assert [(ref.astext(), ref["refid"]) for ref in refs] == [
-        ("§1", "section-one"),
-        ("§1.1", "sub-one-one"),
-        ("§2", "section-two"),
+    assert [(ref.astext(), ref["refid"], ref["reftitle"]) for ref in refs] == [
+        ("§1", "section-one", "Section One"),
+        ("§1.1", "sub-one-one", "Sub One One"),
+        ("§2", "section-two", "Section Two"),
     ]
     assert all("section-ref" in ref["classes"] and ref["internal"] for ref in refs)
 
