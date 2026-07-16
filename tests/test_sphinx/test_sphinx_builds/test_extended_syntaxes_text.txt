@@ -61,3 +61,17 @@ linkify URL: www.example.com
 Numbered code block:
 
    type Result = "pass" | "fail"
+
+
+Section with §1 self-ref
+========================
+
+Body referencing §1 and §1.1.
+
+
+Nested section
+--------------
+
+
+Second section
+==============

@@ -42,6 +42,7 @@ def check_extensions(inst: "MdParserConfig", field: dc.Field, value: Any) -> Non
             "html_image",
             "linkify",
             "replacements",
+            "section_ref",
             "smartquotes",
             "strikethrough",
             "substitution",

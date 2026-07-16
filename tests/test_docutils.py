@@ -211,6 +211,114 @@ def test_linkify_no_warning_when_available():
     assert "[myst.linkify]" not in stream.getvalue()
 
 
+def test_section_ref_resolution():
+    """A ``§1`` reference resolves to an internal link to the numbered heading."""
+    source = dedent(
+        """\
+        # Title
+
+        See §1, §1.1 and §2.
+
+        ## Section One
+
+        ### Sub One One
+
+        ## Section Two
+        """
+    )
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"myst_enable_extensions": ["section_ref"]},
+    )
+    refs = list(doctree.findall(nodes.reference))
+    assert [(ref.astext(), ref["refid"]) for ref in refs] == [
+        ("§1", "section-one"),
+        ("§1.1", "sub-one-one"),
+        ("§2", "section-two"),
+    ]
+    assert all("section-ref" in ref["classes"] and ref["internal"] for ref in refs)
+
+
+def test_section_ref_unresolved_warning():
+    """An unresolvable ``§`` reference emits a suppressible ``myst.section_ref`` warning."""
+    source = "# Title\n\nSee §9.9.\n\n## Only Section\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["section_ref"],
+            "warning_stream": stream,
+        },
+    )
+    assert "[myst.section_ref]" in stream.getvalue()
+    # the reference is left in place as styled inline text
+    inlines = [
+        node for node in doctree.findall(nodes.inline) if "section_number" in node
+    ]
+    assert [node.astext() for node in inlines] == ["§9.9"]
+
+    # the warning is suppressible
+    stream = io.StringIO()
+    publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["section_ref"],
+            "myst_suppress_warnings": ["myst.section_ref"],
+            "warning_stream": stream,
+        },
+    )
+    assert "[myst.section_ref]" not in stream.getvalue()
+
+
+def test_section_ref_left_inert_in_link_and_heading():
+    """A ``§`` reference inside link text or a heading stays inert styled text.
+
+    Converting it would nest an ``<a>`` inside another ``<a>`` (link text) or
+    inside toc/contents entry links (heading), so no reference is created and no
+    warning is emitted for it, whether or not the number would resolve.
+    """
+    source = dedent(
+        """\
+        # Title
+
+        ## Heading with §1 inside
+
+        ## Other
+
+        A link [see §1](https://example.com) and body §1.
+        """
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["section_ref"],
+            "warning_stream": stream,
+        },
+    )
+    # no reference is ever nested inside another reference
+    for ref in doctree.findall(nodes.reference):
+        assert not list(ref.findall(nodes.reference, include_self=False))
+    # the heading ref and the in-link ref remain inert inline markers,
+    # while the plain body ref resolves to the first section
+    inert = [node for node in doctree.findall(nodes.inline) if "section_number" in node]
+    assert [node.astext() for node in inert] == ["§1", "§1"]
+    resolved = [
+        ref
+        for ref in doctree.findall(nodes.reference)
+        if "section-ref" in ref["classes"]
+    ]
+    assert [(r.astext(), r["refid"]) for r in resolved] == [
+        ("§1", "heading-with-1-inside")
+    ]
+    # inert markers are skipped silently (no warning)
+    assert "[myst.section_ref]" not in stream.getvalue()
+
+
 def test_html_deep_nesting_warns():
     """Deeply nested HTML degrades to raw output with a warning.
 

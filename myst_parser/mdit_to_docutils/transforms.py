@@ -365,3 +365,110 @@ class ResolveAnchorIds(Transform):
                 refnode += nodes.inline(
                     "#" + target, "#" + target, classes=["std", "std-ref"]
                 )
+
+
+def _child_sections(node: nodes.Element) -> list[nodes.section]:
+    """Return the direct child sections of an element, in document order."""
+    return [child for child in node.children if isinstance(child, nodes.section)]
+
+
+def _number_sections(
+    sections: list[nodes.section],
+    prefix: tuple[int, ...],
+    number_map: dict[tuple[int, ...], nodes.section],
+) -> None:
+    """Recursively assign structural numbers to sections, populating ``number_map``.
+
+    The i-th (1-based) section at a level is numbered ``prefix + (i,)``, and the
+    numbering recurses into each section's direct child sections.
+    """
+    for i, section in enumerate(sections, start=1):
+        number = prefix + (i,)
+        number_map[number] = section
+        _number_sections(_child_sections(section), number, number_map)
+
+
+def _leave_section_ref_inert(node: nodes.Element) -> bool:
+    """Whether a section-reference marker should be left as inert styled text.
+
+    A marker is left untouched (no link, no warning) when it sits inside:
+
+    - a ``reference`` or ``pending_xref`` — converting it would nest an ``<a>``
+      inside another ``<a>``, which is invalid HTML; or
+    - a ``title`` — a reference here would be copied into navigation/toc entries
+      (sphinx toctree entry links, docutils contents entries), again nesting
+      ``<a>`` in those navs.
+    """
+    parent = node.parent
+    while parent is not None:
+        if (
+            isinstance(parent, nodes.reference | nodes.title)
+            or parent.tagname == "pending_xref"
+        ):
+            return True
+        parent = parent.parent
+    return False
+
+
+class ResolveSectionRefs(Transform):
+    """Resolve ``§1.1`` section references to the target section's anchor.
+
+    Runs at priority 878, before ``ResolveAnchorIds`` (879) and before sphinx's
+    ``DoctreeReadEvent`` (880), so that doctree-read consumers (``env.titles``,
+    the toctree collector) see the resolved references rather than the raw
+    markers.  By this point any doctitle promotion (320) has happened and every
+    section id exists (docutils' ``PropagateTargets`` (260)/sphinx's ``SortIds``
+    (261) and the later id transforms have all run).  Numbering is
+    document-local and purely structural (independent of any ``:numbered:``
+    toctree), so the same references resolve identically in docutils and sphinx.
+    """
+
+    default_priority = 878  # before ResolveAnchorIds (879)/DoctreeReadEvent (880)
+
+    def apply(self, **kwargs: t.Any) -> None:
+        """Apply the transform."""
+        # gather the section-reference markers emitted by ``render_section_ref``;
+        # these can only exist when the ``section_ref`` extension was enabled at
+        # parse time, so their presence self-gates the transform
+        markers = [
+            node
+            for node in findall(self.document)(nodes.inline)
+            if "section_number" in node
+        ]
+        if not markers:
+            return
+
+        # build a document-local, structural map of section numbers to sections
+        roots = _child_sections(self.document)
+        # with a single top-level section (the common ``# Title`` layout, which
+        # docutils doctitle promotion and sphinx local numbering both assume),
+        # number its child sections; otherwise number the top-level sections
+        top_sections = _child_sections(roots[0]) if len(roots) == 1 else roots
+        number_map: dict[tuple[int, ...], nodes.section] = {}
+        _number_sections(top_sections, (), number_map)
+
+        for node in markers:
+            # a reference nested inside a link or heading would produce invalid
+            # nested anchors, so such markers are left as inert styled text
+            if _leave_section_ref_inert(node):
+                continue
+            content = node.astext()
+            number = tuple(int(part) for part in node["section_number"].split("."))
+            section = number_map.get(number)
+            if section is not None and section["ids"]:
+                ref = nodes.reference(
+                    "",
+                    "",
+                    internal=True,
+                    refid=section["ids"][0],
+                    classes=["section-ref"],
+                )
+                ref += node.children
+                node.parent.replace(node, ref)
+            else:
+                create_warning(
+                    self.document,
+                    f"Section reference target not found: {content!r}",
+                    MystWarnings.SECTION_REF,
+                    line=node.line,
+                )

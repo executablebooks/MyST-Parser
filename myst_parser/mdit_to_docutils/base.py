@@ -1276,6 +1276,13 @@ class DocutilsRenderer(RendererProtocol):
         with self.current_node_context(node, append=True):
             self.render_children(token)
 
+    def render_section_ref(self, token: SyntaxTreeNode) -> None:
+        """Render a section reference (§1.1), for later resolution by ``ResolveSectionRefs``."""
+        node = nodes.inline(token.content, token.content, classes=["section-ref"])
+        node["section_number"] = token.meta["number"]
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
+
     def render_front_matter(self, token: SyntaxTreeNode) -> None:
         """Pass document front matter data."""
         position = token_line(token, default=0)
