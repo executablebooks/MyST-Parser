@@ -347,6 +347,8 @@ myst-inventories:
 
 you can then reference inventory objects by prefixing the `inv` schema to the destination [URI]: `inv:key:domain:type#name`.
 
+For object names containing spaces, percent-encode the spaces as `%20` in an `inv` autolink, for example `<inv:ipywidgets:std:doc#examples/Using%20Interact>`.
+
 `key`, `domain` and `type` are optional, e.g. for `inv:#name`, all inventories, domains and types will be searched, with a [warning emitted](myst-warnings) if multiple matches are found.
 
 Additionally, `*` is a wildcard which matches zero or more characters, e.g. `inv:*:std:doc#a*` will match all `std:doc` objects in all inventories, with a `name` beginning with `a`.
