@@ -1279,7 +1279,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_section_ref(self, token: SyntaxTreeNode) -> None:
         """Render a section reference (§1.1), for later resolution by ``ResolveSectionRefs``."""
         node = nodes.inline(token.content, token.content, classes=["section-ref"])
-        node["section_number"] = token.meta["number"]
+        node["section_numbers"] = token.meta["numbers"]
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 

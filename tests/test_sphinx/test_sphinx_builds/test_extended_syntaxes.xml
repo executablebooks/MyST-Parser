@@ -113,7 +113,7 @@
         <section ids="section-with-1-self-ref" names="section\ with\ §1\ self-ref">
             <title>
                 Section with 
-                <inline classes="section-ref" section_number="1">
+                <inline classes="section-ref" section_numbers="1">
                     §1
                  self-ref
             <paragraph>

@@ -255,7 +255,7 @@ def test_section_ref_unresolved_warning():
     assert "[myst.section_ref]" in stream.getvalue()
     # the reference is left in place as styled inline text
     inlines = [
-        node for node in doctree.findall(nodes.inline) if "section_number" in node
+        node for node in doctree.findall(nodes.inline) if "section_numbers" in node
     ]
     assert [node.astext() for node in inlines] == ["§9.9"]
 
@@ -305,7 +305,9 @@ def test_section_ref_left_inert_in_link_and_heading():
         assert not list(ref.findall(nodes.reference, include_self=False))
     # the heading ref and the in-link ref remain inert inline markers,
     # while the plain body ref resolves to the first section
-    inert = [node for node in doctree.findall(nodes.inline) if "section_number" in node]
+    inert = [
+        node for node in doctree.findall(nodes.inline) if "section_numbers" in node
+    ]
     assert [node.astext() for node in inert] == ["§1", "§1"]
     resolved = [
         ref

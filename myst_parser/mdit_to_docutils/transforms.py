@@ -389,7 +389,7 @@ def _number_sections(
 
 
 def _leave_section_ref_inert(node: nodes.Element) -> bool:
-    """Whether a section-reference marker should be left as inert styled text.
+    """Whether a section-reference marker (see ``render_section_ref``) should be left as inert styled text.
 
     A marker is left untouched (no link, no warning) when it sits inside:
 
@@ -433,7 +433,7 @@ class ResolveSectionRefs(Transform):
         markers = [
             node
             for node in findall(self.document)(nodes.inline)
-            if "section_number" in node
+            if "section_numbers" in node
         ]
         if not markers:
             return
@@ -453,7 +453,7 @@ class ResolveSectionRefs(Transform):
             if _leave_section_ref_inert(node):
                 continue
             content = node.astext()
-            number = tuple(int(part) for part in node["section_number"].split("."))
+            number = tuple(node["section_numbers"])
             section = number_map.get(number)
             if section is not None and section["ids"]:
                 ref = nodes.reference(

@@ -103,7 +103,7 @@ See §9.9 which does not exist.
         Title
     <paragraph>
         See
-        <inline classes="section-ref" section_number="9.9">
+        <inline classes="section-ref" section_numbers="9 9">
             §9.9
          which does not exist.
     <section ids="only-section" names="only\ section">
@@ -137,7 +137,7 @@ A link [see §1](https://example.com) leaves §1 inert, but body §2 resolves.
             A link
             <reference refuri="https://example.com">
                 see
-                <inline classes="section-ref" section_number="1">
+                <inline classes="section-ref" section_numbers="1">
                     §1
              leaves
             <reference classes="section-ref" internal="True" refid="one">
@@ -164,7 +164,7 @@ Body §1 resolves to the first section.
     <section ids="heading-with-1-inside" names="heading\ with\ §1\ inside">
         <title>
             Heading with
-            <inline classes="section-ref" section_number="1">
+            <inline classes="section-ref" section_numbers="1">
                 §1
              inside
     <section ids="other" names="other">
