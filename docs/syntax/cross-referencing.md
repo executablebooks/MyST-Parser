@@ -80,9 +80,9 @@ By default the anchor "slugs" are created according to the [GitHub implementatio
 For example, using `myst_heading_anchors = 2`:
 
 ::::{myst-example}
-## A heading with slug
+# A heading with slug
 
-## A heading with slug
+# A heading with slug
 
 <project:#a-heading-with-slug>
 
