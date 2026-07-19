@@ -1,0 +1,15 @@
+<document source="index.md">
+    <section ids="index" names="index">
+        <title>
+            Index
+        <paragraph>
+            Own metadata: 
+            1970-09-08
+        <paragraph>
+            Own list: 
+            [“alice”, “bob”]
+        <paragraph>
+            Own dict: 
+            {“home”: “https://example.com”}
+        <compound classes="toctree-wrapper">
+            <toctree caption="True" entries="(None,\ 'other')" glob="False" hidden="False" includefiles="other" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
