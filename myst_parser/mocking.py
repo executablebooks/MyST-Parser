@@ -161,8 +161,9 @@ class MockState:
         """Perform a nested parse of the input block, with ``node`` as the parent.
 
         :param block: The block of lines to parse.
-        :param input_offset: The offset of the first line of block,
-            to the starting line of the state (i.e. directive).
+        :param input_offset: The 0-based absolute line offset of the first line of
+            ``block`` within the document (docutils' convention, i.e. what a
+            directive's ``content_offset`` provides).
         :param node: The parent node to attach the parsed content to.
         :param match_titles: Whether to to allow the parsing of headings
             (normally this is false,
@@ -172,7 +173,7 @@ class MockState:
         with self._renderer.current_node_context(node):
             self._renderer.nested_render_text(
                 "\n".join(block),
-                self._lineno + input_offset,
+                input_offset,
                 temp_root_node=node if match_titles else None,
             )
         self.state_machine.match_titles = sm_match_titles
@@ -246,7 +247,11 @@ class MockState:
         # parse attribution
         if attribution_lines:
             attribution_text = "\n".join(attribution_lines)
-            lineno = self._lineno + line_offset + (attribution_line_offset or 0)
+            # ``line_offset`` is the 0-based absolute document line of the first
+            # block-quote line, so the attribution's 1-based document line is
+            # ``line_offset + attribution_line_offset + 1`` (mirrors docutils'
+            # ``parse_attribution``: ``lineno = 1 + line_offset``).
+            lineno = line_offset + (attribution_line_offset or 0) + 1
             textnodes, messages = self.inline_text(attribution_text, lineno)
             attribution = nodes.attribution(attribution_text, "", *textnodes)
             (

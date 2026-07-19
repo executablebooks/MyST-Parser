@@ -161,7 +161,7 @@ class MystConfigDirective(_ConfigBase):
 
         text.append("```````")
         node = nodes.Element()
-        self.state.nested_parse(text, 0, node)
+        self.state.nested_parse(text, self.content_offset, node)
         return node.children
 
 
@@ -219,7 +219,7 @@ class DirectiveDoc(SphinxDirective):
             for key, func in klass.option_spec.items():
                 text += f"  {key} | {convert_opt(name, func)}\n"
         node = nodes.Element()
-        self.state.nested_parse(text.splitlines(), 0, node)
+        self.state.nested_parse(text.splitlines(), self.content_offset, node)
         return node.children
 
 
@@ -276,7 +276,7 @@ class MystWarningsDirective(SphinxDirective):
         ]
         text = [f"- `myst.{name}`: {' '.join(doc)}" for name, doc in warning_names]
         node = nodes.Element()
-        self.state.nested_parse(text, 0, node)
+        self.state.nested_parse(text, self.content_offset, node)
         return node.children
 
 

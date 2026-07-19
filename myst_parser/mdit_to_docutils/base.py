@@ -1897,6 +1897,15 @@ class DocutilsRenderer(RendererProtocol):
                 lineno=position,
             )
         else:
+            source = self.document["source"]
+            # ``position`` is the 1-based document line of the opening fence, and
+            # ``parsed.body_offset`` is relative to the line after it, so their sum
+            # is the 0-based document line of the first content line, i.e. the
+            # ``content_offset`` docutils' rST parser provides (== 1-based first
+            # content line minus 1). The per-line ``items`` likewise carry the
+            # 0-based *absolute* document line of each content line, matching
+            # docutils rather than the historical 0, 1, 2, ... relative offsets.
+            content_offset = position + parsed.body_offset
             state_machine = MockStateMachine(self, position)
             state = MockState(self, state_machine, position)
             directive_instance = directive_class(
@@ -1906,11 +1915,18 @@ class DocutilsRenderer(RendererProtocol):
                 # a dictionary mapping option names to values
                 options=parsed.options,
                 # the directive content line by line
-                content=StringList(parsed.body, self.document["source"]),
+                content=StringList(
+                    parsed.body,
+                    source,
+                    items=[
+                        (source, content_offset + i) for i in range(len(parsed.body))
+                    ],
+                ),
                 # the absolute line number of the first line of the directive
                 lineno=position,
-                # the line offset of the first line of the content
-                content_offset=parsed.body_offset,
+                # the 0-based document line of the first content line
+                # (docutils convention, document-relative)
+                content_offset=content_offset,
                 # a string containing the entire directive
                 block_text=content if block_text is None else block_text,
                 state=state,
