@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### ✨ New Features
+
+- ✨ Add a supported `source=` argument to `DocutilsRenderer.nested_render_text`, so extensions that render generated content (an included file, a template's output) can attribute its nodes and warnings to the originating file or template, in both docutils and Sphinx builds
+- ✨ Add `MockStateMachine.insert_input`, a docutils-compatible way for a directive to render generated MyST at its position
+- ✨ Expose the active renderer to directives via read-only `MockState.renderer` and `MockStateMachine.renderer` properties
+
+### 🐛 Bug Fixes
+
+- 🐛 Make a directive's `content_offset` document-relative (the 0-based absolute line of its first content line), matching docutils' own reStructuredText parser, so extensions computing `content_offset + N` (e.g. sphinx-jinja2) report the correct line; `MockState.nested_parse` correspondingly treats its `input_offset` as an absolute document line. While here, `{epigraph}` attribution and `{parsed-literal}` node lines are corrected to their true document lines
+- 🐛 Attribute warnings raised inside an `{include}`d file to that file rather than the parent document (in Sphinx), and fix an off-by-one so the reported line matches the included file
+
+### 📚 Documentation
+
+- 📚 Add a developer guide for rendering generated content from a directive, covering the renderer accessors, `nested_render_text`, `insert_input` and `content_offset` semantics
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features
