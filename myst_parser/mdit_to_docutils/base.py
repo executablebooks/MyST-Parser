@@ -113,6 +113,10 @@ class DocutilsRenderer(RendererProtocol):
         }
         # these are lazy loaded, when needed
         self._inventories: None | dict[str, inventory.InventoryType] = None
+        # a stack of source paths that nested renders attribute their warnings to
+        # (the top entry, if any, overrides the logged location of a warning);
+        # see ``nested_render_text``'s ``source`` parameter
+        self._attribution_sources: list[str] = []
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -178,6 +182,10 @@ class DocutilsRenderer(RendererProtocol):
 
         If the warning type is listed in the ``suppress_warnings`` configuration,
         then ``None`` will be returned and no warning logged.
+
+        While a source-attributed nested render is active (see
+        :meth:`nested_render_text`), the warning is attributed to that source
+        path rather than the containing document.
         """
         return create_warning(
             self.document,
@@ -186,6 +194,7 @@ class DocutilsRenderer(RendererProtocol):
             wtype=wtype,
             line=line,
             append_to=append_to,
+            source=self._attribution_sources[-1] if self._attribution_sources else None,
         )
 
     def _render_tokens(self, tokens: list[Token]) -> None:
@@ -302,14 +311,37 @@ class DocutilsRenderer(RendererProtocol):
         inline: bool = False,
         temp_root_node: None | nodes.Element = None,
         heading_offset: int = 0,
+        source: str | None = None,
     ) -> None:
-        """Render unparsed text (appending to the current node).
+        """Render a string of unparsed text, appending to the current node.
 
-        :param text: the text to render
-        :param lineno: the starting line number of the text, within the full source
-        :param inline: whether the text is inline or block
-        :param temp_root_node: If set, allow sections to be created as children of this node
-        :param heading_offset: offset heading levels by this amount
+        This is the supported mechanism for extensions to render generated
+        content (for example an included file, or the output of a template) at
+        the current position in the document.
+
+        .. important::
+
+            The text is parsed as **MyST Markdown**, not reStructuredText.  A
+            directive whose content is written in rST (rather than MyST) should
+            wrap it in an ``{eval-rst}`` block instead of rendering it here.
+
+        :param text: the text to render.
+        :param lineno: a 0-based line shift added to every rendered node's line,
+            i.e. it establishes the line-space of ``text``.  A directive rendering
+            document-relative content passes its ``content_offset``; content that
+            is relative to an external file passes ``0`` (so the file's 1-based
+            line ``N`` is reported as line ``N``).
+        :param inline: whether to parse the text as inline or block content.
+        :param temp_root_node: if set, allow sections to be created as children
+            of this node (used when parsing content that may contain headings).
+        :param heading_offset: offset heading levels by this amount.
+        :param source: if given, attribute both the rendered nodes' ``source``
+            and any warnings emitted during the render to this path (rather than
+            the containing document), for the duration of the render.  Typically
+            an absolute path to the file or template the ``text`` originates from.
+            The override is restored afterwards and nests correctly, so a source
+            render may itself contain further source renders (e.g. nested
+            includes).
         """
         tokens = (
             self.md.parseInline(text, self.md_env)
@@ -344,8 +376,44 @@ class DocutilsRenderer(RendererProtocol):
                 self.md_env["temp_root_node"] = current_root_node
                 self._level_to_section = current_level_to_section
 
-        with _restore():
+        with self._attribute_to_source(source), _restore():
             self._render_tokens(tokens)
+
+    @contextmanager
+    def _attribute_to_source(self, source: str | None) -> Iterator[None]:
+        """Temporarily attribute rendered nodes and warnings to ``source``.
+
+        For the duration of the context the document/reporter are pointed at
+        ``source`` (so node ``source`` stamping and docutils reporter warnings
+        attribute to it) and ``source`` is pushed onto the attribution stack
+        consulted by :meth:`create_warning` (so the sphinx logger attributes to
+        it too).  Everything is restored on exit, including after an exception,
+        and nests re-entrantly.  A ``source`` of ``None`` is a no-op.
+        """
+        if source is None:
+            yield
+            return
+        reporter = self.reporter
+        prev_document_source = self.document["source"]
+        prev_reporter_source = reporter.source
+        # ``get_source_and_line`` may not pre-exist (it is normally installed by
+        # the rST state machine), so record whether to restore or delete it.
+        had_get_source_and_line = hasattr(reporter, "get_source_and_line")
+        prev_get_source_and_line = getattr(reporter, "get_source_and_line", None)
+        self.document["source"] = source
+        reporter.source = source
+        reporter.get_source_and_line = lambda li=None: (source, li)
+        self._attribution_sources.append(source)
+        try:
+            yield
+        finally:
+            self._attribution_sources.pop()
+            self.document["source"] = prev_document_source
+            reporter.source = prev_reporter_source
+            if had_get_source_and_line:
+                reporter.get_source_and_line = prev_get_source_and_line
+            else:
+                del reporter.get_source_and_line
 
     @contextmanager
     def current_node_context(
