@@ -1,0 +1,10 @@
+<document source="other.md">
+    <section ids="other" names="other">
+        <title>
+            Other
+        <paragraph>
+            Own metadata: 
+            2037-09-08
+        <paragraph>
+            Metadata of an already-read document: 
+            1970-09-08
