@@ -356,16 +356,25 @@ class MockStateMachine:
 
         This mirrors the signature of docutils'
         ``RSTStateMachine.insert_input``, so directives written for docutils
-        keep working, but with two behavioural differences to be aware of:
+        keep working, but with several behavioural differences to be aware of:
 
-        - the text is parsed as **MyST Markdown**, not reStructuredText;
-        - it is rendered *immediately* into the current node (appearing before
-          any nodes the directive itself returns), rather than being spliced
-          back into the input stream.  For the common ``return []`` pattern the
-          result is identical to docutils.
+        - **``source`` is optional here.**  docutils'
+          ``insert_input(input_lines, source)`` takes ``source`` as a *required*
+          positional argument; this mock makes it optional (see ``source``
+          below).
+        - **The text is parsed as MyST Markdown**, not reStructuredText.
+        - **Ordering differs.**  The content is rendered *immediately* into the
+          current node, so it lands **before** any nodes the directive itself
+          returns.  docutils instead splices the input back into the state
+          machine, so it is processed **after** the directive's returned nodes.
+          The two are identical only for the common ``return []`` pattern.
+        - **Per-line source info is not preserved.**  If ``input_lines`` is a
+          docutils ``StringList``, its per-line ``(source, offset)`` items are
+          *discarded*: the lines are joined and attributed uniformly to
+          ``source``.
 
         :param input_lines: the lines to render; a list of strings or a
-            docutils ``StringList``.
+            docutils ``StringList`` (whose per-line source items are not kept).
         :param source: if given, attribute the rendered nodes and any warnings
             to this path (reported as ``source:1`` onwards -- matching docutils'
             handling of inserted external text).  Otherwise the text is rendered

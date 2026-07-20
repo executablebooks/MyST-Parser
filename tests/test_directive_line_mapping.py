@@ -272,28 +272,36 @@ class _WarnAtFirstContentLine(Directive):
 
 
 @pytest.mark.parametrize(
-    "source,true_line",
+    "source,true_line,old_wrong_line",
     [
-        # fence on line 1, content on line 2
-        ("```{warnat}\nbody\n```\n", 2),
-        # fence on line 5, content on line 6
-        ("a\n\nb\n\n```{warnat}\nbody\n```\n", 6),
+        # fence on line 1, content on line 2 (old body-relative offset 0 -> line 1)
+        ("```{warnat}\nbody\n```\n", 2, 1),
+        # fence on line 5, content on line 6 (old body-relative offset 0 -> line 1)
+        ("a\n\nb\n\n```{warnat}\nbody\n```\n", 6, 1),
         # fence on line 1, options on 2-3, content on line 4
-        ("```{warnat}\n:opt: x\n:class: c\nbody\n```\n", 4),
+        # (old body-relative offset 2 -> line 3)
+        ("```{warnat}\n:opt: x\n:class: c\nbody\n```\n", 4, 3),
     ],
 )
-def test_downstream_reporter_warning_line(source, true_line):
+def test_downstream_reporter_warning_line(source, true_line, old_wrong_line):
     """A ``reporter.warning(line=content_offset + N)`` cites the true document line.
 
     This is the definition of done: the sphinx-jinja2 style idiom must now map
-    to ``<string>:TRUELINE:`` for the offending content line.
+    to ``<string>:TRUELINE:`` for the offending content line.  It must *also*
+    no longer emit the old, body-relative ``<string>:{body_offset + 1}:`` line
+    (when ``content_offset`` was the relative ``body_offset``).
     """
     stream = io.StringIO()
     with _registered(warnat=_WarnAtFirstContentLine):
         publish_doctree(
             source, parser=Parser(), settings_overrides={"warning_stream": stream}
         )
-    assert f"<string>:{true_line}:" in stream.getvalue()
+    warnings = stream.getvalue()
+    assert f"<string>:{true_line}:" in warnings
+    # the old body-relative location must be gone (skip if it coincides with the
+    # true line -- it does not for any case here, but guard against it anyway)
+    if old_wrong_line != true_line:
+        assert f"<string>:{old_wrong_line}:" not in warnings
 
 
 @pytest.mark.parametrize(

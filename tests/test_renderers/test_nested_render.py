@@ -20,12 +20,17 @@ the source directory to ``<src>``).
 
 import contextlib
 import io
+from collections.abc import Sequence
 
 import pytest
 from docutils import nodes
 from docutils.core import publish_doctree
+from docutils.frontend import get_default_settings
 from docutils.parsers.rst import Directive
+from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst import directives as rst_directives
+from docutils.statemachine import StringList
+from docutils.utils import new_document
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -33,6 +38,7 @@ from myst_parser.config.main import MdParserConfig
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer, make_document
 from myst_parser.parsers.docutils_ import Parser
 from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.warnings_ import MystWarnings, create_warning
 
 
 @contextlib.contextmanager
@@ -79,11 +85,13 @@ class _InsertInput(Directive):
     """Insert generated MyST at the directive position, attributed to a source."""
 
     has_content = False
+    # overridable by tests to exercise different input container types
+    input_lines: Sequence[str] = ["hello *world*"]
 
     def run(self):
         # the renderer accessors are the supported entry point, and identical
         assert self.state.renderer is self.state_machine.renderer
-        self.state_machine.insert_input(["hello *world*"], source="/fake/gen.txt")
+        self.state_machine.insert_input(self.input_lines, source="/fake/gen.txt")
         return []
 
 
@@ -283,8 +291,23 @@ def test_source_override_sphinx(sphinx_doctree: CreateDoctree):
 # =============================================================================
 
 
-def test_insert_input_renders_at_position():
-    """Inserted content renders at the directive's position, source-attributed."""
+@pytest.mark.parametrize(
+    "make_input",
+    [
+        pytest.param(lambda: ["hello *world*"], id="list"),
+        pytest.param(
+            lambda: StringList(["hello *world*"], source="/fake/gen.txt"),
+            id="stringlist",
+        ),
+    ],
+)
+def test_insert_input_renders_at_position(make_input, monkeypatch):
+    """Inserted content renders at the directive's position, source-attributed.
+
+    ``insert_input`` accepts either a plain ``list[str]`` or a docutils
+    ``StringList`` (whose lines are joined), so both produce identical output.
+    """
+    monkeypatch.setattr(_InsertInput, "input_lines", make_input())
     with _registered(insertinput=_InsertInput):
         doctree, warnings = _publish(
             "# T\n\nbefore\n\n```{insertinput}\n```\n\nafter\n"
@@ -433,3 +456,78 @@ def test_nested_render_text_restores_on_exception(monkeypatch):
     assert renderer.reporter.source == orig_reporter_source
     assert hasattr(renderer.reporter, "get_source_and_line") == orig_has_gsl
     assert renderer._attribution_sources == []
+
+
+# =============================================================================
+# 6. create_warning ``source`` kwarg is standalone-load-bearing (override-free)
+# =============================================================================
+#
+# The extension-style tests above always run with the renderer's ambient
+# reporter override active (set by ``nested_render_text(source=...)``), which
+# would mask ``create_warning``'s own ``source`` handling.  These call
+# ``create_warning`` directly, with no override in play, so the ``source``
+# kwarg is the only thing that can move the attribution.
+
+
+def _override_free_document(stream):
+    """A docutils-mode document with a fresh reporter and no source override."""
+    settings = get_default_settings(RSTParser)
+    settings.warning_stream = stream
+    settings.myst_suppress_warnings = []
+    return new_document("mydoc.md", settings)
+
+
+@pytest.mark.parametrize(
+    "line,expected",
+    [(3, "/fake/x.txt:3:"), (None, "/fake/x.txt:")],
+    ids=["with-line", "no-line"],
+)
+def test_create_warning_source_docutils_arm(line, expected):
+    """``create_warning(source=...)`` attributes via the docutils reporter arm.
+
+    There is no renderer (hence no ambient reporter override), so the ``source``
+    kwarg passed through to ``reporter.warning`` is the only thing that can move
+    the attribution off the document's own source -- i.e. it is
+    standalone-load-bearing.
+    """
+    stream = io.StringIO()
+    document = _override_free_document(stream)
+    create_warning(
+        document, "msg", MystWarnings.RENDER_METHOD, source="/fake/x.txt", line=line
+    )
+    warnings = stream.getvalue()
+    assert expected in warnings
+    # the document's own source must not leak in (proves the kwarg is honoured)
+    assert "mydoc.md" not in warnings
+
+
+class _SphinxSourceWarnNoLine(Directive):
+    """Emit a source-attributed, line-less warning through ``create_warning``."""
+
+    has_content = False
+
+    def run(self):
+        create_warning(
+            self.state.document,
+            "no-line msg",
+            MystWarnings.RENDER_METHOD,
+            source="/fake/x.txt",
+            line=None,
+        )
+        return []
+
+
+def test_create_warning_source_sphinx_arm_no_line(sphinx_doctree: CreateDoctree):
+    """The sphinx arm logs ``source:`` (trailing colon) and skips ``doc2path``.
+
+    With ``line=None`` the location is the string ``"/fake/x.txt:"``; the
+    trailing colon makes sphinx pass it through verbatim rather than resolving
+    it as a docname (which would append a source suffix such as ``.rst``).
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    with _registered(swarn=_SphinxSourceWarnNoLine):
+        result = sphinx_doctree("# T\n\n```{swarn}\n```\n", "index.md")
+    warnings = strip_colors(result.warnings)
+    assert "/fake/x.txt:: WARNING: no-line msg" in warnings
+    # not doc2path-mangled into a docname with a source suffix
+    assert ".rst" not in warnings

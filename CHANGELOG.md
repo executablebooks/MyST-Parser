@@ -11,6 +11,7 @@
 ### 🐛 Bug Fixes
 
 - 🐛 Make a directive's `content_offset` document-relative (the 0-based absolute line of its first content line), matching docutils' own reStructuredText parser, so extensions computing `content_offset + N` (e.g. sphinx-jinja2) report the correct line; `MockState.nested_parse` correspondingly treats its `input_offset` as an absolute document line. While here, `{epigraph}` attribution and `{parsed-literal}` node lines are corrected to their true document lines
+  - _Migration note for extension authors:_ `MockState.nested_parse`'s `input_offset` is now an absolute document offset (docutils-consistent). The standard `nested_parse(self.content, self.content_offset, node)` idiom is unchanged. However, a directive passing a literal *relative* offset (e.g. `0`) now gets docutils-identical placement — under Sphinx, autodoc/autosummary's default `offset=0` relocates rendered content to the top of the document, exactly as under reStructuredText — and arithmetic such as `self.lineno + self.content_offset` now double-counts the position (as it always did under reStructuredText)
 - 🐛 Attribute warnings raised inside an `{include}`d file to that file rather than the parent document (in Sphinx), and fix line-number reporting so it matches the included file: an off-by-one in the base case, and a `:start-after:` bug that derived the line from a *character* index (so warnings landed past the end of the file). MyST reports true file lines here, unlike docutils' `:start-after:` which reports lines relative to the retained segment
 
 ### 📚 Documentation

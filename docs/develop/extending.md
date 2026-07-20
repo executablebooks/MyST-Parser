@@ -11,7 +11,7 @@ Markdown and its warnings and nodes are attributed to the right source.
 :::{important}
 Content rendered through these APIs is parsed as **MyST Markdown**, not
 reStructuredText.  A directive that generates rST should wrap it in an
-[`{eval-rst}`](syntax/directives/parsing) block instead.
+[`{eval-rst}`](#syntax/directives/parsing) block instead.
 :::
 
 ## Reaching the renderer from a directive
@@ -94,13 +94,19 @@ for docutils keep working:
 self.state_machine.insert_input(generated_lines, source="/abs/gen.txt")
 ```
 
-Two behavioural differences are worth knowing:
+Several behavioural differences are worth knowing:
 
+- **``source`` is optional.**  docutils' ``insert_input(input_lines, source)``
+  takes ``source`` as a *required* positional argument; here it is optional (see
+  the last paragraph).
 - the lines are parsed as **MyST Markdown**, not reStructuredText;
 - they are rendered *immediately* into the current node -- appearing **before**
-  any nodes the directive itself returns -- rather than being spliced back into
-  the input stream.  For the common ``return []`` pattern the outcome is
-  identical to docutils.
+  any nodes the directive itself returns -- whereas docutils splices the input
+  back into the state machine, so it is processed **after** the directive's
+  returned nodes.  The two match only for the common ``return []`` pattern;
+- if you pass a docutils ``StringList``, its per-line ``(source, offset)`` items
+  are **not** preserved: the lines are joined and attributed uniformly to
+  ``source``.
 
 Without ``source`` the text is rendered in the document's own line-space, just
 after the directive.
@@ -134,6 +140,12 @@ self.state.nested_parse(self.content, self.content_offset, node)
   an included file.
 - **Inline tokens carry no per-line maps**, so a warning about inline content is
   attributed to the line of its containing block, not the exact inline position.
+- **``document["source"]`` is repointed during a source-attributed render.**
+  While a ``source`` render is in progress, ``document["source"]`` and the
+  reporter are temporarily pointed at the override, so an extension that resolves
+  filesystem paths against ``document["source"]`` *mid-render* will see the
+  override rather than the containing document -- the same behaviour the
+  ``{include}`` directive has always had.
 
 ## API reference
 
