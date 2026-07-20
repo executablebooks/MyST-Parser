@@ -189,7 +189,8 @@ def test_include_attribution_sphinx(sphinx_doctree: CreateDoctree):
         {"extensions": ["myst_parser"], "exclude_patterns": ["inc.md"]}
     )
     result = sphinx_doctree("# Title\n\n```{include} inc.md\n```\n", "index.md")
-    warnings = strip_colors(result.warnings)
+    # normalise path separators: on Windows the include path is ``<src>\inc.md``
+    warnings = strip_colors(result.warnings).replace("\\", "/")
     assert "<src>/inc.md:3: WARNING: Unknown directive type: 'unknowndir'" in warnings
     # not the containing document / old off-by-one line
     assert "index.md:4" not in warnings
