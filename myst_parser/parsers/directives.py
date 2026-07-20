@@ -75,11 +75,12 @@ class DirectiveParsingResult:
     body: list[str]
     """The lines of body content"""
     body_offset: int
-    """The number of lines from the directive's opening line
-    to the first line of the body content.
+    """The offset of the first body line, relative to the line
+    directly after the directive's opening line.
 
-    This is ``-1`` when body content starts on the opening line itself
-    (only possible for directives that take no arguments).
+    So ``0`` means the body content starts on the line immediately following
+    the opening line, and ``-1`` means it starts (merged) on the opening line
+    itself (only possible for directives that take no arguments).
     """
     warnings: list[ParseWarnings]
     """List of non-fatal errors encountered during parsing.

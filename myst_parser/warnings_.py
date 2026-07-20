@@ -102,11 +102,30 @@ def create_warning(
     node: nodes.Element | None = None,
     line: int | None = None,
     append_to: nodes.Element | None = None,
+    source: str | None = None,
 ) -> nodes.system_message | None:
     """Generate a warning, logging if it is necessary.
 
     If the warning type is listed in the ``suppress_warnings`` configuration,
     then ``None`` will be returned and no warning logged.
+
+    :param document: the document the warning is raised against; supplies the
+        reporter/environment and the default source and line.
+    :param message: the warning message.
+    :param subtype: the warning subtype (a ``MystWarnings`` member or its string
+        value), combined with ``wtype`` to form the warning category.
+    :param wtype: the warning type; defaults to ``"myst"``, giving categories
+        such as ``myst.substitution``.
+    :param node: if given, the warning is located at this node (takes priority
+        over ``source``/``line``).
+    :param line: the (1-based) line number the warning is located at.
+    :param append_to: if given, the created warning node is appended to this
+        element.
+    :param source: if given (and ``node`` is not), attribute the warning to this
+        source path rather than the containing document.  This is used to
+        attribute warnings emitted during a nested render (e.g. an included
+        file) to the file they originate from.
+    :return: the created ``system_message`` node, or ``None`` if suppressed.
     """
     # In general we want to both create a warning node within the document AST,
     # and also log the warning to output it in the CLI etc.
@@ -124,13 +143,22 @@ def create_warning(
         from sphinx.util.logging import getLogger
 
         logger = getLogger(__name__)
+        if node is not None:
+            location = node
+        elif source is not None:
+            # A location *string* containing a colon is passed through by sphinx
+            # verbatim; a colon-less string (or a ``(source, line)`` tuple) would
+            # instead be run through ``env.doc2path``, mangling an explicit
+            # source path -- hence the required trailing colon when there is no
+            # line number.
+            location = f"{source}:{line}" if line is not None else f"{source}:"
+        else:
+            location = (document.settings.env.docname, line)
         logger.warning(
             message,
             type=type_str,
             subtype=subtype_str,
-            location=node
-            if node is not None
-            else (document.settings.env.docname, line),
+            location=location,
         )
         if _is_suppressed_warning(
             type_str, subtype_str, document.settings.env.config.suppress_warnings
@@ -138,6 +166,8 @@ def create_warning(
             return None
         if node is not None:
             _source, _line = utils.get_source_line(node)
+        elif source is not None:
+            _source, _line = source, line
         else:
             _source, _line = document["source"], line
         msg_node = _create_warning_node(message_with_type, _source, _line)
@@ -150,6 +180,11 @@ def create_warning(
         kwargs = {}
         if node is not None:
             kwargs["base_node"] = node
+        elif source is not None:
+            # docutils honours an explicit ``source`` (with ``line``) override
+            kwargs["source"] = source
+            if line is not None:
+                kwargs["line"] = line
         elif line is not None:
             kwargs["line"] = line
         msg_node = document.reporter.warning(message_with_type, **kwargs)

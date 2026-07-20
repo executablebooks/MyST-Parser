@@ -445,7 +445,9 @@ def test_directive_block_text_rst_parity():
     """A fenced directive's ``self.block_text`` mirrors the rST full source.
 
     The block text spans the opening fence, options block, body and closing
-    fence, while ``self.content``/``self.content_offset`` stay body-relative.
+    fence, while ``self.content`` holds only the body lines and
+    ``self.content_offset`` is the body's 0-based document line
+    (docutils convention: here ``body line`` is on document line 5, so 4).
     """
     from docutils.parsers.rst import Directive
     from docutils.parsers.rst import directives as rst_directives
@@ -475,7 +477,7 @@ def test_directive_block_text_rst_parity():
         "```{blocktextecho}\n---\nclass: tip\n---\nbody line\n```\n"
     )
     assert captured["content"] == ["body line"]
-    assert captured["content_offset"] == 3
+    assert captured["content_offset"] == 4
 
 
 def test_directive_block_text_fallback():
