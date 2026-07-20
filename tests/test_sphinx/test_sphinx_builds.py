@@ -473,6 +473,42 @@ def test_substitutions_missing(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "substitutions_dashed_key"),
+    freshenv=True,
+)
+def test_substitutions_dashed_key(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+):
+    """
+    Regression test for
+    https://github.com/executablebooks/MyST-Parser/issues/1007
+
+    A substitution key containing a dash (e.g. ``foo-bar``) must be
+    looked up as a single key, not parsed by Jinja2 as a subtraction
+    expression (``foo - bar``, two separate, likely-undefined names).
+    Plain keys and circular-reference detection must continue to work
+    as before.
+    """
+    app.build()
+    assert "build succeeded" in status.getvalue()
+
+    warnings = warning.getvalue().strip().splitlines()
+    assert len(warnings) == 1
+    assert "circular substitution reference: {'circ-a'}" in warnings[0]
+
+    output = get_sphinx_app_output(app, filename="index.html")
+    assert "Foobar" in output
+    assert "PlainValue" in output
+    # The circular substitution should not have rendered a value.
+    assert "{{circ-a}}" not in output
+    assert "{{circ-b}}" not in output
+
+
+@pytest.mark.sphinx(
     buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
 )
 def test_gettext(
