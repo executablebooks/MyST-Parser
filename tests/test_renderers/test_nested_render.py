@@ -187,6 +187,54 @@ def test_include_attribution_sphinx(sphinx_doctree: CreateDoctree):
     assert "index.md:4" not in warnings
 
 
+def test_include_start_after_true_file_line(tmp_path):
+    """``:start-after:`` reports the warning at its TRUE file line.
+
+    The included file's ``{unknowndir}`` fence is on file line 5.  Previously
+    ``startline`` was advanced by the *character* index of the marker, so the
+    warning was reported far past the end of the file (here ``inc.md:32``);
+    the fix advances by the number of consumed newlines, giving ``inc.md:5``.
+    """
+    tmp_path.joinpath("inc.md").write_text(
+        "first line\nsecond START-HERE\nthird line\n\n```{unknowndir}\n```\n"
+    )
+    stream = io.StringIO()
+    publish_doctree(
+        "# Title\n\n```{include} inc.md\n:start-after: START-HERE\n```\n",
+        source_path=str(tmp_path / "index.md"),
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    warnings = stream.getvalue().replace(str(tmp_path) + "/", "")
+    assert "inc.md:5: (WARNING/2) Unknown directive type: 'unknowndir'" in warnings
+    # not the old character-index-derived line (past EOF)
+    assert "inc.md:32" not in warnings
+
+
+def test_include_start_after_end_before_true_file_line(tmp_path):
+    """Combined ``:start-after:`` + ``:end-before:`` reports the TRUE file line.
+
+    The ``{unknowndir}`` fence is on file line 4, between the ``START`` and
+    ``END`` markers.  ``:end-before:`` does not touch ``startline``, so only the
+    (now newline-counted) ``:start-after:`` shift applies -- giving ``inc.md:4``
+    rather than the old character-index-derived ``inc.md:15``.
+    """
+    tmp_path.joinpath("inc.md").write_text(
+        "header\nSTART\n\n```{unknowndir}\n```\n\nEND\ntrailing\n"
+    )
+    stream = io.StringIO()
+    publish_doctree(
+        "# Title\n\n```{include} inc.md\n:start-after: START\n:end-before: END\n```\n",
+        source_path=str(tmp_path / "index.md"),
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    warnings = stream.getvalue().replace(str(tmp_path) + "/", "")
+    assert "inc.md:4: (WARNING/2) Unknown directive type: 'unknowndir'" in warnings
+    # not the old character-index-derived line
+    assert "inc.md:15" not in warnings
+
+
 # =============================================================================
 # 3. extension-style source override (both modes)
 # =============================================================================

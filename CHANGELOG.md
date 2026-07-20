@@ -11,7 +11,7 @@
 ### 🐛 Bug Fixes
 
 - 🐛 Make a directive's `content_offset` document-relative (the 0-based absolute line of its first content line), matching docutils' own reStructuredText parser, so extensions computing `content_offset + N` (e.g. sphinx-jinja2) report the correct line; `MockState.nested_parse` correspondingly treats its `input_offset` as an absolute document line. While here, `{epigraph}` attribution and `{parsed-literal}` node lines are corrected to their true document lines
-- 🐛 Attribute warnings raised inside an `{include}`d file to that file rather than the parent document (in Sphinx), and fix an off-by-one so the reported line matches the included file
+- 🐛 Attribute warnings raised inside an `{include}`d file to that file rather than the parent document (in Sphinx), and fix line-number reporting so it matches the included file: an off-by-one in the base case, and a `:start-after:` bug that derived the line from a *character* index (so warnings landed past the end of the file). MyST reports true file lines here, unlike docutils' `:start-after:` which reports lines relative to the retained segment
 
 ### 📚 Documentation
 

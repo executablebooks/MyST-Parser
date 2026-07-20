@@ -497,7 +497,16 @@ class MockIncludeDirective:
                     f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
-                startline += split_index + len(split_on)
+                # ``split_index`` is a *character* index into ``file_content``,
+                # so add the number of newlines in the consumed prefix (not the
+                # character count) to keep ``startline`` a line number.  The
+                # remaining text's first (possibly partial) line still lies ON
+                # the marker's line, so counting the consumed newlines makes
+                # ``nested_render_text(file_content, startline)`` report the TRUE
+                # file lines -- consistent with the ``:start-line:`` path.  (This
+                # differs from docutils, whose ``:start-after:`` reports lines
+                # relative to the retained segment; MyST reports true file lines.)
+                startline += file_content.count("\n", 0, split_index + len(split_on))
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
