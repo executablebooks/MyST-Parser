@@ -109,13 +109,23 @@ def create_warning(
     If the warning type is listed in the ``suppress_warnings`` configuration,
     then ``None`` will be returned and no warning logged.
 
+    :param document: the document the warning is raised against; supplies the
+        reporter/environment and the default source and line.
+    :param message: the warning message.
+    :param subtype: the warning subtype (a ``MystWarnings`` member or its string
+        value), combined with ``wtype`` to form the warning category.
+    :param wtype: the warning type; defaults to ``"myst"``, giving categories
+        such as ``myst.substitution``.
     :param node: if given, the warning is located at this node (takes priority
         over ``source``/``line``).
     :param line: the (1-based) line number the warning is located at.
+    :param append_to: if given, the created warning node is appended to this
+        element.
     :param source: if given (and ``node`` is not), attribute the warning to this
         source path rather than the containing document.  This is used to
         attribute warnings emitted during a nested render (e.g. an included
         file) to the file they originate from.
+    :return: the created ``system_message`` node, or ``None`` if suppressed.
     """
     # In general we want to both create a warning node within the document AST,
     # and also log the warning to output it in the CLI etc.

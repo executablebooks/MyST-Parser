@@ -14,6 +14,16 @@ reStructuredText.  A directive that generates rST should wrap it in an
 [`{eval-rst}`](#syntax/directives/parsing) block instead.
 :::
 
+## Stability
+
+The APIs documented on this page are **supported, public API** as of the release
+that includes this page: ``DocutilsRenderer.nested_render_text`` (including its
+``source`` parameter), ``MockStateMachine.insert_input``, the
+``MockState.renderer`` / ``MockStateMachine.renderer`` properties, and the
+document-relative ``content_offset`` contract.  Third-party extensions may rely
+on them: any breaking change will be announced in the changelog and, where
+practicable, go through a deprecation cycle rather than changing silently.
+
 ## Reaching the renderer from a directive
 
 When MyST runs a directive it passes mock ``state`` and ``state_machine``
@@ -130,6 +140,16 @@ its line.  A plain nested parse of the content needs nothing special:
 ```python
 self.state.nested_parse(self.content, self.content_offset, node)
 ```
+
+### Directives inside `{eval-rst}` blocks
+
+Directives written in an [`{eval-rst}`](#syntax/directives/parsing) block run
+under the **real** docutils reStructuredText state machine, not the mocks used
+for MyST-native directives.  Their ``lineno`` and ``content_offset`` are still
+document-absolute with respect to the containing ``.md`` file -- the same
+convention as MyST-native fences -- so the ``content_offset + N`` idiom reports
+true document lines identically in both.  This equivalence is pinned by
+``tests/test_directive_line_mapping.py::test_eval_rst_content_offset_pinned``.
 
 ## Documented limitations
 

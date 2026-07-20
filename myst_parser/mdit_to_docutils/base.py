@@ -388,9 +388,10 @@ class DocutilsRenderer(RendererProtocol):
         attribute to it) and ``source`` is pushed onto the attribution stack
         consulted by :meth:`create_warning` (so the sphinx logger attributes to
         it too).  Everything is restored on exit, including after an exception,
-        and nests re-entrantly.  A ``source`` of ``None`` is a no-op.
+        and nests re-entrantly.  A ``source`` of ``None`` (or an empty string)
+        is a no-op.
         """
-        if source is None:
+        if not source:
             yield
             return
         reporter = self.reporter
