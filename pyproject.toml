@@ -113,7 +113,7 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "RUF", "SIM", "UP"]
+extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "PTH", "RUF", "SIM", "UP"]
 extend-ignore = ["ISC001", "RUF005", "RUF012"]
 
 [tool.ruff.lint.per-file-ignores]
