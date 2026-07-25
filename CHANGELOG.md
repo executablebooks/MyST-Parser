@@ -4,7 +4,7 @@
 
 ### 🐛 Bug Fixes
 
-- 🐛 Preserve leading whitespace in `parsed-literal` directive content.
+- 🐛 Preserve line-edge whitespace in `parsed-literal` directive content.
 
 ## 5.1.0 - 2026-05-13
 

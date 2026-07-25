@@ -48,7 +48,7 @@ def test_parser():
     )
 
 
-def test_parsed_literal_preserves_leading_whitespace():
+def test_parsed_literal_preserves_line_edge_whitespace():
     """Line-edge whitespace survives inline parsing in parsed literals."""
     source = "\n".join(
         [
@@ -67,6 +67,36 @@ def test_parsed_literal_preserves_leading_whitespace():
     literal = next(document.findall(nodes.literal_block))
     assert literal.astext() == "123\n 23\n\n\t3  \n\ue000 marker"
     assert [node.astext() for node in literal.findall(nodes.strong)] == ["3"]
+
+
+def test_parsed_literal_whitespace_preserves_delimiter_boundaries():
+    """Whitespace remains visible to CommonMark delimiter classification."""
+    source = "\n".join(["```{parsed-literal}", "foo *  ", "bar*", "```", ""])
+    document = publish_doctree(source, parser=Parser())
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "foo *  \nbar*"
+    assert not list(literal.findall(nodes.emphasis))
+
+
+def test_parsed_literal_encoded_private_use_entities():
+    """Decoded private-use entities are not mistaken for whitespace markers."""
+    document = publish_doctree(
+        "```{parsed-literal}\n&#xE000;\n &#xE001;\n```\n", parser=Parser()
+    )
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "\ue000\n \ue001"
+
+
+def test_parsed_literal_all_private_use_characters():
+    """Using every private-use character cannot exhaust internal markers."""
+    private_use = "".join(chr(codepoint) for codepoint in range(0xE000, 0xF900))
+    source = f"```{{parsed-literal}}\n{private_use}\n indented\n```\n"
+    document = publish_doctree(source, parser=Parser())
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == f"{private_use}\n indented"
 
 
 def test_cli_html(monkeypatch, capsys):

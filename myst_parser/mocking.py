@@ -17,11 +17,28 @@ from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
+from markdown_it.rules_inline import StateInline
 
 from .parsers.directives import MarkupError, parse_directive_text
 
 if TYPE_CHECKING:
     from .mdit_to_docutils.base import DocutilsRenderer
+
+
+_PRESERVE_LINE_EDGE_WHITESPACE = "myst_preserve_line_edge_whitespace"
+_PRESERVE_NEWLINE_RULE = "myst_preserve_newline"
+
+
+def _preserve_newline(state: StateInline, silent: bool) -> bool:
+    """Render a newline without consuming adjacent whitespace."""
+    if not state.env.get(_PRESERVE_LINE_EDGE_WHITESPACE):
+        return False
+    if state.src[state.pos] != "\n":
+        return False
+    if not silent:
+        state.push("softbreak", "br", 0)
+    state.pos += 1
+    return True
 
 
 class MockingError(Exception):
@@ -37,6 +54,10 @@ class MockInliner:
     def __init__(self, renderer: DocutilsRenderer):
         """Initialize the mock inliner."""
         self._renderer = renderer
+        if _PRESERVE_NEWLINE_RULE not in renderer.md.inline.ruler.get_all_rules():
+            renderer.md.inline.ruler.before(
+                "newline", _PRESERVE_NEWLINE_RULE, _preserve_newline
+            )
         # here we mock that the `parse` method has already been called
         # which is where these attributes are set (via the RST state Memo)
         self.document = renderer.document
@@ -76,47 +97,25 @@ class MockInliner:
         # self.reporter = memo.reporter
         # self.document = memo.document
         # self.language = memo.language
-        whitespace_markers: tuple[str, str] | None = None
+        previous_preserve = self._renderer.md_env.get(_PRESERVE_LINE_EDGE_WHITESPACE)
         if preserve_edge_whitespace:
-            whitespace_markers = self._unused_private_chars(text)
-            space_marker, tab_marker = whitespace_markers
-            text = re.sub(
-                r"(?m)(?:^[ \t]+|[ \t]+$)",
-                lambda match: (
-                    match.group().replace(" ", space_marker).replace("\t", tab_marker)
-                ),
-                text,
-            )
-
-        with self._renderer.current_node_context(parent):
-            # the parent is never actually appended to though,
-            # so we make a temporary parent to parse into
-            container = nodes.Element()
-            with self._renderer.current_node_context(container):
-                self._renderer.nested_render_text(text, lineno, inline=True)
-
-        if whitespace_markers:
-            space_marker, tab_marker = whitespace_markers
-            for text_node in list(container.findall(nodes.Text)):
-                restored = (
-                    str(text_node).replace(space_marker, " ").replace(tab_marker, "\t")
+            self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = True
+        try:
+            with self._renderer.current_node_context(parent):
+                # the parent is never actually appended to though,
+                # so we make a temporary parent to parse into
+                container = nodes.Element()
+                with self._renderer.current_node_context(container):
+                    self._renderer.nested_render_text(text, lineno, inline=True)
+        finally:
+            if previous_preserve is None:
+                self._renderer.md_env.pop(_PRESERVE_LINE_EDGE_WHITESPACE, None)
+            else:
+                self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = (
+                    previous_preserve
                 )
-                if restored != str(text_node):
-                    text_node.parent.replace(text_node, nodes.Text(restored))
 
         return container.children, []
-
-    @staticmethod
-    def _unused_private_chars(text: str) -> tuple[str, str]:
-        """Return two private-use characters that do not occur in ``text``."""
-        markers: list[str] = []
-        for codepoint in range(0xE000, 0xF900):
-            marker = chr(codepoint)
-            if marker not in text:
-                markers.append(marker)
-                if len(markers) == 2:
-                    return markers[0], markers[1]
-        raise ValueError("Unable to reserve private-use whitespace markers")
 
     def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
