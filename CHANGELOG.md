@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- 🐛 Preserve leading whitespace in `parsed-literal` directive content.
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features

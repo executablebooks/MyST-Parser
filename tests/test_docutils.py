@@ -48,6 +48,27 @@ def test_parser():
     )
 
 
+def test_parsed_literal_preserves_leading_whitespace():
+    """Line-edge whitespace survives inline parsing in parsed literals."""
+    source = "\n".join(
+        [
+            "```{parsed-literal}",
+            "123",
+            " 23",
+            "",
+            "\t**3**  ",
+            "\ue000 marker",
+            "```",
+            "",
+        ]
+    )
+    document = publish_doctree(source, parser=Parser())
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "123\n 23\n\n\t3  \n\ue000 marker"
+    assert [node.astext() for node in literal.findall(nodes.strong)] == ["3"]
+
+
 def test_cli_html(monkeypatch, capsys):
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
     cli_html([])

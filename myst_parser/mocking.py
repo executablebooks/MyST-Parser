@@ -61,7 +61,13 @@ class MockInliner:
         return problematic
 
     def parse(
-        self, text: str, lineno: int, memo: Any, parent: nodes.Node
+        self,
+        text: str,
+        lineno: int,
+        memo: Any,
+        parent: nodes.Node,
+        *,
+        preserve_edge_whitespace: bool = False,
     ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         """Parse the text and return a list of nodes."""
         # note the only place this is normally called,
@@ -70,6 +76,18 @@ class MockInliner:
         # self.reporter = memo.reporter
         # self.document = memo.document
         # self.language = memo.language
+        whitespace_markers: tuple[str, str] | None = None
+        if preserve_edge_whitespace:
+            whitespace_markers = self._unused_private_chars(text)
+            space_marker, tab_marker = whitespace_markers
+            text = re.sub(
+                r"(?m)(?:^[ \t]+|[ \t]+$)",
+                lambda match: (
+                    match.group().replace(" ", space_marker).replace("\t", tab_marker)
+                ),
+                text,
+            )
+
         with self._renderer.current_node_context(parent):
             # the parent is never actually appended to though,
             # so we make a temporary parent to parse into
@@ -77,7 +95,28 @@ class MockInliner:
             with self._renderer.current_node_context(container):
                 self._renderer.nested_render_text(text, lineno, inline=True)
 
+        if whitespace_markers:
+            space_marker, tab_marker = whitespace_markers
+            for text_node in list(container.findall(nodes.Text)):
+                restored = (
+                    str(text_node).replace(space_marker, " ").replace(tab_marker, "\t")
+                )
+                if restored != str(text_node):
+                    text_node.parent.replace(text_node, nodes.Text(restored))
+
         return container.children, []
+
+    @staticmethod
+    def _unused_private_chars(text: str) -> tuple[str, str]:
+        """Return two private-use characters that do not occur in ``text``."""
+        markers: list[str] = []
+        for codepoint in range(0xE000, 0xF900):
+            marker = chr(codepoint)
+            if marker not in text:
+                markers.append(marker)
+                if len(markers) == 2:
+                    return markers[0], markers[1]
+        raise ValueError("Unable to reserve private-use whitespace markers")
 
     def __getattr__(self, name: str):
         """This method is only be called if the attribute requested has not
@@ -104,9 +143,12 @@ class MockState:
         renderer: DocutilsRenderer,
         state_machine: MockStateMachine,
         lineno: int,
+        *,
+        preserve_inline_edge_whitespace: bool = False,
     ):
         self._renderer = renderer
         self._lineno = lineno
+        self._preserve_inline_edge_whitespace = preserve_inline_edge_whitespace
         self.document = renderer.document
         self.reporter = renderer.document.reporter
         self.state_machine = state_machine
@@ -197,7 +239,13 @@ class MockState:
 
         :returns: (list of nodes, list of messages)
         """
-        return self.inliner.parse(text, lineno, self.memo, self._renderer.current_node)
+        return self.inliner.parse(
+            text,
+            lineno,
+            self.memo,
+            self._renderer.current_node,
+            preserve_edge_whitespace=self._preserve_inline_edge_whitespace,
+        )
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
