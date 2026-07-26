@@ -140,6 +140,36 @@ def test_include_from_rst(tmp_path):
     )
 
 
+def test_include_from_rst_mixed_footnotes(tmp_path):
+    """Test mixed manually- and auto-numbered footnotes, included from an RST file."""
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text(
+        dedent(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^myref]
+
+            [^myref]: auto definition.
+            [^3]: manual definition.
+            """
+        )
+    )
+
+    parser = RSTParser()
+    document = make_document(parser_cls=RSTParser)
+    parser.parse(
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
+    )
+    document.transformer.populate_from_components([parser])
+    document.transformer.apply_transforms()
+
+    # the auto-numbered footnote has no label child assigned at this point,
+    # so sorting must not compare its text against the numeric label "3"
+    assert len(list(document.findall(nodes.footnote))) == 2
+
+
 def test_field_list_body_source_line():
     """A ``field_body`` node should carry its own source line.
 
