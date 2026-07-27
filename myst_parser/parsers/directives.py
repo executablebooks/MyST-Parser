@@ -340,7 +340,9 @@ def _parse_directive_options(
     if issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
-        return _DirectiveOptions(content, options, [], has_options_block, option_line_count)
+        return _DirectiveOptions(
+            content, options, [], has_options_block, option_line_count
+        )
 
     if additional_options:
         # The options block takes priority over additional options
