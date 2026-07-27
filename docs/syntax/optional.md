@@ -148,7 +148,7 @@ Conversely `\\` will negate the escaping, so `\\$a$` renders as \\$a$.
 Block-level math can be specified with `$$` signs that wrap the math block you'd like to parse.
 For example:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 $$
@@ -159,7 +159,7 @@ $$
 
 This is equivalent to the following directive:
 
-:::{myst-example}
+:::{syntax-example}
 
 ```{math}
     y    & = ax^2 + bx + c \\
@@ -170,7 +170,7 @@ This is equivalent to the following directive:
 
 You can also add labels to block equations:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 $$
@@ -195,7 +195,7 @@ These options can both be useful if you also wish to use `$` as a unit of curren
 To allow display math (i.e. `$$`) within an inline context, set `myst_dmath_double_inline = True` (`False` by default).
 This allows for example:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 Hence, for $\alpha \in (0, 1)$,
@@ -209,7 +209,7 @@ i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound 
 
 Math will also work when nested in other block elements, like lists or quotes:
 
-:::{myst-example}
+:::{syntax-example}
 
 - A list
 - $$ a = 1 $$
@@ -230,7 +230,7 @@ These top-level math environments will then be directly parsed:
 
 As expected, environments ending in `*` will not be numbered, for example:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 \begin{gather*}
@@ -254,7 +254,7 @@ We hope to implement this in a future update (see [executablebooks/MyST-Parser#2
 
 This syntax will also work when nested in other block elements, like lists or quotes:
 
-:::{myst-example}
+:::{syntax-example}
 
 - A list
 - \begin{gather*}
@@ -363,7 +363,7 @@ Keys in the front-matter will override ones in the `conf.py`.
 
 You can use these substitutions inline or as blocks, and you can even nest substitutions in other substitutions (but circular references are prohibited):
 
-:::{myst-example}
+:::{syntax-example}
 
 Inline: {{ key1 }}
 
@@ -382,7 +382,7 @@ Block level:
 
 Substitutions will only be assessed where you would normally use Markdown, e.g. not in code blocks:
 
-:::{myst-example}
+:::{syntax-example}
 
 ```
 {{ key1 }}
@@ -397,7 +397,7 @@ This may lead to unexpected outcomes.
 Substitution references are assessed as [Jinja2 expressions](http://jinja.palletsprojects.com) which can use [filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters), and also contains the [Sphinx Environment](inv:sphinx#extdev/envapi) in the context (as `env`).
 Therefore you can do things like:
 
-:::{myst-example}
+:::{syntax-example}
 - version: {{ env.config.version }}
 - docname: {{ env.docname | upper }}
 - {{ "a" + "b" }}
@@ -424,7 +424,7 @@ The exact logic for handling substitutions is:
 Substitutions cannot be directly used in URLs, such as `[a link](https://{{key4}}.com)` or `<https://{{key4}}.com>`.
 However, since Jinja2 substitutions allow for Python methods to be used, you can use string formatting or replacements:
 
-:::{myst-example}
+:::{syntax-example}
 
 {{ '[a link](https://{}.com)'.format(key4) }}
 
@@ -448,7 +448,7 @@ It is ideal for admonition type directives (as documented in [Directives](syntax
 By default, a closing colon fence with *at least* as many colons as the opening fence will close the block (matching the behaviour of backtick fences).
 To require the closing fence to have *exactly* the same number of colons as the opening, set `myst_colon_fence_exact_match = True` in your {{ confpy }}.
 
-:::::{myst-example}
+:::::{syntax-example}
 
 :::{note}
 This text is **standard** _Markdown_
@@ -467,7 +467,7 @@ abc | mnp | xyz
 
 Similar to normal directives, these directives can also be nested:
 
-:::::{myst-example}
+:::::{syntax-example}
 
 ::::{important}
 :::{note}
@@ -479,7 +479,7 @@ This text is **standard** _Markdown_
 
 and also parameter options can be used:
 
-:::::{myst-example}
+:::::{syntax-example}
 
 :::{admonition} This *is* also **Markdown**
 :class: warning
@@ -516,13 +516,13 @@ myst_heading_anchors = 3
 
 You can then insert markdown links directly to anchors that are generated from your header titles in your documentation:
 
-:::{myst-example}
+:::{syntax-example}
 [](#auto-generated-header-anchors)
 :::
 
 The paths to other files should be relative to the current file:
 
-:::{myst-example}
+:::{syntax-example}
 [**link text**](./typography.md#headings)
 :::
 
@@ -621,7 +621,7 @@ Definition lists utilise the [markdown-it-py deflist plugin](inv:markdown_it#md/
 
 This syntax can be useful, for example, as an alternative to nested bullet-lists:
 
-:::{myst-example}
+:::{syntax-example}
 - Term 1
   - Definition
 - Term 2
@@ -630,7 +630,7 @@ This syntax can be useful, for example, as an alternative to nested bullet-lists
 
 Using instead:
 
-:::{myst-example}
+:::{syntax-example}
 Term 1
 : Definition
 
@@ -647,7 +647,7 @@ From the Pandoc documentation:
 
 Here is a more complex example, demonstrating some of these features:
 
-:::{myst-example}
+:::{syntax-example}
 Term *with Markdown*
 : Definition [with reference](syntax/definition-lists)
 
@@ -674,7 +674,7 @@ you will be able to utilise task lists.
 Task lists utilise the [markdown-it-py tasklists plugin](inv:markdown_it#md/plugins),
 and are applied to markdown list items starting with `[ ]` or `[x]`:
 
-:::{myst-example}
+:::{syntax-example}
 - [ ] An item that needs doing
 - [x] An item that is complete
 :::
@@ -691,7 +691,7 @@ These are rendered as admonition nodes in the output.
 
 The syntax is a blockquote beginning with a special marker like `[!NOTE]`:
 
-:::{myst-example}
+:::{syntax-example}
 > [!NOTE]
 > This is a note alert.
 
@@ -722,7 +722,7 @@ you will be able to utilise field lists.
 Field lists are mappings from field names to field bodies,
 based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists).
 
-:::{myst-example}
+:::{syntax-example}
 
 :name only:
 :name: body
@@ -745,7 +745,7 @@ based on the [reStructureText syntax](https://docutils.sourceforge.io/docs/ref/r
 
 A prominent use case of field lists is for use in API docstrings, as used in [Sphinx's docstring renderers](inv:sphinx#usage/domains/python):
 
-:::{myst-example}
+:::{syntax-example}
 ```{py:function} send_message(sender, priority)
 
 Send a message to a recipient
@@ -825,7 +825,7 @@ you can enable parsing of block attributes before certain block syntaxes.
 
 For example, the following Markdown:
 
-:::{myst-example}
+:::{syntax-example}
 {#mypara .bg-warning}
 Here is a paragraph with attributes.
 
@@ -838,7 +838,7 @@ but only certain key-value attributes are supported for each syntax.
 
 For **ordered lists**, the `style` key is supported, and can be one of `decimal`, `lower-alpha`, `upper-alpha`, `lower-roman`, `upper-roman`:
 
-:::{myst-example}
+:::{syntax-example}
 {style=lower-alpha}
 1. a
 2. b
@@ -858,7 +858,7 @@ For **ordered lists**, the `style` key is supported, and can be one of `decimal`
 
 For **code fences**, the `lineno-start` and `emphasize-lines` keys are supported:
 
-:::{myst-example}
+:::{syntax-example}
 {lineno-start=1 emphasize-lines="2,3"}
 ```python
 a = 1
@@ -869,14 +869,14 @@ c = 3
 
 For **block quotes**, the `attribution` key is supported:
 
-:::{myst-example}
+:::{syntax-example}
 {attribution="Chris Sewell, [link](https://example.com)"}
 > Hallo
 :::
 
 For *definition lists*, the adding a glossary key turns the definition list into a glossary (similar to using the [`glossary` directive](inv:sphinx:rst:directive#glossary) in Sphinx):
 
-:::{myst-example}
+:::{syntax-example}
 {.glossary}
 term name
 : Definition of the term
@@ -892,7 +892,7 @@ you can enable parsing of inline attributes after certain inline syntaxes.
 
 For example, the following Markdown:
 
-:::{myst-example}
+:::{syntax-example}
 
 - [A span of text with attributes]{#spanid .bg-warning},
   {ref}`a reference to the span <spanid>`
@@ -933,7 +933,7 @@ MyST provides a few different syntaxes for including images in your documentatio
 
 The first is the standard Markdown syntax:
 
-:::{myst-example}
+:::{syntax-example}
 ![fishy](img/fun-fish.png)
 :::
 
@@ -942,7 +942,7 @@ However, it is limited in the configuration that can be applied, for example set
 
 As discussed [above](syntax/directives), MyST allow for directives to be used such as `image` and `figure` (see {ref}`the sphinx documentation <sphinx:rst-primer>`):
 
-:::{myst-example}
+:::{syntax-example}
 ```{image} img/fun-fish.png
 :alt: fishy
 :class: bg-primary
@@ -961,7 +961,7 @@ HTML parsing to the rescue!
 By adding `"html_image"` to `myst_enable_extensions` (in the {{ confpy }}),
 MySt-Parser will attempt to convert any isolated `img` tags (i.e. not wrapped in any other HTML) to the internal representation used in sphinx.
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: html
 
 <img src="img/fun-fish.png" alt="fishy" width="200px">
@@ -991,7 +991,7 @@ The figure block must contain **only** two components; an image, in either Markd
 
 The first line argument is optional and taken as the reference target of the figure:
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{figure-md}
 ![fishy](img/fun-fish.png){.bg-primary .mb-1 width=200px}
@@ -1011,7 +1011,7 @@ This is a caption in **Markdown**
 
 As we see here, the target we set can be referenced:
 
-:::{myst-example}
+:::{syntax-example}
 [Go to the fish!](#fig-target)
 :::
 
@@ -1027,7 +1027,7 @@ This is helpful when you care about viewing the "source" Markdown, such as in Ju
 If the first element within the `div` is `<div class="title">` or `<p class="title">`, then this will be set as the admonition title.
 All internal text (and the title) will be parsed as MyST-Markdown and all classes and an optional name will be passed to the admonition:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: html
 
 <div class="admonition note" name="html-admonition" style="background: lightgreen; padding: 10px">
@@ -1042,7 +1042,7 @@ During the Sphinx render, both the `class` and `name` attributes will be used by
 There can be no empty lines in the block, otherwise they will be read as two separate blocks.
 If you want to use multiple paragraphs then they can be enclosed in `<p>`:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: html
 <div class="admonition note">
 <p>Paragraph 1</p>
@@ -1054,7 +1054,7 @@ If you want to use multiple paragraphs then they can be enclosed in `<p>`:
 
 You can also nest HTML admonitions:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: html
 <div class="admonition">
 <p>Some **content**</p>

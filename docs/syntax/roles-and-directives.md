@@ -48,7 +48,7 @@ Here is the basic structure:
 
 For example:
 
-:::{myst-example}
+:::{syntax-example}
 ```{admonition} This is my admonition
 This is my note
 ```
@@ -62,7 +62,7 @@ The option block starts on the first line of the directive body and is defined b
 
 The block then follows a YAML-like mapping syntax, where the key (string) and value (string) are separated by a colon (`:`):
 
-:::{myst-example}
+:::{syntax-example}
 ```{code-block} python
 :lineno-start: 10
 :emphasize-lines: 1, 3
@@ -76,7 +76,7 @@ print(f'my {a}nd line')
 The values can be enclosed in quotes (`"` or `'`) and span multiple lines.
 Newline behaviour can be controlled by starting the value with `|` (preserve newlines) or `>` (collapse newlines):
 
-:::{myst-example}
+:::{syntax-example}
 ```{code-block} python
 :lineno-start: 10
 :emphasize-lines: "1, 3"
@@ -94,7 +94,7 @@ print(f'my {a}nd line')
 
 Option blocks can also be enclosed by `---`, with no `:` prefix, for example:
 
-:::{myst-example}
+:::{syntax-example}
 ```{code-block} python
 ---
 lineno-start: 10
@@ -120,7 +120,7 @@ MyST parses this content **as Markdown**.
 
 This means that MyST markdown can be written in the content areas of any directives written in MyST markdown. For example:
 
-:::{myst-example}
+:::{syntax-example}
 ```{admonition} My markdown link
 Here is [markdown link syntax](https://jupyter.org)
 ```
@@ -129,7 +129,7 @@ Here is [markdown link syntax](https://jupyter.org)
 As a short-hand for directives that require no arguments, and when no parameter options are used (see below),
 you may start the content directly after the directive name.
 
-:::{myst-example}
+:::{syntax-example}
 ```{note} Notes require **no** arguments, so content can start here.
 ```
 :::
@@ -137,7 +137,7 @@ you may start the content directly after the directive name.
 For special cases, MySt also offers the `eval-rst` directive.
 This will parse the content **as ReStructuredText**:
 
-:::{myst-example}
+:::{syntax-example}
 ```{eval-rst}
 .. figure:: img/fun-fish.png
   :width: 100px
@@ -159,7 +159,7 @@ You can nest directives by ensuring that the tick-lines corresponding to the
 outermost directive are longer than the tick-lines for the inner directives.
 For example, nest a warning inside a note block like so:
 
-:::{myst-example}
+:::{syntax-example}
 ````{note}
 The next info should be nested
 ```{warning}
@@ -171,7 +171,7 @@ Here's my warning
 You can indent inner-code fences, so long as they aren't indented by more than 3 spaces.
 Otherwise, they will be rendered as "raw code" blocks:
 
-:::{myst-example}
+:::{syntax-example}
 ````{note}
 The warning block will be properly-parsed
 
@@ -189,7 +189,7 @@ But the next block will be parsed as raw text
 
 This can really be abused if you'd like ;-)
 
-:::{myst-example}
+:::{syntax-example}
 ``````{note}
 The next info should be nested
 `````{warning}
@@ -209,7 +209,7 @@ print('yep!')
 Want to use syntax that renders correctly in standard Markdown editors?
 See [the extended syntax option](syntax/colon_fence).
 
-::::{myst-example}
+::::{syntax-example}
 :::{note}
 This text is **standard** *Markdown*
 :::
@@ -237,14 +237,14 @@ To define an in-line role, use the following form:
 
 For example:
 
-:::{myst-example}
+:::{syntax-example}
 Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`
 :::
 
 You can use roles to do things like reference equations and other items in
 your book. For example:
 
-:::{myst-example}
+:::{syntax-example}
 ```{math} e^{i\pi} + 1 = 0
 :label: euler
 ```
@@ -283,7 +283,7 @@ You may insert the "last updated" date and estimated reading time into your docu
 
 For example:
 
-:::{myst-example}
+:::{syntax-example}
 > {sub-ref}`today` | {sub-ref}`wordcount-words` words | {sub-ref}`wordcount-minutes` min read
 :::
 

@@ -6,7 +6,7 @@
 Code blocks contain a language identifier, which is used to determine the language of the code.
 This language is used to determine the syntax highlighting, using an available [pygments lexer](https://pygments.org/docs/lexers/).
 
-:::{myst-example}
+:::{syntax-example}
 ```python
 from a import b
 c = "string"
@@ -27,7 +27,7 @@ you can do so by nesting them in backticks of a greater length.
 Markdown will treat the outer-most backticks as the edges of the "raw" block and everything inside will show up.
 For example:
 
-:::{myst-example}
+:::{syntax-example}
 `` `hi` ``
 
 ````
@@ -43,7 +43,7 @@ hi
 
 The [attrs_inline](#syntax/attributes/inline) extension can be used to apply syntax highlighting to inline code:
 
-:::{myst-example}
+:::{syntax-example}
 Inline Python code `a = "b"`{l=python}
 :::
 
@@ -59,7 +59,7 @@ myst_number_code_blocks = ["typescript"]
 
 Will number all code blocks with the `typescript` lexer by default.
 
-:::{myst-example}
+:::{syntax-example}
 ```typescript
 type MyBool = true | false;
 
@@ -73,7 +73,7 @@ interface User {
 To apply numbering and highlighting to a specific code block,
 the [attrs_block](#syntax/attributes/block) extension can be used:
 
-:::{myst-example}
+:::{syntax-example}
 {lineno-start=1 emphasize-lines="2,3"}
 ```python
 a = 1
@@ -87,7 +87,7 @@ c = 3
 With the `code-block` {{directive}},
 a caption can be added to a code blocks, as well as other options:
 
-:::{myst-example}
+:::{syntax-example}
 ```{code-block} python
 :caption: This is a caption
 :emphasize-lines: 2,3
@@ -136,7 +136,7 @@ The [Sphinx documentation](inv:sphinx#code-block)
 
 Longer pieces of code can be included from files using the `literalinclude` {{directive}}:
 
-:::{myst-example}
+:::{syntax-example}
 ```{literalinclude} examples/example.py
 ```
 :::
@@ -145,7 +145,7 @@ The file name is usually relative to the current file’s path. However, if it i
 
 To select only a sub-section of the file, the `lines`, `pyobject` or `start-after` and `end-before` options can be used:
 
-:::{myst-example}
+:::{syntax-example}
 ```{literalinclude} examples/example.py
 :start-after: start example
 :end-before: end example
@@ -175,7 +175,7 @@ As opposed to `sphinx.ext.autodoc`, `sphinx-autodoc2` performs static (rather th
 Alternatively, the `autodoc2-object` directive can be used to generate documentation for a single object.
 To embed in a MyST document the MyST `render_plugin` should be specified, for example:
 
-````{myst-example}
+````{syntax-example}
 ```{autodoc2-object} myst_parser.sphinx_ext.main.setup_sphinx
 render_plugin = "myst"
 no_index = true
@@ -184,14 +184,14 @@ no_index = true
 
 This can be referenced elsewhere in the document using the `:py:obj:` role, or a `#` link (see [cross-referencing](#syntax/referencing)).
 
-````{myst-example}
+````{syntax-example}
 - {py:obj}`myst_parser.sphinx_ext.main.setup_sphinx`
 - [](#myst_parser.sphinx_ext.main.setup_sphinx)
 ````
 
 Additionally, summaries of multiple objects can be generated using the `autodoc2-summary` directive:
 
-````{myst-example}
+````{syntax-example}
 ```{autodoc2-summary}
 :renderer: myst
 
@@ -215,7 +215,7 @@ autodoc2_docstring_parser_regexes = [
 
 For example:
 
-````{myst-example}
+````{syntax-example}
 ```{autodoc2-object} myst_parser.setup
 render_plugin = "myst"
 no_index = true
@@ -231,7 +231,7 @@ docstring_parser_regexes = [
 [Sphinx extension `autodoc`](inv:sphinx#sphinx.ext.autodoc) also can generate documentation for Python objects.
 However, because it is hard-coded to generate RestructureText, the special [`eval-rst` directive](#syntax/directives/parsing) needs to be used:
 
-````{myst-example}
+````{syntax-example}
 ```{eval-rst}
 .. autofunction:: myst_parser.sphinx_ext.main.setup_sphinx
     :noindex:
@@ -240,7 +240,7 @@ However, because it is hard-coded to generate RestructureText, the special [`eva
 
 Summaries can also be generated with [`autosummary`](inv:sphinx#sphinx.ext.autosummary):
 
-````{myst-example}
+````{syntax-example}
 ```{eval-rst}
 .. autosummary::
     :nosignatures:

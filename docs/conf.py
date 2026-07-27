@@ -223,19 +223,21 @@ def setup(app: Sphinx):
         DocutilsCliHelpDirective,
         MystAdmonitionDirective,
         MystConfigDirective,
-        MystExampleDirective,
         MystLexer,
         MystToHTMLDirective,
         MystWarningsDirective,
         NumberSections,
         StripUnsupportedLatex,
+        SyntaxExampleDocsDirective,
     )
 
     app.add_directive("myst-config", MystConfigDirective)
     app.add_directive("docutils-cli-help", DocutilsCliHelpDirective)
     app.add_directive("doc-directive", DirectiveDoc)
     app.add_directive("myst-warnings", MystWarningsDirective)
-    app.add_directive("myst-example", MystExampleDirective)
+    # NOTE: if `sphinx_syntax_example` is ever added to `extensions` (e.g. to pick
+    # up its stylesheet), drop this line too — it registers the same directive.
+    app.add_directive("syntax-example", SyntaxExampleDocsDirective)
     app.add_directive("myst-admonitions", MystAdmonitionDirective)
     app.add_directive("myst-to-html", MystToHTMLDirective)
     app.add_post_transform(StripUnsupportedLatex)

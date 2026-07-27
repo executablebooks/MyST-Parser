@@ -88,7 +88,7 @@ The `include` directive allows you to insert the contents of another document di
 The [`literalinclude` directive](#syntax/literalinclude), for including source code from files.
 :::
 
-:::{myst-example}
+:::{syntax-example}
 ```{literalinclude} example.txt
 ```
 
@@ -103,7 +103,7 @@ The following options allow you to include only part of a document:
 :start-after: Only the content after the first occurrence of the specified text will be included.
 :end-before: Only the content before the first occurrence of the specified text (but after any after text) will be included.
 
-:::{myst-example}
+:::{syntax-example}
 ```{literalinclude} example.txt
 ```
 
@@ -125,7 +125,7 @@ to make it relative to the location that it is being inserted:
 :relative-docs: Make Markdown file references, relative to the current document, if they start with a certain prefix
 :relative-images: Make Markdown image references, relative to the current document
 
-:::{myst-example}
+:::{syntax-example}
 ```{literalinclude} examples/example_relative_include.txt
 ```
 
@@ -145,7 +145,7 @@ Additional options:
 As explained in [this section](#syntax/directives/parsing), all MyST directives will parse their content as Markdown.
 So to include rST, we must first "wrap" the directive in the [eval-rst directive](#syntax/directives/parsing):
 
-:::{myst-example}
+:::{syntax-example}
 ```{eval-rst}
 .. include:: ../faq/snippets/include-rst.rst
 ```
@@ -172,7 +172,7 @@ To structure a project, with multiple documents, the [toctree directive](inv:sph
 The designate documents as children of the current document,
 building up a nested hierarchy of documents starting from a [`root_doc`](inv:sphinx:*:confval#root_doc).
 
-:::{myst-example}
+:::{syntax-example}
 ```{toctree}
 examples/content_child1.md
 examples/content_child2.md

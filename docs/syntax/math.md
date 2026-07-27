@@ -14,7 +14,7 @@ Each single equation can have multiple aligned lines, which should be separated 
 The `label` option can also be used to reference the equation later on, with the `eq` role.
 
 
-:::{myst-example}
+:::{syntax-example}
 Since Pythagoras, we know that {math}`a^2 + b^2 = c^2`.
 
 ```{math}
@@ -46,7 +46,7 @@ Additionally if `myst_dmath_allow_labels=True` is set (the default):
 - Display (block) math with equation label: `$$...$$ (1)`
 
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 $$
@@ -75,7 +75,7 @@ Enabling the [amsmath](#syntax/amsmath) extension will directly parse the follow
 
 As expected, environments ending in `*` will not be numbered, for example:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: latex
 
 \begin{gather*}

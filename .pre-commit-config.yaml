@@ -37,6 +37,7 @@ repos:
       - sphinx~=8.2
       - markdown-it-py~=4.2
       - mdit-py-plugins~=0.6.0
+      - sphinx-syntax-example~=0.2.0
       files: >
         (?x)^(
             myst_parser/.*py|
