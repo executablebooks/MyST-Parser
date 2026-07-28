@@ -19,5 +19,22 @@ Error in include file:
 ```{include} bad.md
 ```
 .
-tmpdir/bad.md:2: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+tmpdir/bad.md:1: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.
+
+Error in include file with start line:
+.
+```{include} bad_start.md
+:start-line: 1
+```
+.
+tmpdir/bad_start.md:2: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.
+
+Error in nested include file:
+.
+```{include} outer.md
+```
+.
+tmpdir/bad.md:1: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
 .
