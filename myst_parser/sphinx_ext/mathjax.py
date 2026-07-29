@@ -25,10 +25,10 @@ def log_override_warning(app: Sphinx, config_name: str, current: str, new: str) 
     if logging.is_suppressed_warning("myst", "mathjax", app.config.suppress_warnings):
         return
     logger.warning(
-        f"`{config_name}['options']['processHtmlClass']` "
-        f"is being overridden by myst-parser: '{current}' -> '{new}'. "
-        "Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or "
-        "`myst_update_mathjax=False` if this is undesirable."
+        "`%s['options']['processHtmlClass']` is being overridden by myst-parser: '%s' -> '%s'. Set `suppress_warnings=['myst.mathjax']` to ignore this warning, or `myst_update_mathjax=False` if this is undesirable.",
+        config_name,
+        current,
+        new,
     )
 
 

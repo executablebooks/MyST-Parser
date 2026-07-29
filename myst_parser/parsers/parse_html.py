@@ -357,7 +357,7 @@ class Tree:
         """
         count = 0
         for ind in reversed(self.stack):
-            count = count + 1
+            count += 1
             if ind.name == name:
                 break
         else:

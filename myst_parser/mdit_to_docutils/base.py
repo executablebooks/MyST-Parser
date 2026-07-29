@@ -112,7 +112,7 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
         # these are lazy loaded, when needed
-        self._inventories: None | dict[str, inventory.InventoryType] = None
+        self._inventories: dict[str, inventory.InventoryType] | None = None
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -300,7 +300,7 @@ class DocutilsRenderer(RendererProtocol):
         text: str,
         lineno: int,
         inline: bool = False,
-        temp_root_node: None | nodes.Element = None,
+        temp_root_node: nodes.Element | None = None,
         heading_offset: int = 0,
     ) -> None:
         """Render unparsed text (appending to the current node).
@@ -965,7 +965,7 @@ class DocutilsRenderer(RendererProtocol):
         if "class" in token.attrs and "external" in str(token.attrs["class"]).split():
             return self.render_link_url(token)
 
-        href = cast(str, token.attrGet("href") or "")
+        href = cast("str", token.attrGet("href") or "")
         if href.startswith("#"):
             return self.render_link_anchor(token, href)
 
@@ -988,7 +988,7 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_link_unknown(token)
 
     def render_link_url(
-        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
+        self, token: SyntaxTreeNode, conversion: UrlSchemeType | None = None
     ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
@@ -1002,7 +1002,7 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
-        uri = cast(str, token.attrGet("href") or "")
+        uri = cast("str", token.attrGet("href") or "")
         implicit_text: str | None = None
 
         if conversion is not None:
@@ -1063,7 +1063,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         """Render a link token like `<project:...>`."""
-        destination = cast(str, token.attrGet("href") or "")
+        destination = cast("str", token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
@@ -1108,7 +1108,7 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        ref_node["refname"] = cast(str, token.attrGet("href") or "")
+        ref_node["refname"] = cast("str", token.attrGet("href") or "")
         self.document.note_refname(ref_node)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
@@ -1126,7 +1126,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # markdown-it encodes unsafe characters with percent-encoding
         # we want to get back the original, source input
-        href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
+        href = self.md.normalizeLinkText(cast("str", token.attrGet("href") or ""))
 
         # note if the link had explicit text or not (autolinks are always implicit)
         explicit = (token.info != "auto") and bool(token.children)
@@ -1246,7 +1246,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_image(self, token: SyntaxTreeNode) -> None:
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
-        destination = cast(str, token.attrGet("src") or "")
+        destination = cast("str", token.attrGet("src") or "")
 
         if self.md_env.get(
             "relative-images", None
@@ -1467,7 +1467,7 @@ class DocutilsRenderer(RendererProtocol):
                     "text-align:right",
                     "text-align:center",
                 ):
-                    entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
+                    entry["classes"].append(f"text-{cast('str', style).split(':')[1]}")
                 with (
                     self.current_node_context(entry, append=True),
                     self.current_node_context(para, append=True),
@@ -2113,7 +2113,7 @@ def default_slugify(title: str) -> str:
 def compute_unique_slug(
     token_tree: SyntaxTreeNode,
     slugs: Container[str],
-    slug_func: None | Callable[[str], str] = None,
+    slug_func: Callable[[str], str] | None = None,
 ) -> str:
     """Compute the slug for a heading token, unique against existing slugs."""
     slug_func = github_slugify if slug_func is None else slug_func
@@ -2122,6 +2122,6 @@ def compute_unique_slug(
     title = "".join(
         child.content
         for child in (inline_token.children or [])
-        if child.type in ["text", "code_inline"]
+        if child.type in {"text", "code_inline"}
     )
     return unique_slug(slug_func(title), slugs)

@@ -71,7 +71,7 @@ class SphinxRenderer(DocutilsRenderer):
         return destination
 
     def render_link_project(self, token: SyntaxTreeNode) -> None:
-        destination = cast(str, token.attrGet("href") or "")
+        destination = cast("str", token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
@@ -106,7 +106,9 @@ class SphinxRenderer(DocutilsRenderer):
         self._process_wrap_node(wrap_node, token, explicit, classes, destination)
 
     def render_link_path(self, token: SyntaxTreeNode) -> None:
-        destination = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
+        destination = self.md.normalizeLinkText(
+            cast("str", token.attrGet("href") or "")
+        )
         destination = destination.removeprefix("path:")
         destination = self._handle_relative_docs(destination)
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
@@ -124,7 +126,9 @@ class SphinxRenderer(DocutilsRenderer):
         """Render link token `[text](link "title")`,
         where the link has not been identified as an external URL.
         """
-        destination = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
+        destination = self.md.normalizeLinkText(
+            cast("str", token.attrGet("href") or "")
+        )
         destination = self._handle_relative_docs(destination)
 
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
@@ -136,7 +140,7 @@ class SphinxRenderer(DocutilsRenderer):
         path_dest, *_path_ids = destination.split("#", maxsplit=1)
         path_id = _path_ids[0] if _path_ids else None
 
-        potential_path: None | Path = None
+        potential_path: Path | None = None
         if self.sphinx_env.srcdir:  # not set in some test situations
             _, path_str = self.sphinx_env.relfn2path(path_dest, self.sphinx_env.docname)
             potential_path = Path(path_str)
@@ -227,7 +231,7 @@ class SphinxRenderer(DocutilsRenderer):
         # Code mainly copied from sphinx.directives.patches.MathDirective
 
         # register label to domain
-        domain = cast(MathDomain, self.sphinx_env.get_domain("math"))
+        domain = cast("MathDomain", self.sphinx_env.get_domain("math"))
         domain.note_equation(self.sphinx_env.docname, node["label"], location=node)
         node["number"] = domain.get_equation_number_for(node["label"])
         node["docname"] = self.sphinx_env.docname

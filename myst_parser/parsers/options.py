@@ -265,7 +265,9 @@ def _tokenize(text: str, state: State) -> Iterable[Token]:
         # find key
         ch = stream.peek()
         if ch in ("'", '"'):
-            yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=True)
+            yield _scan_flow_scalar(
+                stream, cast("Literal['\"', \"'\"]", ch), is_key=True
+            )
         else:
             yield _scan_plain_scalar(stream, state, is_key=True)
 
@@ -287,9 +289,11 @@ def _tokenize(text: str, state: State) -> Iterable[Token]:
         if stream.column == 0:
             pass
         elif ch in ("|", ">"):
-            yield _scan_block_scalar(stream, cast(Literal["|", ">"], ch), state)
+            yield _scan_block_scalar(stream, cast("Literal['|', '>']", ch), state)
         elif ch in ("'", '"'):
-            yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=False)
+            yield _scan_flow_scalar(
+                stream, cast("Literal['\"', \"'\"]", ch), is_key=False
+            )
         else:
             yield _scan_plain_scalar(stream, state, is_key=False)
 
@@ -397,7 +401,7 @@ def _scan_line_break(stream: StreamBuffer) -> str:
         else:
             stream.forward()
         return "\n"
-    elif ch in "\u2028\u2029":
+    if ch in "\u2028\u2029":
         stream.forward()
         return ch
     return ""
@@ -491,7 +495,7 @@ def _scan_flow_scalar_spaces(stream: StreamBuffer, start_mark: Position) -> list
             "while scanning a quoted scalar",
             start_mark,
         )
-    elif ch in _CHARS_NEWLINE:
+    if ch in _CHARS_NEWLINE:
         line_break = _scan_line_break(stream)
         breaks = _scan_flow_scalar_breaks(stream)
         if line_break != "\n":

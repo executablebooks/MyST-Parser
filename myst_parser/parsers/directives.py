@@ -198,7 +198,7 @@ def _parse_directive_options(
     :param additional_options: Additional options for the directive,
         which the options block takes priority over
     """
-    options_block: None | str = None
+    options_block: str | None = None
     options_position: int | None = None
     """The 1-based source line of the first line of the options block."""
     if content.startswith("---"):
@@ -373,7 +373,7 @@ def parse_directive_arguments(
     arguments = arg_text.split()
     if len(arguments) < required:
         raise MarkupError(f"{required} argument(s) required, {len(arguments)} supplied")
-    elif len(arguments) > required + optional:
+    if len(arguments) > required + optional:
         if directive_cls.final_argument_whitespace:
             arguments = arg_text.split(None, required + optional - 1)
         else:

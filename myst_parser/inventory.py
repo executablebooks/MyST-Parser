@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import functools
 import json
+import pathlib
 import re
 import zlib
 from collections.abc import Iterator
@@ -95,10 +96,9 @@ def load(stream: IO, base_url: str | None = None) -> InventoryType:
     line = reader.readline().rstrip()
     if line == "# Sphinx inventory version 1":
         return _load_v1(reader, base_url)
-    elif line == "# Sphinx inventory version 2":
+    if line == "# Sphinx inventory version 2":
         return _load_v2(reader, base_url)
-    else:
-        raise ValueError(f"invalid inventory header: {line}")
+    raise ValueError(f"invalid inventory header: {line}")
 
 
 def _load_v1(stream: InventoryFileReader, base_url: str | None) -> InventoryType:
@@ -411,17 +411,17 @@ def filter_string(
 
 
 def fetch_inventory(
-    uri: str, *, timeout: None | float = None, base_url: None | str = None
+    uri: str, *, timeout: float | None = None, base_url: str | None = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
     if uri.startswith(("http://", "https://")):
         with urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
-    with open(uri, "rb") as stream:
+    with pathlib.Path(uri).open("rb") as stream:
         return load(stream, base_url=base_url)
 
 
-def inventory_cli(inputs: None | list[str] = None):
+def inventory_cli(inputs: list[str] | None = None):
     """Command line interface for fetching and parsing an inventory."""
     parser = argparse.ArgumentParser(description="Parse an inventory file.")
     parser.add_argument("uri", metavar="[URL|PATH]", help="URI of the inventory file")
@@ -478,7 +478,7 @@ def inventory_cli(inputs: None | list[str] = None):
                 invdata = load(stream)
             base_url = args.uri
     else:
-        with open(args.uri, "rb") as stream:
+        with pathlib.Path(args.uri).open("rb") as stream:
             invdata = load(stream)
 
     filtered: InventoryType = {

@@ -20,8 +20,7 @@ def align(argument):
 def figwidth_value(argument):
     if argument.lower() == "image":
         return "image"
-    else:
-        return directives.length_or_percentage_or_unitless(argument, "px")
+    return directives.length_or_percentage_or_unitless(argument, "px")
 
 
 class SubstitutionReferenceRole(SphinxRole):
@@ -69,7 +68,7 @@ class FigureMarkdown(SphinxDirective):
 
         if not isinstance(self.state, MockState):
             return [self.figure_error("Directive is only supported in myst parser")]
-        state = cast(MockState, self.state)
+        state = cast("MockState", self.state)
 
         # ensure html image enabled
         myst_extensions = copy(state._renderer.md_config.enable_extensions)
