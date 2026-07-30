@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import functools
 import json
-import pathlib
 import re
 import zlib
 from collections.abc import Iterator
@@ -417,7 +416,7 @@ def fetch_inventory(
     if uri.startswith(("http://", "https://")):
         with urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
-    with pathlib.Path(uri).open("rb") as stream:
+    with open(uri, "rb") as stream:
         return load(stream, base_url=base_url)
 
 
@@ -478,7 +477,7 @@ def inventory_cli(inputs: list[str] | None = None):
                 invdata = load(stream)
             base_url = args.uri
     else:
-        with pathlib.Path(args.uri).open("rb") as stream:
+        with open(args.uri, "rb") as stream:
             invdata = load(stream)
 
     filtered: InventoryType = {

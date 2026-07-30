@@ -265,9 +265,7 @@ def _tokenize(text: str, state: State) -> Iterable[Token]:
         # find key
         ch = stream.peek()
         if ch in ("'", '"'):
-            yield _scan_flow_scalar(
-                stream, cast("Literal['\"', \"'\"]", ch), is_key=True
-            )
+            yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=True)
         else:
             yield _scan_plain_scalar(stream, state, is_key=True)
 
@@ -289,11 +287,9 @@ def _tokenize(text: str, state: State) -> Iterable[Token]:
         if stream.column == 0:
             pass
         elif ch in ("|", ">"):
-            yield _scan_block_scalar(stream, cast("Literal['|', '>']", ch), state)
+            yield _scan_block_scalar(stream, cast(Literal["|", ">"], ch), state)
         elif ch in ("'", '"'):
-            yield _scan_flow_scalar(
-                stream, cast("Literal['\"', \"'\"]", ch), is_key=False
-            )
+            yield _scan_flow_scalar(stream, cast(Literal['"', "'"], ch), is_key=False)
         else:
             yield _scan_plain_scalar(stream, state, is_key=False)
 

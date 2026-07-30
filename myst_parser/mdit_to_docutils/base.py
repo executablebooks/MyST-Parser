@@ -965,7 +965,7 @@ class DocutilsRenderer(RendererProtocol):
         if "class" in token.attrs and "external" in str(token.attrs["class"]).split():
             return self.render_link_url(token)
 
-        href = cast("str", token.attrGet("href") or "")
+        href = cast(str, token.attrGet("href") or "")
         if href.startswith("#"):
             return self.render_link_anchor(token, href)
 
@@ -1002,7 +1002,7 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
-        uri = cast("str", token.attrGet("href") or "")
+        uri = cast(str, token.attrGet("href") or "")
         implicit_text: str | None = None
 
         if conversion is not None:
@@ -1063,7 +1063,7 @@ class DocutilsRenderer(RendererProtocol):
 
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         """Render a link token like `<project:...>`."""
-        destination = cast("str", token.attrGet("href") or "")
+        destination = cast(str, token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
@@ -1108,7 +1108,7 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
         )
-        ref_node["refname"] = cast("str", token.attrGet("href") or "")
+        ref_node["refname"] = cast(str, token.attrGet("href") or "")
         self.document.note_refname(ref_node)
         with self.current_node_context(ref_node, append=True):
             self.render_children(token)
@@ -1126,7 +1126,7 @@ class DocutilsRenderer(RendererProtocol):
 
         # markdown-it encodes unsafe characters with percent-encoding
         # we want to get back the original, source input
-        href = self.md.normalizeLinkText(cast("str", token.attrGet("href") or ""))
+        href = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
 
         # note if the link had explicit text or not (autolinks are always implicit)
         explicit = (token.info != "auto") and bool(token.children)
@@ -1246,7 +1246,7 @@ class DocutilsRenderer(RendererProtocol):
     def render_image(self, token: SyntaxTreeNode) -> None:
         img_node = nodes.image()
         self.add_line_and_source_path(img_node, token)
-        destination = cast("str", token.attrGet("src") or "")
+        destination = cast(str, token.attrGet("src") or "")
 
         if self.md_env.get(
             "relative-images", None
@@ -1467,7 +1467,7 @@ class DocutilsRenderer(RendererProtocol):
                     "text-align:right",
                     "text-align:center",
                 ):
-                    entry["classes"].append(f"text-{cast('str', style).split(':')[1]}")
+                    entry["classes"].append(f"text-{cast(str, style).split(':')[1]}")
                 with (
                     self.current_node_context(entry, append=True),
                     self.current_node_context(para, append=True),

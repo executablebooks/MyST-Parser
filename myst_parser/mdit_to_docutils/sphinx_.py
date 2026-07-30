@@ -71,7 +71,7 @@ class SphinxRenderer(DocutilsRenderer):
         return destination
 
     def render_link_project(self, token: SyntaxTreeNode) -> None:
-        destination = cast("str", token.attrGet("href") or "")
+        destination = cast(str, token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
         if destination.startswith("#"):
             return self.render_link_anchor(token, destination)
@@ -107,7 +107,7 @@ class SphinxRenderer(DocutilsRenderer):
 
     def render_link_path(self, token: SyntaxTreeNode) -> None:
         destination = self.md.normalizeLinkText(
-            cast("str", token.attrGet("href") or "")
+            cast(str, token.attrGet("href") or "")
         )
         destination = destination.removeprefix("path:")
         destination = self._handle_relative_docs(destination)
@@ -127,7 +127,7 @@ class SphinxRenderer(DocutilsRenderer):
         where the link has not been identified as an external URL.
         """
         destination = self.md.normalizeLinkText(
-            cast("str", token.attrGet("href") or "")
+            cast(str, token.attrGet("href") or "")
         )
         destination = self._handle_relative_docs(destination)
 
@@ -231,7 +231,7 @@ class SphinxRenderer(DocutilsRenderer):
         # Code mainly copied from sphinx.directives.patches.MathDirective
 
         # register label to domain
-        domain = cast("MathDomain", self.sphinx_env.get_domain("math"))
+        domain = cast(MathDomain, self.sphinx_env.get_domain("math"))
         domain.note_equation(self.sphinx_env.docname, node["label"], location=node)
         node["number"] = domain.get_equation_number_for(node["label"])
         node["docname"] = self.sphinx_env.docname

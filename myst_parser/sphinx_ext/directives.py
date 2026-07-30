@@ -68,7 +68,7 @@ class FigureMarkdown(SphinxDirective):
 
         if not isinstance(self.state, MockState):
             return [self.figure_error("Directive is only supported in myst parser")]
-        state = cast("MockState", self.state)
+        state = cast(MockState, self.state)
 
         # ensure html image enabled
         myst_extensions = copy(state._renderer.md_config.enable_extensions)

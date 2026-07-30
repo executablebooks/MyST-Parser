@@ -77,7 +77,7 @@ class MystReferenceResolver(ReferencesResolver):
                 continue
 
             newnode = None
-            contnode = cast("nodes.TextElement", node[0].deepcopy())
+            contnode = cast(nodes.TextElement, node[0].deepcopy())
             target = node["reftarget"]
             refdoc = node.get("refdoc", self.env.docname)
             search_domains: list[str] | None = self.env.config.myst_ref_domains
@@ -109,7 +109,7 @@ class MystReferenceResolver(ReferencesResolver):
                 newnode = nodes.reference()
                 newnode["refid"] = refid
                 newnode["internal"] = True
-                inner = cast("nodes.TextElement", node[0].deepcopy())
+                inner = cast(nodes.TextElement, node[0].deepcopy())
                 if not inner.children:
                     local_node = self.document.ids.get(refid)
                     for subnode in local_node or []:
@@ -262,7 +262,7 @@ class MystReferenceResolver(ReferencesResolver):
 
         # next resolve for any other standard reference objects
         if only_domains is None or "std" in only_domains:
-            stddomain = cast("StandardDomain", self.env.get_domain("std"))
+            stddomain = cast(StandardDomain, self.env.get_domain("std"))
             for objtype in stddomain.object_types:
                 key = (objtype, target)
                 if objtype == "term":
@@ -341,7 +341,7 @@ class MystReferenceResolver(ReferencesResolver):
         """This is the same as ``sphinx.domains.std._resolve_ref_xref``,
         but allows for nested syntax, rather than converting the inner node to raw text.
         """
-        stddomain = cast("StandardDomain", self.env.get_domain("std"))
+        stddomain = cast(StandardDomain, self.env.get_domain("std"))
         target = target or node["reftarget"].lower()
 
         if node["refexplicit"]:
