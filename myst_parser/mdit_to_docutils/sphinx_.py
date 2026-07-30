@@ -106,9 +106,7 @@ class SphinxRenderer(DocutilsRenderer):
         self._process_wrap_node(wrap_node, token, explicit, classes, destination)
 
     def render_link_path(self, token: SyntaxTreeNode) -> None:
-        destination = self.md.normalizeLinkText(
-            cast(str, token.attrGet("href") or "")
-        )
+        destination = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
         destination = destination.removeprefix("path:")
         destination = self._handle_relative_docs(destination)
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
@@ -126,9 +124,7 @@ class SphinxRenderer(DocutilsRenderer):
         """Render link token `[text](link "title")`,
         where the link has not been identified as an external URL.
         """
-        destination = self.md.normalizeLinkText(
-            cast(str, token.attrGet("href") or "")
-        )
+        destination = self.md.normalizeLinkText(cast(str, token.attrGet("href") or ""))
         destination = self._handle_relative_docs(destination)
 
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
