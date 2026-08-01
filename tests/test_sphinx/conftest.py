@@ -32,9 +32,8 @@ parameters available to parse to ``@pytest.mark.sphinx``:
 
 """
 
-import os
-import pathlib
 import shutil
+from pathlib import Path
 
 import pytest
 from bs4 import BeautifulSoup
@@ -42,15 +41,14 @@ from docutils import nodes
 
 from myst_parser._compat import findall
 
-SOURCE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "sourcedirs"))
+SOURCE_DIR = (Path(__file__).parent / "sourcedirs").resolve()
 
 
 @pytest.fixture(scope="session", autouse=True)
 def remove_sphinx_builds():
     """remove all build directories from the test folder"""
     yield
-    srcdirs = pathlib.Path(SOURCE_DIR)
-    for entry in srcdirs.iterdir():  # type: pathlib.Path
+    for entry in SOURCE_DIR.iterdir():
         if entry.is_dir() and entry.joinpath("_build").exists():
             shutil.rmtree(str(entry.joinpath("_build")))
 
@@ -66,7 +64,7 @@ def get_sphinx_app_output(file_regression):
         regress_ext=".html",
         replace=None,
     ):
-        outpath = pathlib.Path(str(app.srcdir), "_build", buildername, filename)
+        outpath = Path(app.srcdir) / "_build" / buildername / filename
         if not outpath.exists():
             raise OSError(f"no output file exists: {outpath}")
 
@@ -115,7 +113,7 @@ def get_sphinx_app_doctree(file_regression, normalize_doctree_xml):
         for node in findall(doctree)(
             lambda n: "source" in n and not isinstance(n, str)
         ):
-            node["source"] = pathlib.Path(node["source"]).name
+            node["source"] = Path(node["source"]).name
 
         doctree = doctree.deepcopy()
 
