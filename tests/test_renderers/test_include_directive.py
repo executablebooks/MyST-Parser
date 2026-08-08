@@ -41,6 +41,15 @@ def test_errors(file_params, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     tmp_path.joinpath("bad.md").write_text("{a}`b`")
+    # The role sits on line 3, so a warning reported against any other line is
+    # the include's own line attribution being off.
+    tmp_path.joinpath("bad_line3.md").write_text("line one\n\n{a}`b`\n")
+    tmp_path.joinpath("bad_skipped.md").write_text("skipped\nskipped2\n\n{a}`b`\n")
+    tmp_path.joinpath("bad_frontmatter.md").write_text("---\nx: 1\n---\n\n{a}`b`\n")
+    tmp_path.joinpath("bad_inner.md").write_text("inner one\n\n{a}`b`\n")
+    tmp_path.joinpath("bad_outer.md").write_text(
+        "outer line\n\n```{include} bad_inner.md\n```\n"
+    )
 
     report_stream = StringIO()
     publish_doctree(
