@@ -17,11 +17,28 @@ from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
+from markdown_it.rules_inline import StateInline
 
 from .parsers.directives import MarkupError, parse_directive_text
 
 if TYPE_CHECKING:
     from .mdit_to_docutils.base import DocutilsRenderer
+
+
+_PRESERVE_LINE_EDGE_WHITESPACE = "myst_preserve_line_edge_whitespace"
+_PRESERVE_NEWLINE_RULE = "myst_preserve_newline"
+
+
+def _preserve_newline(state: StateInline, silent: bool) -> bool:
+    """Render a newline without consuming adjacent whitespace."""
+    if not state.env.get(_PRESERVE_LINE_EDGE_WHITESPACE):
+        return False
+    if state.src[state.pos] != "\n":
+        return False
+    if not silent:
+        state.push("softbreak", "br", 0)
+    state.pos += 1
+    return True
 
 
 class MockingError(Exception):
@@ -37,6 +54,10 @@ class MockInliner:
     def __init__(self, renderer: DocutilsRenderer):
         """Initialize the mock inliner."""
         self._renderer = renderer
+        if _PRESERVE_NEWLINE_RULE not in renderer.md.inline.ruler.get_all_rules():
+            renderer.md.inline.ruler.before(
+                "newline", _PRESERVE_NEWLINE_RULE, _preserve_newline
+            )
         # here we mock that the `parse` method has already been called
         # which is where these attributes are set (via the RST state Memo)
         self.document = renderer.document
@@ -61,7 +82,13 @@ class MockInliner:
         return problematic
 
     def parse(
-        self, text: str, lineno: int, memo: Any, parent: nodes.Node
+        self,
+        text: str,
+        lineno: int,
+        memo: Any,
+        parent: nodes.Node,
+        *,
+        preserve_edge_whitespace: bool = False,
     ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         """Parse the text and return a list of nodes."""
         # note the only place this is normally called,
@@ -70,12 +97,23 @@ class MockInliner:
         # self.reporter = memo.reporter
         # self.document = memo.document
         # self.language = memo.language
-        with self._renderer.current_node_context(parent):
-            # the parent is never actually appended to though,
-            # so we make a temporary parent to parse into
-            container = nodes.Element()
-            with self._renderer.current_node_context(container):
-                self._renderer.nested_render_text(text, lineno, inline=True)
+        previous_preserve = self._renderer.md_env.get(_PRESERVE_LINE_EDGE_WHITESPACE)
+        if preserve_edge_whitespace:
+            self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = True
+        try:
+            with self._renderer.current_node_context(parent):
+                # the parent is never actually appended to though,
+                # so we make a temporary parent to parse into
+                container = nodes.Element()
+                with self._renderer.current_node_context(container):
+                    self._renderer.nested_render_text(text, lineno, inline=True)
+        finally:
+            if previous_preserve is None:
+                self._renderer.md_env.pop(_PRESERVE_LINE_EDGE_WHITESPACE, None)
+            else:
+                self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = (
+                    previous_preserve
+                )
 
         return container.children, []
 
@@ -104,9 +142,12 @@ class MockState:
         renderer: DocutilsRenderer,
         state_machine: MockStateMachine,
         lineno: int,
+        *,
+        preserve_inline_edge_whitespace: bool = False,
     ):
         self._renderer = renderer
         self._lineno = lineno
+        self._preserve_inline_edge_whitespace = preserve_inline_edge_whitespace
         self.document = renderer.document
         self.reporter = renderer.document.reporter
         self.state_machine = state_machine
@@ -197,7 +238,13 @@ class MockState:
 
         :returns: (list of nodes, list of messages)
         """
-        return self.inliner.parse(text, lineno, self.memo, self._renderer.current_node)
+        return self.inliner.parse(
+            text,
+            lineno,
+            self.memo,
+            self._renderer.current_node,
+            preserve_edge_whitespace=self._preserve_inline_edge_whitespace,
+        )
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")

@@ -32,6 +32,7 @@ from docutils.frontend import get_default_settings
 from docutils.languages import get_language
 from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.directives.body import ParsedLiteral
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
@@ -1898,7 +1899,14 @@ class DocutilsRenderer(RendererProtocol):
             )
         else:
             state_machine = MockStateMachine(self, position)
-            state = MockState(self, state_machine, position)
+            state = MockState(
+                self,
+                state_machine,
+                position,
+                preserve_inline_edge_whitespace=issubclass(
+                    directive_class, ParsedLiteral
+                ),
+            )
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
