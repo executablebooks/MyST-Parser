@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### ✨ New Features
+
+- ✨ Add a `source=` argument to `DocutilsRenderer.nested_render_text`, so extensions rendering generated content (an included file, a template's output) can attribute its nodes and warnings to the originating file or template, in both docutils and Sphinx builds
+- ✨ Add `MockStateMachine.insert_input`, a docutils-compatible way for a directive to render generated MyST at its position
+- ✨ Expose the active renderer to directives via read-only `MockState.renderer` and `MockStateMachine.renderer` properties
+
+### 🐛 Bug Fixes
+
+- 🐛 Make a directive's `content_offset` document-relative (the 0-based absolute line of its first content line), matching docutils' reStructuredText parser, so extensions computing `content_offset + N` (e.g. sphinx-jinja2) report the correct line; `MockState.nested_parse` correspondingly treats its `input_offset` as an absolute document line. Also corrects `{epigraph}` attribution and `{parsed-literal}` node lines to their true document lines
+  - _Migration note for extension authors:_ the standard `nested_parse(self.content, self.content_offset, node)` idiom is unchanged, but a directive passing a literal *relative* offset (e.g. `0`) now gets docutils-identical placement. Under Sphinx, autodoc/autosummary's default `offset=0` relocates rendered content to the top of the document — rST-consistent in the offset value, though rST additionally attributes such content via per-line `StringList` source items (which the MyST mock does not model), so the attribution is not byte-identical. Arithmetic such as `self.lineno + self.content_offset` now double-counts the position (as it always did under reStructuredText)
+- 🐛 Attribute warnings raised inside an `{include}`d file to that file rather than the parent document (in Sphinx), and fix line reporting to match the included file: an off-by-one in the base case, and a `:start-after:` bug that derived the line from a *character* index (so warnings landed past the file's end). MyST reports true file lines here, unlike docutils' `:start-after:`, which reports lines relative to the retained segment
+
+### 📚 Documentation
+
+- 📚 Add a developer guide for rendering generated content from a directive, covering the renderer accessors, `nested_render_text`, `insert_input` and `content_offset` semantics
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features

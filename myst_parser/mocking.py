@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -123,6 +124,17 @@ class MockState:
 
         self.memo = Struct
 
+    @property
+    def renderer(self) -> DocutilsRenderer:
+        """The MyST renderer that this mock state is rendering into.
+
+        This is the supported access point for extension authors to reach the
+        MyST rendering APIs from within a directive (via ``self.state.renderer``),
+        for example :meth:`.DocutilsRenderer.nested_render_text` to render
+        generated MyST content at the directive's position.
+        """
+        return self._renderer
+
     def parse_directive_block(
         self,
         content: StringList,
@@ -161,8 +173,9 @@ class MockState:
         """Perform a nested parse of the input block, with ``node`` as the parent.
 
         :param block: The block of lines to parse.
-        :param input_offset: The offset of the first line of block,
-            to the starting line of the state (i.e. directive).
+        :param input_offset: The 0-based absolute line offset of the first line of
+            ``block`` within the document (docutils' convention, i.e. what a
+            directive's ``content_offset`` provides).
         :param node: The parent node to attach the parsed content to.
         :param match_titles: Whether to to allow the parsing of headings
             (normally this is false,
@@ -172,7 +185,7 @@ class MockState:
         with self._renderer.current_node_context(node):
             self._renderer.nested_render_text(
                 "\n".join(block),
-                self._lineno + input_offset,
+                input_offset,
                 temp_root_node=node if match_titles else None,
             )
         self.state_machine.match_titles = sm_match_titles
@@ -246,7 +259,11 @@ class MockState:
         # parse attribution
         if attribution_lines:
             attribution_text = "\n".join(attribution_lines)
-            lineno = self._lineno + line_offset + (attribution_line_offset or 0)
+            # ``line_offset`` is the 0-based absolute document line of the first
+            # block-quote line, so the attribution's 1-based document line is
+            # ``line_offset + attribution_line_offset + 1`` (mirrors docutils'
+            # ``parse_attribution``: ``lineno = 1 + line_offset``).
+            lineno = line_offset + (attribution_line_offset or 0) + 1
             textnodes, messages = self.inline_text(attribution_text, lineno)
             attribution = nodes.attribution(attribution_text, "", *textnodes)
             (
@@ -300,7 +317,7 @@ class MockState:
         msg = (
             f"{cls} has not yet implemented attribute '{name}'. "
             "You can parse RST directly via the `{{eval-rst}}` directive: "
-            "https://myst-parser.readthedocs.io/en/latest/syntax/syntax.html#how-directives-parse-content"
+            "https://myst-parser.readthedocs.io/en/latest/syntax/roles-and-directives.html#how-directives-parse-content"
             if hasattr(Body, name)
             else f"{cls} has no attribute '{name}'"
         )
@@ -321,6 +338,53 @@ class MockStateMachine:
         self.reporter = self.document.reporter
         self.node: nodes.Element = renderer.current_node
         self.match_titles: bool = True
+
+    @property
+    def renderer(self) -> DocutilsRenderer:
+        """The MyST renderer that this mock state machine is rendering into.
+
+        This is the supported access point for extension authors to reach the
+        MyST rendering APIs from within a directive (via
+        ``self.state_machine.renderer``).
+        """
+        return self._renderer
+
+    def insert_input(
+        self, input_lines: Sequence[str], source: str | None = None
+    ) -> None:
+        """Render generated text immediately at the directive's position.
+
+        This mirrors the signature of docutils'
+        ``RSTStateMachine.insert_input``, so directives written for docutils
+        keep working, but with several behavioural differences to be aware of:
+
+        - **``source`` is optional here.**  docutils'
+          ``insert_input(input_lines, source)`` takes ``source`` as a *required*
+          positional argument; this mock makes it optional (see ``source``
+          below).
+        - **The text is parsed as MyST Markdown**, not reStructuredText.
+        - **Ordering differs.**  The content is rendered *immediately* into the
+          current node, so it lands **before** any nodes the directive itself
+          returns.  docutils instead splices the input back into the state
+          machine, so it is processed **after** the directive's returned nodes.
+          The two are identical only for the common ``return []`` pattern.
+        - **Per-line source info is not preserved.**  If ``input_lines`` is a
+          docutils ``StringList``, its per-line ``(source, offset)`` items are
+          *discarded*: the lines are joined and attributed uniformly to
+          ``source``.
+
+        :param input_lines: the lines to render; a list of strings or a
+            docutils ``StringList`` (whose per-line source items are not kept).
+        :param source: if given, attribute the rendered nodes and any warnings
+            to this path (reported as ``source:1`` onwards -- matching docutils'
+            handling of inserted external text).  Otherwise the text is rendered
+            in the document's line-space, just after the directive.
+        """
+        text = "\n".join(input_lines)
+        if source is not None:
+            self._renderer.nested_render_text(text, 0, source=source)
+        else:
+            self._renderer.nested_render_text(text, self._lineno)
 
     def get_source(self, lineno: int | None = None):
         """Return document source path."""
@@ -442,7 +506,16 @@ class MockIncludeDirective:
                     f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
-                startline += split_index + len(split_on)
+                # ``split_index`` is a *character* index into ``file_content``,
+                # so add the number of newlines in the consumed prefix (not the
+                # character count) to keep ``startline`` a line number.  The
+                # remaining text's first (possibly partial) line still lies ON
+                # the marker's line, so counting the consumed newlines makes
+                # ``nested_render_text(file_content, startline)`` report the TRUE
+                # file lines -- consistent with the ``:start-line:`` path.  (This
+                # differs from docutils, whose ``:start-after:`` reports lines
+                # relative to the retained segment; MyST reports true file lines.)
+                startline += file_content.count("\n", 0, split_index + len(split_on))
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
@@ -495,15 +568,15 @@ class MockIncludeDirective:
             )
             return codeblock.run()
 
-        # Here we perform a nested render, but temporarily setup the document/reporter
-        # with the correct document path and lineno for the included file.
-        source = self.renderer.document["source"]
-        rsource = self.renderer.reporter.source
-        line_func = getattr(self.renderer.reporter, "get_source_and_line", None)
+        # Perform a nested render of the included file. ``nested_render_text``
+        # (via its ``source`` argument) temporarily points the document/reporter
+        # at the included file's path, so its nodes and warnings attribute there.
+        # ``startline`` is a 0-based line shift, so a warning on the file's
+        # 1-based line ``N`` is reported at ``N`` (previously ``startline + 1``
+        # reported it one line too far -- the include off-by-one).
+        # The relative-images/relative-docs md_env handling stays here, as it is
+        # resolved against the *containing* document's directory (``source_dir``).
         try:
-            self.renderer.document["source"] = str(path)
-            self.renderer.reporter.source = str(path)
-            self.renderer.reporter.get_source_and_line = lambda li: (str(path), li)
             if "relative-images" in self.options:
                 self.renderer.md_env["relative-images"] = os.path.relpath(
                     path.parent, source_dir
@@ -516,18 +589,13 @@ class MockIncludeDirective:
                 )
             self.renderer.nested_render_text(
                 file_content,
-                startline + 1,
+                startline,
+                source=str(path),
                 heading_offset=self.options.get("heading-offset", 0),
             )
         finally:
-            self.renderer.document["source"] = source
-            self.renderer.reporter.source = rsource
             self.renderer.md_env.pop("relative-images", None)
             self.renderer.md_env.pop("relative-docs", None)
-            if line_func is not None:
-                self.renderer.reporter.get_source_and_line = line_func
-            else:
-                del self.renderer.reporter.get_source_and_line
         return []
 
     def add_name(self, node: nodes.Element):
