@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 📚 Documentation
+
+- 📚 Explain how to percent-encode spaces in inventory autolinks (#991)
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features
