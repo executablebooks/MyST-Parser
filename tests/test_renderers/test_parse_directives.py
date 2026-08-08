@@ -164,6 +164,19 @@ def test_option_warning_lines_colon_block():
     assert result.body_offset == 3
 
 
+def test_body_offset_not_inflated_by_trailing_blank_lines():
+    """A body ending in blank lines must not inflate ``body_offset`` (#1177)."""
+    # colon-style option block
+    assert parse_directive_text(Note, "", ":class: tip\nbody").body_offset == 1
+    assert parse_directive_text(Note, "", ":class: tip\nbody\n\n\n").body_offset == 1
+    # yaml-style option block
+    assert parse_directive_text(Note, "", "---\nclass: tip\n---\nbody").body_offset == 3
+    assert (
+        parse_directive_text(Note, "", "---\nclass: tip\n---\nbody\n\n\n").body_offset
+        == 3
+    )
+
+
 def test_option_warning_lines_none():
     """Without a known directive line, option warnings have no line number."""
     result = parse_directive_text(
