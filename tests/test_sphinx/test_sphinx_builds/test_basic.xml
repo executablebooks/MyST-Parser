@@ -74,7 +74,7 @@
         <paragraph>
             <literal>
                 a=1{`}
-        <table classes="colwidths-auto">
+        <table>
             <tgroup cols="2">
                 <colspec colwidth="50">
                 <colspec colwidth="50">
