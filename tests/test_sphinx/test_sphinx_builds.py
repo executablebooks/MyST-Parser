@@ -453,6 +453,42 @@ def test_substitutions(
 
 @pytest.mark.sphinx(
     buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "frontmatter_metadata"),
+    freshenv=True,
+)
+def test_frontmatter_metadata(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    file_regression,
+    normalize_doctree_xml,
+):
+    """Test that a document can access its own front matter via ``env.metadata``."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    assert warning.getvalue().strip() == ""
+
+    # values should be the same strings that sphinx's MetadataCollector stores,
+    # except for ``tocdepth``, which it converts to an integer
+    ignore = {"myst_slugs", "wordcount"}  # added separately by the renderer
+    metadata = {k: v for k, v in app.env.metadata["index"].items() if k not in ignore}
+    assert metadata == {
+        "tocdepth": 2,
+        "last_review_date": "1970-09-08",
+        "reviewers": '["alice", "bob"]',
+        "links": '{"home": "https://example.com"}',
+    }
+
+    get_sphinx_app_doctree(app, docname="index", regress=True)
+    file_regression.check(
+        normalize_doctree_xml(get_sphinx_app_doctree(app, docname="other").pformat()),
+        extension=".other.xml",
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "substitutions_missing"),
     freshenv=True,
 )

@@ -403,6 +403,32 @@ Therefore you can do things like:
 - {{ "a" + "b" }}
 :::
 
+This includes `env.metadata`, which holds the [front matter](syntax/frontmatter) of each document,
+keyed by docname, and so allows a document to refer to its own metadata:
+
+````md
+---
+last_review_date: 1970-09-08
+---
+
+Last reviewed on {{ env.metadata[env.docname]["last_review_date"] }}
+````
+
+```{versionadded} 5.2.0
+Previously, only *other* documents' metadata was available; a document could not read its own.
+```
+
+Note that these values are always strings (non-scalars are JSON encoded), since this is how Sphinx
+stores them, so use e.g. string methods or Jinja2 filters rather than date methods.
+
+:::{warning}
+Referring to *another* document's metadata, e.g. `env.metadata["other-doc"]["key"]`, is fragile:
+the value is only present if that document has already been read in this build,
+which depends on build order, and is not the case at all under parallel reads.
+It is also not registered as a dependency, so the referring document will not be rebuilt
+when the other document's front matter changes.
+:::
+
 You can also change the delimiter if necessary, for example setting in the `conf.py`:
 
 ```python
