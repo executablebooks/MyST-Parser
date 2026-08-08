@@ -516,7 +516,12 @@ class MockIncludeDirective:
                 )
             self.renderer.nested_render_text(
                 file_content,
-                startline + 1,
+                # ``nested_render_text`` adds this to the 0-based token maps, and
+                # ``_render_tokens`` applies the 0-based to 1-based conversion
+                # afterwards. So the offset of the first included line is
+                # ``startline``, already 0-based; adding one here reported every
+                # line in the file one too low.
+                startline,
                 heading_offset=self.options.get("heading-offset", 0),
             )
         finally:
