@@ -261,6 +261,41 @@ table (`sphinx.directives.patches.RSTTable`):
                             2
 .
 
+table wrapped caption:
+.
+```{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<src>/index.md">
+    <table classes="colwidths-auto">
+        <title>
+            Mid-syllable marks that must be tagged for sorting with above-base consonants
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
 csv-table (`sphinx.directives.patches.CSVTable`):
 .
 ```{csv-table}

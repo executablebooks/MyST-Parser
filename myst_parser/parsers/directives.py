@@ -45,6 +45,7 @@ import yaml
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import flag
 from docutils.parsers.rst.directives.misc import TestDirective
+from docutils.parsers.rst.directives.tables import RSTTable
 from docutils.parsers.rst.states import MarkupError
 
 from myst_parser.warnings_ import MystWarnings
@@ -160,6 +161,11 @@ def parse_directive_text(
     if body_lines and not body_lines[0].strip():
         body_lines = body_lines[1:]
         content_offset += 1
+
+    if issubclass(directive_class, RSTTable):
+        arguments, body_lines, content_offset = _fold_table_caption_continuation(
+            arguments, body_lines, content_offset
+        )
 
     # check for body content
     if body_lines and not directive_class.has_content:
@@ -362,6 +368,60 @@ def _parse_directive_options(
             new_options[name] = converted_value
 
     return _DirectiveOptions(content, new_options, validation_errors, has_options_block)
+
+
+def _is_table_markup_line(line: str) -> bool:
+    """Return True if *line* looks like Markdown or rST table markup."""
+    stripped = line.lstrip()
+    if not stripped:
+        return False
+    if stripped.startswith("|"):
+        return True
+    # rST grid table border: +---+---+
+    if stripped.startswith("+") and set(stripped.rstrip()) <= {"+", "-", "=", " "}:
+        return True
+    # rST simple table header: =====  =====
+    return stripped.startswith("=") and set(stripped.rstrip()) <= {"=", " "}
+
+
+def _fold_table_caption_continuation(
+    arguments: list[str], body_lines: list[str], content_offset: int
+) -> tuple[list[str], list[str], int]:
+    """Join wrapped ``{table}`` caption lines into the directive argument.
+
+    MyST takes directive arguments from the opening fence line only. A caption
+    that wraps onto the next line (hard-wrapped prose, or a manual break)
+    therefore becomes a leading paragraph in the body, and the table directive
+    fails with "exactly one table expected".
+
+    Leading non-table body lines are treated as caption continuation only when
+    a table follows, so unrelated invalid content is left unchanged.
+    """
+    caption_lines: list[str] = []
+    index = 0
+    while index < len(body_lines):
+        line = body_lines[index]
+        if not line.strip() or _is_table_markup_line(line):
+            break
+        caption_lines.append(line.strip())
+        index += 1
+
+    if not caption_lines:
+        return arguments, body_lines, content_offset
+
+    remaining = index
+    while remaining < len(body_lines) and not body_lines[remaining].strip():
+        remaining += 1
+
+    if remaining >= len(body_lines) or not _is_table_markup_line(body_lines[remaining]):
+        return arguments, body_lines, content_offset
+
+    caption_extra = " ".join(caption_lines)
+    if arguments:
+        arguments = [f"{arguments[0].rstrip()} {caption_extra}"]
+    else:
+        arguments = [caption_extra]
+    return arguments, body_lines[remaining:], content_offset + remaining
 
 
 def parse_directive_arguments(

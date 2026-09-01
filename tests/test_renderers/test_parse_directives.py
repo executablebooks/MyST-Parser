@@ -5,6 +5,7 @@ import pytest
 import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
+from docutils.parsers.rst.directives.tables import RSTTable
 from markdown_it import MarkdownIt
 from sphinx.directives.code import CodeBlock
 
@@ -246,3 +247,47 @@ def test_options_to_tokens_comment_lines():
     _, state = options_to_tokens("# first\na: 1 # second\n# third\nb: 2\n")
     assert state.has_comments
     assert state.comment_lines == [0, 1, 2]
+
+
+TABLE_BODY = "| a | b |\n|---|---|\n| 1 | 2 |"
+
+
+@pytest.mark.parametrize(
+    "first_line,content,caption",
+    [
+        (
+            "Mid-syllable marks that must be tagged for sorting with",
+            "above-base consonants\n\n" + TABLE_BODY,
+            "Mid-syllable marks that must be tagged for sorting with above-base consonants",
+        ),
+        (
+            "Mid-syllable marks that must be tagged for sorting with",
+            "   above-base consonants\n\n" + TABLE_BODY,
+            "Mid-syllable marks that must be tagged for sorting with above-base consonants",
+        ),
+    ],
+)
+def test_table_wrapped_caption_folded_into_argument(first_line, content, caption):
+    """A hard-wrapped ``{table}`` caption must not leak into the body.
+
+    MyST takes directive arguments from the opening fence line only, so a
+    caption that wraps (the usual ~70-column prose wrap) becomes a leading
+    paragraph in the body and the table directive fails with
+    "exactly one table expected".
+    """
+    result = parse_directive_text(RSTTable, first_line, content)
+    assert result.arguments == [caption]
+    assert result.body == TABLE_BODY.splitlines()
+    assert not result.warnings
+
+
+def test_table_caption_on_one_line_unchanged():
+    """A single-line caption is still the only argument, body is the table."""
+    result = parse_directive_text(
+        RSTTable,
+        "Table caption",
+        "\n" + TABLE_BODY,
+    )
+    assert result.arguments == ["Table caption"]
+    assert result.body == TABLE_BODY.splitlines()
+    assert result.body_offset == 1
