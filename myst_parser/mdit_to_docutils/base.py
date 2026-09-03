@@ -1973,25 +1973,46 @@ class DocutilsRenderer(RendererProtocol):
         # fail on undefined variables
         env = jinja2.Environment(undefined=jinja2.StrictUndefined)
 
-        # try rendering
-        try:
-            rendered = env.from_string(f"{{{{{token.content}}}}}").render(
-                variable_context
-            )
-        except Exception as error:
-            self.create_warning(
-                f"Substitution error:{error.__class__.__name__}: {error}",
-                MystWarnings.SUBSTITUTION,
-                line=position,
-                append_to=self.current_node,
-            )
-            return
+        content = token.content.strip()
 
-        # handle circular references
-        ast = env.parse(f"{{{{{token.content}}}}}")
-        references = {
-            n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
-        }
+        if content in variable_context:
+            # Fast path for a substitution whose content is exactly a
+            # known key, looked up directly rather than through Jinja2
+            # expression parsing. This is required (not just an
+            # optimisation) for keys containing characters that are
+            # invalid in a Jinja2 identifier -- most commonly a dash,
+            # e.g. `foo-bar` -- which Jinja2 would otherwise parse as
+            # an *expression* (`foo - bar`, a subtraction of two
+            # separate, likely-undefined names) rather than as a
+            # single variable reference. See GH #1007.
+            #
+            # This only applies when the whole substitution is exactly
+            # one known key; anything else (arbitrary Jinja2
+            # expressions, filters, dotted attribute access, etc.)
+            # still goes through the normal Jinja2 rendering path
+            # below, unaffected.
+            rendered = str(variable_context[content])
+            references = set() if content == "env" else {content}
+        else:
+            # try rendering
+            try:
+                rendered = env.from_string(f"{{{{{token.content}}}}}").render(
+                    variable_context
+                )
+            except Exception as error:
+                self.create_warning(
+                    f"Substitution error:{error.__class__.__name__}: {error}",
+                    MystWarnings.SUBSTITUTION,
+                    line=position,
+                    append_to=self.current_node,
+                )
+                return
+
+            # handle circular references
+            ast = env.parse(f"{{{{{token.content}}}}}")
+            references = {
+                n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
+            }
         self.document.sub_references = getattr(self.document, "sub_references", set())
         cyclic = references.intersection(self.document.sub_references)
         if cyclic:
