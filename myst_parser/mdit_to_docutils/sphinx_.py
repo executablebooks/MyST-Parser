@@ -43,7 +43,9 @@ class SphinxRenderer(DocutilsRenderer):
     ):
         """Process a wrap node, which is a node that wraps a link."""
         self.add_line_and_source_path(wrap_node, token)
-        self.copy_attributes(token, wrap_node, ("class", "id", "title"))
+        self.copy_attributes(
+            token, wrap_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         self.current_node.append(wrap_node)
 
         if explicit:
