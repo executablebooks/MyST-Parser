@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from docutils import nodes
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -142,3 +143,32 @@ def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
     for section in doctree.findall(docutils_nodes.section):
         assert section["ids"][0].startswith("id"), section["ids"]
         assert section["slug"] in section["ids"][1:], section["ids"]
+
+
+@pytest.mark.parametrize(
+    "test_name,text",
+    [
+        ("doc_root_anchor", '# Title\n\n[a](#index "TT")'),
+        ("heading_anchor", '# Title\n\n## Section\n\n[a](#section "TT")'),
+        ("explicit_target", '(target)=\n# Title\n\n[a](#target "TT")'),
+        ("doc", '# Title\n\n[a](index.md "TT")'),
+        ("doc_with_target_id", '(ref)=\n# Title\n\n[a](index.md#ref "TT")'),
+        ("unresolved", '# Title\n\n[a](#nope "TT")'),
+    ],
+)
+def test_link_title_is_kept(
+    test_name: str, text: str, sphinx_doctree: CreateDoctree
+) -> None:
+    """A CommonMark link title must survive cross-reference resolution.
+
+    Only two of these branches used to keep it; the rest built a fresh node
+    and dropped the title on the way.
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    doctree = sphinx_doctree(text, "index.md").get_resolved_doctree("index")
+    titles = [
+        node["reftitle"]
+        for node in doctree.findall(nodes.reference)
+        if "reftitle" in node
+    ]
+    assert titles == ["TT"], doctree.pformat()
