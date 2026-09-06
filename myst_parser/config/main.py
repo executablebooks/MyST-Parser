@@ -585,16 +585,30 @@ def merge_file_level(
 
         old_value, field = fields[name]
 
-        try:
-            validate_field(new, field, value)
-        except Exception as exc:
-            warning(MystWarnings.MD_TOPMATTER, str(exc))
+        if field.metadata.get("global_only"):
+            warning(
+                MystWarnings.MD_TOPMATTER,
+                f"'{name}' is a global-only config and cannot be set in topmatter",
+            )
             continue
 
         if field.metadata.get("merge_topmatter"):
             value = {**old_value, **value}
 
+        # Assign before validating, and let the validator have the last word.
+        # A validator may normalise what it is given and write the result back
+        # on the instance -- check_fence_as_directive turns the sequence into a
+        # set, check_heading_slug_func resolves a preset name to a callable.
+        # Validating first and assigning afterwards overwrote that with the raw
+        # topmatter value. This is also the order __post_init__ uses, where the
+        # value is already on the instance before validate_fields runs.
         setattr(new, name, value)
+        try:
+            validate_field(new, field, value)
+        except Exception as exc:
+            setattr(new, name, old_value)
+            warning(MystWarnings.MD_TOPMATTER, str(exc))
+            continue
 
     return new
 
