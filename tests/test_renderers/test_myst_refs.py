@@ -142,3 +142,37 @@ def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
     for section in doctree.findall(docutils_nodes.section):
         assert section["ids"][0].startswith("id"), section["ids"]
         assert section["slug"] in section["ids"][1:], section["ids"]
+
+
+def test_cross_document_reference_to_an_explicit_target(sphinx_doctree: CreateDoctree):
+    """`[](a.md#target)` must not warn when `target` is an explicit anchor in `a.md`.
+
+    Regression test for #1151. On 5.1.0 the path-based spelling emitted
+    `local id not found in doc 'a': 'custom-anchor' [myst.xref_missing]` while
+    rendering the correct, working href -- and the pathless `[](#custom-anchor)`
+    form of the same reference resolved silently. #1158 fixed it as part of the
+    explicit-id priority work; this pins it, since the existing
+    `doc_with_target_id` case has both the target and the link in one file and
+    does not enable `myst_heading_anchors`.
+    """
+    sphinx_doctree.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "show_warning_types": True,
+            "myst_heading_anchors": 3,
+        }
+    )
+    # The explicit target sits directly above a heading, which is the
+    # combination that made heading-anchor resolution take over.
+    sphinx_doctree.srcdir.joinpath("a.md").write_text(
+        "# Doc A\n\n(custom-anchor)=\n\n## My Heading\n\nSome content.\n",
+        encoding="utf8",
+    )
+    result = sphinx_doctree(
+        "# Doc B\n\n- [path-based](a.md#custom-anchor)\n- [pathless](#custom-anchor)\n",
+        "index.md",
+    )
+    assert not result.warnings
+
+    result.get_resolved_doctree("index")
+    assert not result.warnings, result.warnings
