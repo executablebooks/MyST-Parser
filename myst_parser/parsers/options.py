@@ -530,8 +530,7 @@ def _scan_block_scalar(
 
     # Determine the indentation level and go to the first non-empty line.
     min_indent = indent + 1
-    if min_indent < 1:
-        min_indent = 1
+    min_indent = max(min_indent, 1)
     if increment is None:
         breaks, max_indent, end_mark = _scan_block_scalar_indentation(stream)
         indent = max(min_indent, max_indent)
@@ -652,8 +651,7 @@ def _scan_block_scalar_indentation(
             end_mark = stream.get_position()
         else:
             stream.forward()
-            if stream.column > max_indent:
-                max_indent = stream.column
+            max_indent = max(max_indent, stream.column)
     return chunks, max_indent, end_mark
 
 
