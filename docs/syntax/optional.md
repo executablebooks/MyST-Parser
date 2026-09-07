@@ -332,9 +332,7 @@ Key differences:
 Adding `"substitution"` to `myst_enable_extensions` (in the {{ confpy }}) will allow you to add substitutions, added in either the `conf.py` using `myst_substitutions`:
 
 ```python
-myst_substitutions = {
-  "key1": "I'm a **substitution**"
-}
+myst_substitutions = {"key1": "I'm a **substitution**"}
 ```
 
 or at the top of the file, in the front-matter section (see [this section](syntax/frontmatter)):

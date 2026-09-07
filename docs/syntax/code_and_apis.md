@@ -9,6 +9,7 @@ This language is used to determine the syntax highlighting, using an available [
 :::{syntax-example}
 ```python
 from a import b
+
 c = "string"
 ```
 :::

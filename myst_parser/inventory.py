@@ -411,7 +411,7 @@ def filter_string(
 
 
 def fetch_inventory(
-    uri: str, *, timeout: None | float = None, base_url: None | str = None
+    uri: str, *, timeout: float | None = None, base_url: str | None = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
     if uri.startswith(("http://", "https://")):
@@ -421,7 +421,7 @@ def fetch_inventory(
         return load(stream, base_url=base_url)
 
 
-def inventory_cli(inputs: None | list[str] = None):
+def inventory_cli(inputs: list[str] | None = None):
     """Command line interface for fetching and parsing an inventory."""
     parser = argparse.ArgumentParser(description="Parse an inventory file.")
     parser.add_argument("uri", metavar="[URL|PATH]", help="URI of the inventory file")
