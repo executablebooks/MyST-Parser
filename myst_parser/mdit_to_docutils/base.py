@@ -430,7 +430,7 @@ class DocutilsRenderer(RendererProtocol):
                         value = converters[key](str(value))
                     except ValueError:
                         self.create_warning(
-                            f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            f"Invalid {key!r} attribute value: {value!r}",
                             MystWarnings.INVALID_ATTRIBUTE,
                             line=token_line(token, default=0),
                             append_to=node,
