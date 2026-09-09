@@ -554,3 +554,28 @@ content
         <reference refuri="https://example.com" rel="noreferrer noopener" target="_blank">
             text
 .
+
+[links-external-new-tab-authored] --myst-links-external-new-tab="true" --myst-enable-extensions=attrs_inline
+.
+[a](https://example.com){target=_self rel=nofollow}
+
+[a](https://example.com){target=_self}
+
+[a](https://example.com){rel=nofollow}
+
+<https://example.com>{rel=nofollow}
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            https://example.com
+.

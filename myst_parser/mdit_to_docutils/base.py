@@ -1009,8 +1009,8 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(ref_node, token)
         attribute_keys = ["class", "id", "reftitle", "target", "rel"]
         if self.md_config.links_external_new_tab:
-            token.attrs["target"] = "_blank"
-            token.attrs["rel"] = "noreferrer noopener"
+            token.attrs.setdefault("target", "_blank")
+            token.attrs.setdefault("rel", "noreferrer noopener")
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
