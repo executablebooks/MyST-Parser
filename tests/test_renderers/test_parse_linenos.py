@@ -8,6 +8,8 @@ import re
 
 import pytest
 
+pytest.importorskip("sphinx")
+
 from myst_parser.mdit_to_docutils.base import DocutilsRenderer
 
 

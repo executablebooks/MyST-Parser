@@ -113,6 +113,8 @@ def test_help_text():
             assert not exc.code
 
     assert "MyST options" in stream.getvalue()
+    # the option's help text is its only user-facing documentation
+    assert 'rel="noreferrer noopener"' in " ".join(stream.getvalue().split())
 
 
 def test_include_from_rst(tmp_path):

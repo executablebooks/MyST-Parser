@@ -389,6 +389,24 @@ a
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .
 
+[attrs_inline_image_warnings_alias_and_long] --myst-enable-extensions=attrs_inline
+.
+![a](b){w=1x width=2x}
+.
+<document source="<string>">
+    <paragraph>
+        <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '2x' [myst.attribute]
+
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '2x' [myst.attribute]
+.
+
 [attrs_block] --myst-enable-extensions=attrs_block
 .
 {#myid1 .class1 .class2}
