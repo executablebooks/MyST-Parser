@@ -659,7 +659,7 @@ class DocutilsRenderer(RendererProtocol):
 
         hl_lines = parselinenos(emphasize_lines, num_lines)
         if any(i >= num_lines for i in hl_lines):
-            raise ValueError(f"out of range(1-{num_lines}")
+            raise ValueError(f"out of range(1-{num_lines})")
 
         return [x + 1 for x in hl_lines if x < num_lines]
 
