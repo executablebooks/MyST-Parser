@@ -551,6 +551,6 @@ content
 .
 <document source="<string>">
     <paragraph>
-        <reference refuri="https://example.com" rel="noreferer noopener" target="_blank">
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_blank">
             text
 .
