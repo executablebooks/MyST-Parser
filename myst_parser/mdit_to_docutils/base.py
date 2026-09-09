@@ -851,8 +851,20 @@ class DocutilsRenderer(RendererProtocol):
         # TODO this is purely to mimic docutils, but maybe we don't need it?
         # (since we have the slugify logic below)
         name = nodes.fully_normalize_name(implicit_text)
-        node["names"].append(name)
-        self.document.note_implicit_target(node, node)
+        # Register only this new, implicit name.
+        # ``note_implicit_target`` re-registers *every* name already on the node,
+        # as an implicit one -- including an explicit ``{#id}`` name that
+        # ``copy_attributes`` has already added and registered. The node then
+        # collides with itself: docutils demotes the explicit name into
+        # ``dupnames`` while its name map still points here, so a later,
+        # genuine duplicate of that name raises
+        # ``ValueError: list.remove(x): x not in list``.
+        explicit_names = node["names"]
+        node["names"] = [name]
+        try:
+            self.document.note_implicit_target(node, node)
+        finally:
+            node["names"] = explicit_names + node["names"]
 
         if level > self.md_config.heading_anchors:
             return

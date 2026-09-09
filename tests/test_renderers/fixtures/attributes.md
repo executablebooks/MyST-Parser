@@ -77,3 +77,30 @@ list-style
             <paragraph>
                 b
 .
+
+heading with id
+.
+{#hid}
+## First
+.
+<document source="<src>/index.md">
+    <system_message level="2" line="2" source="<src>/index.md" type="WARNING">
+        <paragraph>
+            Document headings start at H2, not H1 [myst.header]
+    <section ids="hid" names="hid first">
+        <title>
+            First
+.
+
+rubric with id
+.
+```{note}
+{#rid}
+## First
+```
+.
+<document source="<src>/index.md">
+    <note>
+        <rubric ids="rid" level="2" names="rid first">
+            First
+.
