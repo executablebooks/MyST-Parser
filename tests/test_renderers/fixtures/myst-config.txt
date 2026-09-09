@@ -367,6 +367,46 @@ a
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
 .
 
+[attrs_inline_image_warnings_aliases] --myst-enable-extensions=attrs_inline
+.
+![a](b){w=1x h=2x a=other }
+.
+<document source="<string>">
+    <paragraph>
+        <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'height' attribute value: '2x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'align' attribute value: 'other' [myst.attribute]
+
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'height' attribute value: '2x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
+.
+
+[attrs_inline_image_warnings_alias_and_long] --myst-enable-extensions=attrs_inline
+.
+![a](b){w=1x width=2x}
+.
+<document source="<string>">
+    <paragraph>
+        <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '2x' [myst.attribute]
+
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '2x' [myst.attribute]
+.
+
 [attrs_block] --myst-enable-extensions=attrs_block
 .
 {#myid1 .class1 .class2}
@@ -529,6 +569,31 @@ content
 .
 <document source="<string>">
     <paragraph>
-        <reference refuri="https://example.com" rel="noreferer noopener" target="_blank">
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_blank">
             text
+.
+
+[links-external-new-tab-authored] --myst-links-external-new-tab="true" --myst-enable-extensions=attrs_inline
+.
+[a](https://example.com){target=_self rel=nofollow}
+
+[a](https://example.com){target=_self}
+
+[a](https://example.com){rel=nofollow}
+
+<https://example.com>{rel=nofollow}
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            https://example.com
 .

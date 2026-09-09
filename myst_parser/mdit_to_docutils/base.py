@@ -430,7 +430,7 @@ class DocutilsRenderer(RendererProtocol):
                         value = converters[key](str(value))
                     except ValueError:
                         self.create_warning(
-                            f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            f"Invalid {key!r} attribute value: {value!r}",
                             MystWarnings.INVALID_ATTRIBUTE,
                             line=token_line(token, default=0),
                             append_to=node,
@@ -659,7 +659,7 @@ class DocutilsRenderer(RendererProtocol):
 
         hl_lines = parselinenos(emphasize_lines, num_lines)
         if any(i >= num_lines for i in hl_lines):
-            raise ValueError(f"out of range(1-{num_lines}")
+            raise ValueError(f"out of range(1-{num_lines})")
 
         return [x + 1 for x in hl_lines if x < num_lines]
 
@@ -851,8 +851,20 @@ class DocutilsRenderer(RendererProtocol):
         # TODO this is purely to mimic docutils, but maybe we don't need it?
         # (since we have the slugify logic below)
         name = nodes.fully_normalize_name(implicit_text)
-        node["names"].append(name)
-        self.document.note_implicit_target(node, node)
+        # Register only this new, implicit name.
+        # ``note_implicit_target`` re-registers *every* name already on the node,
+        # as an implicit one -- including an explicit ``{#id}`` name that
+        # ``copy_attributes`` has already added and registered. The node then
+        # collides with itself: docutils demotes the explicit name into
+        # ``dupnames`` while its name map still points here, so a later,
+        # genuine duplicate of that name raises
+        # ``ValueError: list.remove(x): x not in list``.
+        explicit_names = node["names"]
+        node["names"] = [name]
+        try:
+            self.document.note_implicit_target(node, node)
+        finally:
+            node["names"] = explicit_names + node["names"]
 
         if level > self.md_config.heading_anchors:
             return
@@ -997,8 +1009,8 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(ref_node, token)
         attribute_keys = ["class", "id", "reftitle", "target", "rel"]
         if self.md_config.links_external_new_tab:
-            token.attrs["target"] = "_blank"
-            token.attrs["rel"] = "noreferer noopener"
+            token.attrs.setdefault("target", "_blank")
+            token.attrs.setdefault("rel", "noreferrer noopener")
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
