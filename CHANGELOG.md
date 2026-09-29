@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- 🐛 Don't crash when a YAML date/datetime is nested in front matter by <gh-user:00200200>
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features

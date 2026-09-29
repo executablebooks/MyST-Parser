@@ -1387,8 +1387,11 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     continue
                 try:
-                    value = json.dumps(value)
-                except (ValueError, RecursionError):
+                    # Nested date/datetime values (allowed at top level) are
+                    # not JSON-serializable; stringify them like scalars.
+                    # TypeError also covers non-string keys such as a YAML date.
+                    value = json.dumps(value, default=str)
+                except (ValueError, TypeError, RecursionError):
                     # e.g. a self-referential structure via a YAML alias
                     self.create_warning(
                         f"Front matter field {key!r} could not be serialized",
