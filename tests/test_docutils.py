@@ -334,6 +334,48 @@ def test_topmatter_deeply_nested_yaml_warns():
     assert "content" in doctree.pformat()
 
 
+@pytest.mark.parametrize(
+    "yaml_block",
+    [
+        "review:\n  date: 2026-08-03",  # date nested in a mapping
+        "reviewed: [2026-08-03]",  # date nested in a sequence
+        "review:\n  at: 2026-08-03T12:00:00",  # datetime nested in a mapping
+    ],
+)
+def test_topmatter_nested_dates_do_not_crash(yaml_block):
+    """YAML dates nested in dicts/lists must not abort the build.
+
+    Top-level ``date``/``datetime`` scalars skip JSON encoding, but a nested
+    date used to reach ``json.dumps`` and raise ``TypeError`` (#1203).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "2026-08-03" in doctree.astext()
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
+def test_topmatter_date_mapping_key_warns():
+    """A YAML date used as a mapping *key* cannot be JSON-serialized.
+
+    ``json.dumps(..., default=str)`` does not convert keys, so this still
+    cannot be rendered as a field, but it must warn rather than crash.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="---\nreview:\n  2026-08-03: done\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "could not be serialized" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+
+
 def test_topmatter_alias_expansion_bomb_warns():
     """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
 
