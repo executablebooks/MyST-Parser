@@ -142,3 +142,42 @@ def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
     for section in doctree.findall(docutils_nodes.section):
         assert section["ids"][0].startswith("id"), section["ids"]
         assert section["slug"] in section["ids"][1:], section["ids"]
+
+
+@pytest.mark.parametrize(
+    "link,expected",
+    [
+        # an explicit label on a heading, which becomes the section's id
+        ("[](other.md#my-label)", "Labelled heading"),
+        # a label referenced by name, rather than by its id
+        ("[](other.md#colon:label)", "Colon heading"),
+        ("[](other.md#colon-label)", "Colon heading"),
+        # explicit link text is kept
+        ("[custom](other.md#my-label)", "custom"),
+        # an anonymous label has no title, so the target is shown
+        ("[](other.md#para-label)", "para-label"),
+    ],
+)
+def test_doc_with_target_link_text(
+    link: str, expected: str, sphinx_doctree: CreateDoctree
+):
+    """`[](doc.md#target)` to an explicit target uses the target's title.
+
+    Regression: links that resolved through a label or a section id, rather
+    than a heading slug, rendered with no link text at all.
+    """
+    from docutils import nodes as docutils_nodes
+
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "myst_heading_anchors": 2})
+    sphinx_doctree.srcdir.joinpath("other.md").write_text(
+        "# Other\n\n"
+        "(my-label)=\n## Labelled heading\n\n"
+        "(colon:label)=\n## Colon heading\n\n"
+        "(para-label)=\nA paragraph.\n",
+        encoding="utf8",
+    )
+    result = sphinx_doctree(f"# Index\n\n{link}\n", "index.md")
+    assert not result.warnings
+    doctree = result.get_resolved_doctree("index")
+    ref = next(doctree.findall(docutils_nodes.reference))
+    assert ref.astext() == expected, ref.pformat()
