@@ -146,22 +146,25 @@ class MystReferenceResolver(ReferencesResolver):
 
             node.replace_self(newnode)
 
-    def _std_label_id_in_doc(self, docname: str, ref_id: str) -> str | None:
+    def _std_label_in_doc(self, docname: str, ref_id: str) -> tuple[str, str] | None:
         """Resolve ``ref_id`` against the std-domain labels of ``docname``.
 
-        Returns the label's id (the actual anchor) if ``ref_id`` is either
-        a label id or a label name in that document, else None.
+        :param docname: The document to search for the label.
+        :param ref_id: A label id or a label name in that document.
+        :return: The label's id (the actual anchor) and the title of the
+            section it names (empty for anonymous labels), or None.
         """
         std = self.env.domaindata.get("std", {})
         for store in ("labels", "anonlabels"):
             for name, entry in std.get(store, {}).items():
                 if entry[0] != docname:
                     continue
+                title = entry[2] if len(entry) > 2 else ""
                 if entry[1] == ref_id:
-                    return ref_id
+                    return ref_id, title
                 if name == ref_id:
                     # referenced by label name: point at its actual anchor
-                    return entry[1]
+                    return entry[1], title
         return None
 
     def resolve_myst_ref_doc(self, node: pending_xref):
@@ -190,14 +193,24 @@ class MystReferenceResolver(ReferencesResolver):
             slug_to_section = self.env.metadata[ref_docname].get("myst_slugs", {})
             if ref_id in slug_to_section:
                 _, targetid, implicit_text = slug_to_section[ref_id]
-            elif any(sect_id == ref_id for _, sect_id, _ in slug_to_section.values()):
+            elif (
+                section_text := next(
+                    (
+                        text
+                        for _, sect_id, text in slug_to_section.values()
+                        if sect_id == ref_id
+                    ),
+                    None,
+                )
+            ) is not None:
                 # the id demonstrably exists in the target document
                 # (a section's docutils id), so resolve silently
                 targetid = ref_id
-            elif (std_id := self._std_label_id_in_doc(ref_docname, ref_id)) is not None:
+                implicit_text = section_text
+            elif (std_label := self._std_label_in_doc(ref_docname, ref_id)) is not None:
                 # an explicit target in the document, referenced by its
                 # id or name: point at its actual anchor
-                targetid = std_id
+                targetid, implicit_text = std_label
             else:
                 self.log_warning(
                     ref_id,
@@ -214,10 +227,16 @@ class MystReferenceResolver(ReferencesResolver):
             caption = node.astext()
             innernode = nodes.inline(caption, "", classes=inner_classes)
             innernode.extend(node[0].children)
-        else:
+        elif implicit_text:
             innernode = nodes.inline(
                 implicit_text, implicit_text, classes=inner_classes
             )
+        else:
+            # no title to use (e.g. an anonymous label, or an unresolved id),
+            # so show the target rather than rendering an empty link
+            innernode = nodes.inline("", "", classes=inner_classes)
+            shown = ref_id or ref_docname
+            innernode += nodes.literal(shown, shown)
 
         assert self.app.builder
         try:
