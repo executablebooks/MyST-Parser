@@ -27,11 +27,15 @@ For example, after writing:
 
 ```python
 def test_example_dict(data_regression):
-    data_regression.check({
-        "key1": "value1",
-        "key2": "value2",
-        "more": "data...",
-    })
+    data_regression.check(
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "more": "data...",
+        }
+    )
+
+
 def test_example_str(file_regression):
     file_regression.check("a very long string...")
 ```
