@@ -482,10 +482,11 @@ class DocutilsRenderer(RendererProtocol):
         result = ""
 
         for token in tokens or []:
-            if token.type == "text":
+            if token.type in {"text", "text_special"}:
+                # An escape or entity is a text_special token with no children.
+                # Its content is the character the alt text must keep
+                # (executablebooks/MyST-Parser#1210).
                 result += token.content
-            # elif token.type == "image":
-            #     result += self.renderInlineAsText(token.children)
             else:
                 result += self.renderInlineAsText(token.children or [])
         return result
