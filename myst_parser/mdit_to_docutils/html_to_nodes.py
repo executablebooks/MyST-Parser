@@ -114,14 +114,18 @@ def _html_ast_to_nodes(
                         "<img> missing 'src' attribute", line=line_number
                     )
                 ]
-            content = "\n".join(
-                f":{k}: {v}"
+            image_options = {
+                k: v.strip() if k in {"width", "height"} else v
                 for k, v in sorted(child.attrs.items())
                 if k in OPTION_KEYS_IMAGE
-            )
+            }
             nodes_list.extend(
                 renderer.run_directive(
-                    "image", child.attrs["src"], content, line_number
+                    "image",
+                    child.attrs["src"],
+                    "",
+                    line_number,
+                    additional_options=image_options,
                 )
             )
 

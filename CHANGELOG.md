@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- Preserve literal HTML image attribute values containing quotes, hash signs, and newlines when using the `html_image` extension.
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features
