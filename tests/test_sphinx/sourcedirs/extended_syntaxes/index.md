@@ -16,6 +16,12 @@ a $$c=3$$ b
 b=2
 \end{equation}
 
+\begin{equation}
+c=4 \label{eq:labelled}
+\end{equation}
+
+Reference to {eq}`eq:labelled`
+
 ```{math}
 c=3
 
