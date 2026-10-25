@@ -1,6 +1,7 @@
 """The setup for the sphinx extension."""
 
-from typing import Any
+import re
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
 from sphinx.application import Sphinx
@@ -15,6 +16,9 @@ from myst_parser.parsers.docutils_ import (
 )
 from myst_parser.parsers.mdit import linkify_available
 from myst_parser.warnings_ import MystWarnings
+
+if TYPE_CHECKING:
+    from sphinx.writers.latex import LaTeXTranslator
 
 
 def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
@@ -58,6 +62,10 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
         html=(visit_container_html, depart_container_html),
     )
 
+    # override the latex writer visit method for math_block,
+    # so that the label of an amsmath environment is placed within it
+    app.add_node(nodes.math_block, override=True, latex=(visit_math_block_latex, None))
+
     for name, default, field in MdParserConfig().as_triple():
         if "sphinx" not in field.metadata.get("omit", []):
             # TODO add types?
@@ -65,6 +73,24 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
 
     app.connect("builder-inited", create_myst_config)
     app.connect("builder-inited", override_mathjax)
+
+
+def visit_math_block_latex(self: "LaTeXTranslator", node: nodes.math_block) -> None:
+    """Write amsmath blocks, that use their own ``\\label``, to LaTeX.
+
+    For ``nowrap`` math, sphinx writes the label before the content,
+    where it would not refer to the equation number of the amsmath environment.
+    So instead we rename the ``\\label`` within the environment.
+    """
+    label = node.get("label")
+    if "amsmath" in node["classes"] and label:
+        regex = re.compile(r"\\label\s*\{\s*" + re.escape(label) + r"\s*\}")
+        content = node.astext()
+        if regex.search(content):
+            new_label = f"\\label{{equation:{node['docname']}:{label}}}"
+            self.body.append(regex.sub(lambda _: new_label, content))
+            raise nodes.SkipNode
+    type(self).visit_math_block(self, node)
 
 
 def create_myst_config(app):

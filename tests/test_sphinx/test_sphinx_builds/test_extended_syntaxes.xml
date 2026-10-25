@@ -26,6 +26,16 @@
             \begin{equation}
             b=2
             \end{equation}
+        <target refid="equation-eq-labelled">
+        <math_block classes="amsmath" docname="index" ids="equation-eq-labelled" label="eq:labelled" nowrap="True" number="3" xml:space="preserve">
+            \begin{equation}
+            c=4 \label{eq:labelled}
+            \end{equation}
+        <paragraph>
+            Reference to 
+            <pending_xref refdoc="index" refdomain="math" refexplicit="False" reftarget="eq:labelled" reftype="eq" refwarn="True">
+                <literal classes="xref eq">
+                    eq:labelled
         <math_block docname="index" label="True" no-wrap="False" nowrap="False" number="True" xml:space="preserve">
             c=3
             

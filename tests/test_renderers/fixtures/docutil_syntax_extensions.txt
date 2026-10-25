@@ -60,6 +60,37 @@ a
         \end{equation*}
 .
 
+[amsmath-label] --myst-enable-extensions=amsmath
+.
+\begin{equation}
+a = 1 \label{eq:a}
+\end{equation}
+
+\begin{align}
+a &= 1 \label{eq1} \\
+b &= 2 \label{eq2}
+\end{align}
+
+[link](#eq:a)
+.
+<document source="<string>">
+    <math_block classes="amsmath" ids="eq-a" names="eq:a" nowrap="True" numbered="True" xml:space="preserve">
+        \begin{equation}
+        a = 1 \label{eq:a}
+        \end{equation}
+    <system_message level="2" line="5" source="<string>" type="WARNING">
+        <paragraph>
+            Only one \label is supported per amsmath environment, ignoring: eq1, eq2 [myst.math_label]
+    <math_block classes="amsmath" nowrap="True" numbered="True" xml:space="preserve">
+        \begin{align}
+        a &= 1 \label{eq1} \\
+        b &= 2 \label{eq2}
+        \end{align}
+    <paragraph>
+        <reference id_link="True" refid="eq-a">
+            link
+.
+
 [deflist] --myst-enable-extensions=deflist
 .
 term

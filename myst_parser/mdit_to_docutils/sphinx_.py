@@ -201,10 +201,9 @@ class SphinxRenderer(DocutilsRenderer):
         content = token.content
 
         if token.meta["numbered"] != "*":
-            # TODO how to parse and reference labels within environment?
-            # for now we give create a unique hash, so the equation will be numbered
-            # but there will be no reference clashes
-            label = self._random_label()
+            # use the environment's \label, if it has one, so that it can be referenced,
+            # otherwise create a unique hash, so the equation will still be numbered
+            label = self.get_amsmath_label(token) or self._random_label()
             node = nodes.math_block(
                 content,
                 content,
@@ -213,6 +212,8 @@ class SphinxRenderer(DocutilsRenderer):
                 classes=["amsmath"],
                 label=label,
             )
+            # set the line first, so that duplicate label warnings have a location
+            self.add_line_and_source_path(node, token)
             target = self.add_math_target(node)
             self.add_line_and_source_path(target, token)
             self.current_node.append(target)
@@ -220,7 +221,7 @@ class SphinxRenderer(DocutilsRenderer):
             node = nodes.math_block(
                 content, content, nowrap=True, number=None, classes=["amsmath"]
             )
-        self.add_line_and_source_path(node, token)
+            self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def add_math_target(self, node: nodes.math_block) -> nodes.target:

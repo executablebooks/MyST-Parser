@@ -84,6 +84,9 @@ REGEX_URI_TEMPLATE = re.compile(
     r"{{\s*(uri|scheme|netloc|path|params|query|fragment)\s*}}"
 )
 REGEX_DIRECTIVE_START = re.compile(r"^[\s]{0,3}([`]{3,10}|[~]{3,10}|[:]{3,10})\{")
+# a ``%`` comment, unless the ``%`` is escaped (but ``\\%`` is a line break + comment)
+REGEX_LATEX_COMMENT = re.compile(r"(?<!\\)(?:\\\\)*%.*$", re.MULTILINE)
+REGEX_LATEX_LABEL = re.compile(r"\\label\s*\{([^{}]*)\}")
 
 
 def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
@@ -1521,6 +1524,32 @@ class DocutilsRenderer(RendererProtocol):
         self.document.note_explicit_target(node, node)
         self.current_node.append(node)
 
+    def get_amsmath_label(self, token: SyntaxTreeNode) -> str | None:
+        """Return the ``\\label{...}`` of a numbered amsmath environment.
+
+        Only a single label per environment is supported,
+        since the whole environment is given a single equation number.
+        If there are multiple labels, a warning is emitted and none are used.
+        """
+        if token.meta["numbered"] == "*":
+            return None
+        content = REGEX_LATEX_COMMENT.sub("", token.content)
+        labels = [
+            label.strip()
+            for label in REGEX_LATEX_LABEL.findall(content)
+            if label.strip()
+        ]
+        if len(labels) > 1:
+            self.create_warning(
+                "Only one \\label is supported per amsmath environment, "
+                f"ignoring: {', '.join(labels)}",
+                MystWarnings.MATH_LABEL,
+                line=token_line(token, 0),
+                append_to=self.current_node,
+            )
+            return None
+        return labels[0] if labels else None
+
     def render_amsmath(self, token: SyntaxTreeNode) -> None:
         # note docutils does not currently support the nowrap attribute
         # or equation numbering, so this is overridden in the sphinx renderer
@@ -1530,6 +1559,9 @@ class DocutilsRenderer(RendererProtocol):
         if token.meta["numbered"] != "*":
             node["numbered"] = True
         self.add_line_and_source_path(node, token)
+        if label := self.get_amsmath_label(token):
+            node["names"].append(nodes.fully_normalize_name(label))
+            self.document.note_explicit_target(node, node)
         self.current_node.append(node)
 
     def render_footnote_ref(self, token: SyntaxTreeNode) -> None:

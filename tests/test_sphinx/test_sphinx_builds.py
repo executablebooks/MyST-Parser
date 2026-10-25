@@ -748,6 +748,22 @@ def test_texinfo(app, status, warning):
 
 
 @pytest.mark.sphinx(
+    buildername="latex",
+    srcdir=os.path.join(SOURCE_DIR, "extended_syntaxes"),
+    freshenv=True,
+)
+def test_extended_syntaxes_latex(app, status, warning):
+    """Test that amsmath labels are written within the environment."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    (tex_path,) = Path(app.outdir).glob("*.tex")
+    content = tex_path.read_text("utf8")
+    assert "c=4 \\label{equation:index:eq:labelled}" in content
+    assert "\\eqref{equation:index:eq:labelled}" in content
+    assert "\\label{eq:labelled}" not in content
+
+
+@pytest.mark.sphinx(
     buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "includes"),
     freshenv=True,

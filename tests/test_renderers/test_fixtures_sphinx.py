@@ -14,6 +14,7 @@ import pytest
 from docutils.core import Publisher
 from pytest_param_files import ParamTestData
 from sphinx.transforms import SphinxTransformer
+from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
 from myst_parser.mdit_to_docutils.sphinx_ import SphinxRenderer
@@ -179,12 +180,17 @@ def test_amsmath(
 ):
     monkeypatch.setattr(SphinxRenderer, "_random_label", lambda self: "mock-uuid")
     sphinx_doctree_no_tr.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["amsmath"]}
+        {
+            "extensions": ["myst_parser"],
+            "myst_enable_extensions": ["amsmath"],
+            "show_warning_types": True,
+        }
     )
     result = sphinx_doctree_no_tr(file_params.content, "index.md")
-    file_params.assert_expected(
-        normalize_doctree_xml(result.pformat("index")), rstrip_lines=True
-    )
+    outcome = normalize_doctree_xml(result.pformat("index"))
+    if warnings := strip_colors(result.warnings).strip():
+        outcome += "\n\n" + warnings
+    file_params.assert_expected(outcome, rstrip_lines=True)
 
 
 @pytest.mark.param_file(FIXTURE_PATH / "containers.md")
