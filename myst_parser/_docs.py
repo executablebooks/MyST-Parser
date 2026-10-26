@@ -404,9 +404,9 @@ myst-docutils-demo example.md {cli_opt}
 ### MyST Lexer ###
 # TODO when some more work and testing, this should be made available publicly
 
-from pygments import token  # noqa: E402
-from pygments.lexer import bygroups, inherit, this, using  # noqa: E402
-from pygments.lexers.markup import MarkdownLexer  # noqa: E402
+from pygments import token
+from pygments.lexer import bygroups, inherit, this, using
+from pygments.lexers.markup import MarkdownLexer
 
 
 class MystLexer(MarkdownLexer):
