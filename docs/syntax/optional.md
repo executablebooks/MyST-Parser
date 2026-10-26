@@ -247,10 +247,20 @@ a_{21}& =b_{21}&
 
 :::
 
-:::{note}
-`\labels` inside the environment are not currently identified, and so cannot be referenced.
-We hope to implement this in a future update (see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202))!
-:::
+A numbered environment can be given a label with `\label{name}`,
+which can then be referenced with the `eq` role, e.g. `` {eq}`name` ``:
+
+```latex
+\begin{equation}
+e^{i\pi} + 1 = 0 \label{eq:euler}
+\end{equation}
+```
+
+The whole environment is given a single equation number,
+so only one `\label` is supported per environment.
+If an environment contains more than one `\label`, a `myst.math_label` warning is emitted and none of them are used
+(see [executablebooks/MyST-Parser#202](https://github.com/executablebooks/MyST-Parser/issues/202)).
+Labels in unnumbered (`*`) environments, or in LaTeX `%` comments, are ignored.
 
 This syntax will also work when nested in other block elements, like lists or quotes:
 

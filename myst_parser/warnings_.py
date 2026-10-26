@@ -66,6 +66,8 @@ class MystWarnings(Enum):
     """Invalid attribute value."""
     SUBSTITUTION = "substitution"
     """Substitution could not be resolved."""
+    MATH_LABEL = "math_label"
+    """A label in LaTeX math could not be used."""
 
 
 def _is_suppressed_warning(

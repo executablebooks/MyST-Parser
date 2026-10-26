@@ -90,6 +90,7 @@ nitpick_ignore = [
     ("py:exc", "MarkupError"),
     ("py:class", "sphinx.util.typing.Inventory"),
     ("py:class", "sphinx.writers.html.HTMLTranslator"),
+    ("py:class", "sphinx.writers.latex.LaTeXTranslator"),
     ("py:obj", "sphinx.transforms.post_transforms.ReferencesResolver"),
 ]
 
