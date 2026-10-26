@@ -321,7 +321,7 @@ class Parser(RstParser):
             pass  # this will be reported during the render
         else:
             if topmatter:
-                warning = lambda wtype, msg: create_warning(  # noqa: E731
+                warning = lambda wtype, msg: create_warning(
                     document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
