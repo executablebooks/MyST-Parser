@@ -41,6 +41,9 @@ def test_errors(file_params, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     tmp_path.joinpath("bad.md").write_text("{a}`b`")
+    tmp_path.joinpath("bad_after.md").write_text(
+        "line one\nline two\nSTART-HERE\nline four\n{a}`b`"
+    )
 
     report_stream = StringIO()
     publish_doctree(
