@@ -21,3 +21,22 @@ Error in include file:
 .
 tmpdir/bad.md:2: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
 .
+
+Error in include file with start-after:
+.
+```{include} bad_after.md
+:start-after: START-HERE
+```
+.
+tmpdir/bad_after.md:5: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.
+
+Error in include file with start-line and start-after:
+.
+```{include} bad_after.md
+:start-line: 1
+:start-after: START-HERE
+```
+.
+tmpdir/bad_after.md:5: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.

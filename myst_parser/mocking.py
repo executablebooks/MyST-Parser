@@ -442,7 +442,7 @@ class MockIncludeDirective:
                     f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
-                startline += split_index + len(split_on)
+                startline += file_content[: split_index + len(split_on)].count("\n")
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
