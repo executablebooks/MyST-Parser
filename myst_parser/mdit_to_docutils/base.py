@@ -1387,7 +1387,7 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     continue
                 try:
-                    value = json.dumps(value)
+                    value = json.dumps(value, default=str)
                 except (ValueError, RecursionError):
                     # e.g. a self-referential structure via a YAML alias
                     self.create_warning(

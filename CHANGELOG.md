@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- 🐛 Fix front matter with a `date`/`datetime` nested inside a dict or list value crashing the build with a `TypeError`, by serializing such values with `json.dumps(..., default=str)` so nested dates render as ISO strings like top-level ones, by <gh-user:Shellghostt>
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features

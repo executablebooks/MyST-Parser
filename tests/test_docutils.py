@@ -356,6 +356,25 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "content" in doctree.pformat()
 
 
+def test_topmatter_nested_date_does_not_crash():
+    """A date nested in front matter dict/list values renders, not crashes.
+
+    Only top-level dates passed the ``date``/``datetime`` check, so a nested
+    one reached ``json.dumps`` and raised ``TypeError`` (not caught by the
+    ``ValueError``/``RecursionError`` handler), aborting the build.
+    """
+    for field_yaml in ("review:\n  date: 2026-08-03", "reviewed: [2026-08-03]"):
+        stream = io.StringIO()
+        doctree = publish_doctree(
+            source=f"---\n{field_yaml}\n---\n\ncontent\n",
+            parser=Parser(),
+            settings_overrides={"warning_stream": stream},
+        )
+        assert "2026-08-03" in doctree.pformat()
+        assert "[myst.topmatter]" not in stream.getvalue()
+        assert "content" in doctree.pformat()
+
+
 def test_heading_anchors_html_ids_disabled():
     """``myst_heading_anchors_html_ids=False`` restores lookup-only slugs."""
     settings: dict = {"myst_heading_anchors": 1, "doctitle_xform": False}
