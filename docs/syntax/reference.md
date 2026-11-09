@@ -47,7 +47,7 @@ we have shown equivalent rST syntax for many MyST markdown features below.
     ```
     ````
 * - Math
-  - `$$` (default) or `\[`...`\]` characters wrapping multi-line math, or even direct [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations (optional).
+  - `$$` characters wrapping multi-line math, or even direct [amsmath](https://ctan.org/pkg/amsmath) LaTeX equations (optional).
   See {ref}`syntax/math` for more information.
   - ```latex
     $$
@@ -185,7 +185,7 @@ sections below:
     (target)=
     ```
 * - Math
-  - `$` (default) or `\(`...`\)` enclosed math. See
+  - `$` enclosed math. See
   {ref}`syntax/math` for more information.
   - ```latex
     $a=1$ or $$a=1$$
