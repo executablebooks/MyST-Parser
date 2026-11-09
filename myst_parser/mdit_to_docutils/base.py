@@ -2010,21 +2010,8 @@ class DocutilsRenderer(RendererProtocol):
         content = token.content.strip()
 
         if content in variable_context:
-            # Fast path for a substitution whose content is exactly a
-            # known key, looked up directly rather than through Jinja2
-            # expression parsing. This is required (not just an
-            # optimisation) for keys containing characters that are
-            # invalid in a Jinja2 identifier -- most commonly a dash,
-            # e.g. `foo-bar` -- which Jinja2 would otherwise parse as
-            # an *expression* (`foo - bar`, a subtraction of two
-            # separate, likely-undefined names) rather than as a
-            # single variable reference. See GH #1007.
-            #
-            # This only applies when the whole substitution is exactly
-            # one known key; anything else (arbitrary Jinja2
-            # expressions, filters, dotted attribute access, etc.)
-            # still goes through the normal Jinja2 rendering path
-            # below, unaffected.
+            # an exact key is looked up directly, so keys that are not Jinja2
+            # identifiers (e.g. `foo-bar`, #1007) work; anything else is an expression
             rendered = str(variable_context[content])
             references = set() if content == "env" else {content}
         else:
