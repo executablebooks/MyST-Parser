@@ -729,3 +729,72 @@ above-base consonants
 | 1 | 2 |
 :::
 .
+
+[table_caption_attrs_block] --myst-enable-extensions=colon_fence,attrs_block
+.
+:::{table} Cap
+{#mytbl}
+{.striped}
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto striped" ids="mytbl" names="mytbl">
+        <title>
+            Cap
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_caption_attrs_block_no_argument] --myst-enable-extensions=attrs_block
+.
+```{table}
+:align: center
+{.striped}
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<string>">
+    <table align="center" classes="colwidths-auto striped">
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.

@@ -418,11 +418,12 @@ _OPTION_LIKE_LINE = re.compile(r"^(:[\w-]+:|---)")
 """A line that looks like the start of a directive option (or a YAML options block)."""
 
 _NOT_CAPTION_TEXT = re.compile(
-    r"^(```|~~~|:::|\$\$|\[[^\]]+\]:|%|\+\+\+|<!--|\(.*\)=\s*$)"
+    r"^(```|~~~|:::|\$\$|\[[^\]]+\]:|%|\+\+\+|<!--|\(.*\)=\s*$|\{.*\}\s*$)"
 )
 """A line that starts a MyST block construct which is not caption text:
 a code, directive or math fence, a link or footnote definition,
-a comment, a block break, a target, or an HTML comment.
+a comment, a block break, a target, an HTML comment,
+or a line of block attributes (``{#id .class}``, with ``attrs_block``).
 (Some of these render nothing, so may already precede a valid table.)"""
 
 

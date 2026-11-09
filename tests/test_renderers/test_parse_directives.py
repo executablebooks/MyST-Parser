@@ -430,6 +430,15 @@ def test_table_wrapped_caption_folded_into_argument(
         pytest.param("Cap", "(label)=\n\n" + TABLE_BODY, 0, id="target"),
         pytest.param("Cap", "% comment\n\n" + TABLE_BODY, 0, id="comment"),
         pytest.param("Cap", "+++\n\n" + TABLE_BODY, 0, id="block-break"),
+        pytest.param("Cap", "{.striped}\n" + TABLE_BODY, 0, id="attrs-class"),
+        pytest.param("Cap", "{#mytbl}\n" + TABLE_BODY, 0, id="attrs-id"),
+        pytest.param(
+            "Cap", '{#mytbl .striped key="v"}\n' + TABLE_BODY, 0, id="attrs-mixed"
+        ),
+        pytest.param("", "{.striped}\n" + TABLE_BODY, 0, id="attrs-no-argument"),
+        pytest.param(
+            "Cap", ":name: x\n{.striped}\n" + TABLE_BODY, 1, id="attrs-after-options"
+        ),
     ],
 )
 def test_table_body_not_folded(first_line, content, body_offset):
@@ -439,7 +448,8 @@ def test_table_body_not_folded(first_line, content, body_offset):
 
     In particular, a paragraph separated from the opening line by a blank line
     is not a caption, so it still gives the "exactly one table expected" error,
-    and a link definition (which renders nothing) can still precede the table.
+    and a link definition or a block attributes line (which render nothing)
+    can still precede the table.
     """
     result = parse_directive_text(RSTTable, first_line, content)
     assert result.arguments == ([first_line] if first_line else [])
