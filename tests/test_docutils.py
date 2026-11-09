@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import re
 import sys
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
@@ -704,6 +705,51 @@ def test_math_block_blank_boundary_lines(source, expected):
     assert [block.astext() for block in blocks] == [expected]
 
 
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("Some text\n$$\na = 1\n$$\nmore text.", "a = 1", id="newlines"),
+        pytest.param(
+            "Some text\n$$  \na = 1\n  $$\nmore text.",
+            "a = 1",
+            id="whitespace-lines",
+        ),
+        pytest.param("text $$ a = 1 $$ text", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_inline_double_blank_boundary_lines(source, expected):
+    """``$$`` inside a paragraph has no leading or trailing blank lines.
+
+    With ``myst_dmath_double_inline``, such a ``$$`` pair is rendered as a
+    ``math_block`` too, so its content is trimmed the same way (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+def assert_no_blank_line_in_math_env(output: str) -> None:
+    """Assert no display math environment in ``output`` has a blank line.
+
+    This checks the property itself, independent of which environment
+    the docutils LaTeX writer picks or how it lays out the lines.
+    """
+    bodies = re.findall(
+        r"\\begin\{(equation\*|align\*)\}(.*?)\\end\{\1\}", output, re.DOTALL
+    )
+    assert bodies, output
+    for _, body in bodies:
+        assert re.search(r"\n[ \t]*\n", body) is None, body
+
+
 def test_math_block_latex_no_blank_lines():
     """The LaTeX writer output has no blank line inside a math environment.
 
@@ -741,3 +787,24 @@ def test_math_block_latex_no_blank_lines():
     assert "e & = & 753\n\\end{align*}" in output
     assert "\\begin{equation*}\n   \\begin{eqnarray}" in output
     assert "\\end{eqnarray}\n\\end{equation*}" in output
+    assert_no_blank_line_in_math_env(output)
+
+
+def test_math_inline_double_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment,
+    for a ``$$`` pair inside a paragraph with ``myst_dmath_double_inline`` (#614).
+    """
+    source = "Some text\n$$\nn & = 943 \\\\\ne & = 753\n$$\nmore text.\n"
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    assert "\\begin{align*}" in output
+    assert_no_blank_line_in_math_env(output)

@@ -1516,7 +1516,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(node)
 
     def render_math_inline_double(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
