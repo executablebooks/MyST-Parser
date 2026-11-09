@@ -77,3 +77,27 @@ list-style
             <paragraph>
                 b
 .
+
+heading with id
+.
+{#hid}
+# First
+.
+<document source="<src>/index.md">
+    <section ids="hid" names="hid first">
+        <title>
+            First
+.
+
+rubric with id
+.
+```{note}
+{#rid}
+## First
+```
+.
+<document source="<src>/index.md">
+    <note>
+        <rubric ids="rid" level="2" names="rid first">
+            First
+.
