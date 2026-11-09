@@ -411,8 +411,15 @@ def _parse_directive_options(
     )
 
 
-_TABLE_DELIMITER_ROW = re.compile(r"^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$")
-"""A GFM table delimiter row, e.g. ``|---|:--:|`` or ``--|--``."""
+_TABLE_DELIMITER_ROW = re.compile(r"^\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?$")
+"""A GFM table delimiter row, e.g. ``|---|:--:|`` or ``--|--``,
+matched against the stripped line.
+
+Every whitespace run in the pattern is followed by a required ``|``, ``-``
+or the end of the line, so matching takes linear time
+(whitespace runs at the line's ends, next to only optional tokens,
+would backtrack polynomially on a long line of spaces around a ``-``).
+"""
 
 _OPTION_LIKE_LINE = re.compile(r"^(:[\w-]+:|---)")
 """A line that looks like the start of a directive option (or a YAML options block)."""
@@ -434,7 +441,7 @@ def _starts_table(lines: list[str], index: int) -> bool:
     return (
         index + 1 < len(lines)
         and "|" in lines[index]
-        and _TABLE_DELIMITER_ROW.match(lines[index + 1]) is not None
+        and _TABLE_DELIMITER_ROW.match(lines[index + 1].strip()) is not None
     )
 
 

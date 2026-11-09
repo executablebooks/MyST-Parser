@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -459,29 +460,61 @@ def test_table_body_not_folded(first_line, content, body_offset):
 
 
 @pytest.mark.parametrize(
-    "content,warning_line",
+    "content,warning_line,options,body_offset",
     [
-        pytest.param("continued\n:name: tbl\n\n" + TABLE_BODY, 3, id="option"),
-        pytest.param("continued\n:name: tbl\n" + TABLE_BODY, 3, id="option-no-blank"),
+        pytest.param("continued\n:name: tbl\n\n" + TABLE_BODY, 3, {}, 0, id="option"),
         pytest.param(
-            "continued\n---\nname: tbl\n---\n\n" + TABLE_BODY, 3, id="yaml-block"
+            "continued\n:name: tbl\n" + TABLE_BODY, 3, {}, 0, id="option-no-blank"
+        ),
+        pytest.param(
+            "continued\n---\nname: tbl\n---\n\n" + TABLE_BODY,
+            3,
+            {},
+            0,
+            id="yaml-block",
+        ),
+        # the warning line counts the options block before the caption line
+        pytest.param(
+            ":name: a\ncontinued\n:align: center\n\n" + TABLE_BODY,
+            4,
+            {"name": "a"},
+            1,
+            id="option-after-options-block",
         ),
     ],
 )
-def test_table_caption_with_options_after_it_warns(content, warning_line):
+def test_table_caption_with_options_after_it_warns(
+    content, warning_line, options, body_offset
+):
     """Options cannot follow wrapped caption lines: they would be silently lost
     in the caption, so the body is left unchanged (which then fails
     with "exactly one table expected") and a warning says where options go.
     """
     result = parse_directive_text(RSTTable, "Cap", content, line=1)
     assert result.arguments == ["Cap"]
-    assert result.body == content.splitlines()
-    assert result.options == {}
+    assert result.body == content.splitlines()[body_offset:]
+    assert result.body_offset == body_offset
+    assert result.options == options
     message = (
         "Options must directly follow the directive's opening line; "
         "place wrapped caption lines after the options block"
     )
     assert [(w.msg, w.lineno) for w in result.warnings] == [(message, warning_line)]
+
+
+def test_table_delimiter_row_check_is_linear():
+    """The delimiter-row check must not backtrack super-linearly:
+    a line of spaces around a ``-`` once took cubic time
+    (a 3 KB document took 10 seconds to parse).
+    """
+    spaces = " " * 3000
+    content = "a | b\n" + spaces + "-" + spaces + "x"
+    start = time.perf_counter()
+    result = parse_directive_text(RSTTable, "Cap", content)
+    assert time.perf_counter() - start < 1
+    assert result.arguments == ["Cap"]
+    assert result.body == content.splitlines()
+    assert not result.warnings
 
 
 def test_table_caption_on_one_line_unchanged():
