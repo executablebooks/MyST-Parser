@@ -756,6 +756,35 @@ def test_text_node_line_stamping():
     assert lines["note body"] is None
 
 
+@pytest.mark.parametrize(
+    ("options", "lines"),
+    [
+        pytest.param(":class: tip\n", [3, 5], id="colon"),
+        pytest.param("---\nclass: tip\n---\n", [5, 7], id="yaml"),
+        # text after the closing `---` is the first body line (#1164)
+        pytest.param("---\nclass: tip\n--- ", [4, 6], id="yaml-closer-text"),
+    ],
+)
+def test_directive_body_lines_with_options_and_trailing_blank(options, lines):
+    """Body elements and their warnings map to their true source lines.
+
+    Regression for #1177: with an options block and a blank line before the
+    closing fence, every body line was mapped one source line too low.
+    """
+    source = f"```{{note}}\n{options}para {{unknownrole}}`x`\n\npara2\n\n```\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    note = next(doctree.findall(nodes.note))
+    assert [c.line for c in note.children if isinstance(c, nodes.paragraph)] == lines
+    assert f"<string>:{lines[0]}: (WARNING/2) Unknown interpreted text role" in (
+        stream.getvalue()
+    )
+
+
 def test_empty_slug_means_no_anchor():
     """A heading whose title slugifies to nothing gets no anchor.
 
