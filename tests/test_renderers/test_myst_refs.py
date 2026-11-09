@@ -127,23 +127,6 @@ def test_heading_anchors_html_ids_disabled_sphinx(sphinx_doctree: CreateDoctree)
         assert "slug" in section.attributes, section.attributes
 
 
-def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
-    """Sphinx's SortIds must not promote a slug to a section's primary id.
-
-    Regression: for auto-generated (`idN`) ids — non-ASCII or digit-leading
-    titles — SortIds rotated the docutils id to the back, silently changing
-    toc/searchindex anchors to the slug.
-    """
-    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "myst_heading_anchors": 2})
-    result = sphinx_doctree("# Заголовок\n\n## Привет Мир\n", "index.md")
-    doctree = result.get_resolved_doctree("index")
-    from docutils import nodes as docutils_nodes
-
-    for section in doctree.findall(docutils_nodes.section):
-        assert section["ids"][0].startswith("id"), section["ids"]
-        assert section["slug"] in section["ids"][1:], section["ids"]
-
-
 def test_cross_document_reference_to_an_explicit_target(sphinx_doctree: CreateDoctree):
     """`[](a.md#target)` must not warn when `target` is an explicit anchor in `a.md`.
 
@@ -172,10 +155,26 @@ def test_cross_document_reference_to_an_explicit_target(sphinx_doctree: CreateDo
         "# Doc B\n\n- [path-based](a.md#custom-anchor)\n- [pathless](#custom-anchor)\n",
         "index.md",
     )
-    assert not result.warnings
-
+    # reference warnings are emitted on resolution, so check after it
     result.get_resolved_doctree("index")
     assert not result.warnings, result.warnings
+
+
+def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
+    """Sphinx's SortIds must not promote a slug to a section's primary id.
+
+    Regression: for auto-generated (`idN`) ids — non-ASCII or digit-leading
+    titles — SortIds rotated the docutils id to the back, silently changing
+    toc/searchindex anchors to the slug.
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "myst_heading_anchors": 2})
+    result = sphinx_doctree("# Заголовок\n\n## Привет Мир\n", "index.md")
+    doctree = result.get_resolved_doctree("index")
+    from docutils import nodes as docutils_nodes
+
+    for section in doctree.findall(docutils_nodes.section):
+        assert section["ids"][0].startswith("id"), section["ids"]
+        assert section["slug"] in section["ids"][1:], section["ids"]
 
 
 _LINK_TEXT_OTHER_MD = """\
