@@ -9,21 +9,24 @@ h1:not(.rubric) {
     text-decoration: underline;
 }
 
-/** MyST examples */
-.myst-example {
+/** Syntax examples */
+.syntax-example {
     border: 1px solid var(--pst-color-border);
     border-left-color: var(--pst-color-info);
     border-left-width: .2em;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 15px;
     margin-bottom: 1rem;
 }
-.myst-example-source > div[class*="highlight-"]{
+/* The source pane *is* the highlight-<lang> div (not a wrapper around one),
+   so zero its margin here to keep it flush inside the frame.
+   local.css loads last, so this wins. */
+.syntax-example > .syntax-example-source {
     margin: 0;
 }
-.myst-example-render {
+.syntax-example-render {
     padding: 0.5rem;
 }
-.myst-example-render > :first-child {
+.syntax-example-render > :first-child {
     margin-top: 0.5rem;
 }
 

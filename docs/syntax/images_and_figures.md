@@ -6,7 +6,7 @@ MyST Markdown can be used to include images and figures in your documents as wel
 
 The standard Markdown syntax for images is:
 
-:::{myst-example}
+:::{syntax-example}
 ![fishy](img/fun-fish.png)
 :::
 
@@ -14,13 +14,13 @@ This will create an **inline** image, which is displayed in the flow of the text
 
 The [attrs_inline](syntax/attributes/inline) extension can be used to add attributes to an inline image:
 
-:::{myst-example}
+:::{syntax-example}
 ![fishy](img/fun-fish.png){.bg-warning w=100px align=center}
 :::
 
 The [html_image](syntax/images/html) extension can also be used, to allow MyST to parse HTML image tags:
 
-:::{myst-example}
+:::{syntax-example}
 :highlight: html
 
 <img src="img/fun-fish.png" alt="fishy" width="200px" class="bg-primary">
@@ -30,7 +30,7 @@ The [html_image](syntax/images/html) extension can also be used, to allow MyST t
 
 To create a **block** image, use the `image` directive:
 
-:::{myst-example}
+:::{syntax-example}
 ```{image} img/fun-fish.png
 :alt: fishy
 :class: bg-primary
@@ -84,7 +84,7 @@ The following options are recognized:
 
 To create a **figure**, use the `figure` directive:
 
-:::{myst-example}
+:::{syntax-example}
 ```{figure} img/fun-fish.png
 :scale: 50 %
 :alt: map to buried treasure
@@ -121,7 +121,7 @@ figclass : text
 
 See the <project:#syntax/md-figures> section for information on how to create figures that use native Markdown images.
 
-::::{myst-example}
+::::{syntax-example}
 :::{figure-md}
 ![fishy](img/fun-fish.png){width=200px}
 
@@ -140,7 +140,7 @@ See the [sphinx-subfigure](https://sphinx-subfigure.readthedocs.io) extension fo
 
 % It is possible to use [mermaid diagrams](https://mermaid-js.github.io/mermaid) using the `sphinxcontrib.mermaid` extension.
 
-% :::{myst-example}
+% :::{syntax-example}
 % ```{mermaid}
 % flowchart LR
 %   A[Jupyter Notebook] --> C

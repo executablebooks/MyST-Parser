@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import re
 import sys
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
@@ -8,8 +9,10 @@ from typing import Literal
 
 import markdown_it.main
 import pytest
+from docutils import __version_info__ as docutils_version
 from docutils import nodes
-from docutils.core import publish_doctree
+from docutils.core import publish_doctree, publish_string
+from docutils.writers.latex2e import Writer as LatexWriter
 from markdown_it.token import Token
 
 from myst_parser.config.main import MdParserConfig
@@ -113,6 +116,8 @@ def test_help_text():
             assert not exc.code
 
     assert "MyST options" in stream.getvalue()
+    # the option's help text is its only user-facing documentation
+    assert 'rel="noreferrer noopener"' in " ".join(stream.getvalue().split())
 
 
 def test_include_from_rst(tmp_path):
@@ -138,6 +143,88 @@ def test_include_from_rst(tmp_path):
             """
         ).strip()
     )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^myref]
+
+            [^myref]: auto definition.
+            [^3]: manual definition.
+            """,
+            ["3", "myref"],
+            id="manual-and-auto",
+        ),
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^x]
+
+            [^x]:
+            [^3]: three
+            """,
+            ["3", "x"],
+            id="empty-auto-definition",
+        ),
+        pytest.param(
+            """\
+            - one[^first] two[^second] three[^3]
+
+            [^first]: zebra
+            [^second]: apple
+            [^3]: three
+            """,
+            ["3", "first", "second"],
+            id="unlabelled-not-sorted-by-text",
+        ),
+        pytest.param(
+            """\
+            - one[^second] two[^first] three[^3]
+
+            [^first]: apple
+            [^second]: zebra
+            [^3]: three
+            """,
+            ["3", "second", "first"],
+            id="unlabelled-keep-reference-order",
+        ),
+    ],
+)
+@pytest.mark.skipif(
+    docutils_version < (0, 22),
+    reason="docutils < 0.22 parses a :parser: include with the host's settings, "
+    "without the MyST settings",
+)
+def test_include_from_rst_mixed_footnotes(tmp_path, source, expected):
+    """Test the sort of footnotes in markdown included from an RST file (#1025).
+
+    docutils' ``Footnotes`` transform does not run in the ``:parser:`` sub-document,
+    so the auto-numbered footnotes have no label child when ``CollectFootnotes`` sorts:
+    they must neither crash the sort (``TypeError`` against a numeric label,
+    ``IndexError`` for an empty definition) nor be sorted by their body text,
+    but keep the order they are first referenced (the order docutils numbers them).
+    """
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text(dedent(source))
+
+    parser = RSTParser()
+    document = make_document(parser_cls=RSTParser)
+    parser.parse(
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
+    )
+    document.transformer.populate_from_components([parser])
+    document.transformer.apply_transforms()
+
+    # labelled footnotes first, then the unlabelled ones in first-reference order
+    assert [f["names"] for f in document.findall(nodes.footnote)] == [
+        [name] for name in expected
+    ]
 
 
 def test_field_list_body_source_line():
@@ -305,6 +392,35 @@ def test_footnote_label_matching_explicit_target():
     assert doctree.nameids["note"]
 
 
+@pytest.mark.parametrize(
+    "source",
+    [
+        pytest.param("{#x}\n# First\n\n{#x}\n# Second\n", id="heading-heading"),
+        pytest.param("{#x}\n# First\n\n(x)=\ntext\n", id="heading-target"),
+        pytest.param("{#x}\n# First\n\n{#x}\nparagraph\n", id="heading-paragraph"),
+        pytest.param("{#first}\n# First\n\n{#first}\n# Second\n", id="id-equals-title"),
+    ],
+)
+def test_attrs_block_heading_duplicate_id_warns(source):
+    """A heading ``{#id}`` that is later duplicated warns, rather than crashing.
+
+    Regression: on docutils < 0.23 the heading's explicit name was registered a
+    second time as an implicit one, so the node collided with itself and the
+    duplicate aborted the build with ``ValueError: list.remove(x)``.
+    This needs no Sphinx, so it also covers the docutils-only CI legs.
+    """
+    stream = io.StringIO()
+    publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["attrs_block"],
+            "warning_stream": stream,
+        },
+    )
+    assert "Duplicate explicit target name" in stream.getvalue()
+
+
 def test_topmatter_deeply_nested_yaml_warns():
     """Deeply nested front matter YAML warns instead of crashing.
 
@@ -334,6 +450,105 @@ def test_topmatter_deeply_nested_yaml_warns():
     assert "content" in doctree.pformat()
 
 
+@pytest.mark.parametrize(
+    "yaml_block",
+    [
+        "review:\n  date: 2026-08-03",  # date nested in a mapping
+        "reviewed: [2026-08-03]",  # date nested in a sequence
+        "review:\n  at: 2026-08-03T12:00:00",  # datetime nested in a mapping
+    ],
+)
+def test_topmatter_nested_dates_do_not_crash(yaml_block):
+    """YAML dates nested in dicts/lists must not abort the build.
+
+    Top-level ``date``/``datetime`` scalars skip JSON encoding, but a nested
+    date used to reach ``json.dumps`` and raise ``TypeError`` (#1203).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "2026-08-03" in doctree.astext()
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
+def test_topmatter_date_mapping_key_warns():
+    """A YAML date used as a mapping *key* cannot be JSON-serialized.
+
+    ``json.dumps``'s ``default=`` hook is not called for keys, so this still
+    cannot be rendered as a field, but it must warn rather than crash,
+    and only that field is dropped.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="---\nreview:\n  2026-08-03: done\nother: [2026-08-04]\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "Front matter field 'review' could not be serialized" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert _topmatter_fields(doctree) == {"other": '["2026-08-04"]'}
+
+
+def _topmatter_fields(doctree: nodes.document) -> dict[str, str]:
+    """Return the rendered front matter fields, as ``{name: body text}``."""
+    return {
+        field[0].astext(): field[1].astext() for field in doctree.findall(nodes.field)
+    }
+
+
+@pytest.mark.parametrize(
+    ("yaml_block", "expected"),
+    [
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00",
+            '{"at": "2026-08-03T12:00:00"}',
+            id="nested-datetime-isoformat",
+        ),
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00+02:00",
+            '{"at": "2026-08-03T12:00:00+02:00"}',
+            id="nested-tz-datetime-isoformat",
+        ),
+        pytest.param(
+            "tags: !!set {gamma, alpha, beta}",
+            '["alpha", "beta", "gamma"]',
+            id="set-sorted",
+        ),
+        pytest.param(
+            "review:\n  d: !!set {2026-08-10, 2026-08-04, 2026-08-03}",
+            '{"d": ["2026-08-03", "2026-08-04", "2026-08-10"]}',
+            id="nested-set-of-dates",
+        ),
+        pytest.param(
+            "tags: !!set {1, b, 2026-08-03}",
+            '["2026-08-03", "b", 1]',
+            id="mixed-type-set",
+        ),
+    ],
+)
+def test_topmatter_json_rendering(yaml_block, expected):
+    """Values JSON has no type for render deterministically.
+
+    Dates and datetimes nested in a mapping or list render as ISO 8601 strings,
+    and a YAML ``!!set`` renders as a sorted list,
+    so the output does not depend on hash randomization (``PYTHONHASHSEED``).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    key = yaml_block.split(":", 1)[0]
+    assert _topmatter_fields(doctree) == {key: expected}
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
 def test_topmatter_alias_expansion_bomb_warns():
     """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
 
@@ -354,6 +569,33 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "too large to render" in stream.getvalue()
     assert "[myst.topmatter]" in stream.getvalue()
     assert "content" in doctree.pformat()
+
+
+def test_topmatter_set_alias_bomb_warns():
+    """A ``!!set`` repeated through YAML aliases counts toward the size limit.
+
+    Sets render as lists, so their items must be measured too;
+    otherwise a few KB of front matter renders to tens of MB.
+    Field ``c`` expands to about 20,000 items (rendered),
+    field ``d`` to about 200,000 (over the limit, so it warns).
+    """
+    items = ", ".join(f"k{i}" for i in range(200))
+    source = (
+        f"---\na: &a !!set {{{items}}}\n"
+        f"b: &b [{', '.join(['*a'] * 10)}]\n"
+        f"c: &c [{', '.join(['*b'] * 10)}]\n"
+        f"d: [{', '.join(['*c'] * 10)}]\n---\n\ncontent\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    warnings = stream.getvalue()
+    assert "Front matter field 'd' is too large to render" in warnings
+    assert "Front matter field 'c'" not in warnings
 
 
 def test_heading_anchors_html_ids_disabled():
@@ -597,6 +839,35 @@ def test_text_node_line_stamping():
     assert lines["note body"] is None
 
 
+@pytest.mark.parametrize(
+    ("options", "lines"),
+    [
+        pytest.param(":class: tip\n", [3, 5], id="colon"),
+        pytest.param("---\nclass: tip\n---\n", [5, 7], id="yaml"),
+        # text after the closing `---` is the first body line (#1164)
+        pytest.param("---\nclass: tip\n--- ", [4, 6], id="yaml-closer-text"),
+    ],
+)
+def test_directive_body_lines_with_options_and_trailing_blank(options, lines):
+    """Body elements and their warnings map to their true source lines.
+
+    Regression for #1177: with an options block and a blank line before the
+    closing fence, every body line was mapped one source line too low.
+    """
+    source = f"```{{note}}\n{options}para {{unknownrole}}`x`\n\npara2\n\n```\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    note = next(doctree.findall(nodes.note))
+    assert [c.line for c in note.children if isinstance(c, nodes.paragraph)] == lines
+    assert f"<string>:{lines[0]}: (WARNING/2) Unknown interpreted text role" in (
+        stream.getvalue()
+    )
+
+
 def test_empty_slug_means_no_anchor():
     """A heading whose title slugifies to nothing gets no anchor.
 
@@ -670,3 +941,139 @@ def test_definition_list_orphan_definition():
     output = document.pformat()
     assert "no preceding term" in output
     assert "important content" in output
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("$$\na = 1\n$$", "a = 1", id="newlines"),
+        pytest.param("$$\n\na = 1\n\n$$", "a = 1", id="blank-lines"),
+        pytest.param("$$\n  \na = 1\n  \n$$", "a = 1", id="whitespace-lines"),
+        pytest.param("$$\na = 1\n$$ (label)", "a = 1", id="label"),
+        pytest.param("$$\n\na = 1\n\n$$ (label)", "a = 1", id="label-blank-lines"),
+        pytest.param("$$\na = 1\n\nb = 2\n$$", "a = 1\n\nb = 2", id="interior-kept"),
+        pytest.param("$$\n  a\n    b\n$$", "  a\n    b", id="indentation-kept"),
+        pytest.param("$$ a = 1 $$", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_block_blank_boundary_lines(source, expected):
+    """``$$`` math block content has no leading or trailing blank lines.
+
+    Like the rST ``math`` directive, only whole blank lines at the start and
+    end are removed (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("Some text\n$$\na = 1\n$$\nmore text.", "a = 1", id="newlines"),
+        pytest.param(
+            "Some text\n$$  \na = 1\n  $$\nmore text.",
+            "a = 1",
+            id="whitespace-lines",
+        ),
+        pytest.param("text $$ a = 1 $$ text", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_inline_double_blank_boundary_lines(source, expected):
+    """``$$`` inside a paragraph has no leading or trailing blank lines.
+
+    With ``myst_dmath_double_inline``, such a ``$$`` pair is rendered as a
+    ``math_block`` too, so its content is trimmed the same way (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+def assert_no_blank_line_in_math_env(output: str) -> None:
+    """Assert no display math environment in ``output`` has a blank line.
+
+    This checks the property itself, independent of which environment
+    the docutils LaTeX writer picks or how it lays out the lines.
+    """
+    bodies = re.findall(
+        r"\\begin\{(equation\*|align\*)\}(.*?)\\end\{\1\}", output, re.DOTALL
+    )
+    assert bodies, output
+    for _, body in bodies:
+        assert re.search(r"\n[ \t]*\n", body) is None, body
+
+
+def test_math_block_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment.
+
+    A blank line there ends the paragraph, and pdflatex fails with
+    "Paragraph ended before \\align* was complete" (#614).
+    The source is the example from the issue.
+    """
+    source = dedent(
+        r"""
+        $$
+        n & = & 41*23 = 943 \\
+        (p-1)(q-1) & = & 40*22 = 880 \\
+        e & = & 753
+        $$
+
+        $$
+           \begin{eqnarray}
+              y    & = & ax^2 + bx + c \\
+              f(x) & = & x^2 + 2xy + y^2
+           \end{eqnarray}
+        $$
+        """
+    )
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    assert "\\begin{align*}\nn & = & 41*23 = 943" in output
+    assert "e & = & 753\n\\end{align*}" in output
+    assert "\\begin{equation*}\n   \\begin{eqnarray}" in output
+    assert "\\end{eqnarray}\n\\end{equation*}" in output
+    assert_no_blank_line_in_math_env(output)
+
+
+def test_math_inline_double_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment,
+    for a ``$$`` pair inside a paragraph with ``myst_dmath_double_inline`` (#614).
+    """
+    source = "Some text\n$$\nn & = 943 \\\\\ne & = 753\n$$\nmore text.\n"
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    assert "\\begin{align*}" in output
+    assert_no_blank_line_in_math_env(output)
