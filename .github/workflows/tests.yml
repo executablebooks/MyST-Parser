@@ -198,6 +198,7 @@ jobs:
     name: Publish myst-parser to PyPI
     needs:
     - check
+    - build
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
@@ -206,18 +207,20 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-parser
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v6
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.11"
-    - run: pip install flit~=3.4
-    - run: flit build
+        name: dist-parser
+        path: dist-parser/
     - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist-parser/
 
   publish-docutils:
 
     name: Publish myst-docutils to PyPI
-    needs: [publish]
+    needs:
+    - build
+    - publish
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
@@ -226,12 +229,10 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-docutils
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v6
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.11"
-    - run: pip install flit~=3.4 tomlkit
-    - name: Modify setup
-      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
-    - run: flit build
+        name: dist-docutils
+        path: dist-docutils/
     - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist-docutils/
