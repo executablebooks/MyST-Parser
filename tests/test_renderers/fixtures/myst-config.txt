@@ -617,3 +617,115 @@ content
         <reference refuri="https://example.com" rel="nofollow" target="_blank">
             https://example.com
 .
+
+[table_wrapped_caption_colon_fence] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto">
+        <title>
+            Mid-syllable marks that must be tagged for sorting with above-base consonants
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_wrapped_caption_after_options] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+:name: tbl
+above-base consonants
+
+a | b
+--|--
+1 | 2
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto" ids="tbl" names="tbl">
+        <title>
+            Mid-syllable marks that must be tagged for sorting with above-base consonants
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_wrapped_caption_options_after] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+:name: tbl
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <system_message level="2" line="3" source="<string>" type="WARNING">
+        <paragraph>
+            'table': Options must directly follow the directive's opening line; place wrapped caption lines after the options block [myst.directive_parse]
+    <system_message level="3" line="1" source="<string>" type="ERROR">
+        <paragraph>
+            Error parsing content block for the "table" directive: exactly one table expected.
+        <literal_block xml:space="preserve">
+            :::{table} Mid-syllable marks that must be tagged for sorting with
+            above-base consonants
+            :name: tbl
+
+            | a | b |
+            |---|---|
+            | 1 | 2 |
+            :::
+
+<string>:3: (WARNING/2) 'table': Options must directly follow the directive's opening line; place wrapped caption lines after the options block [myst.directive_parse]
+<string>:1: (ERROR/3) Error parsing content block for the "table" directive: exactly one table expected.
+
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+:name: tbl
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.

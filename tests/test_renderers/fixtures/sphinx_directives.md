@@ -296,6 +296,32 @@ above-base consonants
                             2
 .
 
+table caption, then a separate paragraph (not a wrapped caption):
+.
+```{table} Cap
+
+Some prose.
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<src>/index.md">
+    <system_message level="3" line="1" source="<src>/index.md" type="ERROR">
+        <paragraph>
+            Error parsing content block for the "table" directive: exactly one table expected.
+        <literal_block xml:space="preserve">
+            ```{table} Cap
+
+            Some prose.
+
+            | a | b |
+            |---|---|
+            | 1 | 2 |
+            ```
+.
+
 csv-table (`sphinx.directives.patches.CSVTable`):
 .
 ```{csv-table}

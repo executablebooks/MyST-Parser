@@ -36,6 +36,7 @@ This is to allow for separation between the option block and content.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from textwrap import dedent
@@ -70,7 +71,11 @@ class ParseWarnings:
 @dataclass
 class DirectiveParsingResult:
     arguments: list[str]
-    """The arguments parsed from the first line."""
+    """The arguments parsed from the first line.
+
+    For ``table`` directives, this includes any caption lines that
+    wrap onto the lines directly after the opening line (or the options block).
+    """
     options: dict
     """Options parsed from the YAML block."""
     body: list[str]
@@ -160,16 +165,23 @@ def parse_directive_text(
     else:
         arguments = parse_directive_arguments(directive_class, first_line)
 
+    if issubclass(directive_class, RSTTable):
+        # a ``{table}`` caption may wrap onto the lines directly below the
+        # opening line (or the options block); this must run before the blank
+        # line below is stripped, so that a separate paragraph is not folded
+        arguments, body_lines, content_offset = _fold_table_caption_continuation(
+            arguments,
+            body_lines,
+            content_offset,
+            parse_warnings,
+            None if line is None else line + 1,
+        )
+
     # remove first line of body if blank
     # this is to allow space between the options and the content
     if body_lines and not body_lines[0].strip():
         body_lines = body_lines[1:]
         content_offset += 1
-
-    if issubclass(directive_class, RSTTable):
-        arguments, body_lines, content_offset = _fold_table_caption_continuation(
-            arguments, body_lines, content_offset
-        )
 
     # check for body content
     if body_lines and not directive_class.has_content:
@@ -399,58 +411,96 @@ def _parse_directive_options(
     )
 
 
-def _is_table_markup_line(line: str) -> bool:
-    """Return True if *line* looks like Markdown or rST table markup."""
-    stripped = line.lstrip()
-    if not stripped:
-        return False
-    if stripped.startswith("|"):
-        return True
-    # rST grid table border: +---+---+
-    if stripped.startswith("+") and set(stripped.rstrip()) <= {"+", "-", "=", " "}:
-        return True
-    # rST simple table header: =====  =====
-    return stripped.startswith("=") and set(stripped.rstrip()) <= {"=", " "}
+_TABLE_DELIMITER_ROW = re.compile(r"^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$")
+"""A GFM table delimiter row, e.g. ``|---|:--:|`` or ``--|--``."""
+
+_OPTION_LIKE_LINE = re.compile(r"^(:[\w-]+:|---)")
+"""A line that looks like the start of a directive option (or a YAML options block)."""
+
+_NOT_CAPTION_TEXT = re.compile(
+    r"^(```|~~~|:::|\$\$|\[[^\]]+\]:|%|\+\+\+|<!--|\(.*\)=\s*$)"
+)
+"""A line that starts a MyST block construct which is not caption text:
+a code, directive or math fence, a link or footnote definition,
+a comment, a block break, a target, or an HTML comment.
+(Some of these render nothing, so may already precede a valid table.)"""
+
+
+def _starts_table(lines: list[str], index: int) -> bool:
+    """Return True if a GFM table starts at ``lines[index]``:
+    a line containing ``|``, followed by a delimiter row.
+    """
+    return (
+        index + 1 < len(lines)
+        and "|" in lines[index]
+        and _TABLE_DELIMITER_ROW.match(lines[index + 1]) is not None
+    )
 
 
 def _fold_table_caption_continuation(
-    arguments: list[str], body_lines: list[str], content_offset: int
+    arguments: list[str],
+    body_lines: list[str],
+    content_offset: int,
+    warnings: list[ParseWarnings],
+    body_line: int | None,
 ) -> tuple[list[str], list[str], int]:
-    """Join wrapped ``{table}`` caption lines into the directive argument.
+    """Join a wrapped ``{table}`` caption into the directive argument.
 
-    MyST takes directive arguments from the opening fence line only. A caption
-    that wraps onto the next line (hard-wrapped prose, or a manual break)
-    therefore becomes a leading paragraph in the body, and the table directive
-    fails with "exactly one table expected".
+    MyST takes directive arguments from the opening line only, so a caption
+    that wraps onto the next line(s) would otherwise become a leading paragraph
+    in the body, and the table directive fails with "exactly one table expected".
 
-    Leading non-table body lines are treated as caption continuation only when
-    a table follows, so unrelated invalid content is left unchanged.
+    The lines are folded only if they directly follow the opening line
+    (or the options block), with no blank line in between,
+    and the first non-blank line after them starts a table.
+    Anything else is left unchanged.
+
+    :param arguments: The arguments parsed from the opening line
+    :param body_lines: The body lines, before any leading blank line is stripped
+    :param content_offset: The number of source lines between the line after
+        the opening line and ``body_lines[0]`` (i.e. the options block's length)
+    :param warnings: Parsing warnings, appended to in place
+    :param body_line: The 1-based source line of the line after the opening line,
+        or None if unknown
+    :returns: The new ``(arguments, body_lines, content_offset)``
     """
-    caption_lines: list[str] = []
+    if not body_lines or not body_lines[0].strip():
+        return arguments, body_lines, content_offset
+
     index = 0
-    while index < len(body_lines):
-        line = body_lines[index]
-        if not line.strip() or _is_table_markup_line(line):
-            break
-        caption_lines.append(line.strip())
+    while (
+        index < len(body_lines)
+        and body_lines[index].strip()
+        and not _starts_table(body_lines, index)
+    ):
         index += 1
+    caption_lines = [line.strip() for line in body_lines[:index]]
+    table_start = index
+    while table_start < len(body_lines) and not body_lines[table_start].strip():
+        table_start += 1
 
-    if not caption_lines:
+    if not caption_lines or not _starts_table(body_lines, table_start):
         return arguments, body_lines, content_offset
 
-    remaining = index
-    while remaining < len(body_lines) and not body_lines[remaining].strip():
-        remaining += 1
-
-    if remaining >= len(body_lines) or not _is_table_markup_line(body_lines[remaining]):
+    if any(_NOT_CAPTION_TEXT.match(line) for line in caption_lines):
         return arguments, body_lines, content_offset
 
-    caption_extra = " ".join(caption_lines)
-    if arguments:
-        arguments = [f"{arguments[0].rstrip()} {caption_extra}"]
-    else:
-        arguments = [caption_extra]
-    return arguments, body_lines[remaining:], content_offset + remaining
+    for line_index, caption_line in enumerate(caption_lines):
+        if _OPTION_LIKE_LINE.match(caption_line):
+            warnings.append(
+                ParseWarnings(
+                    "Options must directly follow the directive's opening line; "
+                    "place wrapped caption lines after the options block",
+                    None
+                    if body_line is None
+                    else body_line + content_offset + line_index,
+                )
+            )
+            return arguments, body_lines, content_offset
+
+    caption = " ".join(caption_lines)
+    arguments = [f"{arguments[0].rstrip()} {caption}" if arguments else caption]
+    return arguments, body_lines[table_start:], content_offset + table_start
 
 
 def parse_directive_arguments(

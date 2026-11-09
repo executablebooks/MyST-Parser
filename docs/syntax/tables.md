@@ -52,6 +52,25 @@ The `table` directive can be used to create a table with a caption:
 :::
 ::::
 
+A long caption may continue on the lines directly after the opening line,
+before the table; the lines are joined with spaces:
+
+::::{syntax-example}
+:::{table} A table caption that is too long
+to fit on the opening line
+
+| foo | bar |
+| --- | --- |
+| baz | bim |
+:::
+::::
+
+There must be no blank line between the opening line and the rest of the caption.
+If the table has options, they must come first, directly after the opening line,
+with the rest of the caption after them.
+This applies to the `table` directive only:
+`list-table` and `csv-table` captions must stay on the opening line.
+
 The following options are recognized:
 
 :::{admonition} Table options

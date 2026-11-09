@@ -312,35 +312,166 @@ def test_options_to_tokens_comment_lines():
 
 
 TABLE_BODY = "| a | b |\n|---|---|\n| 1 | 2 |"
+WRAPPED = "Mid-syllable marks that must be tagged for sorting with"
+WRAPPED_CAPTION = f"{WRAPPED} above-base consonants"
 
 
 @pytest.mark.parametrize(
-    "first_line,content,caption",
+    "first_line,content,caption,body_offset",
     [
-        (
-            "Mid-syllable marks that must be tagged for sorting with",
+        pytest.param(
+            WRAPPED,
             "above-base consonants\n\n" + TABLE_BODY,
-            "Mid-syllable marks that must be tagged for sorting with above-base consonants",
+            WRAPPED_CAPTION,
+            2,
+            id="wrapped",
         ),
-        (
-            "Mid-syllable marks that must be tagged for sorting with",
+        pytest.param(
+            WRAPPED,
             "   above-base consonants\n\n" + TABLE_BODY,
-            "Mid-syllable marks that must be tagged for sorting with above-base consonants",
+            WRAPPED_CAPTION,
+            2,
+            id="wrapped-indented",
+        ),
+        pytest.param(
+            "Cap",
+            "continued\nand more\n\n\n" + TABLE_BODY,
+            "Cap continued and more",
+            4,
+            id="several-lines-then-blanks",
+        ),
+        pytest.param(
+            "Cap", "continued\n" + TABLE_BODY, "Cap continued", 1, id="no-blank"
+        ),
+        pytest.param(
+            "Cap",
+            "continued\n\na | b\n--|--\n1 | 2",
+            "Cap continued",
+            2,
+            id="pipeless-table",
+        ),
+        pytest.param(
+            "Cap",
+            "continued\n\n| a | b |\n| :-- | --: |\n| 1 | 2 |",
+            "Cap continued",
+            2,
+            id="aligned-table",
+        ),
+        pytest.param(
+            "Cap",
+            ":name: tbl\ncontinued\n\n" + TABLE_BODY,
+            "Cap continued",
+            3,
+            id="after-options",
+        ),
+        pytest.param(
+            "Cap",
+            "---\nname: tbl\n---\ncontinued\n\n" + TABLE_BODY,
+            "Cap continued",
+            5,
+            id="after-yaml-options",
+        ),
+        pytest.param(
+            "",
+            "Long caption\nwrapped\n\n" + TABLE_BODY,
+            "Long caption wrapped",
+            3,
+            id="no-first-line-argument",
         ),
     ],
 )
-def test_table_wrapped_caption_folded_into_argument(first_line, content, caption):
-    """A hard-wrapped ``{table}`` caption must not leak into the body.
+def test_table_wrapped_caption_folded_into_argument(
+    first_line, content, caption, body_offset
+):
+    """A ``{table}`` caption may wrap onto the lines directly after the opening line.
 
-    MyST takes directive arguments from the opening fence line only, so a
-    caption that wraps (the usual ~70-column prose wrap) becomes a leading
-    paragraph in the body and the table directive fails with
-    "exactly one table expected".
+    MyST takes directive arguments from the opening line only, so without the fold
+    a hard-wrapped caption becomes a leading paragraph in the body,
+    and the table directive fails with "exactly one table expected" (#1104).
+    ``body_offset`` must still point at the table's first line,
+    so that warnings inside the table report the right source line.
+    """
+    result = parse_directive_text(RSTTable, first_line, content, line=1)
+    assert result.arguments == [caption]
+    assert result.body_offset == body_offset
+    assert result.body == content.splitlines()[body_offset:]
+    assert "|" in result.body[0]
+    assert not result.warnings
+
+
+@pytest.mark.parametrize(
+    "first_line,content,body_offset",
+    [
+        pytest.param(
+            "Cap", "\nSome prose.\n\n" + TABLE_BODY, 1, id="blank-after-opening"
+        ),
+        pytest.param("", "\nSome prose.\n\n" + TABLE_BODY, 1, id="blank-no-argument"),
+        pytest.param(
+            "Cap",
+            ":name: tbl\n\nSome prose.\n\n" + TABLE_BODY,
+            2,
+            id="blank-after-options",
+        ),
+        pytest.param("Cap", "continued\n\nnot a table", 0, id="no-table-follows"),
+        pytest.param("Cap", "continued", 0, id="no-table-at-all"),
+        pytest.param(
+            "Cap", "continued\n\n| a | b |\n| 1 | 2 |", 0, id="no-delimiter-row"
+        ),
+        pytest.param("Cap", "\n" + TABLE_BODY, 1, id="table-only"),
+        pytest.param(
+            "Cap", "[x]: https://example.com\n\n" + TABLE_BODY, 0, id="link-definition"
+        ),
+        pytest.param(
+            "Cap",
+            "```{default-role} math\n```\n\n" + TABLE_BODY,
+            0,
+            id="directive-fence",
+        ),
+        pytest.param("Cap", "(label)=\n\n" + TABLE_BODY, 0, id="target"),
+        pytest.param("Cap", "% comment\n\n" + TABLE_BODY, 0, id="comment"),
+        pytest.param("Cap", "+++\n\n" + TABLE_BODY, 0, id="block-break"),
+    ],
+)
+def test_table_body_not_folded(first_line, content, body_offset):
+    """Lines are only folded into the caption if they directly follow the opening
+    line (or the options block), contain no MyST block syntax, and a table follows;
+    otherwise the body is left as it is.
+
+    In particular, a paragraph separated from the opening line by a blank line
+    is not a caption, so it still gives the "exactly one table expected" error,
+    and a link definition (which renders nothing) can still precede the table.
     """
     result = parse_directive_text(RSTTable, first_line, content)
-    assert result.arguments == [caption]
-    assert result.body == TABLE_BODY.splitlines()
+    assert result.arguments == ([first_line] if first_line else [])
+    assert result.body_offset == body_offset
+    assert result.body == content.splitlines()[body_offset:]
     assert not result.warnings
+
+
+@pytest.mark.parametrize(
+    "content,warning_line",
+    [
+        pytest.param("continued\n:name: tbl\n\n" + TABLE_BODY, 3, id="option"),
+        pytest.param("continued\n:name: tbl\n" + TABLE_BODY, 3, id="option-no-blank"),
+        pytest.param(
+            "continued\n---\nname: tbl\n---\n\n" + TABLE_BODY, 3, id="yaml-block"
+        ),
+    ],
+)
+def test_table_caption_with_options_after_it_warns(content, warning_line):
+    """Options cannot follow wrapped caption lines: they would be silently lost
+    in the caption, so the body is left unchanged (which then fails
+    with "exactly one table expected") and a warning says where options go.
+    """
+    result = parse_directive_text(RSTTable, "Cap", content, line=1)
+    assert result.arguments == ["Cap"]
+    assert result.body == content.splitlines()
+    assert result.options == {}
+    message = (
+        "Options must directly follow the directive's opening line; "
+        "place wrapped caption lines after the options block"
+    )
+    assert [(w.msg, w.lineno) for w in result.warnings] == [(message, warning_line)]
 
 
 def test_table_caption_on_one_line_unchanged():
