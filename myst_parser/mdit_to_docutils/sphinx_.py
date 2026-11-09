@@ -16,7 +16,11 @@ from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.util import logging
 
 from myst_parser import inventory
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer, token_line
+from myst_parser.mdit_to_docutils.base import (
+    DocutilsRenderer,
+    strip_blank_lines,
+    token_line,
+)
 from myst_parser.warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
@@ -182,7 +186,7 @@ class SphinxRenderer(DocutilsRenderer):
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referenceable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(
             content, content, nowrap=False, number=None, label=label
         )
