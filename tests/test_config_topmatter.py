@@ -205,3 +205,38 @@ class TestMergedFieldsRejectNonMappings:
         assert "[myst.topmatter]" in stream.getvalue()
         assert "text" in doctree.astext()
 
+
+class TestUrlSchemes:
+    """``check_url_schemes`` converts both of its accepted forms to a dict.
+
+    The converted form has to survive the merge: the raw list form, left on
+    the config, crashed the build with ``list indices must be integers``.
+    """
+
+    def test_the_list_form_becomes_a_dict(self):
+        config, warnings = merge({"myst": {"url_schemes": ["wiki"]}})
+        assert warnings == []
+        assert config.url_schemes == {"wiki": None}
+
+    def test_the_dict_form_keeps_its_templates(self):
+        config, warnings = merge(
+            {"myst": {"url_schemes": {"wiki": "https://w.org/{{path}}"}}}
+        )
+        assert warnings == []
+        assert config.url_schemes == {"wiki": {"url": "https://w.org/{{path}}"}}
+
+
+class TestGlobalOnlyWarningKind:
+    """The global-only rejection is a ``myst.topmatter`` warning.
+
+    So it is reported under that code, and can be suppressed by it.
+    """
+
+    def test_the_warning_is_a_topmatter_warning(self):
+        warnings: list[tuple[MystWarnings, str]] = []
+        merge_file_level(
+            MdParserConfig(),
+            {"myst": {"heading_slug_func": "github"}},
+            lambda kind, msg: warnings.append((kind, msg)),
+        )
+        assert [kind for kind, _msg in warnings] == [MystWarnings.MD_TOPMATTER]
