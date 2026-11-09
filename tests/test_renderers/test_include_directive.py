@@ -53,6 +53,19 @@ def test_errors(file_params, tmp_path, monkeypatch):
     tmp_path.joinpath("bad_after.md").write_text(
         "line one\nline two\nSTART-HERE\nline four\n{a}`b`"
     )
+    tmp_path.joinpath("bad_marker2.md").write_text(
+        "x\n<!-- a -->\n<!-- b -->\n\n{a}`b`\n"
+    )
+    tmp_path.joinpath("bad_negative.md").write_text("a\nb\nc\n\n{a}`b`\n")
+    # bytes, so the CRLF line endings are kept on every platform
+    tmp_path.joinpath("bad_crlf.md").write_bytes(b"a\r\nMARK\r\n\r\n{a}`b`\r\n")
+    tmp_path.joinpath("bad_between.md").write_text(
+        "a\nSTART\nmid\n\n{a}`b`\nEND\n{c}`d`\n"
+    )
+    tmp_path.joinpath("bad_inner2.md").write_text("skip\ninner\n\n{c}`d`\n")
+    tmp_path.joinpath("bad_outer2.md").write_text(
+        "outer\n\n```{include} bad_inner2.md\n:start-line: 1\n```\n\n{a}`b`\n"
+    )
 
     report_stream = StringIO()
     publish_doctree(
