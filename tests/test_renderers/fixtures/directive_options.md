@@ -131,7 +131,7 @@ foo
 ```
 .
 <document source="<src>/index.md">
-    <system_message level="2" line="1" source="<src>/index.md" type="WARNING">
+    <system_message level="2" line="3" source="<src>/index.md" type="WARNING">
         <paragraph>
             'restructuredtext-test-directive': Invalid options format: expected ':' after key [myst.directive_option]
     <system_message level="1" line="1" source="<src>/index.md" type="INFO">

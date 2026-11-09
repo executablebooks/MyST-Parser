@@ -473,6 +473,35 @@ def test_substitutions_missing(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "attrs_block_duplicate_ids"),
+    freshenv=True,
+)
+def test_attrs_block_duplicate_ids(
+    app,
+    status,
+    warning,
+):
+    """Test that a duplicated ``{#id}`` warns, rather than aborting the build."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = strip_colors(warning.getvalue()).strip().splitlines()
+    assert len(warnings) == 3
+    assert warnings[0].endswith(
+        'index.md:7: WARNING: Duplicate explicit target name: "sec". [docutils]'
+    )
+    # the paragraph warning has no line number yet: allow one to be added later
+    assert re.search(
+        r'index\.md:\d*: WARNING: Duplicate explicit target name: "para"\. \[docutils\]$',
+        warnings[1],
+    )
+    assert warnings[2].endswith(
+        'index.md:20: WARNING: Duplicate explicit target name: "rub". [docutils]'
+    )
+    assert Path(app.outdir, "index.html").exists()
+
+
+@pytest.mark.sphinx(
     buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
 )
 def test_gettext(
@@ -784,3 +813,58 @@ def test_include_read_event(app, status, warning):
     assert len(include_read_events) == len(expected_events), "Wrong number of events"
     for evt in expected_events:
         assert evt in include_read_events
+
+
+@pytest.mark.parametrize(
+    "extensions",
+    [
+        pytest.param(
+            ["myst_parser", "myst_setup_again"],
+            marks=pytest.mark.sphinx(
+                buildername="html",
+                srcdir=os.path.join(SOURCE_DIR, "setup_twice"),
+                freshenv=True,
+                confoverrides={"extensions": ["myst_parser", "myst_setup_again"]},
+            ),
+            id="myst_parser-first",
+        ),
+        pytest.param(
+            ["myst_setup_again", "myst_parser"],
+            marks=pytest.mark.sphinx(
+                buildername="html",
+                srcdir=os.path.join(SOURCE_DIR, "setup_twice"),
+                freshenv=True,
+                confoverrides={"extensions": ["myst_setup_again", "myst_parser"]},
+            ),
+            id="myst_parser-second",
+        ),
+    ],
+)
+def test_setup_sphinx_twice(app, status, warning, extensions):
+    """Running ``setup_sphinx`` twice on one app is a no-op the second time.
+
+    myst-nb calls ``setup_sphinx`` from its own setup, so listing both
+    ``myst_parser`` and ``myst_nb`` in ``extensions`` used to crash with
+    ``ValueError: list.remove(x): x not in list`` (#962, #1052).
+    """
+    from sphinx.transforms import (
+        UnreferencedFootnotesDetector as SphinxUnreferencedFootnotesDetector,
+    )
+
+    from myst_parser.mdit_to_docutils.transforms import UnreferencedFootnotesDetector
+    from myst_parser.sphinx_ext.myst_refs import MystReferenceResolver
+
+    assert app.config.extensions == extensions
+    # the transforms are registered exactly once
+    assert SphinxUnreferencedFootnotesDetector not in app.registry.transforms
+    assert app.registry.transforms.count(UnreferencedFootnotesDetector) == 1
+    assert app.registry.post_transforms.count(MystReferenceResolver) == 1
+    # the parser is registered, whichever call asked for it
+    assert app.registry.source_suffix[".md"] == "markdown"
+
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+    assert "index" in app.env.found_docs

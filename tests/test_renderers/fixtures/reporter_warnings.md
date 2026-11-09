@@ -169,7 +169,7 @@ directive bad-option-value
 :class: [1]
 ```
 .
-<string>:1: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_option]
+<string>:2: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_option]
 <string>:1: (ERROR/3) Content block expected for the "note" directive; none found.
 .
 
@@ -194,4 +194,77 @@ Paragraph
 ```
 .
 <string>:7: (WARNING/2) Unknown interpreted text role "unknown". [myst.role_unknown]
+.
+
+directive option warnings in yaml block
+.
+para
+
+```{note}
+---
+class: [1]
+name: ok
+foo: bar
+---
+body
+
+{unknownrole}`x`
+```
+.
+<string>:5: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_option]
+<string>:7: (WARNING/2) 'note': Unknown option key: 'foo' (allowed: ['class', 'name']) [myst.directive_option]
+<string>:11: (WARNING/2) Unknown interpreted text role "unknownrole". [myst.role_unknown]
+.
+
+directive option warnings in colon block
+.
+para
+
+```{note}
+:class: [1]
+:foo: bar
+
+body
+```
+.
+<string>:4: (WARNING/2) 'note': Invalid option value for 'class': [1]: cannot make "[1]" into a class name [myst.directive_option]
+<string>:5: (WARNING/2) 'note': Unknown option key: 'foo' (allowed: ['class', 'name']) [myst.directive_option]
+.
+
+directive option tokenize error line
+.
+```{note}
+---
+class: "unclosed
+---
+body
+```
+.
+<string>:3: (WARNING/2) 'note': Invalid options format: found unexpected end of stream [myst.directive_option]
+.
+
+directive body warning below options block
+.
+```{note}
+---
+class: tip
+name: mynote
+---
+
+{unknownrole}`x`
+```
+.
+<string>:7: (WARNING/2) Unknown interpreted text role "unknownrole". [myst.role_unknown]
+.
+
+directive first-line content line mapping
+.
+```{note} first line
+
+body
+
+{unknownrole}`x`
+```
+.
+<string>:5: (WARNING/2) Unknown interpreted text role "unknownrole". [myst.role_unknown]
 .

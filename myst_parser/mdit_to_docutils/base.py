@@ -95,6 +95,28 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
+def strip_blank_lines(text: str) -> str:
+    """Remove leading and trailing blank (whitespace-only) lines from ``text``.
+
+    The content of a ``$$`` math block includes the line breaks
+    that follow the opening ``$$`` and precede the closing ``$$``.
+    The rST ``math`` directive never has these
+    (docutils trims blank lines from directive content),
+    and the docutils LaTeX writer pastes the content verbatim
+    between ``\\begin{...}`` and ``\\end{...}``,
+    where a blank line ends the paragraph and pdflatex fails.
+    Only whole lines are removed,
+    so the indentation of the first non-blank line is kept.
+    """
+    lines = text.split("\n")
+    start, end = 0, len(lines)
+    while start < end and not lines[start].strip():
+        start += 1
+    while end > start and not lines[end - 1].strip():
+        end -= 1
+    return "\n".join(lines[start:end])
+
+
 class DocutilsRenderer(RendererProtocol):
     """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
@@ -112,7 +134,7 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
         # these are lazy loaded, when needed
-        self._inventories: None | dict[str, inventory.InventoryType] = None
+        self._inventories: dict[str, inventory.InventoryType] | None = None
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -300,7 +322,7 @@ class DocutilsRenderer(RendererProtocol):
         text: str,
         lineno: int,
         inline: bool = False,
-        temp_root_node: None | nodes.Element = None,
+        temp_root_node: nodes.Element | None = None,
         heading_offset: int = 0,
     ) -> None:
         """Render unparsed text (appending to the current node).
@@ -321,7 +343,9 @@ class DocutilsRenderer(RendererProtocol):
         if tokens and tokens[0].type == "front_matter":
             tokens.pop(0)
 
-        # update the line numbers
+        # update the line numbers,
+        # note the maps stay 0-based here;
+        # ``_render_tokens`` applies the final 0-based to 1-based conversion
         for token in tokens:
             if token.map:
                 token.map = [token.map[0] + lineno, token.map[1] + lineno]
@@ -374,6 +398,10 @@ class DocutilsRenderer(RendererProtocol):
         """Copy the line number and document source path to the docutils node."""
         with suppress(ValueError):
             node.line = token_line(token)
+            # keep the document's current_line in sync, so that docutils'
+            # ``Node.setup_child`` stamps sensible lines onto line-less
+            # children (such as ``Text`` nodes), rather than a stale value
+            self.document.current_line = node.line
         node.source = self.document["source"]
 
     def add_line_and_source_path_r(
@@ -424,7 +452,7 @@ class DocutilsRenderer(RendererProtocol):
                         value = converters[key](str(value))
                     except ValueError:
                         self.create_warning(
-                            f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            f"Invalid {key!r} attribute value: {value!r}",
                             MystWarnings.INVALID_ATTRIBUTE,
                             line=token_line(token, default=0),
                             append_to=node,
@@ -653,7 +681,7 @@ class DocutilsRenderer(RendererProtocol):
 
         hl_lines = parselinenos(emphasize_lines, num_lines)
         if any(i >= num_lines for i in hl_lines):
-            raise ValueError(f"out of range(1-{num_lines}")
+            raise ValueError(f"out of range(1-{num_lines})")
 
         return [x + 1 for x in hl_lines if x < num_lines]
 
@@ -845,8 +873,20 @@ class DocutilsRenderer(RendererProtocol):
         # TODO this is purely to mimic docutils, but maybe we don't need it?
         # (since we have the slugify logic below)
         name = nodes.fully_normalize_name(implicit_text)
-        node["names"].append(name)
-        self.document.note_implicit_target(node, node)
+        # Register only this new, implicit name.
+        # ``note_implicit_target`` re-registers *every* name already on the node,
+        # as an implicit one -- including an explicit ``{#id}`` name that
+        # ``copy_attributes`` has already added and registered. The node then
+        # collides with itself: docutils demotes the explicit name into
+        # ``dupnames`` while its name map still points here, so a later,
+        # genuine duplicate of that name raises
+        # ``ValueError: list.remove(x): x not in list``.
+        explicit_names = node["names"]
+        node["names"] = [name]
+        try:
+            self.document.note_implicit_target(node, node)
+        finally:
+            node["names"] = explicit_names + node["names"]
 
         if level > self.md_config.heading_anchors:
             return
@@ -871,6 +911,12 @@ class DocutilsRenderer(RendererProtocol):
                 append_to=self.current_node,
             )
         else:
+            if not slug:
+                # an empty slug (e.g. a punctuation-only title, or a
+                # non-Latin title under the docutils preset) means the
+                # heading gets no anchor; it also takes no part in
+                # deduplication, so a later empty slug is not suffixed -1
+                return
             node["slug"] = slug
             # note: the slug is additionally emitted as a (secondary) HTML id
             # by the `AddSlugIds` transform, which runs only after *all*
@@ -976,7 +1022,7 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_link_unknown(token)
 
     def render_link_url(
-        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
+        self, token: SyntaxTreeNode, conversion: UrlSchemeType | None = None
     ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
@@ -985,8 +1031,8 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(ref_node, token)
         attribute_keys = ["class", "id", "reftitle", "target", "rel"]
         if self.md_config.links_external_new_tab:
-            token.attrs["target"] = "_blank"
-            token.attrs["rel"] = "noreferer noopener"
+            token.attrs.setdefault("target", "_blank")
+            token.attrs.setdefault("rel", "noreferrer noopener")
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
@@ -1375,8 +1421,11 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     continue
                 try:
-                    value = json.dumps(value)
-                except (ValueError, RecursionError):
+                    # Nested dates, sets, etc. are not JSON-serializable;
+                    # see _fm_json_default for how each is rendered.
+                    # TypeError also covers non-string keys such as a YAML date.
+                    value = json.dumps(value, default=_fm_json_default)
+                except (ValueError, TypeError, RecursionError):
                     # e.g. a self-referential structure via a YAML alias
                     self.create_warning(
                         f"Front matter field {key!r} could not be serialized",
@@ -1482,7 +1531,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(node)
 
     def render_math_inline_double(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
@@ -1494,13 +1543,13 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(node)
 
     def render_math_block(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         label = token.info
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
@@ -1783,12 +1832,22 @@ class DocutilsRenderer(RendererProtocol):
         :param arguments: The remaining text on the same line as the directive name.
         """
         position = token_line(token)
+        # reconstruct the directive's full text, so that ``block_text`` aligns
+        # with what an equivalent rST directive would receive
+        # (best-effort: the parser strips fence indentation and normalises
+        # the info string, so this may not be byte-identical to the source)
+        content_text = token.content
+        if content_text and not content_text.endswith("\n"):
+            # e.g. for an unterminated fence at the end of the document
+            content_text += "\n"
+        block_text = f"{token.markup}{token.info}\n{content_text}{token.markup}\n"
         nodes_list = self.run_directive(
             name,
             arguments,
             token.content,
             position,
             additional_options=additional_options,
+            block_text=block_text,
         )
         self.current_node += nodes_list
 
@@ -1799,6 +1858,8 @@ class DocutilsRenderer(RendererProtocol):
         content: str,
         position: int,
         additional_options: dict[str, str] | None = None,
+        *,
+        block_text: str | None = None,
     ) -> list[nodes.Element]:
         """Run a directive and return the generated nodes.
 
@@ -1809,6 +1870,8 @@ class DocutilsRenderer(RendererProtocol):
         :param position: The line number of the first line
         :param additional_options: Additional options to add to the directive,
             above those parsed from the content.
+        :param block_text: The full unparsed text of the directive,
+            defaulting to ``content`` if not given.
 
         """
         self.document.current_line = position
@@ -1838,7 +1901,10 @@ class DocutilsRenderer(RendererProtocol):
                 directive_class,
                 first_line,
                 content,
-                line=position,
+                # when no block_text is given, the content is synthesized
+                # (e.g. from HTML attributes) and has no source lines,
+                # so option warnings fall back to the directive's position
+                line=position if block_text is not None else None,
                 additional_options=additional_options,
             )
         except MarkupError as error:
@@ -1883,7 +1949,7 @@ class DocutilsRenderer(RendererProtocol):
                 # the line offset of the first line of the content
                 content_offset=parsed.body_offset,
                 # a string containing the entire directive
-                block_text="\n".join(parsed.body),
+                block_text=content if block_text is None else block_text,
                 state=state,
                 state_machine=state_machine,
             )
@@ -1995,6 +2061,28 @@ _FM_FIELD_MAX_LENGTH = 100_000
 """Maximum number of items a front matter field may expand to when rendered."""
 
 
+def _fm_json_default(obj: Any) -> Any:
+    """Serialize a front matter value that JSON has no type for.
+
+    Dates and datetimes (e.g. a YAML date nested in a mapping or list)
+    become ISO 8601 strings.
+    ``!!set`` values become a list sorted by each item's rendered JSON text
+    (a textual order, which for ISO dates is also chronological),
+    so the output does not depend on hash randomization.
+    Anything else (e.g. ``!!binary`` bytes) uses ``str()``.
+    """
+    if isinstance(obj, date):  # also datetime, a subclass of date
+        return obj.isoformat()
+    if isinstance(obj, set | frozenset):
+        return sorted(obj, key=_fm_json_text)
+    return str(obj)
+
+
+def _fm_json_text(obj: Any) -> str:
+    """Return the JSON text a front matter value renders as."""
+    return json.dumps(obj, default=_fm_json_default)
+
+
 def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """Return the total number of items ``value`` expands to when serialized.
 
@@ -2005,7 +2093,8 @@ def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """
     if isinstance(value, dict):
         children: Iterable[Any] = value.values()
-    elif isinstance(value, list | tuple):
+    elif isinstance(value, list | tuple | set | frozenset):
+        # sets are rendered as lists by _fm_json_default, so count their items too
         children = value
     else:
         return 1
@@ -2084,7 +2173,7 @@ def default_slugify(title: str) -> str:
 def compute_unique_slug(
     token_tree: SyntaxTreeNode,
     slugs: Container[str],
-    slug_func: None | Callable[[str], str] = None,
+    slug_func: Callable[[str], str] | None = None,
 ) -> str:
     """Compute the slug for a heading token, unique against existing slugs."""
     slug_func = github_slugify if slug_func is None else slug_func

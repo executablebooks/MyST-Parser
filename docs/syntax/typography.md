@@ -9,7 +9,7 @@ It adds features focussed on scientific and technical documentation authoring, a
 
 Markdown syntax denotes headers starting with between 1 to 6 #.
 
-:::{myst-example}
+:::{syntax-example}
 ### Heading Level 3
 :::
 
@@ -18,7 +18,7 @@ will not be included in the table of contents.
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also add classes to headings
 
-:::{myst-example}
+:::{syntax-example}
 > {.bg-primary}
 > ### Paragraph heading
 :::
@@ -36,7 +36,7 @@ Paragraphs are block of text separated by a blank line.
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also add classes to paragraphs:
 
-:::{myst-example}
+:::{syntax-example}
 {.bg-primary}
 Here is a paragraph with a class to control its formatting.
 :::
@@ -47,7 +47,7 @@ Here is a paragraph with a class to control its formatting.
 
 You can create a thematic break, to break content between themes, using three or more `*`, `-`, or `_` characters on a line by themselves.
 
-:::{myst-example}
+:::{syntax-example}
 :alt-output: <hr class="docutils">
 * * *
 :::
@@ -56,20 +56,20 @@ You can create a thematic break, to break content between themes, using three or
 
 Standard inline formatting including bold, italic, code, as well as escaped symbols and line breaks:
 
-:::{myst-example}
+:::{syntax-example}
 **strong**, _emphasis_, `literal text`, \*escaped symbols\*
 :::
 
 The [strikethrough](syntax/strikethrough) extension allows you to add strike-through text:
 
-:::{myst-example}
+:::{syntax-example}
 ~~strikethrough with *emphasis*~~
 :::
 
 The [smartquotes](syntax/smartquotes) and [replacements](syntax/replacements) extensions can improve the typography of common symbols:
 
 
-:::{myst-example}
+:::{syntax-example}
 Smart-quotes 'single quotes' and "double quotes".
 
 +-, --, ---, ... and other replacements.
@@ -78,7 +78,7 @@ Smart-quotes 'single quotes' and "double quotes".
 Using the [attrs_inline](syntax/attributes/inline) extension,
 you can also add classes to inline text spans:
 
-:::{myst-example}
+:::{syntax-example}
 A paragraph with a span of [text with attributes]{.bg-warning}
 :::
 
@@ -86,7 +86,7 @@ A paragraph with a span of [text with attributes]{.bg-warning}
 
 To put a line break, without a paragraph, use a `\` followed by a new line. This corresponds to a `<br>` in HTML and `\\` in LaTeX.
 
-:::{myst-example}
+:::{syntax-example}
 **Fleas** \
 Adam \
 Had 'em.
@@ -97,7 +97,7 @@ Had 'em.
 
 Alternatively, you can use the `line-block` directive, which constructs a block where all line breaks (and also initial indentations) are respected:
 
-::::{myst-example}
+::::{syntax-example}
 :::{line-block}
 **Fleas**
   Adam
@@ -111,7 +111,7 @@ You can use bullet points and numbered lists as you would in standard Markdown.
 Starting a line with either a `-` or `*` for a bullet point, and `1.` for numbered lists.
 These lists can be nested using two spaces at the start of the line.
 
-:::{myst-example}
+:::{syntax-example}
 - Lists can start with `-` or `*`
   * My other, nested
   * bullet point list!
@@ -129,7 +129,7 @@ The exception is the first number, which if it is not `1.` this will change the 
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also specify a alternative numbering styles:
 
-:::{myst-example}
+:::{syntax-example}
 {style=lower-alpha}
 1. a
 2. b
@@ -152,7 +152,7 @@ you can also specify a alternative numbering styles:
 Using the [tasklist](syntax/tasklists) extension,
 you can also create task lists:
 
-:::{myst-example}
+:::{syntax-example}
 - [ ] An item that needs doing
 - [x] An item that is complete
 :::
@@ -162,7 +162,7 @@ you can also create task lists:
 For inline typography for subscript and superscript formatting,
 the `sub` and `sup` {{role}}, can be used respectively.
 
-:::{myst-example}
+:::{syntax-example}
 H{sub}`2`O, and 4{sup}`th` of July
 :::
 
@@ -171,14 +171,14 @@ H{sub}`2`O, and 4{sup}`th` of July
 
 Quotations are controlled with standard Markdown syntax, by inserting a caret (>) symbol in front of one or more lines of text.
 
-:::{myst-example}
+:::{syntax-example}
 > We know what we are, but know not what we may be.
 :::
 
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also add an `attribution` attribute to a block quote:
 
-:::{myst-example}
+:::{syntax-example}
 {attribution="Hamlet act 4, Scene 5"}
 > We know what we are, but know not what we may be.
 :::
@@ -189,7 +189,7 @@ you can also add an `attribution` attribute to a block quote:
 Using the [definition lists](syntax/definition-lists) extension,
 you can define terms in your documentation, using the syntax:
 
-:::{myst-example}
+:::{syntax-example}
 Term 1
 : Definition
 
@@ -205,7 +205,7 @@ Term 2
 Using the [attrs_block](#syntax/attributes/block) extension,
 you can also add a `glossary` class to a definition list, that will allow you to reference terms in your text using the [`term` role](syntax/roles):
 
-:::{myst-example}
+:::{syntax-example}
 {.glossary}
 my term
 : Definition of the term
@@ -218,7 +218,7 @@ my term
 Using the [field lists](syntax/fieldlists) extension,
 you can create field lists, which are useful in source code documentation (see [Sphinx docstrings](inv:sphinx#info-field-lists)):
 
-:::{myst-example}
+:::{syntax-example}
 
 :param arg1: A description of arg1
 :param arg2: A longer description,
@@ -238,7 +238,7 @@ prevent the line from being parsed into the output document.
 
 For example, this won't be parsed into the document:
 
-:::{myst-example}
+:::{syntax-example}
 % my comment
 :::
 
@@ -249,7 +249,7 @@ Since comments are a block-level entity, they will terminate the previous block.
 In practical terms, this means that the following lines
 will be broken up into two paragraphs, resulting in a new line between them:
 
-:::{myst-example}
+:::{syntax-example}
 a line
 % a comment
 another line
@@ -269,7 +269,7 @@ Their labels **start with `^`** and can then be any alphanumeric string (no spac
 All footnote definitions are collected, and displayed at the bottom of the page (in the order they are referenced).
 Note that un-referenced footnote definitions will not be displayed.
 
-:::{myst-example}
+:::{syntax-example}
 - This is a manually-numbered footnote reference.[^3]
 - This is an auto-numbered footnote reference.[^myref]
 
@@ -280,7 +280,7 @@ Note that un-referenced footnote definitions will not be displayed.
 Any preceding text after a footnote definitions, which is
 indented by four or more spaces, will also be included in the footnote definition, and the text is rendered as MyST Markdown, e.g.
 
-:::{myst-example}
+:::{syntax-example}
 A longer footnote definition.[^mylongdef]
 
 [^mylongdef]: This is the _**footnote definition**_.

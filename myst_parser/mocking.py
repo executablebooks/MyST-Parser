@@ -451,7 +451,8 @@ class MockIncludeDirective:
             literal_block = nodes.literal_block(
                 file_content, source=str(path), classes=self.options.get("class", [])
             )
-            literal_block.line = 1  # TODO don;t think this should be 1?
+            # docutils sets this to the ``start-line`` option (or 0) + 1
+            literal_block.line = (self.options.get("start-line") or 0) + 1
             self.add_name(literal_block)
             if "number-lines" in self.options:
                 # note starting in docutils 0.22 this option is now an integer instead of a string, see: https://github.com/live-clones/docutils/commit/f39ac1413e56a330c8fea6e0d080fed0ff2b8483

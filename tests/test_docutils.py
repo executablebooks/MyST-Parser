@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import re
 import sys
 from dataclasses import dataclass, field, fields
 from textwrap import dedent
@@ -9,7 +10,8 @@ from typing import Literal
 import markdown_it.main
 import pytest
 from docutils import nodes
-from docutils.core import publish_doctree
+from docutils.core import publish_doctree, publish_string
+from docutils.writers.latex2e import Writer as LatexWriter
 from markdown_it.token import Token
 
 from myst_parser.config.main import MdParserConfig
@@ -113,6 +115,8 @@ def test_help_text():
             assert not exc.code
 
     assert "MyST options" in stream.getvalue()
+    # the option's help text is its only user-facing documentation
+    assert 'rel="noreferrer noopener"' in " ".join(stream.getvalue().split())
 
 
 def test_include_from_rst(tmp_path):
@@ -305,6 +309,35 @@ def test_footnote_label_matching_explicit_target():
     assert doctree.nameids["note"]
 
 
+@pytest.mark.parametrize(
+    "source",
+    [
+        pytest.param("{#x}\n# First\n\n{#x}\n# Second\n", id="heading-heading"),
+        pytest.param("{#x}\n# First\n\n(x)=\ntext\n", id="heading-target"),
+        pytest.param("{#x}\n# First\n\n{#x}\nparagraph\n", id="heading-paragraph"),
+        pytest.param("{#first}\n# First\n\n{#first}\n# Second\n", id="id-equals-title"),
+    ],
+)
+def test_attrs_block_heading_duplicate_id_warns(source):
+    """A heading ``{#id}`` that is later duplicated warns, rather than crashing.
+
+    Regression: on docutils < 0.23 the heading's explicit name was registered a
+    second time as an implicit one, so the node collided with itself and the
+    duplicate aborted the build with ``ValueError: list.remove(x)``.
+    This needs no Sphinx, so it also covers the docutils-only CI legs.
+    """
+    stream = io.StringIO()
+    publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["attrs_block"],
+            "warning_stream": stream,
+        },
+    )
+    assert "Duplicate explicit target name" in stream.getvalue()
+
+
 def test_topmatter_deeply_nested_yaml_warns():
     """Deeply nested front matter YAML warns instead of crashing.
 
@@ -334,6 +367,105 @@ def test_topmatter_deeply_nested_yaml_warns():
     assert "content" in doctree.pformat()
 
 
+@pytest.mark.parametrize(
+    "yaml_block",
+    [
+        "review:\n  date: 2026-08-03",  # date nested in a mapping
+        "reviewed: [2026-08-03]",  # date nested in a sequence
+        "review:\n  at: 2026-08-03T12:00:00",  # datetime nested in a mapping
+    ],
+)
+def test_topmatter_nested_dates_do_not_crash(yaml_block):
+    """YAML dates nested in dicts/lists must not abort the build.
+
+    Top-level ``date``/``datetime`` scalars skip JSON encoding, but a nested
+    date used to reach ``json.dumps`` and raise ``TypeError`` (#1203).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "2026-08-03" in doctree.astext()
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
+def test_topmatter_date_mapping_key_warns():
+    """A YAML date used as a mapping *key* cannot be JSON-serialized.
+
+    ``json.dumps``'s ``default=`` hook is not called for keys, so this still
+    cannot be rendered as a field, but it must warn rather than crash,
+    and only that field is dropped.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="---\nreview:\n  2026-08-03: done\nother: [2026-08-04]\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "Front matter field 'review' could not be serialized" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert _topmatter_fields(doctree) == {"other": '["2026-08-04"]'}
+
+
+def _topmatter_fields(doctree: nodes.document) -> dict[str, str]:
+    """Return the rendered front matter fields, as ``{name: body text}``."""
+    return {
+        field[0].astext(): field[1].astext() for field in doctree.findall(nodes.field)
+    }
+
+
+@pytest.mark.parametrize(
+    ("yaml_block", "expected"),
+    [
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00",
+            '{"at": "2026-08-03T12:00:00"}',
+            id="nested-datetime-isoformat",
+        ),
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00+02:00",
+            '{"at": "2026-08-03T12:00:00+02:00"}',
+            id="nested-tz-datetime-isoformat",
+        ),
+        pytest.param(
+            "tags: !!set {gamma, alpha, beta}",
+            '["alpha", "beta", "gamma"]',
+            id="set-sorted",
+        ),
+        pytest.param(
+            "review:\n  d: !!set {2026-08-10, 2026-08-04, 2026-08-03}",
+            '{"d": ["2026-08-03", "2026-08-04", "2026-08-10"]}',
+            id="nested-set-of-dates",
+        ),
+        pytest.param(
+            "tags: !!set {1, b, 2026-08-03}",
+            '["2026-08-03", "b", 1]',
+            id="mixed-type-set",
+        ),
+    ],
+)
+def test_topmatter_json_rendering(yaml_block, expected):
+    """Values JSON has no type for render deterministically.
+
+    Dates and datetimes nested in a mapping or list render as ISO 8601 strings,
+    and a YAML ``!!set`` renders as a sorted list,
+    so the output does not depend on hash randomization (``PYTHONHASHSEED``).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    key = yaml_block.split(":", 1)[0]
+    assert _topmatter_fields(doctree) == {key: expected}
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
 def test_topmatter_alias_expansion_bomb_warns():
     """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
 
@@ -354,6 +486,33 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "too large to render" in stream.getvalue()
     assert "[myst.topmatter]" in stream.getvalue()
     assert "content" in doctree.pformat()
+
+
+def test_topmatter_set_alias_bomb_warns():
+    """A ``!!set`` repeated through YAML aliases counts toward the size limit.
+
+    Sets render as lists, so their items must be measured too;
+    otherwise a few KB of front matter renders to tens of MB.
+    Field ``c`` expands to about 20,000 items (rendered),
+    field ``d`` to about 200,000 (over the limit, so it warns).
+    """
+    items = ", ".join(f"k{i}" for i in range(200))
+    source = (
+        f"---\na: &a !!set {{{items}}}\n"
+        f"b: &b [{', '.join(['*a'] * 10)}]\n"
+        f"c: &c [{', '.join(['*b'] * 10)}]\n"
+        f"d: [{', '.join(['*c'] * 10)}]\n---\n\ncontent\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    warnings = stream.getvalue()
+    assert "Front matter field 'd' is too large to render" in warnings
+    assert "Front matter field 'c'" not in warnings
 
 
 def test_heading_anchors_html_ids_disabled():
@@ -441,6 +600,204 @@ def test_footnote_duplicate_definition_warns():
     assert len(list(doctree.findall(nodes.footnote))) == 1
 
 
+def test_directive_block_text_rst_parity():
+    """A fenced directive's ``self.block_text`` mirrors the rST full source.
+
+    The block text spans the opening fence, options block, body and closing
+    fence, while ``self.content``/``self.content_offset`` stay body-relative.
+    """
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst import directives as rst_directives
+
+    captured = {}
+
+    class _BlockTextEcho(Directive):
+        has_content = True
+        option_spec = {"class": rst_directives.class_option}
+
+        def run(self):
+            captured["block_text"] = self.block_text
+            captured["content"] = list(self.content)
+            captured["content_offset"] = self.content_offset
+            return []
+
+    rst_directives.register_directive("blocktextecho", _BlockTextEcho)
+    try:
+        publish_doctree(
+            source="```{blocktextecho}\n---\nclass: tip\n---\nbody line\n```\n",
+            parser=Parser(),
+            settings_overrides={"warning_stream": io.StringIO()},
+        )
+    finally:
+        rst_directives._directives.pop("blocktextecho", None)
+    assert captured["block_text"] == (
+        "```{blocktextecho}\n---\nclass: tip\n---\nbody line\n```\n"
+    )
+    assert captured["content"] == ["body line"]
+    assert captured["content_offset"] == 3
+
+
+def test_directive_block_text_fallback():
+    """Directives run from synthesized (non-source) content, such as HTML
+    admonitions, receive that content as ``block_text``."""
+    from docutils.parsers.rst import Directive
+    from docutils.parsers.rst import directives as rst_directives
+
+    captured = {}
+
+    class _Echo(Directive):
+        required_arguments = 1
+        final_argument_whitespace = True
+        has_content = True
+        option_spec = {"class": rst_directives.class_option}
+
+        def run(self):
+            captured["block_text"] = self.block_text
+            return []
+
+    rst_directives.register_directive("admonition", _Echo)
+    try:
+        publish_doctree(
+            source='<div class="admonition">\nTitle text\n\nBody text here\n</div>\n',
+            parser=Parser(),
+            settings_overrides={
+                "warning_stream": io.StringIO(),
+                "myst_enable_extensions": ["html_admonition"],
+            },
+        )
+    finally:
+        rst_directives._directives.pop("admonition", None)
+    assert captured["block_text"] == ":class: admonition\n\nTitle text\n"
+
+
+def test_html_image_option_warning_line():
+    """Option warnings for HTML-synthesized directives point at the element.
+
+    The synthesized ``:key: value`` content has no source lines, so warnings
+    must fall back to the element's own line, not per-key arithmetic.
+    """
+    stream = io.StringIO()
+    publish_doctree(
+        source="para\n\npara two\n\n<img src='x.png' width='not!valid'>\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": stream,
+            "myst_enable_extensions": ["html_image"],
+        },
+    )
+    assert "<string>:5: (WARNING/2) 'image': Invalid option value for 'width'" in (
+        stream.getvalue()
+    )
+
+
+def test_colon_fence_option_warning_line():
+    """Per-key option warning lines also apply to ``:::`` fence directives."""
+    stream = io.StringIO()
+    publish_doctree(
+        source="para\n\n:::{note}\n:foo: bar\nbody\n:::\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": stream,
+            "myst_enable_extensions": ["colon_fence"],
+        },
+    )
+    assert "<string>:4: (WARNING/2) 'note': Unknown option key: 'foo'" in (
+        stream.getvalue()
+    )
+
+
+def test_include_literal_line(tmp_path):
+    """A literal ``include`` block's source line reflects ``start-line``."""
+    inc = tmp_path / "inc.txt"
+    inc.write_text("l1\nl2\nl3\nl4\nl5\n")
+    source_path = str(tmp_path / "main.md")
+
+    doctree = publish_doctree(
+        source=f"```{{include}} {inc}\n:literal: true\n:start-line: 2\n```\n",
+        source_path=source_path,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    literal_block = next(doctree.findall(nodes.literal_block))
+    assert literal_block.line == 3
+    assert literal_block.astext() == "l3\nl4\nl5"
+
+    doctree = publish_doctree(
+        source=f"```{{include}} {inc}\n:literal: true\n```\n",
+        source_path=source_path,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    literal_block = next(doctree.findall(nodes.literal_block))
+    assert literal_block.line == 1
+
+
+def test_text_node_line_stamping():
+    """Text nodes carry their enclosing block's line, not a stale one.
+
+    Regression for a directive's line being stamped
+    (via ``document.current_line`` and docutils' ``Node.setup_child``)
+    onto every subsequent ``Text`` node in the document.
+    """
+    source = (
+        "para one\n\n```{note}\n:class: tip\n\nnote body\n```\n\npara two\n\n- item\n"
+    )
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": io.StringIO()},
+    )
+    lines = {text.astext(): text.line for text in doctree.findall(nodes.Text)}
+    assert lines["para one"] == 1
+    # previously stamped with the note directive's line (3)
+    assert lines["para two"] == 9
+    assert lines["item"] == 11
+    # created while detached from the document, so defers to ancestor lookup
+    assert lines["note body"] is None
+
+
+def test_empty_slug_means_no_anchor():
+    """A heading whose title slugifies to nothing gets no anchor.
+
+    In particular the empty slug takes no part in deduplication, so a later
+    empty-slugging heading must not receive a nonsense ``-1`` anchor id.
+    """
+    doctree = publish_doctree(
+        source="# !!!\n\n# ???\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "doctitle_xform": False,
+            "myst_heading_anchors": 2,
+        },
+    )
+    for section in doctree.findall(nodes.section):
+        assert "slug" not in section.attributes, section.attributes
+        assert section["ids"] and all(not i.startswith("-") for i in section["ids"]), (
+            section["ids"]
+        )
+
+
+def test_docutils_slug_preset():
+    """The ``docutils`` preset produces make_id-style anchors.
+
+    Non-Latin titles slugify to nothing under this preset, so those headings
+    get no anchor.
+    """
+    doctree = publish_doctree(
+        source="# Привет\n\n# 2.0\n\n# Hello World\n\n# Straße & Œuvre\n",
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "doctitle_xform": False,
+            "myst_heading_anchors": 2,
+            "myst_heading_slug_func": "docutils",
+        },
+    )
+    slugs = [section.get("slug") for section in doctree.findall(nodes.section)]
+    assert slugs == [None, None, "hello-world", "strasze-oeuvre"]
+
+
 def test_definition_list_orphan_definition():
     """A definition with no preceding term errors, but keeps its content.
 
@@ -472,3 +829,139 @@ def test_definition_list_orphan_definition():
     output = document.pformat()
     assert "no preceding term" in output
     assert "important content" in output
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("$$\na = 1\n$$", "a = 1", id="newlines"),
+        pytest.param("$$\n\na = 1\n\n$$", "a = 1", id="blank-lines"),
+        pytest.param("$$\n  \na = 1\n  \n$$", "a = 1", id="whitespace-lines"),
+        pytest.param("$$\na = 1\n$$ (label)", "a = 1", id="label"),
+        pytest.param("$$\n\na = 1\n\n$$ (label)", "a = 1", id="label-blank-lines"),
+        pytest.param("$$\na = 1\n\nb = 2\n$$", "a = 1\n\nb = 2", id="interior-kept"),
+        pytest.param("$$\n  a\n    b\n$$", "  a\n    b", id="indentation-kept"),
+        pytest.param("$$ a = 1 $$", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_block_blank_boundary_lines(source, expected):
+    """``$$`` math block content has no leading or trailing blank lines.
+
+    Like the rST ``math`` directive, only whole blank lines at the start and
+    end are removed (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("Some text\n$$\na = 1\n$$\nmore text.", "a = 1", id="newlines"),
+        pytest.param(
+            "Some text\n$$  \na = 1\n  $$\nmore text.",
+            "a = 1",
+            id="whitespace-lines",
+        ),
+        pytest.param("text $$ a = 1 $$ text", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_inline_double_blank_boundary_lines(source, expected):
+    """``$$`` inside a paragraph has no leading or trailing blank lines.
+
+    With ``myst_dmath_double_inline``, such a ``$$`` pair is rendered as a
+    ``math_block`` too, so its content is trimmed the same way (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+def assert_no_blank_line_in_math_env(output: str) -> None:
+    """Assert no display math environment in ``output`` has a blank line.
+
+    This checks the property itself, independent of which environment
+    the docutils LaTeX writer picks or how it lays out the lines.
+    """
+    bodies = re.findall(
+        r"\\begin\{(equation\*|align\*)\}(.*?)\\end\{\1\}", output, re.DOTALL
+    )
+    assert bodies, output
+    for _, body in bodies:
+        assert re.search(r"\n[ \t]*\n", body) is None, body
+
+
+def test_math_block_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment.
+
+    A blank line there ends the paragraph, and pdflatex fails with
+    "Paragraph ended before \\align* was complete" (#614).
+    The source is the example from the issue.
+    """
+    source = dedent(
+        r"""
+        $$
+        n & = & 41*23 = 943 \\
+        (p-1)(q-1) & = & 40*22 = 880 \\
+        e & = & 753
+        $$
+
+        $$
+           \begin{eqnarray}
+              y    & = & ax^2 + bx + c \\
+              f(x) & = & x^2 + 2xy + y^2
+           \end{eqnarray}
+        $$
+        """
+    )
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    assert "\\begin{align*}\nn & = & 41*23 = 943" in output
+    assert "e & = & 753\n\\end{align*}" in output
+    assert "\\begin{equation*}\n   \\begin{eqnarray}" in output
+    assert "\\end{eqnarray}\n\\end{equation*}" in output
+    assert_no_blank_line_in_math_env(output)
+
+
+def test_math_inline_double_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment,
+    for a ``$$`` pair inside a paragraph with ``myst_dmath_double_inline`` (#614).
+    """
+    source = "Some text\n$$\nn & = 943 \\\\\ne & = 753\n$$\nmore text.\n"
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+            "myst_dmath_double_inline": True,
+        },
+    )
+    assert "\\begin{align*}" in output
+    assert_no_blank_line_in_math_env(output)

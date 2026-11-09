@@ -242,7 +242,9 @@ class MdParserConfig:
         default=False,
         metadata={
             "validator": instance_of(bool),
-            "help": "Open all external links in a new tab",
+            "help": "Open all external links in a new tab "
+            '(sets target="_blank" and rel="noreferrer noopener", '
+            "unless the link already sets them)",
         },
     )
 
@@ -313,7 +315,7 @@ class MdParserConfig:
             "validator": check_heading_slug_func,
             "help": (
                 "Function for creating heading anchors: "
-                'a preset name ("github", "gitlab"), '
+                'a preset name ("docutils", "github", "gitlab"), '
                 "or (legacy) a python import path "
                 "e.g. `my_package.my_module.my_function`"
             ),

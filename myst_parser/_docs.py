@@ -14,6 +14,7 @@ from sphinx.directives import other
 from sphinx.transforms.post_transforms import SphinxPostTransform
 from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
+from sphinx_syntax_example import SyntaxExampleDirective
 
 from myst_parser.parsers.docutils_ import to_html5_demo
 
@@ -280,41 +281,62 @@ class MystWarningsDirective(SphinxDirective):
         return node.children
 
 
-class MystExampleDirective(SphinxDirective):
-    """Directive to create an example, showing the source and output."""
+class SyntaxExampleDocsDirective(SyntaxExampleDirective):
+    """Directive to create an example, showing the source and output.
 
-    has_content = True
+    This is the generic ``syntax-example`` directive from the
+    ``sphinx-syntax-example`` package, adapted to these docs: it never shows a
+    title, frames itself as a sphinx-design div, and gains an ``:alt-output:``
+    option for the (rare) case where the rendered half must differ from the
+    source shown above it.
+
+    The source pane's language needs no override: the base class' lexer probe
+    consults Sphinx's ``add_lexer`` registry, so it finds the ``MystLexer``
+    registered in ``docs/conf.py`` and infers ``myst`` for these Markdown docs.
+    """
+
+    # The previous implementation took no argument; keeping it that way means a
+    # stray argument cannot become a rubric — MyST folds the opening-line text
+    # into the content of a directive that declares no arguments.
+    optional_arguments = 0
     option_spec = {
+        **SyntaxExampleDirective.option_spec,
         "alt-output": directives.unchanged,
-        "highlight": directives.unchanged,
-        # "html": directives.flag,
     }
 
-    def run(self):
-        """Run the directive."""
-        content_str = "\n".join(self.content)
-        output_str = self.options.get("alt-output", content_str)
-        highlight = self.options.get("highlight", "myst")
-        backticks = "```"
-        while backticks in content_str:
-            backticks += "`"
-        content = f"""
-{backticks}``{{div}} myst-example
+    #: These docs never label their examples, so no rubric is emitted.
+    default_title = ""
 
-{backticks}`{{div}} myst-example-source
-{backticks}{highlight}
-{content_str}
-{backticks}
-{backticks}`
-{backticks}`{{div}} myst-example-render
+    def build_wrapper_node(self) -> nodes.Element:
+        """Frame the example as a sphinx-design div rather than a container.
 
-{output_str}
-{backticks}`
-{backticks}``
-"""
-        node_ = nodes.Element()
-        self.state.nested_parse(content.splitlines(), self.content_offset, node_)
-        return node_.children
+        A plain ``container`` renders as ``<div class="docutils container">``,
+        and that ``container`` class attracts the theme's Bootstrap layout
+        rules; sphinx-design's overridden container visitor drops it for nodes
+        flagged ``is_div``, which is what the previous implementation got by
+        wrapping its content in ``{div}`` directives. ``design_component`` is
+        inert for a plain div — only sphinx-design's ``is_component()`` reads
+        it, for tab-set/grid/card children — and is set to match what ``{div}``
+        produced.
+
+        Per the seam's contract, the CSS classes are left to ``run()``.
+        """
+        return nodes.container(is_div=True, design_component="div")
+
+    def build_render_node(self) -> nodes.Element:
+        """Emit the render pane as a sphinx-design div, as for the wrapper."""
+        return nodes.container(is_div=True, design_component="div")
+
+    def render_into(self, container: nodes.Element) -> None:
+        """Render ``:alt-output:`` when given, otherwise the verbatim content.
+
+        The alternative output is parsed as MyST, just like the content it
+        replaces, so it may be raw HTML, markup, or a mix of the two.
+        """
+        if "alt-output" in self.options:
+            self.nested_parse_text(self.options["alt-output"], container)
+        else:
+            super().render_into(container)
 
 
 class MystAdmonitionDirective(SphinxDirective):
@@ -362,7 +384,7 @@ class MystToHTMLDirective(SphinxDirective):
             cli_opt += f"--myst-enable-extensions={self.options['extensions']}"
         html = to_html5_demo(content_str, **kwargs)
         content = f"""\
-::::myst-example
+::::syntax-example
 ```bash
 myst-docutils-demo example.md {cli_opt}
 ```
