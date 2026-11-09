@@ -28,10 +28,8 @@ $$ (label)
     <math_block nowrap="False" number="True" xml:space="preserve">
         foo
     <math_block nowrap="False" number="True" xml:space="preserve">
-
         a = 1
     <math_block ids="label" names="label" nowrap="False" number="True" xml:space="preserve">
-
         b = 2
 .
 
@@ -301,4 +299,31 @@ Contact user@example.com for help.
         <reference refuri="mailto:user@example.com">
             user@example.com
          for help.
+.
+
+[dollarmath-blank-lines] --myst-enable-extensions=dollarmath
+.
+$$
+
+a = 1
+
+$$
+
+$$
+   \begin{eqnarray}
+      y    & = & ax^2 + bx + c \\
+
+      f(x) & = & x^2 + 2xy + y^2
+   \end{eqnarray}
+$$ (label)
+.
+<document source="<string>">
+    <math_block nowrap="False" number="True" xml:space="preserve">
+        a = 1
+    <math_block ids="label" names="label" nowrap="False" number="True" xml:space="preserve">
+           \begin{eqnarray}
+              y    & = & ax^2 + bx + c \\
+
+              f(x) & = & x^2 + 2xy + y^2
+           \end{eqnarray}
 .
