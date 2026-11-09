@@ -2093,7 +2093,8 @@ def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """
     if isinstance(value, dict):
         children: Iterable[Any] = value.values()
-    elif isinstance(value, list | tuple):
+    elif isinstance(value, list | tuple | set | frozenset):
+        # sets are rendered as lists by _fm_json_default, so count their items too
         children = value
     else:
         return 1

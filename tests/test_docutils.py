@@ -488,6 +488,33 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "content" in doctree.pformat()
 
 
+def test_topmatter_set_alias_bomb_warns():
+    """A ``!!set`` repeated through YAML aliases counts toward the size limit.
+
+    Sets render as lists, so their items must be measured too;
+    otherwise a few KB of front matter renders to tens of MB.
+    Field ``c`` expands to about 20,000 items (rendered),
+    field ``d`` to about 200,000 (over the limit, so it warns).
+    """
+    items = ", ".join(f"k{i}" for i in range(200))
+    source = (
+        f"---\na: &a !!set {{{items}}}\n"
+        f"b: &b [{', '.join(['*a'] * 10)}]\n"
+        f"c: &c [{', '.join(['*b'] * 10)}]\n"
+        f"d: [{', '.join(['*c'] * 10)}]\n---\n\ncontent\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    warnings = stream.getvalue()
+    assert "Front matter field 'd' is too large to render" in warnings
+    assert "Front matter field 'c'" not in warnings
+
+
 def test_heading_anchors_html_ids_disabled():
     """``myst_heading_anchors_html_ids=False`` restores lookup-only slugs."""
     settings: dict = {"myst_heading_anchors": 1, "doctitle_xform": False}
