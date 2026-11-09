@@ -364,18 +364,75 @@ def test_topmatter_nested_dates_do_not_crash(yaml_block):
 def test_topmatter_date_mapping_key_warns():
     """A YAML date used as a mapping *key* cannot be JSON-serialized.
 
-    ``json.dumps(..., default=str)`` does not convert keys, so this still
-    cannot be rendered as a field, but it must warn rather than crash.
+    ``json.dumps``'s ``default=`` hook is not called for keys, so this still
+    cannot be rendered as a field, but it must warn rather than crash,
+    and only that field is dropped.
     """
     stream = io.StringIO()
     doctree = publish_doctree(
-        source="---\nreview:\n  2026-08-03: done\n---\n\ncontent\n",
+        source="---\nreview:\n  2026-08-03: done\nother: [2026-08-04]\n---\n\ncontent\n",
         parser=Parser(),
         settings_overrides={"warning_stream": stream},
     )
     assert "content" in doctree.pformat()
-    assert "could not be serialized" in stream.getvalue()
+    assert "Front matter field 'review' could not be serialized" in stream.getvalue()
     assert "[myst.topmatter]" in stream.getvalue()
+    assert _topmatter_fields(doctree) == {"other": '["2026-08-04"]'}
+
+
+def _topmatter_fields(doctree: nodes.document) -> dict[str, str]:
+    """Return the rendered front matter fields, as ``{name: body text}``."""
+    return {
+        field[0].astext(): field[1].astext() for field in doctree.findall(nodes.field)
+    }
+
+
+@pytest.mark.parametrize(
+    ("yaml_block", "expected"),
+    [
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00",
+            '{"at": "2026-08-03T12:00:00"}',
+            id="nested-datetime-isoformat",
+        ),
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00+02:00",
+            '{"at": "2026-08-03T12:00:00+02:00"}',
+            id="nested-tz-datetime-isoformat",
+        ),
+        pytest.param(
+            "tags: !!set {gamma, alpha, beta}",
+            '["alpha", "beta", "gamma"]',
+            id="set-sorted",
+        ),
+        pytest.param(
+            "review:\n  d: !!set {2026-08-10, 2026-08-04, 2026-08-03}",
+            '{"d": ["2026-08-03", "2026-08-04", "2026-08-10"]}',
+            id="nested-set-of-dates",
+        ),
+        pytest.param(
+            "tags: !!set {1, b, 2026-08-03}",
+            '["2026-08-03", "b", 1]',
+            id="mixed-type-set",
+        ),
+    ],
+)
+def test_topmatter_json_rendering(yaml_block, expected):
+    """Values JSON has no type for render deterministically.
+
+    Dates and datetimes nested in a mapping or list render as ISO 8601 strings,
+    and a YAML ``!!set`` renders as a sorted list,
+    so the output does not depend on hash randomization (``PYTHONHASHSEED``).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    key = yaml_block.split(":", 1)[0]
+    assert _topmatter_fields(doctree) == {key: expected}
+    assert "[myst.topmatter]" not in stream.getvalue()
 
 
 def test_topmatter_alias_expansion_bomb_warns():
