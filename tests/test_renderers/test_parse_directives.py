@@ -5,6 +5,7 @@ import pytest
 import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
+from docutils.parsers.rst.directives.misc import TestDirective as DocutilsTestDirective
 from markdown_it import MarkdownIt
 from sphinx.directives.code import CodeBlock
 
@@ -162,6 +163,67 @@ def test_option_warning_lines_colon_block():
     assert result.warnings[1].lineno == 5
     assert result.body == ["body"]
     assert result.body_offset == 3
+
+
+@pytest.mark.parametrize(
+    ("first_line", "content", "offset"),
+    [
+        # colon-style option block
+        pytest.param("", ":class: tip\nbody", 1, id="colon"),
+        pytest.param("", ":class: tip\nbody\n\n\n", 1, id="colon-blanks"),
+        # a fence body always ends in "\n", so one blank line before the
+        # closing fence is enough to trigger #1177
+        pytest.param("", ":class: tip\nbody\n\n", 1, id="colon-one-blank"),
+        # blank separator line between the options and the body
+        pytest.param("", ":class: tip\n\nbody\n\n", 2, id="colon-separator"),
+        # yaml-style option block
+        pytest.param("", "---\nclass: tip\n---\nbody", 3, id="yaml"),
+        pytest.param("", "---\nclass: tip\n---\nbody\n\n\n", 3, id="yaml-blanks"),
+        # text trailing the closing `---` is the first body line,
+        # sitting on the closing line itself (#1164)
+        pytest.param(
+            "", "---\nclass: tip\n--- body\nmore\n\n", 2, id="yaml-closer-text"
+        ),
+        # unclosed `---` block: everything is options, there is no body
+        pytest.param("", "---\nclass: tip\n\n", 3, id="yaml-unclosed"),
+        # no option block: unaffected
+        pytest.param("", "body\n\n", 0, id="no-options"),
+        # body text on the first line sits on the opening line itself: -1 (#1164)
+        pytest.param("first", "second\n\n", -1, id="first-line"),
+        # ... and with an option block, the offset is right for the body lines
+        # after the merged first line (``body`` is two lines below the opener)
+        pytest.param("first", ":class: tip\nbody\n\n", 0, id="first-line-colon"),
+    ],
+)
+def test_body_offset_not_inflated_by_trailing_blank_lines(first_line, content, offset):
+    """A body ending in blank lines must not inflate ``body_offset`` (#1177)."""
+    result = parse_directive_text(Note, first_line, content)
+    assert result.body_offset == offset
+
+
+@pytest.mark.parametrize(
+    ("directive", "validate_options", "content", "offset"),
+    [
+        # options read as plain YAML, without validation (as myst-nb does)
+        pytest.param(Note, False, ":class: tip\nbody\n\n", 1, id="as-yaml-colon"),
+        pytest.param(
+            Note, False, "---\nclass: tip\n---\nbody\n\n", 3, id="as-yaml-yaml"
+        ),
+        # docutils' test directive accepts any option, on its own return path
+        pytest.param(
+            DocutilsTestDirective, True, ":option: x\nbody\n\n", 1, id="test-directive"
+        ),
+    ],
+)
+def test_body_offset_trailing_blank_other_option_paths(
+    directive, validate_options, content, offset
+):
+    """The #1177 fix also holds where options are not validated against a spec."""
+    result = parse_directive_text(
+        directive, "", content, validate_options=validate_options
+    )
+    assert result.body == ["body"]
+    assert result.body_offset == offset
 
 
 def test_option_warning_lines_none():
