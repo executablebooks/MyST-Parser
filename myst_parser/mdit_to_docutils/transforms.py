@@ -135,7 +135,9 @@ class CollectFootnotes(Transform):
         ) -> tuple[int, int, str]:
             label, _ = footnote
             if label is None:
-                # unlabelled: after all labelled footnotes, in definition order
+                # unlabelled: after all labelled footnotes; the sort is stable,
+                # so they keep the order they are first referenced
+                # (the order docutils numbers them)
                 return (2, 0, "")
             try:
                 # ensure e.g 10 comes after 2
