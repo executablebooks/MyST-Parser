@@ -237,25 +237,28 @@ bar
         bar
 .
 
-[parsed-literal-following-paragraph] (the block keeps its indent; a paragraph after it still collapses):
+[parsed-literal-following-paragraph] (the block keeps its indent; a nested paragraph parsed after it still collapses):
 .
 ```{parsed-literal}
 a
  b
 ```
 
+```{note}
 after
    para
+```
 .
 <document source="notset">
     <literal_block xml:space="preserve">
         a
 
          b
-    <paragraph>
-        after
+    <note>
+        <paragraph>
+            after
 
-        para
+            para
 .
 
 [rubric] (`docutils.parsers.rst.directives.body.Rubric`):
