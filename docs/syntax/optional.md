@@ -401,6 +401,10 @@ Therefore you can do things like:
 - {{ "a" + "b" }}
 :::
 
+A substitution whose content is exactly one key is looked up directly, before any expression evaluation.
+So a key that is not a valid Jinja2 identifier, such as `foo-bar`, can be used on its own as `{{foo-bar}}`,
+but not inside a filter or expression (`{{ foo-bar | upper }}` is parsed as `foo - (bar | upper)`).
+
 You can also change the delimiter if necessary, for example setting in the `conf.py`:
 
 ```python

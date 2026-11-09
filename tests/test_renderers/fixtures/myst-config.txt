@@ -255,6 +255,26 @@ text
 <string>:3: (WARNING/2) circular substitution reference: {'e'} [myst.substitution]
 .
 
+[substitutions_non_identifier_key] --myst-enable-extensions=substitution --myst-substitutions='{"foo-bar": "Foobar", "c-1": "{{c-2}}", "c-2": "{{c-1}}"}'
+.
+{{foo-bar}} {{c-1}} {{ foo-bar | upper }}
+.
+<document source="<string>">
+    <paragraph>
+        Foobar
+
+        <system_message level="2" line="3" source="<string>" type="WARNING">
+            <paragraph>
+                circular substitution reference: {'c-1'} [myst.substitution]
+
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+
+<string>:3: (WARNING/2) circular substitution reference: {'c-1'} [myst.substitution]
+<string>:1: (WARNING/2) Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+.
+
 [attrs_image] --myst-enable-extensions=attrs_image
 .
 a
