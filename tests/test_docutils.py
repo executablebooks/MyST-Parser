@@ -9,6 +9,7 @@ from typing import Literal
 
 import markdown_it.main
 import pytest
+from docutils import __version_info__ as docutils_version
 from docutils import nodes
 from docutils.core import publish_doctree, publish_string
 from docutils.writers.latex2e import Writer as LatexWriter
@@ -142,6 +143,88 @@ def test_include_from_rst(tmp_path):
             """
         ).strip()
     )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^myref]
+
+            [^myref]: auto definition.
+            [^3]: manual definition.
+            """,
+            ["3", "myref"],
+            id="manual-and-auto",
+        ),
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^x]
+
+            [^x]:
+            [^3]: three
+            """,
+            ["3", "x"],
+            id="empty-auto-definition",
+        ),
+        pytest.param(
+            """\
+            - one[^first] two[^second] three[^3]
+
+            [^first]: zebra
+            [^second]: apple
+            [^3]: three
+            """,
+            ["3", "first", "second"],
+            id="unlabelled-not-sorted-by-text",
+        ),
+        pytest.param(
+            """\
+            - one[^second] two[^first] three[^3]
+
+            [^first]: apple
+            [^second]: zebra
+            [^3]: three
+            """,
+            ["3", "second", "first"],
+            id="unlabelled-keep-reference-order",
+        ),
+    ],
+)
+@pytest.mark.skipif(
+    docutils_version < (0, 22),
+    reason="docutils < 0.22 parses a :parser: include with the host's settings, "
+    "without the MyST settings",
+)
+def test_include_from_rst_mixed_footnotes(tmp_path, source, expected):
+    """Test the sort of footnotes in markdown included from an RST file (#1025).
+
+    docutils' ``Footnotes`` transform does not run in the ``:parser:`` sub-document,
+    so the auto-numbered footnotes have no label child when ``CollectFootnotes`` sorts:
+    they must neither crash the sort (``TypeError`` against a numeric label,
+    ``IndexError`` for an empty definition) nor be sorted by their body text,
+    but keep the order they are first referenced (the order docutils numbers them).
+    """
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text(dedent(source))
+
+    parser = RSTParser()
+    document = make_document(parser_cls=RSTParser)
+    parser.parse(
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
+    )
+    document.transformer.populate_from_components([parser])
+    document.transformer.apply_transforms()
+
+    # labelled footnotes first, then the unlabelled ones in first-reference order
+    assert [f["names"] for f in document.findall(nodes.footnote)] == [
+        [name] for name in expected
+    ]
 
 
 def test_field_list_body_source_line():
