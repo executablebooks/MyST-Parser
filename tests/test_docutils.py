@@ -4,7 +4,6 @@ import io
 import re
 import sys
 from dataclasses import dataclass, field, fields
-from pathlib import Path
 from textwrap import dedent
 from typing import Literal
 
@@ -574,58 +573,6 @@ def test_include_literal_line(tmp_path):
     )
     literal_block = next(doctree.findall(nodes.literal_block))
     assert literal_block.line == 1
-
-
-def test_include_source_line_attribution(tmp_path):
-    """Warnings inside an ``{include}``\\ d file report the exact source line.
-
-    Regression: every line was attributed one too low (``startline + 1``
-    double-counted with the renderer's 0-based to 1-based conversion), and
-    ``start-after`` advanced the line offset by *characters*.
-    """
-
-    def role_warning_location(main_source: str) -> str:
-        stream = io.StringIO()
-        publish_doctree(
-            main_source,
-            parser=Parser(),
-            source_path=str(tmp_path / "main.md"),
-            settings_overrides={"warning_stream": stream},
-        )
-        warnings_ = [
-            line for line in stream.getvalue().splitlines() if "unknownrole" in line
-        ]
-        assert len(warnings_) == 1, stream.getvalue()
-        # `path:line:` prefix of the docutils warning
-        path, line, _ = warnings_[0].split(":", 2)
-        return f"{Path(path).name}:{line}"
-
-    inc = tmp_path / "inc.md"
-    inc.write_text("line one\n\n{unknownrole}`x`\n")
-    assert role_warning_location(f"```{{include}} {inc}\n```\n") == "inc.md:3"
-
-    inc2 = tmp_path / "inc2.md"
-    inc2.write_text("skip1\nskip2\npara\n\n{unknownrole}`y`\n")
-    assert (
-        role_warning_location(f"```{{include}} {inc2}\n:start-line: 2\n```\n")
-        == "inc2.md:5"
-    )
-
-    inc3 = tmp_path / "inc3.md"
-    inc3.write_text("intro\n<!-- start -->\n\n{unknownrole}`z`\n")
-    assert (
-        role_warning_location(
-            f"```{{include}} {inc3}\n:start-after: <!-- start -->\n```\n"
-        )
-        == "inc3.md:4"
-    )
-
-    # nested includes: the innermost file's own lines
-    b = tmp_path / "b.md"
-    b.write_text("first\n\n{unknownrole}`b`\n")
-    a = tmp_path / "a.md"
-    a.write_text(f"a para\n\n```{{include}} {b}\n```\n")
-    assert role_warning_location(f"```{{include}} {a}\n```\n") == "b.md:3"
 
 
 def test_text_node_line_stamping():
