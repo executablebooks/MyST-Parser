@@ -164,17 +164,40 @@ def test_option_warning_lines_colon_block():
     assert result.body_offset == 3
 
 
-def test_body_offset_not_inflated_by_trailing_blank_lines():
+@pytest.mark.parametrize(
+    ("first_line", "content", "offset"),
+    [
+        # colon-style option block
+        pytest.param("", ":class: tip\nbody", 1, id="colon"),
+        pytest.param("", ":class: tip\nbody\n\n\n", 1, id="colon-blanks"),
+        # a fence body always ends in "\n", so one blank line before the
+        # closing fence is enough to trigger #1177
+        pytest.param("", ":class: tip\nbody\n\n", 1, id="colon-one-blank"),
+        # blank separator line between the options and the body
+        pytest.param("", ":class: tip\n\nbody\n\n", 2, id="colon-separator"),
+        # yaml-style option block
+        pytest.param("", "---\nclass: tip\n---\nbody", 3, id="yaml"),
+        pytest.param("", "---\nclass: tip\n---\nbody\n\n\n", 3, id="yaml-blanks"),
+        # text trailing the closing `---` is the first body line,
+        # sitting on the closing line itself (#1164)
+        pytest.param(
+            "", "---\nclass: tip\n--- body\nmore\n\n", 2, id="yaml-closer-text"
+        ),
+        # unclosed `---` block: everything is options, there is no body
+        pytest.param("", "---\nclass: tip\n\n", 3, id="yaml-unclosed"),
+        # no option block: unaffected
+        pytest.param("", "body\n\n", 0, id="no-options"),
+        # body text on the first line sits on the opening line itself: -1 (#1164)
+        pytest.param("first", "second\n\n", -1, id="first-line"),
+        # ... and with an option block, the offset is right for the body lines
+        # after the merged first line (``body`` is two lines below the opener)
+        pytest.param("first", ":class: tip\nbody\n\n", 0, id="first-line-colon"),
+    ],
+)
+def test_body_offset_not_inflated_by_trailing_blank_lines(first_line, content, offset):
     """A body ending in blank lines must not inflate ``body_offset`` (#1177)."""
-    # colon-style option block
-    assert parse_directive_text(Note, "", ":class: tip\nbody").body_offset == 1
-    assert parse_directive_text(Note, "", ":class: tip\nbody\n\n\n").body_offset == 1
-    # yaml-style option block
-    assert parse_directive_text(Note, "", "---\nclass: tip\n---\nbody").body_offset == 3
-    assert (
-        parse_directive_text(Note, "", "---\nclass: tip\n---\nbody\n\n\n").body_offset
-        == 3
-    )
+    result = parse_directive_text(Note, first_line, content)
+    assert result.body_offset == offset
 
 
 def test_option_warning_lines_none():
