@@ -798,3 +798,42 @@ above-base consonants
                         <paragraph>
                             2
 .
+
+[table_caption_link_definition_escaped_label]
+.
+```{table} Cap
+[a\]b]: https://example.com
+[foo
+bar]: https://example.org
+
+| [x][a\]b] | [y][foo bar] |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<string>">
+    <table classes="colwidths-auto">
+        <title>
+            Cap
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://example.com">
+                                x
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://example.org">
+                                y
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.

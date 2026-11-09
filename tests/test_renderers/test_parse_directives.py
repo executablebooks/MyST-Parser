@@ -424,6 +424,24 @@ def test_table_wrapped_caption_folded_into_argument(
         ),
         pytest.param(
             "Cap",
+            "[a\\]b]: https://example.com\n" + TABLE_BODY,
+            0,
+            id="link-definition-escaped-label",
+        ),
+        pytest.param(
+            "Cap",
+            "[foo\nbar]: https://example.com\n\n" + TABLE_BODY,
+            0,
+            id="link-definition-multiline-label",
+        ),
+        pytest.param(
+            "",
+            "[Smith \\[2020\\]]: https://example.com\n\n" + TABLE_BODY,
+            0,
+            id="link-definition-escaped-label-no-argument",
+        ),
+        pytest.param(
+            "Cap",
             "```{default-role} math\n```\n\n" + TABLE_BODY,
             0,
             id="directive-fence",
@@ -502,13 +520,20 @@ def test_table_caption_with_options_after_it_warns(
     assert [(w.msg, w.lineno) for w in result.warnings] == [(message, warning_line)]
 
 
-def test_table_delimiter_row_check_is_linear():
+@pytest.mark.parametrize(
+    "delimiter_line",
+    [
+        pytest.param(" " * 3000 + "-" + " " * 3000 + "x", id="spaces-around"),
+        # without leading spaces, so stripping the line first is not enough
+        pytest.param("-" + " " * 40_000 + "x", id="spaces-after"),
+    ],
+)
+def test_table_delimiter_row_check_is_linear(delimiter_line):
     """The delimiter-row check must not backtrack super-linearly:
     a line of spaces around a ``-`` once took cubic time
     (a 3 KB document took 10 seconds to parse).
     """
-    spaces = " " * 3000
-    content = "a | b\n" + spaces + "-" + spaces + "x"
+    content = "a | b\n" + delimiter_line
     start = time.perf_counter()
     result = parse_directive_text(RSTTable, "Cap", content)
     assert time.perf_counter() - start < 1

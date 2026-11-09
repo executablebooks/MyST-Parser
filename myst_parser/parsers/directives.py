@@ -425,10 +425,12 @@ _OPTION_LIKE_LINE = re.compile(r"^(:[\w-]+:|---)")
 """A line that looks like the start of a directive option (or a YAML options block)."""
 
 _NOT_CAPTION_TEXT = re.compile(
-    r"^(```|~~~|:::|\$\$|\[[^\]]+\]:|%|\+\+\+|<!--|\(.*\)=\s*$|\{.*\}\s*$)"
+    r"^(```|~~~|:::|\$\$|\[(?:\\.|[^\]\\])+\]:|%|\+\+\+|<!--|\(.*\)=\s*$|\{.*\}\s*$)"
 )
 """A line that starts a MyST block construct which is not caption text:
-a code, directive or math fence, a link or footnote definition,
+a code, directive or math fence,
+a link or footnote definition (its label may contain escaped brackets
+and span lines, so this is also matched against the joined lines),
 a comment, a block break, a target, an HTML comment,
 or a line of block attributes (``{#id .class}``, with ``attrs_block``).
 (Some of these render nothing, so may already precede a valid table.)"""
@@ -490,7 +492,11 @@ def _fold_table_caption_continuation(
     if not caption_lines or not _starts_table(body_lines, table_start):
         return arguments, body_lines, content_offset
 
-    if any(_NOT_CAPTION_TEXT.match(line) for line in caption_lines):
+    # a link definition's label may span lines, so also check the joined lines
+    if any(
+        _NOT_CAPTION_TEXT.match(line)
+        for line in [*caption_lines, "\n".join(caption_lines)]
+    ):
         return arguments, body_lines, content_offset
 
     for line_index, caption_line in enumerate(caption_lines):
