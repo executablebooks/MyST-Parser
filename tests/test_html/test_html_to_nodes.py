@@ -6,6 +6,7 @@ from unittest.mock import Mock
 import pytest
 from docutils import nodes
 from docutils.core import publish_doctree
+from sphinx.util.nodes import apply_source_workaround
 
 from myst_parser.config.main import MdParserConfig
 from myst_parser.mdit_to_docutils.html_to_nodes import html_to_nodes
@@ -22,6 +23,8 @@ def mock_renderer():
         content: str,
         position: int,
         additional_options: dict[str, str] | None = None,
+        *,
+        block_text: str | None = None,
     ) -> list[nodes.Element]:
         node = nodes.Element(name=name, first=first_line, position=position)
         if additional_options:
@@ -163,3 +166,26 @@ def test_html_image_valueless_alt(inline: bool) -> None:
     assert len(images) == 1
     assert images[0]["alt"] == ""
     assert warnings.getvalue() == ""
+
+
+@pytest.mark.parametrize("image", ["<img src='x.png' width='10'>", "<img src='x.png'>"])
+@pytest.mark.parametrize("inline", [False, True])
+def test_html_image_keeps_line_in_sphinx(image: str, inline: bool) -> None:
+    """An image with no alt keeps its source line through Sphinx's workaround.
+
+    Sphinx sets the line of an image node to 0 when both its rawsource
+    and its alt text are empty, so warnings about it lose their line number.
+    """
+    source = f"# Title\n\nbefore {image} after\n" if inline else f"# Title\n\n{image}\n"
+    document = publish_doctree(
+        source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["html_image"],
+            "warning_stream": StringIO(),
+        },
+    )
+    images = list(document.findall(nodes.image))
+    assert len(images) == 1
+    apply_source_workaround(images[0])
+    assert images[0].line == 3

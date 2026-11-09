@@ -128,6 +128,9 @@ def _html_ast_to_nodes(
                     "",
                     line_number,
                     additional_options=image_options,
+                    # becomes the image node's rawsource: Sphinx drops the
+                    # source line of an image whose rawsource and alt are empty
+                    block_text=str(child),
                 )
             )
 
