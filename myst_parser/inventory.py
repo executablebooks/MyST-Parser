@@ -421,14 +421,14 @@ Some hosts (notably Read the Docs) reject the default ``Python-urllib/x.y`` agen
 """
 
 
-def _urlopen(uri: str, *, timeout: None | float = None) -> IO[bytes]:
+def _urlopen(uri: str, *, timeout: float | None = None) -> IO[bytes]:
     """Open a remote URL, identifying the client with :data:`USER_AGENT`."""
     request = Request(uri, headers={"User-Agent": USER_AGENT})
     return urlopen(request, timeout=timeout)
 
 
 def fetch_inventory(
-    uri: str, *, timeout: None | float = None, base_url: None | str = None
+    uri: str, *, timeout: float | None = None, base_url: str | None = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
     if uri.startswith(("http://", "https://")):
@@ -438,7 +438,7 @@ def fetch_inventory(
         return load(stream, base_url=base_url)
 
 
-def inventory_cli(inputs: None | list[str] = None):
+def inventory_cli(inputs: list[str] | None = None):
     """Command line interface for fetching and parsing an inventory."""
     parser = argparse.ArgumentParser(description="Parse an inventory file.")
     parser.add_argument("uri", metavar="[URL|PATH]", help="URI of the inventory file")

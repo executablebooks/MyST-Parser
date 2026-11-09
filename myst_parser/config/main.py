@@ -242,7 +242,9 @@ class MdParserConfig:
         default=False,
         metadata={
             "validator": instance_of(bool),
-            "help": "Open all external links in a new tab",
+            "help": "Open all external links in a new tab "
+            '(sets target="_blank" and rel="noreferrer noopener", '
+            "unless the link already sets them)",
         },
     )
 
