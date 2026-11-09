@@ -106,6 +106,72 @@ jobs:
     - name: Run docutils CLI
       run: echo "test" | myst-docutils-html
 
+  build:
+
+    # Builds both distributions on every run, so a broken release build fails a PR, not a tag.
+    # The publish jobs below upload exactly these files.
+    name: Build distributions
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.13"
+    # `python -m build` uses the `[build-system]` pin in pyproject.toml,
+    # so the release build cannot drift from it (an unpinned flit CLI can).
+    - name: Install build tools
+      run: python -m pip install build twine tomlkit
+    - name: Build myst-parser
+      run: python -m build --outdir dist-parser
+    - name: Convert the project to myst-docutils
+      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
+    - name: Build myst-docutils
+      run: python -m build --outdir dist-docutils
+    - name: Check the distributions
+      run: python -m twine check --strict dist-parser/* dist-docutils/*
+    - name: Check the distribution names, and the version against the tag
+      env:
+        TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+      run: |
+        python - <<'EOF'
+        import os
+        import pathlib
+        import sys
+
+        tag = os.environ["TAG"].removeprefix("v")
+        errors = []
+        for outdir, project in (("dist-parser", "myst_parser"), ("dist-docutils", "myst_docutils")):
+            files = sorted(p.name for p in pathlib.Path(outdir).iterdir())
+            wheels = [f for f in files if f.endswith(".whl")]
+            sdists = [f.removesuffix(".tar.gz") for f in files if f.endswith(".tar.gz")]
+            if len(files) != 2 or len(wheels) != 1 or len(sdists) != 1:
+                errors.append(f"{outdir}: expected one wheel and one sdist, got {files}")
+                continue
+            names = {wheels[0].split("-")[0], sdists[0].rsplit("-", 1)[0]}
+            versions = {wheels[0].split("-")[1], sdists[0].rsplit("-", 1)[1]}
+            if names != {project}:
+                errors.append(f"{outdir}: expected {project}, got {sorted(names)}")
+            if tag and versions != {tag}:
+                errors.append(f"{outdir}: tag v{tag} != built version(s) {sorted(versions)}")
+            print(f"{outdir}: {files}")
+        if errors:
+            sys.exit("\n".join(errors))
+        EOF
+    - uses: actions/upload-artifact@v7
+      with:
+        name: dist-parser
+        path: dist-parser/
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v7
+      with:
+        name: dist-docutils
+        path: dist-docutils/
+        if-no-files-found: error
+
   # https://github.com/marketplace/actions/alls-green#why
   check:  # This job does nothing and is only used for the branch protection
 
@@ -115,6 +181,7 @@ jobs:
     - pre-commit
     - tests
     - check-myst-docutils
+    - build
 
     runs-on: ubuntu-latest
 
@@ -129,6 +196,7 @@ jobs:
     name: Publish myst-parser to PyPI
     needs:
     - check
+    - build
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
@@ -137,18 +205,20 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-parser
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v6
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.11"
-    - run: pip install flit~=3.4
-    - run: flit build
+        name: dist-parser
+        path: dist-parser/
     - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist-parser/
 
   publish-docutils:
 
     name: Publish myst-docutils to PyPI
-    needs: [publish]
+    needs:
+    - build
+    - publish
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     runs-on: ubuntu-latest
     permissions:
@@ -157,12 +227,10 @@ jobs:
       name: pypi
       url: https://pypi.org/p/myst-docutils
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-python@v6
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.11"
-    - run: pip install flit~=3.4 tomlkit
-    - name: Modify setup
-      run: python .github/workflows/docutils_setup.py pyproject.toml README.md
-    - run: flit build
+        name: dist-docutils
+        path: dist-docutils/
     - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist-docutils/
