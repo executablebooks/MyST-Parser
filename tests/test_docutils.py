@@ -9,7 +9,8 @@ from typing import Literal
 import markdown_it.main
 import pytest
 from docutils import nodes
-from docutils.core import publish_doctree
+from docutils.core import publish_doctree, publish_string
+from docutils.writers.latex2e import Writer as LatexWriter
 from markdown_it.token import Token
 
 from myst_parser.config.main import MdParserConfig
@@ -670,3 +671,73 @@ def test_definition_list_orphan_definition():
     output = document.pformat()
     assert "no preceding term" in output
     assert "important content" in output
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param("$$\na = 1\n$$", "a = 1", id="newlines"),
+        pytest.param("$$\n\na = 1\n\n$$", "a = 1", id="blank-lines"),
+        pytest.param("$$\n  \na = 1\n  \n$$", "a = 1", id="whitespace-lines"),
+        pytest.param("$$\na = 1\n$$ (label)", "a = 1", id="label"),
+        pytest.param("$$\n\na = 1\n\n$$ (label)", "a = 1", id="label-blank-lines"),
+        pytest.param("$$\na = 1\n\nb = 2\n$$", "a = 1\n\nb = 2", id="interior-kept"),
+        pytest.param("$$\n  a\n    b\n$$", "  a\n    b", id="indentation-kept"),
+        pytest.param("$$ a = 1 $$", " a = 1 ", id="single-line-unchanged"),
+    ],
+)
+def test_math_block_blank_boundary_lines(source, expected):
+    """``$$`` math block content has no leading or trailing blank lines.
+
+    Like the rST ``math`` directive, only whole blank lines at the start and
+    end are removed (#614).
+    """
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    blocks = list(doctree.findall(nodes.math_block))
+    assert [block.astext() for block in blocks] == [expected]
+
+
+def test_math_block_latex_no_blank_lines():
+    """The LaTeX writer output has no blank line inside a math environment.
+
+    A blank line there ends the paragraph, and pdflatex fails with
+    "Paragraph ended before \\align* was complete" (#614).
+    The source is the example from the issue.
+    """
+    source = dedent(
+        r"""
+        $$
+        n & = & 41*23 = 943 \\
+        (p-1)(q-1) & = & 40*22 = 880 \\
+        e & = & 753
+        $$
+
+        $$
+           \begin{eqnarray}
+              y    & = & ax^2 + bx + c \\
+              f(x) & = & x^2 + 2xy + y^2
+           \end{eqnarray}
+        $$
+        """
+    )
+    output = publish_string(
+        source=source,
+        parser=Parser(),
+        writer=LatexWriter(),
+        settings_overrides={
+            "output_encoding": "unicode",
+            "warning_stream": io.StringIO(),
+            "myst_enable_extensions": ["dollarmath"],
+        },
+    )
+    assert "\\begin{align*}\nn & = & 41*23 = 943" in output
+    assert "e & = & 753\n\\end{align*}" in output
+    assert "\\begin{equation*}\n   \\begin{eqnarray}" in output
+    assert "\\end{eqnarray}\n\\end{equation*}" in output
