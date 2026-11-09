@@ -114,6 +114,10 @@ exclude = [
     "tests/",
 ]
 
+[tool.ruff]
+# test fixtures are input data; mirrors the exclude in .pre-commit-config.yaml
+extend-exclude = ["tests/**/*.md"]
+
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
 extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "RUF", "SIM", "UP"]
