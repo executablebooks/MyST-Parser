@@ -130,7 +130,11 @@ def parse_directive_text(
         has_options_block = result.has_options
         options = result.options
         body_lines = result.content.splitlines()
-        content_offset = len(content.splitlines()) - len(body_lines)
+        # Use the option-block line count directly rather than
+        # ``len(content.splitlines()) - len(body_lines)``: re-splitting the
+        # re-joined body drops a trailing blank line, which would otherwise
+        # inflate the offset when the body ends in blank lines.
+        content_offset = result.option_line_count
     else:
         parse_warnings = []
         has_options_block = False
@@ -182,6 +186,14 @@ class _DirectiveOptions:
     options: dict[str, Any]
     warnings: list[ParseWarnings]
     has_options: bool
+    option_line_count: int
+    """Number of source lines before the body (0 if there is no option block).
+
+    This is the option block's own length, except when text trails a closing
+    ``---``: that text is the first body line, so the closing line is not counted.
+    It is derived before the body is joined back into a string, so it is not
+    affected by trailing blank lines being lost in the ``"\\n".join(...)`` round-trip.
+    """
 
 
 def _parse_directive_options(
@@ -204,9 +216,12 @@ def _parse_directive_options(
     :param additional_options: Additional options for the directive,
         which the options block takes priority over
     """
-    options_block: None | str = None
+    options_block: str | None = None
     options_position: int | None = None
     """The 1-based source line of the first line of the options block."""
+    option_line_count = 0
+    """Number of source lines before the body, counted before the body is
+    re-joined (so a body ending in blank lines does not throw the count off)."""
     if content.startswith("---"):
         options_position = None if line is None else line + 2
         content_lines = content.splitlines()[1:]
@@ -220,9 +235,15 @@ def _parse_directive_options(
                 remainder = remainder.removeprefix(" ")
                 rest = content_lines[index + 1 :]
                 content = "\n".join([remainder, *rest] if remainder else rest)
+                # opening ``---`` + the option lines (``index``), then the
+                # closing ``---``: normally the body starts on the next line
+                # (``+ 2``), but when the closer carries trailing text, that text
+                # is the first body line, on the closing line itself (``+ 1``).
+                option_line_count = index + 1 if remainder else index + 2
                 break
         else:
             options_block = "\n".join(content_lines)
+            option_line_count = len(content.splitlines())
             content = ""
         options_block = dedent(options_block)
     elif content.lstrip().startswith(":"):
@@ -237,6 +258,7 @@ def _parse_directive_options(
                 break
             yaml_lines.append(content_lines.pop(0).lstrip()[1:])
         options_block = "\n".join(yaml_lines)
+        option_line_count = len(yaml_lines)
         content = "\n".join(content_lines)
 
     has_options_block = options_block is not None
@@ -270,7 +292,9 @@ def _parse_directive_options(
                     MystWarnings.DIRECTIVE_OPTION,
                 )
             )
-        return _DirectiveOptions(content, yaml_options, yaml_errors, has_options_block)
+        return _DirectiveOptions(
+            content, yaml_options, yaml_errors, has_options_block, option_line_count
+        )
 
     validation_errors: list[ParseWarnings] = []
 
@@ -296,6 +320,7 @@ def _parse_directive_options(
                     )
                 ],
                 has_options_block,
+                option_line_count,
             )
         for key_token, value_token in option_tokens:
             options[key_token.value] = (
@@ -325,7 +350,9 @@ def _parse_directive_options(
     if issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
-        return _DirectiveOptions(content, options, [], has_options_block)
+        return _DirectiveOptions(
+            content, options, [], has_options_block, option_line_count
+        )
 
     if additional_options:
         # The options block takes priority over additional options
@@ -367,7 +394,9 @@ def _parse_directive_options(
         else:
             new_options[name] = converted_value
 
-    return _DirectiveOptions(content, new_options, validation_errors, has_options_block)
+    return _DirectiveOptions(
+        content, new_options, validation_errors, has_options_block, option_line_count
+    )
 
 
 def _is_table_markup_line(line: str) -> bool:

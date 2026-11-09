@@ -255,6 +255,26 @@ text
 <string>:3: (WARNING/2) circular substitution reference: {'e'} [myst.substitution]
 .
 
+[substitutions_non_identifier_key] --myst-enable-extensions=substitution --myst-substitutions='{"foo-bar": "Foobar", "c-1": "{{c-2}}", "c-2": "{{c-1}}"}'
+.
+{{foo-bar}} {{c-1}} {{ foo-bar | upper }}
+.
+<document source="<string>">
+    <paragraph>
+        Foobar
+
+        <system_message level="2" line="3" source="<string>" type="WARNING">
+            <paragraph>
+                circular substitution reference: {'c-1'} [myst.substitution]
+
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+
+<string>:3: (WARNING/2) circular substitution reference: {'c-1'} [myst.substitution]
+<string>:1: (WARNING/2) Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+.
+
 [attrs_image] --myst-enable-extensions=attrs_image
 .
 a
@@ -365,6 +385,46 @@ a
 <string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
 <string>:1: (WARNING/2) Invalid 'height' attribute value: '2x' [myst.attribute]
 <string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
+.
+
+[attrs_inline_image_warnings_aliases] --myst-enable-extensions=attrs_inline
+.
+![a](b){w=1x h=2x a=other }
+.
+<document source="<string>">
+    <paragraph>
+        <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'height' attribute value: '2x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'align' attribute value: 'other' [myst.attribute]
+
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'height' attribute value: '2x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'align' attribute value: 'other' [myst.attribute]
+.
+
+[attrs_inline_image_warnings_alias_and_long] --myst-enable-extensions=attrs_inline
+.
+![a](b){w=1x width=2x}
+.
+<document source="<string>">
+    <paragraph>
+        <image alt="a" uri="b">
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '1x' [myst.attribute]
+            <system_message level="2" line="1" source="<string>" type="WARNING">
+                <paragraph>
+                    Invalid 'width' attribute value: '2x' [myst.attribute]
+
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '1x' [myst.attribute]
+<string>:1: (WARNING/2) Invalid 'width' attribute value: '2x' [myst.attribute]
 .
 
 [attrs_block] --myst-enable-extensions=attrs_block
@@ -529,6 +589,31 @@ content
 .
 <document source="<string>">
     <paragraph>
-        <reference refuri="https://example.com" rel="noreferer noopener" target="_blank">
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_blank">
             text
+.
+
+[links-external-new-tab-authored] --myst-links-external-new-tab="true" --myst-enable-extensions=attrs_inline
+.
+[a](https://example.com){target=_self rel=nofollow}
+
+[a](https://example.com){target=_self}
+
+[a](https://example.com){rel=nofollow}
+
+<https://example.com>{rel=nofollow}
+.
+<document source="<string>">
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="noreferrer noopener" target="_self">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            a
+    <paragraph>
+        <reference refuri="https://example.com" rel="nofollow" target="_blank">
+            https://example.com
 .

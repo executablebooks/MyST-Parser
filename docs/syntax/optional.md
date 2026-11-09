@@ -332,9 +332,7 @@ Key differences:
 Adding `"substitution"` to `myst_enable_extensions` (in the {{ confpy }}) will allow you to add substitutions, added in either the `conf.py` using `myst_substitutions`:
 
 ```python
-myst_substitutions = {
-  "key1": "I'm a **substitution**"
-}
+myst_substitutions = {"key1": "I'm a **substitution**"}
 ```
 
 or at the top of the file, in the front-matter section (see [this section](syntax/frontmatter)):
@@ -402,6 +400,10 @@ Therefore you can do things like:
 - docname: {{ env.docname | upper }}
 - {{ "a" + "b" }}
 :::
+
+A substitution whose content is exactly one key is looked up directly, before any expression evaluation.
+So a key that is not a valid Jinja2 identifier, such as `foo-bar`, can be used on its own as `{{foo-bar}}`,
+but not inside a filter or expression (`{{ foo-bar | upper }}` is parsed as `foo - (bar | upper)`).
 
 You can also change the delimiter if necessary, for example setting in the `conf.py`:
 
