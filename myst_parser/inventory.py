@@ -491,9 +491,9 @@ def inventory_cli(inputs: None | list[str] = None):
                 invdata = load(stream)
             base_url = args.uri.rsplit("/", 1)[0]
         except Exception:
-            with _urlopen(args.uri + "/objects.inv", timeout=args.timeout) as stream:
+            base_url = args.uri.rstrip("/")
+            with _urlopen(base_url + "/objects.inv", timeout=args.timeout) as stream:
                 invdata = load(stream)
-            base_url = args.uri
     else:
         with open(args.uri, "rb") as stream:
             invdata = load(stream)

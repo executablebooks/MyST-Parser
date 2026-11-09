@@ -1,5 +1,6 @@
 """Test reading of inventory files."""
 
+import json
 from pathlib import Path
 from urllib.request import Request
 
@@ -114,15 +115,19 @@ def test_fetch_inventory_sends_user_agent(monkeypatch):
     [
         ("https://example.com/objects.inv", "https://example.com/objects.inv"),
         ("https://example.com/en/latest", "https://example.com/en/latest/objects.inv"),
+        ("https://example.com/en/latest/", "https://example.com/en/latest/objects.inv"),
     ],
-    ids=["direct", "fallback"],
+    ids=["direct", "fallback", "fallback-trailing-slash"],
 )
 def test_inv_cli_sends_user_agent(uri, served, monkeypatch, capsys):
     """Every request ``myst-inv`` makes, including the fallback, sends the User-Agent."""
     recorder = _RecordingUrlopen({served})
     monkeypatch.setattr(myst_inventory, "urlopen", recorder)
     inventory_cli([uri, "-f", "json", "-n", "index"])
-    assert '"index"' in capsys.readouterr().out
+    output = json.loads(capsys.readouterr().out)
+    assert "index" in output["objects"]["std"]["doc"]
+    # the base URL is the served URL's folder, whether or not ``uri`` ended in "/"
+    assert output["base_url"] == served.rsplit("/", 1)[0]
     assert recorder.requests[-1].full_url == served
     for request in recorder.requests:
         assert request.get_header("User-agent") == USER_AGENT
