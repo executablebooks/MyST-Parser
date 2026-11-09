@@ -50,6 +50,9 @@ def test_errors(file_params, tmp_path, monkeypatch):
     tmp_path.joinpath("bad_outer.md").write_text(
         "outer line\n\n```{include} bad_inner.md\n```\n"
     )
+    tmp_path.joinpath("bad_after.md").write_text(
+        "line one\nline two\nSTART-HERE\nline four\n{a}`b`"
+    )
 
     report_stream = StringIO()
     publish_doctree(

@@ -64,3 +64,22 @@ Error line in nested include file:
 .
 tmpdir/bad_inner.md:3: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
 .
+
+Error in include file with start-after:
+.
+```{include} bad_after.md
+:start-after: START-HERE
+```
+.
+tmpdir/bad_after.md:4: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.
+
+Error in include file with start-line and start-after:
+.
+```{include} bad_after.md
+:start-line: 1
+:start-after: START-HERE
+```
+.
+tmpdir/bad_after.md:4: (WARNING/2) Unknown interpreted text role "a". [myst.role_unknown]
+.
