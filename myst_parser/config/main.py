@@ -592,18 +592,21 @@ def merge_file_level(
             )
             continue
 
-        if field.metadata.get("merge_topmatter"):
-            value = {**old_value, **value}
-
         # Assign before validating, and let the validator have the last word.
         # A validator may normalise what it is given and write the result back
         # on the instance -- check_fence_as_directive turns the sequence into a
-        # set, check_heading_slug_func resolves a preset name to a callable.
+        # set, check_url_schemes turns the list form into a dict.
         # Validating first and assigning afterwards overwrote that with the raw
         # topmatter value. This is also the order __post_init__ uses, where the
         # value is already on the instance before validate_fields runs.
-        setattr(new, name, value)
         try:
+            if field.metadata.get("merge_topmatter"):
+                # Validate the topmatter value itself before merging it into
+                # the global mapping, so that a non-mapping (a list, a string,
+                # null) is reported as a warning rather than raised.
+                validate_field(new, field, value)
+                value = {**old_value, **value}
+            setattr(new, name, value)
             validate_field(new, field, value)
         except Exception as exc:
             setattr(new, name, old_value)

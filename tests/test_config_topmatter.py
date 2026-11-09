@@ -1,8 +1,12 @@
 """Tests for merging file-level topmatter into the global config."""
 
+import io
+
 import pytest
+from docutils.core import publish_doctree
 
 from myst_parser.config.main import MdParserConfig, merge_file_level
+from myst_parser.parsers.docutils_ import Parser
 from myst_parser.warnings_ import MystWarnings
 
 
@@ -163,3 +167,41 @@ class TestUnaffectedBehaviour:
         _config, warnings = merge({"myst": ["not", "a", "dict"]})
         assert len(warnings) == 1
         assert "not a dict" in warnings[0]
+
+
+class TestMergedFieldsRejectNonMappings:
+    """A ``merge_topmatter`` field given a non-mapping must warn, not raise.
+
+    Merging ``{**global, **value}`` before validating ``value`` raised
+    ``TypeError`` out of ``merge_file_level``, which aborted the whole build
+    (docutils or Sphinx) where a warning is expected.
+    """
+
+    @pytest.mark.parametrize("name", ["substitutions", "html_meta"])
+    @pytest.mark.parametrize("value", [["a", "b"], "just-a-string", 3, None], ids=repr)
+    def test_a_non_mapping_is_reported_and_the_global_kept(self, name, value):
+        warnings: list[tuple[MystWarnings, str]] = []
+        global_config = MdParserConfig(**{name: {"a": "global"}})
+        config = merge_file_level(
+            global_config,
+            {"myst": {name: value}},
+            lambda kind, msg: warnings.append((kind, msg)),
+        )
+        assert len(warnings) == 1
+        kind, msg = warnings[0]
+        assert kind is MystWarnings.MD_TOPMATTER
+        assert f"'{name}' must be of type" in msg
+        assert getattr(config, name) == {"a": "global"}
+
+    def test_a_non_mapping_does_not_abort_a_docutils_build(self):
+        """End to end: the document is still built, with one topmatter warning."""
+        stream = io.StringIO()
+        doctree = publish_doctree(
+            source="---\nmyst:\n  substitutions: [a, b]\n---\n\ntext\n",
+            parser=Parser(),
+            settings_overrides={"warning_stream": stream},
+        )
+        assert "'substitutions' must be of type" in stream.getvalue()
+        assert "[myst.topmatter]" in stream.getvalue()
+        assert "text" in doctree.astext()
+
