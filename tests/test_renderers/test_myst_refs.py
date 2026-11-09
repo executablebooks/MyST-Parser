@@ -154,6 +154,8 @@ def test_slug_id_stays_secondary_under_sortids(sphinx_doctree: CreateDoctree):
         ("doc", '# Title\n\n[a](index.md "TT")'),
         ("doc_with_target_id", '(ref)=\n# Title\n\n[a](index.md#ref "TT")'),
         ("unresolved", '# Title\n\n[a](#nope "TT")'),
+        ("unknown", '# Title\n\n[a](index "TT")'),
+        ("refdef", '# Title\n\n[a][r1]\n\n[r1]: #index "TT"'),
     ],
 )
 def test_link_title_is_kept(
@@ -320,6 +322,7 @@ def test_link_title_in_html(make_app, tmp_path) -> None:
     )
     app = make_app("html", srcdir=srcdir)
     app.build()
+    assert not strip_colors(app.warning.getvalue()).strip()
     html = (app.outdir / "index.html").read_text(encoding="utf8")
     assert 'href="other.html" title="T1"' in html, html
     assert 'title="T2"' in html, html
