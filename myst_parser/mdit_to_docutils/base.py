@@ -2011,25 +2011,33 @@ class DocutilsRenderer(RendererProtocol):
         # fail on undefined variables
         env = jinja2.Environment(undefined=jinja2.StrictUndefined)
 
-        # try rendering
-        try:
-            rendered = env.from_string(f"{{{{{token.content}}}}}").render(
-                variable_context
-            )
-        except Exception as error:
-            self.create_warning(
-                f"Substitution error:{error.__class__.__name__}: {error}",
-                MystWarnings.SUBSTITUTION,
-                line=position,
-                append_to=self.current_node,
-            )
-            return
+        content = token.content.strip()
 
-        # handle circular references
-        ast = env.parse(f"{{{{{token.content}}}}}")
-        references = {
-            n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
-        }
+        if content in variable_context:
+            # an exact key is looked up directly, so keys that are not Jinja2
+            # identifiers (e.g. `foo-bar`, #1007) work; anything else is an expression
+            rendered = str(variable_context[content])
+            references = set() if content == "env" else {content}
+        else:
+            # try rendering
+            try:
+                rendered = env.from_string(f"{{{{{token.content}}}}}").render(
+                    variable_context
+                )
+            except Exception as error:
+                self.create_warning(
+                    f"Substitution error:{error.__class__.__name__}: {error}",
+                    MystWarnings.SUBSTITUTION,
+                    line=position,
+                    append_to=self.current_node,
+                )
+                return
+
+            # handle circular references
+            ast = env.parse(f"{{{{{token.content}}}}}")
+            references = {
+                n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
+            }
         self.document.sub_references = getattr(self.document, "sub_references", set())
         cyclic = references.intersection(self.document.sub_references)
         if cyclic:
