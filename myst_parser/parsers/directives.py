@@ -130,8 +130,9 @@ def parse_directive_text(
         options = result.options
         body_lines = result.content.splitlines()
         # Use the option-block line count directly rather than
-        # ``len(content.splitlines()) - len(body_lines)``: re-splitting the re-joined body drops a
-        # trailing blank line, which would otherwise inflate the offset when the body ends in blanks.
+        # ``len(content.splitlines()) - len(body_lines)``: re-splitting the
+        # re-joined body drops a trailing blank line, which would otherwise
+        # inflate the offset when the body ends in blank lines.
         content_offset = result.option_line_count
     else:
         parse_warnings = []
@@ -180,10 +181,12 @@ class _DirectiveOptions:
     warnings: list[ParseWarnings]
     has_options: bool
     option_line_count: int
-    """Number of source lines the option block occupies (0 if there is none).
+    """Number of source lines before the body (0 if there is no option block).
 
-    Derived before the body is joined back into a string, so it is not affected
-    by trailing blank lines being lost in the ``"\\n".join(...)`` round-trip.
+    This is the option block's own length, except when text trails a closing
+    ``---``: that text is the first body line, so the closing line is not counted.
+    It is derived before the body is joined back into a string, so it is not
+    affected by trailing blank lines being lost in the ``"\\n".join(...)`` round-trip.
     """
 
 
@@ -211,8 +214,8 @@ def _parse_directive_options(
     options_position: int | None = None
     """The 1-based source line of the first line of the options block."""
     option_line_count = 0
-    """Number of source lines the option block occupies, counted before the body
-    is re-joined (so a body ending in blank lines does not throw the count off)."""
+    """Number of source lines before the body, counted before the body is
+    re-joined (so a body ending in blank lines does not throw the count off)."""
     if content.startswith("---"):
         options_position = None if line is None else line + 2
         content_lines = content.splitlines()[1:]
@@ -226,9 +229,10 @@ def _parse_directive_options(
                 remainder = remainder.removeprefix(" ")
                 rest = content_lines[index + 1 :]
                 content = "\n".join([remainder, *rest] if remainder else rest)
-                # opening ``---`` + the option lines (``index``), then the closing ``---``: normally
-                # the body starts on the next line (``+ 2``), but when the closer carries trailing
-                # text that text is the first body line, sitting on the closing line itself (``+ 1``).
+                # opening ``---`` + the option lines (``index``), then the
+                # closing ``---``: normally the body starts on the next line
+                # (``+ 2``), but when the closer carries trailing text, that text
+                # is the first body line, on the closing line itself (``+ 1``).
                 option_line_count = index + 1 if remainder else index + 2
                 break
         else:

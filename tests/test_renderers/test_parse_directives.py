@@ -5,6 +5,7 @@ import pytest
 import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
+from docutils.parsers.rst.directives.misc import TestDirective as DocutilsTestDirective
 from markdown_it import MarkdownIt
 from sphinx.directives.code import CodeBlock
 
@@ -197,6 +198,31 @@ def test_option_warning_lines_colon_block():
 def test_body_offset_not_inflated_by_trailing_blank_lines(first_line, content, offset):
     """A body ending in blank lines must not inflate ``body_offset`` (#1177)."""
     result = parse_directive_text(Note, first_line, content)
+    assert result.body_offset == offset
+
+
+@pytest.mark.parametrize(
+    ("directive", "validate_options", "content", "offset"),
+    [
+        # options read as plain YAML, without validation (as myst-nb does)
+        pytest.param(Note, False, ":class: tip\nbody\n\n", 1, id="as-yaml-colon"),
+        pytest.param(
+            Note, False, "---\nclass: tip\n---\nbody\n\n", 3, id="as-yaml-yaml"
+        ),
+        # docutils' test directive accepts any option, on its own return path
+        pytest.param(
+            DocutilsTestDirective, True, ":option: x\nbody\n\n", 1, id="test-directive"
+        ),
+    ],
+)
+def test_body_offset_trailing_blank_other_option_paths(
+    directive, validate_options, content, offset
+):
+    """The #1177 fix also holds where options are not validated against a spec."""
+    result = parse_directive_text(
+        directive, "", content, validate_options=validate_options
+    )
+    assert result.body == ["body"]
     assert result.body_offset == offset
 
 
