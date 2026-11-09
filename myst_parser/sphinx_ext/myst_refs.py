@@ -160,6 +160,12 @@ class MystReferenceResolver(ReferencesResolver):
             elif not newnode.children:
                 newnode.append(nodes.literal(target, target))
 
+            if "reftitle" in node and isinstance(newnode, nodes.reference):
+                # carry the link title, e.g. [text](#target "title"),
+                # through whichever branch resolved the reference;
+                # the authored title wins over a domain or inventory default
+                newnode["reftitle"] = node["reftitle"]
+
             node.replace_self(newnode)
 
     def _std_label_in_doc(self, docname: str, ref_id: str) -> tuple[str, str] | None:
@@ -254,6 +260,8 @@ class MystReferenceResolver(ReferencesResolver):
             )
         except NoUri:
             ref_node = innernode
+        if "reftitle" in node and isinstance(ref_node, nodes.reference):
+            ref_node["reftitle"] = node["reftitle"]
         node.replace_self(ref_node)
 
     def resolve_myst_ref_any(
