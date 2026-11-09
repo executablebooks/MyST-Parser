@@ -95,6 +95,28 @@ def token_line(token: SyntaxTreeNode, default: int | None = None) -> int:
     return token.map[0]  # type: ignore[index]
 
 
+def strip_blank_lines(text: str) -> str:
+    """Remove leading and trailing blank (whitespace-only) lines from ``text``.
+
+    The content of a ``$$`` math block includes the line breaks
+    that follow the opening ``$$`` and precede the closing ``$$``.
+    The rST ``math`` directive never has these
+    (docutils trims blank lines from directive content),
+    and the docutils LaTeX writer pastes the content verbatim
+    between ``\\begin{...}`` and ``\\end{...}``,
+    where a blank line ends the paragraph and pdflatex fails.
+    Only whole lines are removed,
+    so the indentation of the first non-blank line is kept.
+    """
+    lines = text.split("\n")
+    start, end = 0, len(lines)
+    while start < end and not lines[start].strip():
+        start += 1
+    while end > start and not lines[end - 1].strip():
+        end -= 1
+    return "\n".join(lines[start:end])
+
+
 class DocutilsRenderer(RendererProtocol):
     """A markdown-it-py renderer to populate (in-place) a `docutils.document` AST.
 
@@ -1506,7 +1528,7 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(node)
 
     def render_math_inline_double(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
@@ -1518,13 +1540,13 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(node)
 
     def render_math_block(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
         self.current_node.append(node)
 
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
-        content = token.content
+        content = strip_blank_lines(token.content)
         label = token.info
         node = nodes.math_block(content, content, nowrap=False, number=None)
         self.add_line_and_source_path(node, token)
