@@ -17,6 +17,7 @@ from collections.abc import (
 )
 from contextlib import contextmanager, suppress
 from datetime import date, datetime
+from pathlib import Path
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -1377,22 +1378,37 @@ class DocutilsRenderer(RendererProtocol):
         e.g. ``{{ env.metadata[env.docname]["key"] }}`` in a substitution.
 
         The values are read back off the rendered fields,
-        so that they mirror what the collector will store later,
-        and thus do not change between build phases.
+        and keyed as the collector keys them,
+        so that the collector later overwrites each of them with its own value.
+        These are the same, except for ``authors``,
+        which is a single string here, but a list once collected.
+
+        Nothing is added unless the document being rendered is the one Sphinx is
+        reading: a Markdown file parsed into another document, for example by an
+        rST ``include`` with ``:parser: myst_parser.sphinx_``, is parsed into a
+        separate document whose ``docinfo`` the collector never sees,
+        so its front matter would otherwise remain in the including
+        document's metadata.
 
         :param field_list: the field list rendered from the front matter.
         :param language_code: used to resolve localised bibliographic field names.
         """
-        if self.sphinx_env is None:
+        env = self.sphinx_env
+        if env is None:
+            return
+        source = self.document.get("source")
+        if not source or (
+            Path(source).resolve() != Path(env.doc2path(env.docname)).resolve()
+        ):
             return
         bibliofields = get_language(language_code).bibliographic_fields
-        meta = self.sphinx_env.metadata[self.sphinx_env.docname]
+        meta = env.metadata[env.docname]
         for field in field_list:
             name: str = field[0].astext()
             value: Any = field[1].astext()
             # the `DocInfo` transform converts bibliographic fields to dedicated
             # nodes, which the collector then keys by the canonical (English) name
-            name = bibliofields.get(name.lower(), name)
+            name = bibliofields.get(nodes.fully_normalize_name(name), name)
             if name in ("dedication", "abstract"):
                 # these are placed outside the `docinfo`, so are never collected
                 continue
@@ -1439,7 +1455,7 @@ class DocutilsRenderer(RendererProtocol):
         In this case keys and values will be converted to strings and stored in
         `app.env.metadata[app.env.docname]`.
         Note that this only happens once the whole document has been parsed,
-        so `_add_fm_env_metadata` additionally seeds the same values during the
+        so `_add_fm_env_metadata` additionally seeds these keys during the
         render, to make them readable from within the document itself.
 
         See

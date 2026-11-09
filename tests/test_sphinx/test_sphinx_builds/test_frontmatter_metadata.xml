@@ -12,4 +12,4 @@
             Own dict: 
             {“home”: “https://example.com”}
         <compound classes="toctree-wrapper">
-            <toctree caption="True" entries="(None,\ 'other')" glob="False" hidden="False" includefiles="other" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">
+            <toctree caption="True" entries="(None,\ 'other') (None,\ 'host')" glob="False" hidden="False" includefiles="other host" includehidden="False" maxdepth="-1" numbered="0" parent="index" rawentries="" titlesonly="False">

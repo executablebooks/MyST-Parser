@@ -18,4 +18,5 @@ Own dict: {{ env.metadata[env.docname]["links"] }}
 
 ```{toctree}
 other.md
+host.rst
 ```

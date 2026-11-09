@@ -480,6 +480,12 @@ def test_frontmatter_metadata(
         "links": '{"home": "https://example.com"}',
     }
 
+    # front matter of a Markdown file parsed into another document
+    # (here an rST ``include`` with ``:parser:``) must not be added to the
+    # including document's metadata: the collector never sees that front matter,
+    # so nothing would ever overwrite or remove it
+    assert "leaked" not in app.env.metadata["host"]
+
     get_sphinx_app_doctree(app, docname="index", regress=True)
     file_regression.check(
         normalize_doctree_xml(get_sphinx_app_doctree(app, docname="other").pformat()),

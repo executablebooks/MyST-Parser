@@ -416,8 +416,11 @@ Last reviewed on {{ env.metadata[env.docname]["last_review_date"] }}
 Previously, only *other* documents' metadata was available; a document could not read its own.
 ```
 
-Note that these values are always strings (non-scalars are JSON encoded), since this is how Sphinx
+Note that these values are strings (non-scalars are JSON encoded), since this is how Sphinx
 stores them, so use e.g. string methods or Jinja2 filters rather than date methods.
+The exceptions are `tocdepth`, which is an integer,
+and `authors`, which a document reads about itself as a single string (such as `Alice; Bob`),
+but which Sphinx stores as a list once the document has been read.
 
 :::{warning}
 Referring to *another* document's metadata, e.g. `env.metadata["other-doc"]["key"]`, is fragile:
