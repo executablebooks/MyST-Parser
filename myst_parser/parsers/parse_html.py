@@ -25,7 +25,6 @@ import itertools
 from collections import abc, deque
 from collections.abc import Callable, Iterable, Iterator
 from html.parser import HTMLParser
-from typing import Any
 
 
 class Attribute(dict):
@@ -138,7 +137,7 @@ class Element(abc.MutableSequence):
     def __str__(self) -> str:
         return self.render()
 
-    def __eq__(self, item: Any) -> bool:
+    def __eq__(self, item: object) -> bool:
         return item is self
 
     def walk(self, include_self: bool = False) -> Iterator[Element]:
