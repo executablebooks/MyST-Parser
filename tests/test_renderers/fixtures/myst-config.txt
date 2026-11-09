@@ -701,9 +701,6 @@ above-base consonants
 :::
 .
 <document source="<string>">
-    <system_message level="2" line="3" source="<string>" type="WARNING">
-        <paragraph>
-            'table': Options must directly follow the directive's opening line; place wrapped caption lines after the options block [myst.directive_parse]
     <system_message level="3" line="1" source="<string>" type="ERROR">
         <paragraph>
             Error parsing content block for the "table" directive: exactly one table expected.
@@ -717,7 +714,6 @@ above-base consonants
             | 1 | 2 |
             :::
 
-<string>:3: (WARNING/2) 'table': Options must directly follow the directive's opening line; place wrapped caption lines after the options block [myst.directive_parse]
 <string>:1: (ERROR/3) Error parsing content block for the "table" directive: exactly one table expected.
 
 :::{table} Mid-syllable marks that must be tagged for sorting with

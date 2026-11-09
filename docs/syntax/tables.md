@@ -53,7 +53,7 @@ The `table` directive can be used to create a table with a caption:
 ::::
 
 A long caption may continue on the lines directly after the opening line,
-before the table; the lines are joined with spaces:
+before the table:
 
 ::::{syntax-example}
 :::{table} A table caption that is too long
