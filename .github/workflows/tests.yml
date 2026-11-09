@@ -166,13 +166,11 @@ jobs:
         name: dist-parser
         path: dist-parser/
         if-no-files-found: error
-        retention-days: 7
     - uses: actions/upload-artifact@v7
       with:
         name: dist-docutils
         path: dist-docutils/
         if-no-files-found: error
-        retention-days: 7
 
   # https://github.com/marketplace/actions/alls-green#why
   check:  # This job does nothing and is only used for the branch protection
