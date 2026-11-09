@@ -585,14 +585,6 @@ def merge_file_level(
 
         old_value, field = fields[name]
 
-        if field.metadata.get("global_only"):
-            warning(
-                MystWarnings.MD_TOPMATTER,
-                f"'{name}' is only allowed at the global level, ignoring",
-            )
-            continue
-
-        before = getattr(new, name)
         try:
             validate_field(new, field, value)
         except Exception as exc:
@@ -600,13 +592,9 @@ def merge_file_level(
             continue
 
         if field.metadata.get("merge_topmatter"):
-            setattr(new, name, {**old_value, **value})
-        elif getattr(new, name) is before:
-            # a converting validator (e.g. list -> set) assigns the converted
-            # value itself; do not clobber that with the raw value
-            # (note for validator authors: converters must assign a *new*
-            # object, never normalise the existing value in place)
-            setattr(new, name, value)
+            value = {**old_value, **value}
+
+        setattr(new, name, value)
 
     return new
 

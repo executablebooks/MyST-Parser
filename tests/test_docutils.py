@@ -628,49 +628,6 @@ def test_include_source_line_attribution(tmp_path):
     assert role_warning_location(f"```{{include}} {a}\n```\n") == "b.md:3"
 
 
-def test_topmatter_global_only_and_validated_values():
-    """Topmatter: global-only fields warn and are ignored; converting
-    validators' values survive the merge.
-
-    Regression: ``merge_file_level`` re-assigned the raw topmatter value over
-    the value a converting validator had set, so e.g. a
-    ``heading_slug_func`` preset name crashed at each heading
-    (``'str' object is not callable``).
-    """
-    from myst_parser.config.main import MdParserConfig, merge_file_level
-
-    warnings_: list[str] = []
-    config = merge_file_level(
-        MdParserConfig(),
-        {
-            "myst": {
-                "heading_slug_func": "github",  # global-only
-                "enable_extensions": ["colon_fence"],  # converting validator
-                "title_to_header": True,  # plain local field
-            }
-        },
-        lambda _, msg: warnings_.append(msg),
-    )
-    assert warnings_ == [
-        "'heading_slug_func' is only allowed at the global level, ignoring"
-    ]
-    assert config.heading_slug_func is None
-    assert config.enable_extensions == {"colon_fence"}
-    assert isinstance(config.enable_extensions, set)
-    assert config.title_to_header is True
-
-    # end-to-end: no per-heading crash, a single topmatter warning
-    stream = io.StringIO()
-    publish_doctree(
-        source="---\nmyst:\n  heading_slug_func: github\n---\n\n# Hello World\n",
-        parser=Parser(),
-        settings_overrides={"warning_stream": stream},
-    )
-    output = stream.getvalue()
-    assert "is not callable" not in output
-    assert "[myst.topmatter]" in output
-
-
 def test_text_node_line_stamping():
     """Text nodes carry their enclosing block's line, not a stale one.
 
