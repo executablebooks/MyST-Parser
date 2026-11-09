@@ -134,7 +134,7 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
         # these are lazy loaded, when needed
-        self._inventories: None | dict[str, inventory.InventoryType] = None
+        self._inventories: dict[str, inventory.InventoryType] | None = None
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -322,7 +322,7 @@ class DocutilsRenderer(RendererProtocol):
         text: str,
         lineno: int,
         inline: bool = False,
-        temp_root_node: None | nodes.Element = None,
+        temp_root_node: nodes.Element | None = None,
         heading_offset: int = 0,
     ) -> None:
         """Render unparsed text (appending to the current node).
@@ -452,7 +452,7 @@ class DocutilsRenderer(RendererProtocol):
                         value = converters[key](str(value))
                     except ValueError:
                         self.create_warning(
-                            f"Invalid {key!r} attribute value: {token.attrs[key]!r}",
+                            f"Invalid {key!r} attribute value: {value!r}",
                             MystWarnings.INVALID_ATTRIBUTE,
                             line=token_line(token, default=0),
                             append_to=node,
@@ -681,7 +681,7 @@ class DocutilsRenderer(RendererProtocol):
 
         hl_lines = parselinenos(emphasize_lines, num_lines)
         if any(i >= num_lines for i in hl_lines):
-            raise ValueError(f"out of range(1-{num_lines}")
+            raise ValueError(f"out of range(1-{num_lines})")
 
         return [x + 1 for x in hl_lines if x < num_lines]
 
@@ -873,8 +873,20 @@ class DocutilsRenderer(RendererProtocol):
         # TODO this is purely to mimic docutils, but maybe we don't need it?
         # (since we have the slugify logic below)
         name = nodes.fully_normalize_name(implicit_text)
-        node["names"].append(name)
-        self.document.note_implicit_target(node, node)
+        # Register only this new, implicit name.
+        # ``note_implicit_target`` re-registers *every* name already on the node,
+        # as an implicit one -- including an explicit ``{#id}`` name that
+        # ``copy_attributes`` has already added and registered. The node then
+        # collides with itself: docutils demotes the explicit name into
+        # ``dupnames`` while its name map still points here, so a later,
+        # genuine duplicate of that name raises
+        # ``ValueError: list.remove(x): x not in list``.
+        explicit_names = node["names"]
+        node["names"] = [name]
+        try:
+            self.document.note_implicit_target(node, node)
+        finally:
+            node["names"] = explicit_names + node["names"]
 
         if level > self.md_config.heading_anchors:
             return
@@ -1010,7 +1022,7 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_link_unknown(token)
 
     def render_link_url(
-        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
+        self, token: SyntaxTreeNode, conversion: UrlSchemeType | None = None
     ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
@@ -1019,8 +1031,8 @@ class DocutilsRenderer(RendererProtocol):
         self.add_line_and_source_path(ref_node, token)
         attribute_keys = ["class", "id", "reftitle", "target", "rel"]
         if self.md_config.links_external_new_tab:
-            token.attrs["target"] = "_blank"
-            token.attrs["rel"] = "noreferer noopener"
+            token.attrs.setdefault("target", "_blank")
+            token.attrs.setdefault("rel", "noreferrer noopener")
         self.copy_attributes(
             token, ref_node, attribute_keys, aliases={"title": "reftitle"}
         )
@@ -2135,7 +2147,7 @@ def default_slugify(title: str) -> str:
 def compute_unique_slug(
     token_tree: SyntaxTreeNode,
     slugs: Container[str],
-    slug_func: None | Callable[[str], str] = None,
+    slug_func: Callable[[str], str] | None = None,
 ) -> str:
     """Compute the slug for a heading token, unique against existing slugs."""
     slug_func = github_slugify if slug_func is None else slug_func

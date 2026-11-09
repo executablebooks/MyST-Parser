@@ -115,6 +115,8 @@ def test_help_text():
             assert not exc.code
 
     assert "MyST options" in stream.getvalue()
+    # the option's help text is its only user-facing documentation
+    assert 'rel="noreferrer noopener"' in " ".join(stream.getvalue().split())
 
 
 def test_include_from_rst(tmp_path):
@@ -370,6 +372,35 @@ def test_footnote_label_matching_explicit_target():
     # the original target keeps its name, so references to it still resolve
     assert "note" in doctree.nameids
     assert doctree.nameids["note"]
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        pytest.param("{#x}\n# First\n\n{#x}\n# Second\n", id="heading-heading"),
+        pytest.param("{#x}\n# First\n\n(x)=\ntext\n", id="heading-target"),
+        pytest.param("{#x}\n# First\n\n{#x}\nparagraph\n", id="heading-paragraph"),
+        pytest.param("{#first}\n# First\n\n{#first}\n# Second\n", id="id-equals-title"),
+    ],
+)
+def test_attrs_block_heading_duplicate_id_warns(source):
+    """A heading ``{#id}`` that is later duplicated warns, rather than crashing.
+
+    Regression: on docutils < 0.23 the heading's explicit name was registered a
+    second time as an implicit one, so the node collided with itself and the
+    duplicate aborted the build with ``ValueError: list.remove(x)``.
+    This needs no Sphinx, so it also covers the docutils-only CI legs.
+    """
+    stream = io.StringIO()
+    publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["attrs_block"],
+            "warning_stream": stream,
+        },
+    )
+    assert "Duplicate explicit target name" in stream.getvalue()
 
 
 def test_topmatter_deeply_nested_yaml_warns():

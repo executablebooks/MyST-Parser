@@ -230,7 +230,7 @@ class ResolveAnchorIds(Transform):
 
         # gather explicit references
         # this follows the same logic as Sphinx's StandardDomain.process_doc
-        explicit: dict[str, tuple[str, None | str]] = {}
+        explicit: dict[str, tuple[str, str | None]] = {}
         for name, is_explicit in self.document.nametypes.items():
             if not is_explicit:
                 continue

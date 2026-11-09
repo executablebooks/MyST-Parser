@@ -473,6 +473,35 @@ def test_substitutions_missing(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "attrs_block_duplicate_ids"),
+    freshenv=True,
+)
+def test_attrs_block_duplicate_ids(
+    app,
+    status,
+    warning,
+):
+    """Test that a duplicated ``{#id}`` warns, rather than aborting the build."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = strip_colors(warning.getvalue()).strip().splitlines()
+    assert len(warnings) == 3
+    assert warnings[0].endswith(
+        'index.md:7: WARNING: Duplicate explicit target name: "sec". [docutils]'
+    )
+    # the paragraph warning has no line number yet: allow one to be added later
+    assert re.search(
+        r'index\.md:\d*: WARNING: Duplicate explicit target name: "para"\. \[docutils\]$',
+        warnings[1],
+    )
+    assert warnings[2].endswith(
+        'index.md:20: WARNING: Duplicate explicit target name: "rub". [docutils]'
+    )
+    assert Path(app.outdir, "index.html").exists()
+
+
+@pytest.mark.sphinx(
     buildername="gettext", srcdir=os.path.join(SOURCE_DIR, "gettext"), freshenv=True
 )
 def test_gettext(
