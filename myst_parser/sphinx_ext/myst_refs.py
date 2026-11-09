@@ -28,6 +28,22 @@ from myst_parser.warnings_ import MystWarnings
 LOGGER = logging.getLogger(__name__)
 
 
+def _section_text_for_id(
+    slug_to_section: dict[str, tuple[int | None, str, str]], section_id: str
+) -> str | None:
+    """Find the text of the section whose docutils id is ``section_id``.
+
+    :param slug_to_section: The document's ``myst_slugs`` metadata,
+        mapping each heading slug to ``(line, section id, heading text)``.
+    :param section_id: The docutils id to look for.
+    :return: The heading text (possibly empty), or None if no section has that id.
+    """
+    for _, sect_id, text in slug_to_section.values():
+        if sect_id == section_id:
+            return text
+    return None
+
+
 class MystReferenceResolver(ReferencesResolver):
     """Resolves cross-references on doctrees.
 
@@ -194,14 +210,7 @@ class MystReferenceResolver(ReferencesResolver):
             if ref_id in slug_to_section:
                 _, targetid, implicit_text = slug_to_section[ref_id]
             elif (
-                section_text := next(
-                    (
-                        text
-                        for _, sect_id, text in slug_to_section.values()
-                        if sect_id == ref_id
-                    ),
-                    None,
-                )
+                section_text := _section_text_for_id(slug_to_section, ref_id)
             ) is not None:
                 # the id demonstrably exists in the target document
                 # (a section's docutils id), so resolve silently
