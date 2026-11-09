@@ -142,22 +142,56 @@ def test_include_from_rst(tmp_path):
     )
 
 
-def test_include_from_rst_mixed_footnotes(tmp_path):
-    """Test mixed manually- and auto-numbered footnotes, included from an RST file."""
-    from docutils.parsers.rst import Parser as RSTParser
-
-    include_path = tmp_path.joinpath("include.md")
-    include_path.write_text(
-        dedent(
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param(
             """\
             - manually numbered[^3]
             - auto numbered[^myref]
 
             [^myref]: auto definition.
             [^3]: manual definition.
-            """
-        )
-    )
+            """,
+            ["3", "myref"],
+            id="manual-and-auto",
+        ),
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^x]
+
+            [^x]:
+            [^3]: three
+            """,
+            ["3", "x"],
+            id="empty-auto-definition",
+        ),
+        pytest.param(
+            """\
+            - one[^first] two[^second] three[^3]
+
+            [^first]: zebra
+            [^second]: apple
+            [^3]: three
+            """,
+            ["3", "first", "second"],
+            id="unlabelled-keep-definition-order",
+        ),
+    ],
+)
+def test_include_from_rst_mixed_footnotes(tmp_path, source, expected):
+    """Test the sort of footnotes in markdown included from an RST file (#1025).
+
+    docutils' ``Footnotes`` transform does not run in the ``:parser:`` sub-document,
+    so the auto-numbered footnotes have no label child when ``CollectFootnotes`` sorts:
+    they must neither crash the sort (``TypeError`` against a numeric label,
+    ``IndexError`` for an empty definition) nor be sorted by their body text.
+    """
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text(dedent(source))
 
     parser = RSTParser()
     document = make_document(parser_cls=RSTParser)
@@ -167,9 +201,10 @@ def test_include_from_rst_mixed_footnotes(tmp_path):
     document.transformer.populate_from_components([parser])
     document.transformer.apply_transforms()
 
-    # the auto-numbered footnote has no label child assigned at this point,
-    # so sorting must not compare its text against the numeric label "3"
-    assert len(list(document.findall(nodes.footnote))) == 2
+    # labelled footnotes first, then the unlabelled ones in definition order
+    assert [f["names"] for f in document.findall(nodes.footnote)] == [
+        [name] for name in expected
+    ]
 
 
 def test_field_list_body_source_line():
