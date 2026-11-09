@@ -86,13 +86,14 @@ testing-docutils = [
 
 [dependency-groups]
 mypy = [
-    "mypy==2.1.0",
+    "mypy==2.4.1",
     "types-urllib3",
     "sphinx~=8.2",
     "markdown-it-py~=4.2",
     "mdit-py-plugins~=0.6.0",
+    "sphinx-syntax-example~=0.2.0",
 ]
-ruff = ["ruff==0.15.20"]
+ruff = ["ruff==0.17.4"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
@@ -113,7 +114,12 @@ exclude = [
     "tests/",
 ]
 
+[tool.ruff]
+# test fixtures are input data; mirrors the exclude in .pre-commit-config.yaml
+extend-exclude = ["tests/**/*.md"]
+
 [tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "RUF", "SIM", "UP"]
 extend-ignore = ["ISC001", "RUF005", "RUF012"]
 
