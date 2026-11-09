@@ -32,6 +32,7 @@ from docutils.frontend import get_default_settings
 from docutils.languages import get_language
 from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
+from docutils.parsers.rst.directives.body import ParsedLiteral
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
@@ -504,10 +505,11 @@ class DocutilsRenderer(RendererProtocol):
         result = ""
 
         for token in tokens or []:
-            if token.type == "text":
+            if token.type in {"text", "text_special"}:
+                # An escape or entity is a text_special token with no children.
+                # Its content is the character the alt text must keep
+                # (executablebooks/MyST-Parser#1210).
                 result += token.content
-            # elif token.type == "image":
-            #     result += self.renderInlineAsText(token.children)
             else:
                 result += self.renderInlineAsText(token.children or [])
         return result
@@ -1421,8 +1423,11 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     continue
                 try:
-                    value = json.dumps(value)
-                except (ValueError, RecursionError):
+                    # Nested dates, sets, etc. are not JSON-serializable;
+                    # see _fm_json_default for how each is rendered.
+                    # TypeError also covers non-string keys such as a YAML date.
+                    value = json.dumps(value, default=_fm_json_default)
+                except (ValueError, TypeError, RecursionError):
                     # e.g. a self-referential structure via a YAML alias
                     self.create_warning(
                         f"Front matter field {key!r} could not be serialized",
@@ -1932,7 +1937,14 @@ class DocutilsRenderer(RendererProtocol):
             )
         else:
             state_machine = MockStateMachine(self, position)
-            state = MockState(self, state_machine, position)
+            state = MockState(
+                self,
+                state_machine,
+                position,
+                preserve_inline_edge_whitespace=issubclass(
+                    directive_class, ParsedLiteral
+                ),
+            )
             directive_instance = directive_class(
                 name=name,
                 # the list of positional arguments
@@ -2007,25 +2019,33 @@ class DocutilsRenderer(RendererProtocol):
         # fail on undefined variables
         env = jinja2.Environment(undefined=jinja2.StrictUndefined)
 
-        # try rendering
-        try:
-            rendered = env.from_string(f"{{{{{token.content}}}}}").render(
-                variable_context
-            )
-        except Exception as error:
-            self.create_warning(
-                f"Substitution error:{error.__class__.__name__}: {error}",
-                MystWarnings.SUBSTITUTION,
-                line=position,
-                append_to=self.current_node,
-            )
-            return
+        content = token.content.strip()
 
-        # handle circular references
-        ast = env.parse(f"{{{{{token.content}}}}}")
-        references = {
-            n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
-        }
+        if content in variable_context:
+            # an exact key is looked up directly, so keys that are not Jinja2
+            # identifiers (e.g. `foo-bar`, #1007) work; anything else is an expression
+            rendered = str(variable_context[content])
+            references = set() if content == "env" else {content}
+        else:
+            # try rendering
+            try:
+                rendered = env.from_string(f"{{{{{token.content}}}}}").render(
+                    variable_context
+                )
+            except Exception as error:
+                self.create_warning(
+                    f"Substitution error:{error.__class__.__name__}: {error}",
+                    MystWarnings.SUBSTITUTION,
+                    line=position,
+                    append_to=self.current_node,
+                )
+                return
+
+            # handle circular references
+            ast = env.parse(f"{{{{{token.content}}}}}")
+            references = {
+                n.name for n in ast.find_all(jinja2.nodes.Name) if n.name != "env"
+            }
         self.document.sub_references = getattr(self.document, "sub_references", set())
         cyclic = references.intersection(self.document.sub_references)
         if cyclic:
@@ -2058,6 +2078,28 @@ _FM_FIELD_MAX_LENGTH = 100_000
 """Maximum number of items a front matter field may expand to when rendered."""
 
 
+def _fm_json_default(obj: Any) -> Any:
+    """Serialize a front matter value that JSON has no type for.
+
+    Dates and datetimes (e.g. a YAML date nested in a mapping or list)
+    become ISO 8601 strings.
+    ``!!set`` values become a list sorted by each item's rendered JSON text
+    (a textual order, which for ISO dates is also chronological),
+    so the output does not depend on hash randomization.
+    Anything else (e.g. ``!!binary`` bytes) uses ``str()``.
+    """
+    if isinstance(obj, date):  # also datetime, a subclass of date
+        return obj.isoformat()
+    if isinstance(obj, set | frozenset):
+        return sorted(obj, key=_fm_json_text)
+    return str(obj)
+
+
+def _fm_json_text(obj: Any) -> str:
+    """Return the JSON text a front matter value renders as."""
+    return json.dumps(obj, default=_fm_json_default)
+
+
 def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """Return the total number of items ``value`` expands to when serialized.
 
@@ -2068,7 +2110,8 @@ def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """
     if isinstance(value, dict):
         children: Iterable[Any] = value.values()
-    elif isinstance(value, list | tuple):
+    elif isinstance(value, list | tuple | set | frozenset):
+        # sets are rendered as lists by _fm_json_default, so count their items too
         children = value
     else:
         return 1
