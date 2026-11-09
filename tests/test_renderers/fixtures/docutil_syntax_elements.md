@@ -534,6 +534,33 @@ finish
             c
 .
 
+Footnotes non-numeric manual label sorted with numeric label [APPLY TRANSFORMS]:
+.
+[^²] and [^1]
+
+[^²]: superscript
+[^1]: one
+.
+<document source="notset">
+    <paragraph>
+        <footnote_reference ids="id1" refid="footnote-1">
+            ²
+         and
+        <footnote_reference ids="footnote-reference-2" refid="footnote-2">
+            1
+    <transition classes="footnotes">
+    <footnote backrefs="footnote-reference-2" ids="footnote-2" names="1">
+        <label>
+            1
+        <paragraph>
+            one
+    <footnote backrefs="id1" ids="footnote-1" names="²">
+        <label>
+            ²
+        <paragraph>
+            superscript
+.
+
 Front Matter:
 .
 ---

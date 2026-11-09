@@ -1422,8 +1422,11 @@ class DocutilsRenderer(RendererProtocol):
                     )
                     continue
                 try:
-                    value = json.dumps(value)
-                except (ValueError, RecursionError):
+                    # Nested dates, sets, etc. are not JSON-serializable;
+                    # see _fm_json_default for how each is rendered.
+                    # TypeError also covers non-string keys such as a YAML date.
+                    value = json.dumps(value, default=_fm_json_default)
+                except (ValueError, TypeError, RecursionError):
                     # e.g. a self-referential structure via a YAML alias
                     self.create_warning(
                         f"Front matter field {key!r} could not be serialized",
@@ -2059,6 +2062,28 @@ _FM_FIELD_MAX_LENGTH = 100_000
 """Maximum number of items a front matter field may expand to when rendered."""
 
 
+def _fm_json_default(obj: Any) -> Any:
+    """Serialize a front matter value that JSON has no type for.
+
+    Dates and datetimes (e.g. a YAML date nested in a mapping or list)
+    become ISO 8601 strings.
+    ``!!set`` values become a list sorted by each item's rendered JSON text
+    (a textual order, which for ISO dates is also chronological),
+    so the output does not depend on hash randomization.
+    Anything else (e.g. ``!!binary`` bytes) uses ``str()``.
+    """
+    if isinstance(obj, date):  # also datetime, a subclass of date
+        return obj.isoformat()
+    if isinstance(obj, set | frozenset):
+        return sorted(obj, key=_fm_json_text)
+    return str(obj)
+
+
+def _fm_json_text(obj: Any) -> str:
+    """Return the JSON text a front matter value renders as."""
+    return json.dumps(obj, default=_fm_json_default)
+
+
 def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """Return the total number of items ``value`` expands to when serialized.
 
@@ -2069,7 +2094,8 @@ def _expanded_length(value: Any, _memo: dict[int, int] | None = None) -> int:
     """
     if isinstance(value, dict):
         children: Iterable[Any] = value.values()
-    elif isinstance(value, list | tuple):
+    elif isinstance(value, list | tuple | set | frozenset):
+        # sets are rendered as lists by _fm_json_default, so count their items too
         children = value
     else:
         return 1
