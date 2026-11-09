@@ -490,8 +490,10 @@ def test_attrs_block_duplicate_ids(
     assert warnings[0].endswith(
         'index.md:7: WARNING: Duplicate explicit target name: "sec". [docutils]'
     )
-    assert warnings[1].endswith(
-        'index.md:: WARNING: Duplicate explicit target name: "para". [docutils]'
+    # the paragraph warning has no line number yet: allow one to be added later
+    assert re.search(
+        r'index\.md:\d*: WARNING: Duplicate explicit target name: "para"\. \[docutils\]$',
+        warnings[1],
     )
     assert warnings[2].endswith(
         'index.md:20: WARNING: Duplicate explicit target name: "rub". [docutils]'
