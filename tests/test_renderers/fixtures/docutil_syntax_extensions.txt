@@ -28,10 +28,8 @@ $$ (label)
     <math_block nowrap="False" number="True" xml:space="preserve">
         foo
     <math_block nowrap="False" number="True" xml:space="preserve">
-
         a = 1
     <math_block ids="label" names="label" nowrap="False" number="True" xml:space="preserve">
-
         b = 2
 .
 

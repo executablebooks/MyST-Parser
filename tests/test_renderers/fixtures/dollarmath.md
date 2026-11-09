@@ -66,10 +66,8 @@ $$ (a)
 .
 <document source="<src>/index.md">
     <math_block nowrap="False" number="True" xml:space="preserve">
-
         a = 1
     <target ids="equation-a">
     <math_block docname="index" label="a" nowrap="False" number="1" xml:space="preserve">
-
         b = 2
 .
