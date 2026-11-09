@@ -421,7 +421,7 @@ Some hosts (notably Read the Docs) reject the default ``Python-urllib/x.y`` agen
 """
 
 
-def _urlopen(uri: str, *, timeout: None | float = None) -> IO[bytes]:
+def _urlopen(uri: str, *, timeout: float | None = None) -> IO[bytes]:
     """Open a remote URL, identifying the client with :data:`USER_AGENT`."""
     request = Request(uri, headers={"User-Agent": USER_AGENT})
     return urlopen(request, timeout=timeout)

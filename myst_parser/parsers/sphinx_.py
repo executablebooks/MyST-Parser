@@ -77,7 +77,7 @@ class MystParser(SphinxParser):
             pass  # this will be reported during the render
         else:
             if topmatter:
-                warning = lambda wtype, msg: create_warning(
+                warning = lambda wtype, msg: create_warning(  # noqa: E731
                     document, msg, wtype, line=1, append_to=document
                 )
                 config = merge_file_level(config, topmatter, warning)
