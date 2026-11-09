@@ -354,6 +354,8 @@ class ResolveAnchorIds(Transform):
                 )
                 if labelid:
                     pending["reflocalid"] = labelid
+                if "reftitle" in refnode:
+                    pending["reftitle"] = refnode["reftitle"]
                 inner_node = nodes.inline(
                     "", "", classes=["xref", "myst"] + refnode["classes"]
                 )

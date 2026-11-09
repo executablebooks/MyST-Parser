@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+from docutils import nodes
 from sphinx.util.console import strip_colors
 from sphinx_pytest.plugin import CreateDoctree
 
@@ -279,3 +280,187 @@ def test_doc_with_missing_target_link_text(sphinx_doctree: CreateDoctree):
     assert ref.astext() == "missing-id", ref.pformat()
     # (the test builder gives documents an empty uri, so only the fragment shows)
     assert ref["refuri"].endswith("#missing-id"), ref.attributes
+
+
+@pytest.mark.parametrize(
+    "test_name,text",
+    [
+        ("doc_root_anchor", '# Title\n\n[a](#index "TT")'),
+        ("heading_anchor", '# Title\n\n## Section\n\n[a](#section "TT")'),
+        ("explicit_target", '(target)=\n# Title\n\n[a](#target "TT")'),
+        ("doc", '# Title\n\n[a](index.md "TT")'),
+        ("doc_with_target_id", '(ref)=\n# Title\n\n[a](index.md#ref "TT")'),
+        ("unresolved", '# Title\n\n[a](#nope "TT")'),
+        ("unknown", '# Title\n\n[a](index "TT")'),
+        ("refdef", '# Title\n\n[a][r1]\n\n[r1]: #index "TT"'),
+    ],
+)
+def test_link_title_is_kept(
+    test_name: str, text: str, sphinx_doctree: CreateDoctree
+) -> None:
+    """A CommonMark link title must survive cross-reference resolution.
+
+    Only two of these branches used to keep it; the rest built a fresh node
+    and dropped the title on the way.
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    doctree = sphinx_doctree(text, "index.md").get_resolved_doctree("index")
+    titles = [
+        node["reftitle"]
+        for node in doctree.findall(nodes.reference)
+        if "reftitle" in node
+    ]
+    assert titles == ["TT"], doctree.pformat()
+
+
+PY_FUNCTION = "# Title\n\n```{py:function} myfunc()\n```\n\n"
+
+
+def _reftitles(doctree: nodes.document) -> list[str]:
+    return [
+        node["reftitle"]
+        for node in doctree.findall(nodes.reference)
+        if "reftitle" in node
+    ]
+
+
+def test_link_title_beats_domain_title(sphinx_doctree: CreateDoctree) -> None:
+    """The authored title wins over the title a domain puts on the reference.
+
+    The py domain resolves `#myfunc` with ``reftitle="myfunc"``;
+    an explicit ``"TT"`` written by the author must replace it,
+    as it already does for intersphinx and for links to documents.
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(PY_FUNCTION + '[a](#myfunc "TT")\n', "index.md")
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["TT"]
+
+
+def test_link_without_title_keeps_domain_title(sphinx_doctree: CreateDoctree) -> None:
+    """Without an authored title, the domain's own title is left alone."""
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(PY_FUNCTION + "[a](#myfunc)\n", "index.md")
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["myfunc"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param('# Title\n\n[a](index.md "TT")', id="doc"),
+        pytest.param(PY_FUNCTION + '[a](#myfunc "TT")', id="any"),
+    ],
+)
+def test_link_title_not_set_without_uri(
+    text: str, sphinx_doctree: CreateDoctree, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When the builder has no URI for the target (`NoUri`),
+    the link is replaced by its bare inline content, which takes no title.
+    """
+    from sphinx.errors import NoUri
+
+    from myst_parser.sphinx_ext import myst_refs
+
+    def no_uri(*args, **kwargs):
+        raise NoUri
+
+    monkeypatch.setattr(myst_refs, "make_refnode", no_uri)
+    monkeypatch.setattr(myst_refs.MystReferenceResolver, "resolve_myst_ref_any", no_uri)
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    doctree = sphinx_doctree(text, "index.md").get_resolved_doctree("index")
+    assert not list(doctree.findall(nodes.reference)), doctree.pformat()
+    assert not [
+        node for node in doctree.findall(nodes.Element) if "reftitle" in node
+    ], doctree.pformat()
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param("# Title\n\n## Section\n\n[a](#section 'TT')", id="slug"),
+        pytest.param("# Title\n\n## Section\n\n### Deep\n\n[a](#deep 'TT')", id="deep"),
+    ],
+)
+def test_link_title_kept_with_heading_anchors(
+    text: str, sphinx_doctree: CreateDoctree
+) -> None:
+    """With `myst_heading_anchors`, a slug link and a link to a heading beyond
+    the anchor depth (resolved by the local fallback) both keep the title."""
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"], "myst_heading_anchors": 2})
+    result = sphinx_doctree(text, "index.md")
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["TT"]
+
+
+def test_link_title_kept_across_documents(sphinx_doctree: CreateDoctree) -> None:
+    """Links to another document, to a target in it, and to its label by name
+    all keep the title."""
+    sphinx_doctree.set_conf(
+        {"extensions": ["myst_parser"], "suppress_warnings": ["toc.not_included"]}
+    )
+    sphinx_doctree.srcdir.joinpath("other.md").write_text(
+        "# Other\n\n(lbl)=\n## Part\n", encoding="utf8"
+    )
+    result = sphinx_doctree(
+        '# Title\n\n[a](other.md "T1") [b](other.md#lbl "T2") [c](#lbl "T3")\n',
+        "index.md",
+    )
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["T1", "T2", "T3"]
+
+
+def test_link_title_from_attrs(sphinx_doctree: CreateDoctree) -> None:
+    """A `{title="..."}` attribute is an authored title too."""
+    sphinx_doctree.set_conf(
+        {
+            "extensions": ["myst_parser"],
+            "myst_enable_extensions": ["attrs_inline"],
+            "suppress_warnings": ["toc.not_included"],
+        }
+    )
+    sphinx_doctree.srcdir.joinpath("other.md").write_text("# Other\n", encoding="utf8")
+    result = sphinx_doctree(
+        PY_FUNCTION + '[a](other.md){title="T1"} [b](#myfunc){title="T2"}\n',
+        "index.md",
+    )
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["T1", "T2"]
+
+
+def test_link_without_title_gets_none(sphinx_doctree: CreateDoctree) -> None:
+    """Links without a title get no `reftitle` on any resolution path."""
+    sphinx_doctree.set_conf(
+        {"extensions": ["myst_parser"], "suppress_warnings": ["toc.not_included"]}
+    )
+    sphinx_doctree.srcdir.joinpath("other.md").write_text(
+        "# Other\n\n(lbl)=\n## Part\n", encoding="utf8"
+    )
+    doctree = sphinx_doctree(
+        "(target)=\n# Title\n\n"
+        "[a](#target) [b](#title) [c](other.md) [d](other.md#lbl) [e](#lbl) [f](#nope)\n",
+        "index.md",
+    ).get_resolved_doctree("index")
+    assert len(list(doctree.findall(nodes.reference))) == 6, doctree.pformat()
+    assert _reftitles(doctree) == [], doctree.pformat()
+
+
+def test_link_title_in_html(make_app, tmp_path) -> None:
+    """The title reaches the `<a>` tag of the HTML output."""
+    srcdir = tmp_path / "src"
+    srcdir.mkdir()
+    srcdir.joinpath("conf.py").write_text(
+        'extensions = ["myst_parser"]\nsuppress_warnings = ["toc.not_included"]\n',
+        encoding="utf8",
+    )
+    srcdir.joinpath("other.md").write_text("# Other\n", encoding="utf8")
+    srcdir.joinpath("index.md").write_text(
+        PY_FUNCTION + '[a](other.md "T1") [b](#myfunc "T2")\n', encoding="utf8"
+    )
+    app = make_app("html", srcdir=srcdir)
+    app.build()
+    assert not strip_colors(app.warning.getvalue()).strip()
+    html = (app.outdir / "index.html").read_text(encoding="utf8")
+    assert 'href="other.html" title="T1"' in html, html
+    assert 'title="T2"' in html, html
+    assert 'title="myfunc"' not in html, html
