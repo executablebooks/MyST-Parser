@@ -140,8 +140,8 @@ Next, add it to your list of extensions in `conf.py`:
 
 ```python
 extensions = [
-  "myst_parser",
-  "sphinx_design",
+    "myst_parser",
+    "sphinx_design",
 ]
 ```
 

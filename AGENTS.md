@@ -191,6 +191,7 @@ def parse_directive_text(
 ```python
 import pytest
 
+
 @pytest.mark.sphinx(
     buildername="html",
     srcdir="path/to/sourcedir",
