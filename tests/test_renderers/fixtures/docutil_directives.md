@@ -191,6 +191,76 @@ a
         a
 .
 
+[parsed-literal-indent] (#1016: leading whitespace is preserved):
+.
+```{parsed-literal}
+123
+ 23
+  3
+```
+.
+<document source="notset">
+    <literal_block xml:space="preserve">
+        123
+
+         23
+
+          3
+.
+
+[parsed-literal-emphasis-indent] (emphasis spanning an indented line keeps the indent):
+.
+```{parsed-literal}
+*foo
+   bar*
+```
+.
+<document source="notset">
+    <literal_block xml:space="preserve">
+        <emphasis>
+            foo
+
+               bar
+.
+
+[parsed-literal-trailing-spaces] (trailing double spaces give no hard break raw nodes):
+.
+```{parsed-literal}
+foo  
+bar
+```
+.
+<document source="notset">
+    <literal_block xml:space="preserve">
+        foo
+
+        bar
+.
+
+[parsed-literal-following-paragraph] (the block keeps its indent; a nested paragraph parsed after it still collapses):
+.
+```{parsed-literal}
+a
+ b
+```
+
+```{note}
+after
+   para
+```
+.
+<document source="notset">
+    <literal_block xml:space="preserve">
+        a
+
+         b
+    <note>
+        <paragraph>
+            after
+
+            para
+.
+
 [rubric] (`docutils.parsers.rst.directives.body.Rubric`):
 .
 ```{rubric} Rubric Title

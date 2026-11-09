@@ -51,6 +51,37 @@ def test_parser():
     )
 
 
+def test_parsed_literal_preserves_line_edge_whitespace():
+    """Line-edge whitespace survives inline parsing in parsed literals."""
+    source = "\n".join(
+        [
+            "```{parsed-literal}",
+            "  first",
+            "123",
+            " 23",
+            "",
+            "\t**3**  ",
+            "```",
+            "",
+        ]
+    )
+    document = publish_doctree(source, parser=Parser())
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "  first\n123\n 23\n\n\t3  "
+    assert [node.astext() for node in literal.findall(nodes.strong)] == ["3"]
+
+
+def test_parsed_literal_whitespace_preserves_delimiter_boundaries():
+    """Whitespace remains visible to CommonMark delimiter classification."""
+    source = "\n".join(["```{parsed-literal}", "foo *  ", "bar*", "```", ""])
+    document = publish_doctree(source, parser=Parser())
+
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "foo *  \nbar*"
+    assert not list(literal.findall(nodes.emphasis))
+
+
 def test_cli_html(monkeypatch, capsys):
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
     cli_html([])
