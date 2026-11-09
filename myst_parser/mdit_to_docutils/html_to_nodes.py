@@ -114,8 +114,10 @@ def _html_ast_to_nodes(
                         "<img> missing 'src' attribute", line=line_number
                     )
                 ]
+            # A valueless attribute (``<img width>``) has the value None,
+            # which the directive's option converter rejects with a warning.
             image_options = {
-                k: v.strip() if k in {"width", "height"} else v
+                k: v.strip() if k in {"width", "height"} and v is not None else v
                 for k, v in sorted(child.attrs.items())
                 if k in OPTION_KEYS_IMAGE
             }

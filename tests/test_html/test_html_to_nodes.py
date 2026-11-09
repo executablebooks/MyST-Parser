@@ -117,3 +117,49 @@ def test_html_image_invalid_dimension(dimension: str, inline: bool) -> None:
     assert dimension not in images[0]
     assert f"Invalid option value for '{dimension}'" in warnings.getvalue()
     assert "[myst.directive_option]" in warnings.getvalue()
+
+
+@pytest.mark.parametrize("dimension", ["width", "height"])
+@pytest.mark.parametrize("inline", [False, True])
+def test_html_image_valueless_dimension(dimension: str, inline: bool) -> None:
+    """A valueless dimension attribute is rejected with a warning, not a crash.
+
+    The HTML parser gives ``<img width>`` the value None,
+    which must not reach the whitespace normalization.
+    """
+    image = f"<img src='x.png' {dimension}>"
+    source = f"before {image} after\n" if inline else f"{image}\n"
+    warnings = StringIO()
+    document = publish_doctree(
+        source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["html_image"],
+            "warning_stream": warnings,
+        },
+    )
+    images = list(document.findall(nodes.image))
+    assert len(images) == 1
+    assert dimension not in images[0]
+    assert f"Invalid option value for '{dimension}'" in warnings.getvalue()
+    assert "[myst.directive_option]" in warnings.getvalue()
+
+
+@pytest.mark.parametrize("inline", [False, True])
+def test_html_image_valueless_alt(inline: bool) -> None:
+    """A valueless alt attribute gives an empty alt, not the text ``None``."""
+    image = "<img src='x.png' alt>"
+    source = f"before {image} after\n" if inline else f"{image}\n"
+    warnings = StringIO()
+    document = publish_doctree(
+        source,
+        parser=Parser(),
+        settings_overrides={
+            "myst_enable_extensions": ["html_image"],
+            "warning_stream": warnings,
+        },
+    )
+    images = list(document.findall(nodes.image))
+    assert len(images) == 1
+    assert images[0]["alt"] == ""
+    assert warnings.getvalue() == ""
