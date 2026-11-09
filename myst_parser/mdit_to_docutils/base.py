@@ -112,7 +112,7 @@ class DocutilsRenderer(RendererProtocol):
             if k.startswith("render_") and k != "render_children"
         }
         # these are lazy loaded, when needed
-        self._inventories: None | dict[str, inventory.InventoryType] = None
+        self._inventories: dict[str, inventory.InventoryType] | None = None
 
     def __getattr__(self, name: str):
         """Warn when the renderer has not been setup yet."""
@@ -300,7 +300,7 @@ class DocutilsRenderer(RendererProtocol):
         text: str,
         lineno: int,
         inline: bool = False,
-        temp_root_node: None | nodes.Element = None,
+        temp_root_node: nodes.Element | None = None,
         heading_offset: int = 0,
     ) -> None:
         """Render unparsed text (appending to the current node).
@@ -988,7 +988,7 @@ class DocutilsRenderer(RendererProtocol):
         return self.render_link_unknown(token)
 
     def render_link_url(
-        self, token: SyntaxTreeNode, conversion: None | UrlSchemeType = None
+        self, token: SyntaxTreeNode, conversion: UrlSchemeType | None = None
     ) -> None:
         """Render link token (including autolink and linkify),
         where the link has been identified as an external URL.
@@ -2113,7 +2113,7 @@ def default_slugify(title: str) -> str:
 def compute_unique_slug(
     token_tree: SyntaxTreeNode,
     slugs: Container[str],
-    slug_func: None | Callable[[str], str] = None,
+    slug_func: Callable[[str], str] | None = None,
 ) -> str:
     """Compute the slug for a heading token, unique against existing slugs."""
     slug_func = github_slugify if slug_func is None else slug_func
