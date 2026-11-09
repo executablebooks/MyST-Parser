@@ -4,7 +4,7 @@
 
 Tables can be written using the standard [Github Flavoured Markdown syntax](https://github.github.com/gfm/#tables-extension-):
 
-:::{myst-example}
+:::{syntax-example}
 | foo | bar |
 | --- | --- |
 | baz | bim |
@@ -12,7 +12,7 @@ Tables can be written using the standard [Github Flavoured Markdown syntax](http
 
 Cells in a column can be aligned using the `:` character:
 
-:::{myst-example}
+:::{syntax-example}
 | left | center | right |
 | :--- | :----: | ----: |
 | a    | b      | c     |
@@ -41,7 +41,7 @@ It is then necessary for the theme you are using to include the appropriate css 
 
 The `table` directive can be used to create a table with a caption:
 
-::::{myst-example}
+::::{syntax-example}
 :::{table} Table caption
 :widths: auto
 :align: center
@@ -76,7 +76,7 @@ The following options are recognized:
 The `list-table` directive is used to create a table from data in a uniform two-level bullet list.
 "Uniform" means that each sublist (second-level list) must contain the same number of list items.
 
-::::{myst-example}
+::::{syntax-example}
 :::{list-table} Frozen Delights!
 :widths: 15 10 30
 :header-rows: 1
@@ -132,7 +132,7 @@ The following options are recognized:
 
 The `csv-table` directive is used to create a table from Comma-Separated-Values data.
 
-:::{myst-example}
+:::{syntax-example}
 ```{csv-table} Frozen Delights!
 :header: >
 :    "Treat", "Quantity", "Description"

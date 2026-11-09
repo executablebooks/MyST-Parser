@@ -147,7 +147,7 @@ extensions = [
 
 Now, we can use the `design` directive to add a web-component to our Markdown file!
 
-::::{myst-example}
+::::{syntax-example}
 :::{card} Card Title
 Header
 ^^^
@@ -158,7 +158,7 @@ Footer
 ::::
 
 
-::::::{myst-example}
+::::::{syntax-example}
 
 ::::{tab-set}
 
@@ -196,7 +196,7 @@ Content 2
 % Now, add a **mermaid directive** to your Markdown file.
 % For example:
 
-% :::{myst-example}
+% :::{syntax-example}
 % Here's a cool mermaid diagram!
 %
 % ```{mermaid}
