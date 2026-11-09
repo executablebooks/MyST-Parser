@@ -190,6 +190,44 @@ Image with escapable html:
         <image alt="alt" uri="http://www.google%3C%3E.com">
 .
 
+Image alt with escapes and entities:
+.
+![a \* b &amp; C:\Python26](x.png)
+.
+<document source="notset">
+    <paragraph>
+        <image alt="a * b & C:\Python26" uri="x.png">
+.
+
+Image alt with escapes and entities in emphasis:
+.
+![a *\* b &copy;*](x.png)
+.
+<document source="notset">
+    <paragraph>
+        <image alt="a * b ©" uri="x.png">
+.
+
+Image alt with an escape in a nested image:
+.
+![outer ![in\*ner](y.png)](x.png)
+.
+<document source="notset">
+    <paragraph>
+        <image alt="outer in*ner" uri="x.png">
+.
+
+Image alt with an escape, reference style:
+.
+![a \* b][r]
+
+[r]: x.png
+.
+<document source="notset">
+    <paragraph>
+        <image alt="a * b" uri="x.png">
+.
+
 Block Quote:
 .
 > *foo*
