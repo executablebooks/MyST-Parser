@@ -144,9 +144,10 @@ class MystReferenceResolver(ReferencesResolver):
             elif not newnode.children:
                 newnode.append(nodes.literal(target, target))
 
-            if "reftitle" in node and "reftitle" not in newnode:
+            if "reftitle" in node and isinstance(newnode, nodes.reference):
                 # carry the link title, e.g. [text](#target "title"),
-                # through whichever branch resolved the reference
+                # through whichever branch resolved the reference;
+                # the authored title wins over a domain or inventory default
                 newnode["reftitle"] = node["reftitle"]
 
             node.replace_self(newnode)
@@ -231,7 +232,7 @@ class MystReferenceResolver(ReferencesResolver):
             )
         except NoUri:
             ref_node = innernode
-        if "reftitle" in node:
+        if "reftitle" in node and isinstance(ref_node, nodes.reference):
             ref_node["reftitle"] = node["reftitle"]
         node.replace_self(ref_node)
 

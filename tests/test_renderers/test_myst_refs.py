@@ -172,3 +172,65 @@ def test_link_title_is_kept(
         if "reftitle" in node
     ]
     assert titles == ["TT"], doctree.pformat()
+
+
+PY_FUNCTION = "# Title\n\n```{py:function} myfunc()\n```\n\n"
+
+
+def _reftitles(doctree: nodes.document) -> list[str]:
+    return [
+        node["reftitle"]
+        for node in doctree.findall(nodes.reference)
+        if "reftitle" in node
+    ]
+
+
+def test_link_title_beats_domain_title(sphinx_doctree: CreateDoctree) -> None:
+    """The authored title wins over the title a domain puts on the reference.
+
+    The py domain resolves `#myfunc` with ``reftitle="myfunc"``;
+    an explicit ``"TT"`` written by the author must replace it,
+    as it already does for intersphinx and for links to documents.
+    """
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(PY_FUNCTION + '[a](#myfunc "TT")\n', "index.md")
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["TT"]
+
+
+def test_link_without_title_keeps_domain_title(sphinx_doctree: CreateDoctree) -> None:
+    """Without an authored title, the domain's own title is left alone."""
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(PY_FUNCTION + "[a](#myfunc)\n", "index.md")
+    assert not result.warnings
+    assert _reftitles(result.get_resolved_doctree("index")) == ["myfunc"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        pytest.param('# Title\n\n[a](index.md "TT")', id="doc"),
+        pytest.param(PY_FUNCTION + '[a](#myfunc "TT")', id="any"),
+    ],
+)
+def test_link_title_not_set_without_uri(
+    text: str, sphinx_doctree: CreateDoctree, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When the builder has no URI for the target (`NoUri`),
+    the link is replaced by its bare inline content, which takes no title.
+    """
+    from sphinx.errors import NoUri
+
+    from myst_parser.sphinx_ext import myst_refs
+
+    def no_uri(*args, **kwargs):
+        raise NoUri
+
+    monkeypatch.setattr(myst_refs, "make_refnode", no_uri)
+    monkeypatch.setattr(myst_refs.MystReferenceResolver, "resolve_myst_ref_any", no_uri)
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    doctree = sphinx_doctree(text, "index.md").get_resolved_doctree("index")
+    assert not list(doctree.findall(nodes.reference)), doctree.pformat()
+    assert not [
+        node for node in doctree.findall(nodes.Element) if "reftitle" in node
+    ], doctree.pformat()
