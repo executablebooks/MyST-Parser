@@ -9,6 +9,7 @@ from typing import Literal
 
 import markdown_it.main
 import pytest
+from docutils import __version_info__ as docutils_version
 from docutils import nodes
 from docutils.core import publish_doctree, publish_string
 from docutils.writers.latex2e import Writer as LatexWriter
@@ -173,6 +174,88 @@ def test_include_from_rst(tmp_path):
             """
         ).strip()
     )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^myref]
+
+            [^myref]: auto definition.
+            [^3]: manual definition.
+            """,
+            ["3", "myref"],
+            id="manual-and-auto",
+        ),
+        pytest.param(
+            """\
+            - manually numbered[^3]
+            - auto numbered[^x]
+
+            [^x]:
+            [^3]: three
+            """,
+            ["3", "x"],
+            id="empty-auto-definition",
+        ),
+        pytest.param(
+            """\
+            - one[^first] two[^second] three[^3]
+
+            [^first]: zebra
+            [^second]: apple
+            [^3]: three
+            """,
+            ["3", "first", "second"],
+            id="unlabelled-not-sorted-by-text",
+        ),
+        pytest.param(
+            """\
+            - one[^second] two[^first] three[^3]
+
+            [^first]: apple
+            [^second]: zebra
+            [^3]: three
+            """,
+            ["3", "second", "first"],
+            id="unlabelled-keep-reference-order",
+        ),
+    ],
+)
+@pytest.mark.skipif(
+    docutils_version < (0, 22),
+    reason="docutils < 0.22 parses a :parser: include with the host's settings, "
+    "without the MyST settings",
+)
+def test_include_from_rst_mixed_footnotes(tmp_path, source, expected):
+    """Test the sort of footnotes in markdown included from an RST file (#1025).
+
+    docutils' ``Footnotes`` transform does not run in the ``:parser:`` sub-document,
+    so the auto-numbered footnotes have no label child when ``CollectFootnotes`` sorts:
+    they must neither crash the sort (``TypeError`` against a numeric label,
+    ``IndexError`` for an empty definition) nor be sorted by their body text,
+    but keep the order they are first referenced (the order docutils numbers them).
+    """
+    from docutils.parsers.rst import Parser as RSTParser
+
+    include_path = tmp_path.joinpath("include.md")
+    include_path.write_text(dedent(source))
+
+    parser = RSTParser()
+    document = make_document(parser_cls=RSTParser)
+    parser.parse(
+        f".. include:: {include_path}\n   :parser: myst_parser.docutils_", document
+    )
+    document.transformer.populate_from_components([parser])
+    document.transformer.apply_transforms()
+
+    # labelled footnotes first, then the unlabelled ones in first-reference order
+    assert [f["names"] for f in document.findall(nodes.footnote)] == [
+        [name] for name in expected
+    ]
 
 
 def test_field_list_body_source_line():
@@ -398,6 +481,105 @@ def test_topmatter_deeply_nested_yaml_warns():
     assert "content" in doctree.pformat()
 
 
+@pytest.mark.parametrize(
+    "yaml_block",
+    [
+        "review:\n  date: 2026-08-03",  # date nested in a mapping
+        "reviewed: [2026-08-03]",  # date nested in a sequence
+        "review:\n  at: 2026-08-03T12:00:00",  # datetime nested in a mapping
+    ],
+)
+def test_topmatter_nested_dates_do_not_crash(yaml_block):
+    """YAML dates nested in dicts/lists must not abort the build.
+
+    Top-level ``date``/``datetime`` scalars skip JSON encoding, but a nested
+    date used to reach ``json.dumps`` and raise ``TypeError`` (#1203).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "2026-08-03" in doctree.astext()
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
+def test_topmatter_date_mapping_key_warns():
+    """A YAML date used as a mapping *key* cannot be JSON-serialized.
+
+    ``json.dumps``'s ``default=`` hook is not called for keys, so this still
+    cannot be rendered as a field, but it must warn rather than crash,
+    and only that field is dropped.
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source="---\nreview:\n  2026-08-03: done\nother: [2026-08-04]\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    assert "Front matter field 'review' could not be serialized" in stream.getvalue()
+    assert "[myst.topmatter]" in stream.getvalue()
+    assert _topmatter_fields(doctree) == {"other": '["2026-08-04"]'}
+
+
+def _topmatter_fields(doctree: nodes.document) -> dict[str, str]:
+    """Return the rendered front matter fields, as ``{name: body text}``."""
+    return {
+        field[0].astext(): field[1].astext() for field in doctree.findall(nodes.field)
+    }
+
+
+@pytest.mark.parametrize(
+    ("yaml_block", "expected"),
+    [
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00",
+            '{"at": "2026-08-03T12:00:00"}',
+            id="nested-datetime-isoformat",
+        ),
+        pytest.param(
+            "review:\n  at: 2026-08-03T12:00:00+02:00",
+            '{"at": "2026-08-03T12:00:00+02:00"}',
+            id="nested-tz-datetime-isoformat",
+        ),
+        pytest.param(
+            "tags: !!set {gamma, alpha, beta}",
+            '["alpha", "beta", "gamma"]',
+            id="set-sorted",
+        ),
+        pytest.param(
+            "review:\n  d: !!set {2026-08-10, 2026-08-04, 2026-08-03}",
+            '{"d": ["2026-08-03", "2026-08-04", "2026-08-10"]}',
+            id="nested-set-of-dates",
+        ),
+        pytest.param(
+            "tags: !!set {1, b, 2026-08-03}",
+            '["2026-08-03", "b", 1]',
+            id="mixed-type-set",
+        ),
+    ],
+)
+def test_topmatter_json_rendering(yaml_block, expected):
+    """Values JSON has no type for render deterministically.
+
+    Dates and datetimes nested in a mapping or list render as ISO 8601 strings,
+    and a YAML ``!!set`` renders as a sorted list,
+    so the output does not depend on hash randomization (``PYTHONHASHSEED``).
+    """
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=f"---\n{yaml_block}\n---\n\ncontent\n",
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    key = yaml_block.split(":", 1)[0]
+    assert _topmatter_fields(doctree) == {key: expected}
+    assert "[myst.topmatter]" not in stream.getvalue()
+
+
 def test_topmatter_alias_expansion_bomb_warns():
     """A YAML alias-expansion ("billion laughs") bomb warns, not hangs.
 
@@ -418,6 +600,33 @@ def test_topmatter_alias_expansion_bomb_warns():
     assert "too large to render" in stream.getvalue()
     assert "[myst.topmatter]" in stream.getvalue()
     assert "content" in doctree.pformat()
+
+
+def test_topmatter_set_alias_bomb_warns():
+    """A ``!!set`` repeated through YAML aliases counts toward the size limit.
+
+    Sets render as lists, so their items must be measured too;
+    otherwise a few KB of front matter renders to tens of MB.
+    Field ``c`` expands to about 20,000 items (rendered),
+    field ``d`` to about 200,000 (over the limit, so it warns).
+    """
+    items = ", ".join(f"k{i}" for i in range(200))
+    source = (
+        f"---\na: &a !!set {{{items}}}\n"
+        f"b: &b [{', '.join(['*a'] * 10)}]\n"
+        f"c: &c [{', '.join(['*b'] * 10)}]\n"
+        f"d: [{', '.join(['*c'] * 10)}]\n---\n\ncontent\n"
+    )
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    assert "content" in doctree.pformat()
+    warnings = stream.getvalue()
+    assert "Front matter field 'd' is too large to render" in warnings
+    assert "Front matter field 'c'" not in warnings
 
 
 def test_heading_anchors_html_ids_disabled():
@@ -659,6 +868,35 @@ def test_text_node_line_stamping():
     assert lines["item"] == 11
     # created while detached from the document, so defers to ancestor lookup
     assert lines["note body"] is None
+
+
+@pytest.mark.parametrize(
+    ("options", "lines"),
+    [
+        pytest.param(":class: tip\n", [3, 5], id="colon"),
+        pytest.param("---\nclass: tip\n---\n", [5, 7], id="yaml"),
+        # text after the closing `---` is the first body line (#1164)
+        pytest.param("---\nclass: tip\n--- ", [4, 6], id="yaml-closer-text"),
+    ],
+)
+def test_directive_body_lines_with_options_and_trailing_blank(options, lines):
+    """Body elements and their warnings map to their true source lines.
+
+    Regression for #1177: with an options block and a blank line before the
+    closing fence, every body line was mapped one source line too low.
+    """
+    source = f"```{{note}}\n{options}para {{unknownrole}}`x`\n\npara2\n\n```\n"
+    stream = io.StringIO()
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={"warning_stream": stream},
+    )
+    note = next(doctree.findall(nodes.note))
+    assert [c.line for c in note.children if isinstance(c, nodes.paragraph)] == lines
+    assert f"<string>:{lines[0]}: (WARNING/2) Unknown interpreted text role" in (
+        stream.getvalue()
+    )
 
 
 def test_empty_slug_means_no_anchor():
