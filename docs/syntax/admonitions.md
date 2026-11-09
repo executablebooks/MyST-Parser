@@ -10,7 +10,7 @@ The [alert extension](syntax/alerts) provides GitHub-style alerts as a lightweig
 Admonitions are a special case of {{directive}} extensions.
 It is advised to use admonitions with the [colon_fence](#syntax/colon_fence) extension, which signify that the content of the block is also MyST Markdown.
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{tip}
 Let's give readers a helpful hint!
@@ -30,7 +30,7 @@ These admonitions take no argument, but may be specified with options:
 :class: A space-separated list of CSS classes to add to the admonition, conforming to the [identifier normalization rules](https://docutils.sourceforge.io/docs/ref/rst/directives.html#identifier-normalization).
 :name: A reference target for the admonition (see [cross-referencing](#syntax/referencing)).
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{tip}
 :class: myclass1 myclass2
@@ -44,7 +44,7 @@ Let's give readers a helpful hint!
 
 Sphinx also adds a number of additional admonition types, for denoting changes to the documentation, or to the codebase:
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{versionadded} 1.2.3
 Explanation of the new feature.
@@ -66,7 +66,7 @@ To provide a custom title for an admonition, use the `admonition` directive.
 If you also want to style the admonition as one of the core admonition types,
 you can use the `admonition` directive with the `class` option.
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{admonition} My custom title with *Markdown*!
 :class: tip
@@ -80,7 +80,7 @@ This is a custom title for a tip admonition.
 
 The [sphinx-togglebutton](https://sphinx-togglebutton.readthedocs.io) extension allows you to create collapsible admonitions, by adding a `dropdown` class to the admonition.
 
-::::{myst-example}
+::::{syntax-example}
 
 :::{note}
 :class: dropdown
@@ -97,7 +97,7 @@ without it taking up too much space on the page.
 Using the [colon_fence](#syntax/colon_fence) extension,
 content block can be wrapped in containers with a custom CSS class.
 
-::::{myst-example}
+::::{syntax-example}
 :::bg-primary
 This is a container with a custom CSS class.
 
@@ -108,7 +108,7 @@ This is a container with a custom CSS class.
 Using the [sphinx-design](https://github.com/executablebooks/sphinx-design) extension,
 it is also possible to create beautiful, screen-size responsive web-components.
 
-::::{myst-example}
+::::{syntax-example}
 :::{card} Card Title
 Header
 ^^^
@@ -119,7 +119,7 @@ Footer
 ::::
 
 
-::::::{myst-example}
+::::::{syntax-example}
 
 ::::{tab-set}
 
