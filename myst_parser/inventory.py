@@ -16,9 +16,11 @@ import zlib
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
 from typing import IO, TYPE_CHECKING, TypedDict
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 import yaml
+
+from myst_parser import __version__
 
 if TYPE_CHECKING:
     # domain_type:object_type -> name -> (project, version, loc, text)
@@ -410,12 +412,27 @@ def filter_string(
     return delimiter.join(str_items)
 
 
+USER_AGENT = (
+    f"myst-parser/{__version__} (+https://github.com/executablebooks/MyST-Parser)"
+)
+"""The ``User-Agent`` header sent when fetching remote inventories.
+
+Some hosts (notably Read the Docs) reject the default ``Python-urllib/x.y`` agent.
+"""
+
+
+def _urlopen(uri: str, *, timeout: None | float = None) -> IO[bytes]:
+    """Open a remote URL, identifying the client with :data:`USER_AGENT`."""
+    request = Request(uri, headers={"User-Agent": USER_AGENT})
+    return urlopen(request, timeout=timeout)
+
+
 def fetch_inventory(
     uri: str, *, timeout: None | float = None, base_url: None | str = None
 ) -> InventoryType:
     """Fetch an inventory from a URL or local path."""
     if uri.startswith(("http://", "https://")):
-        with urlopen(uri, timeout=timeout) as stream:
+        with _urlopen(uri, timeout=timeout) as stream:
             return load(stream, base_url=base_url)
     with open(uri, "rb") as stream:
         return load(stream, base_url=base_url)
@@ -470,13 +487,13 @@ def inventory_cli(inputs: None | list[str] = None):
     base_url = None
     if args.uri.startswith("http://") or args.uri.startswith("https://"):
         try:
-            with urlopen(args.uri, timeout=args.timeout) as stream:
+            with _urlopen(args.uri, timeout=args.timeout) as stream:
                 invdata = load(stream)
             base_url = args.uri.rsplit("/", 1)[0]
         except Exception:
-            with urlopen(args.uri + "/objects.inv", timeout=args.timeout) as stream:
+            base_url = args.uri.rstrip("/")
+            with _urlopen(base_url + "/objects.inv", timeout=args.timeout) as stream:
                 invdata = load(stream)
-            base_url = args.uri
     else:
         with open(args.uri, "rb") as stream:
             invdata = load(stream)
