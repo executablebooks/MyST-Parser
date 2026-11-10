@@ -122,6 +122,18 @@ def _pseudoxml(text: str, extensions: list[str]) -> str:
             "Cap continued with emphasis and code",
             id="inline-markup",
         ),
+        pytest.param(
+            "Cap",
+            "\\:name: x\n" + TABLE,
+            "Cap :name: x",
+            id="escaped-option-marker",
+        ),
+        pytest.param(
+            "Cap",
+            "`:name:` x\n" + TABLE,
+            "Cap :name: x",
+            id="code-option-marker",
+        ),
     ],
 )
 @pytest.mark.parametrize("extensions", [[], EXTENSIONS], ids=["none", "all"])
@@ -152,6 +164,29 @@ def test_wrapped_caption_keeps_inline_nodes():
 
 
 @pytest.mark.parametrize(
+    "first_line,continuation,literal",
+    [
+        ("Mid-syllable *marks that", "must be* tagged", "*"),
+        ("See [the long link", "text](https://example.com) here", "["),
+        ("A caption with `code", "span` in it", "`"),
+    ],
+    ids=["emphasis", "link", "code"],
+)
+def test_wrapped_caption_markup_does_not_span_lines(first_line, continuation, literal):
+    """The opening line and the continuation are parsed separately (as documented),
+    so inline markup cannot span the line break between them:
+    its delimiters stay literal text in the caption.
+    """
+    doctree, warnings = _render(_source(first_line, f"{continuation}\n{TABLE}"), [])
+    assert not warnings
+    title = doctree[0][0]
+    assert isinstance(title, nodes.title)
+    assert title.astext() == f"{first_line} {continuation}"
+    assert literal in title.astext()
+    assert all(isinstance(child, nodes.Text) for child in title.children)
+
+
+@pytest.mark.parametrize(
     "fence,extensions",
     [("```", []), ("~~~", []), (":::", ["colon_fence"])],
 )
@@ -179,6 +214,21 @@ def test_wrapped_caption_source_lines():
     assert doctree[0][0].astext() == "Cap continued\nmore"
     message = 'Unknown interpreted text role "nope". [myst.role_unknown]'
     assert warnings.splitlines() == [f"<string>:6: (WARNING/2) {message}"]
+
+
+def test_wrapped_caption_directive_error():
+    """When docutils' ``run`` fails after the caption is joined
+    (here, the widths do not match the columns),
+    its error is output unchanged, with no caption added to it.
+    """
+    doctree, warnings = _render(
+        _source("Cap", ":widths: 1 2 3\ncontinued\n" + TABLE), []
+    )
+    assert "widths do not match the number of columns in table (2)" in warnings
+    assert "exactly one table expected" not in warnings
+    assert [type(child) for child in doctree.children] == [nodes.system_message]
+    assert not list(doctree.findall(nodes.title))
+    assert not list(doctree.findall(nodes.table))
 
 
 class _ListAllTable(RSTTable):
