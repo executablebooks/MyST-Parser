@@ -226,6 +226,44 @@ docstring_parser_regexes = [
 ```
 ````
 
+#### Configuring with Jupyter Book (`_config.yml`)
+
+If your documentation is built with [Jupyter Book](https://jupyterbook.org), there is no `conf.py` to edit:
+Sphinx extensions and configuration are set in the book's `_config.yml` file instead
+(see [Jupyter Book's Sphinx configuration](https://jupyterbook.org/en/stable/customize/config.html)).
+First install `sphinx-autodoc2` in the same environment as Jupyter Book:
+
+```bash
+pip install sphinx-autodoc2
+```
+
+Then add the extension and its configuration to `_config.yml`:
+
+```yaml
+sphinx:
+  extra_extensions:
+    - autodoc2
+  config:
+    autodoc2_packages:
+      - ../src/mypackage
+    autodoc2_render_plugin: myst
+    autodoc2_docstring_parser_regexes:
+      - [".*", "myst"]
+```
+
+- `autodoc2_packages`: the package(s) to document, with each path relative to the book's source directory (here the package lives in `src/` next to the book folder).
+  With `auto_mode` on (the default), the full API reference is generated automatically, under `apidocs/` by default.
+- `autodoc2_render_plugin: myst` renders the generated pages as MyST Markdown, so they can use MyST syntax and cross-references.
+- `autodoc2_docstring_parser_regexes` renders docstrings as MyST Markdown; the ".*" pattern applies it to every documented object, as shown above.
+
+Finally, add the generated reference to your book's table of contents (`_toc.yml`), so it appears in the navigation:
+
+```yaml
+- file: apidocs/index
+```
+
+For all available options, see [sphinx-autodoc2's configuration reference](https://sphinx-autodoc2.readthedocs.io/en/latest/config.html).
+
 (syntax/apis/sphinx-autodoc)=
 ### `sphinx.ext.autodoc`
 
