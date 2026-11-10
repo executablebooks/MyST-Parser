@@ -122,6 +122,35 @@ def test_docutils_directives(
     )
 
 
+@pytest.mark.param_file(FIXTURE_PATH / "docutil_section_refs.md")
+def test_section_refs(file_params: ParamTestData, normalize_doctree_xml):
+    """Test that ``§1.1`` section references resolve, or give the correct warning.
+
+    The description is parsed as a docutils commandline.
+    Transforms are applied, since resolution happens in ``ResolveSectionRefs``.
+    """
+    settings = settings_from_cmdline(file_params.description)
+    report_stream = StringIO()
+    settings["warning_stream"] = report_stream
+    doctree = publish_doctree(
+        file_params.content,
+        source_path="<src>/index.md",
+        parser=Parser(),
+        settings_overrides=settings,
+    )
+    # docutils >=0.23 also inserts info-level (severity 1) system messages
+    # into the doctree; they are still written to the report stream,
+    # which is what the fixtures capture, so drop them from the tree
+    if docutils_version >= (0, 23):
+        for msg in list(doctree.findall(nodes.system_message)):
+            if msg["level"] < 2:
+                msg.parent.remove(msg)
+    outcome = normalize_doctree_xml(doctree.pformat())
+    if report_stream.getvalue().strip():
+        outcome += "\n\n" + report_stream.getvalue().strip()
+    file_params.assert_expected(outcome, rstrip_lines=True)
+
+
 @pytest.mark.param_file(FIXTURE_PATH / "docutil_syntax_extensions.txt")
 def test_syntax_extensions(file_params: ParamTestData, normalize_doctree_xml):
     """The description is parsed as a docutils commandline"""

@@ -40,6 +40,7 @@ myst_enable_extensions = [
     "html_image",
     "linkify",
     "replacements",
+    "section_ref",
     "smartquotes",
     "strikethrough",
     "substitution",
@@ -324,6 +325,128 @@ Key differences:
 - **`linkify`** matches schema-less domains (e.g. `example.com` with `fuzzy_link=True`), supports many protocols, and requires `linkify-it-py`.
 - **`gfm_autolink`** only matches `www.`-prefixed URLs, `http(s)://`/`mailto:`/`xmpp:` URLs, and email addresses. It has no extra dependency and follows GFM URL boundary rules exactly.
 :::
+
+(syntax/section-ref)=
+## Section references
+
+```{versionadded} 5.2.0
+```
+
+Adding `"section_ref"` to `myst_enable_extensions` (in the {{ confpy }}) will recognise section-sign references such as `§1`, `§1.1` and `§2.3.4`, and turn each into an internal link to the correspondingly numbered heading in the current document.
+
+For example, with the following document:
+
+```md
+# Title
+
+See §1 and §1.1, and also §2.
+
+## Section One
+
+### Sub One One
+
+## Section Two
+```
+
+`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*, each link also carrying the target heading's title as a hover tooltip in Sphinx HTML output.
+
+The numbering is **document-local** and purely **structural**, computed from the heading hierarchy as written in the source:
+
+- If the document has a single top-level heading (the common `# Title` layout), its subsections are numbered `§1`, `§2`, … in order.
+- Otherwise the top-level headings themselves are numbered `§1`, `§2`, ….
+- Deeper levels are appended with dots, so the second subsection of the first section is `§1.2`, and so on.
+
+The numbering is the same in Sphinx and in single-page docutils output.
+docutils may promote a lone top-level heading to the document title, and a heading below it to the subtitle,
+but references are resolved before that, against the headings as written, so `§1` can link to a heading that docutils displays as the subtitle.
+
+A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
+A `§` number directly followed by an ASCII letter, such as `§1a`, is not a reference.
+
+References that appear **inside a section heading or inside link text** are intentionally left as text marked with the `section-ref` class, rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+References in other titles, such as the title of an admonition or a table, are resolved as usual.
+
+:::{important}
+§-numbers are **not** the section numbers that Sphinx displays.
+In a `toctree` with the `:numbered:` option, Sphinx numbers sections across the documents it lists, so *Section One* above could be displayed as "2.1.", while `§1` still targets it, as the first section of its own document.
+To cite the number that a `:numbered:` toctree displays, put a [`(label)=` target](syntax/targets) on the heading and use the [`{numref}` role](inv:sphinx:rst:role#numref), which by default prints "Section 2.1".
+:::
+
+:::{caution}
+With the extension enabled, every `§` followed by a number is read as a reference into the **current** document:
+
+- A legal citation such as `§242 BGB` gives a `myst.section_ref` warning, or links to section 242 if the document has one.
+- A reference to another specification, such as `RFC 9110 §8.3`, links to section 8.3 *of the current document* if it has one, with no warning.
+
+To write a `§` that is not a reference, use the `&sect;` entity (e.g. `&sect;242 BGB`).
+A backslash before the `§` (`\§242`) also stops the reference, but stays in the output, since `§` is not ASCII punctuation.
+
+The warnings can be silenced with [`suppress_warnings`](sphinx/config-options), e.g. `suppress_warnings = ["myst.section_ref"]`,
+but that also hides references that are broken.
+:::
+
+:::{note}
+References resolve to positions **in the current document only**.
+A reference written in a file that is pulled in with the `{include}` directive resolves against the numbering of the document that includes it.
+
+Numbers are positional: inserting or moving a heading changes what every later reference points to, without a warning.
+Use a [`(label)=` target](syntax/targets) for references that must survive restructuring.
+
+If a reference cannot be resolved to a numbered heading (for example `§9.9` in a document with fewer sections), the reference is left as text marked with the `section-ref` class, and a `myst.section_ref` warning is emitted.
+
+Cross-document section references may be supported in a future release.
+:::
+
+### Numbering rules
+
+These rules say exactly which section heading a reference points to.
+Sphinx and docutils follow them in the same way (except that docutils has no `{only}` or `ifconfig` directive, so it drops such blocks), and MyST's test suite pins them.
+
+**What is a reference**
+
+- A reference is `§` followed by one or more levels separated by dots, each level being 1 to 9 ASCII digits (`§1`, `§2.10`, `§01.02`).
+  The longest such run is taken, but a trailing dot is not part of it, so `§1.` is `§1` followed by `.`.
+- There is no reference, and the whole run stays as written, if the number is directly followed by an ASCII letter (`§1a`),
+  or if any level has more than nine digits, leading zeros included (`§0000000001`, `§1.1234567890.2`).
+  A non-ASCII letter does not stop a reference: `见§3章` contains `§3`.
+- References are recognised wherever inline text is parsed, but not in code spans, autolinks, raw HTML or math.
+- `\§` is not an escape: the backslash stays visible, and no reference is formed.
+  `\\§1` is a literal backslash followed by the reference `§1`.
+  To write a literal sign, use `&sect;` or `&#167;`.
+- The link text is the reference as written (`§01.02`), and its number is the value of each level (1.2).
+
+**Which headings count**
+
+- Every heading that starts a section counts, in the order of the source, including:
+  - the headings of a file pulled in with `{include}`, at the point of inclusion and at the level they are written at, shifted by the directive's `:heading-offset:`;
+  - the sections of an `{eval-rst}` block, where the document places them;
+  - the headings inside an `{only}` block, whatever its condition, so that the numbers are the same for every builder;
+  - any other section that a directive places in the document, such as one inside `.. ifconfig::` in an `{eval-rst}` block, under the section that contains it;
+  - a front-matter `title` that [`myst_title_to_header`](#sphinx/config-options) turns into a heading: it is the first heading of the document.
+- A Markdown heading inside the body of a directive, such as `{note}`, is rendered as a rubric, and does not count.
+  It is not a section heading, so a reference written in it resolves as usual.
+
+**How headings are numbered**
+
+- A heading is nested under the nearest heading before it that has a smaller level, so a skipped level adds no number:
+  under `# Title`, a `####` heading that directly follows `## A` is `§1.1`.
+- If the document has exactly one top-level heading, its child headings are `§1`, `§2`, …; otherwise the top-level headings are.
+- Numbers start at 1, so `§0` never resolves. The k-th heading at the top is `§k`, and the j-th child of `§p` is `§p.j`.
+- The numbers do not depend on `:numbered:` toctrees, `{sectnum}`, the builder, docutils' title and subtitle promotion, or any other document.
+
+**How references resolve**
+
+- `§1.2` links to the section heading numbered exactly 1.2; there is no fallback to `§1` or to the nearest heading.
+- The link goes to the section's primary anchor, so a `(label)=` target on the heading is used.
+  A reference to a heading in an `{only}` or `ifconfig` branch that the build excludes points to an anchor that is not in the output.
+- A reference in a section heading or in link text is never linked, and never warns.
+  A heading that docutils promotes to the subtitle is still a section heading, but the `:subtitle:` of a `{sidebar}` is not, so a reference there resolves.
+  Everywhere else (paragraphs, emphasis, lists, tables, figure captions, admonitions) it resolves.
+- In image alt text, the reference is kept as written, without a link.
+- A reference that does not resolve stays as text marked with the `section-ref` class, and gives one `myst.section_ref` warning.
+- A reference resolves against the document it is written in, when that document is read
+  (for an `{include}`d file, that is the document that includes it).
+  Content that is copied into another document, for example by an extension, is not covered.
 
 (syntax/substitutions)=
 

@@ -66,6 +66,8 @@ class MystWarnings(Enum):
     """Invalid attribute value."""
     SUBSTITUTION = "substitution"
     """Substitution could not be resolved."""
+    SECTION_REF = "section_ref"
+    """A section reference could not be resolved."""
 
 
 def _is_suppressed_warning(

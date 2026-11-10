@@ -28,6 +28,7 @@ from myst_parser.mdit_to_docutils.transforms import (
     CollectFootnotes,
     PrioritiseExplicitIds,
     ResolveAnchorIds,
+    ResolveSectionRefs,
     SortFootnotes,
     UnreferencedFootnotesDetector,
 )
@@ -260,6 +261,7 @@ class Parser(RstParser):
             AddSlugIds,
             PrioritiseExplicitIds,
             ResolveAnchorIds,
+            ResolveSectionRefs,
         ]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:

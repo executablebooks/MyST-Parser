@@ -179,6 +179,9 @@ linkify
 replacements
 : Automatically convert some common typographic texts
 
+section_ref
+: Resolve section-sign references such as `§1.1` to internal links, [see here](syntax/section-ref) for details
+
 smartquotes
 : Automatically convert standard quotations to their opening/closing variants
 

@@ -19,6 +19,7 @@ from myst_parser.mdit_to_docutils.transforms import (
     CollectFootnotes,
     PrioritiseExplicitIds,
     ResolveAnchorIds,
+    ResolveSectionRefs,
     SortFootnotes,
 )
 from myst_parser.parsers.mdit import create_md_parser
@@ -58,6 +59,7 @@ class MystParser(SphinxParser):
             AddSlugIds,
             PrioritiseExplicitIds,
             ResolveAnchorIds,
+            ResolveSectionRefs,
         ]
 
     def parse(self, inputstring: str, document: nodes.document) -> None:
