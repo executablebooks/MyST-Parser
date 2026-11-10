@@ -508,10 +508,12 @@ class DocutilsRenderer(RendererProtocol):
         result = ""
 
         for token in tokens or []:
-            if token.type in {"text", "text_special"}:
+            if token.type in {"text", "text_special", "section_ref"}:
                 # An escape or entity is a text_special token with no children.
                 # Its content is the character the alt text must keep
                 # (executablebooks/MyST-Parser#1210).
+                # A section reference is also a childless token,
+                # whose content is the reference as written (e.g. "§1.1").
                 result += token.content
             else:
                 result += self.renderInlineAsText(token.children or [])

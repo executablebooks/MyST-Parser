@@ -233,3 +233,20 @@ See §1 and §1.1.
         <title>
             Section One
 .
+
+[image-alt] --myst-enable-extensions=section_ref
+.
+# Title
+
+## One
+
+![a §1 *b §1.1* c](x.png)
+.
+<document ids="title" names="title" source="<src>/index.md" title="Title">
+    <title>
+        Title
+    <subtitle ids="one" names="one">
+        One
+    <paragraph>
+        <image alt="a §1 b §1.1 c" uri="x.png">
+.
