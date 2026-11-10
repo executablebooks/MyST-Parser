@@ -294,7 +294,8 @@ def test_sphinx_warning_only_for_unresolved(sphinx_doctree: CreateDoctree):
         {"extensions": ["myst_parser"], "myst_enable_extensions": ["section_ref"]}
     )
     result = sphinx_doctree(WARNING_SOURCE, "index.md")
-    assert strip_colors(result.warnings).strip().splitlines() == [
+    # the source path uses the OS separator (``<src>\\index.md`` on Windows)
+    assert strip_colors(result.warnings).replace("\\", "/").strip().splitlines() == [
         f"<src>/index.md:5: WARNING: {WARNING_MESSAGE} [myst.section_ref]"
     ]
 

@@ -269,7 +269,7 @@ def test_extended_syntaxes_text(
         buildername="text",
         filename="index.txt",
     )
-    file_regression.check(content)
+    file_regression.check(content, encoding="utf8")
 
 
 @pytest.mark.skipif(
