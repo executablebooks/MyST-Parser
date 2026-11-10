@@ -303,6 +303,10 @@ x
 (lbl)=
 ## A
 
+```{note}
+## A
+```
+
 ## A
 
 ## A
@@ -528,6 +532,36 @@ See §1 §1.1 §2.
 .
 §1 -> A
 §1.1 -> Inner
+§2 -> B
+.
+
+[N1-eval-rst-in-container]
+.
+# T
+
+## A
+
+````{note}
+```{eval-rst}
+InNote
+------
+```
+````
+
+- item
+
+  ```{eval-rst}
+  InList
+  ------
+  ```
+
+## B
+
+See §1 §1.1 §1.2 §2.
+.
+§1 -> A
+§1.1 -> InNote
+§1.2 -> InList
 §2 -> B
 .
 

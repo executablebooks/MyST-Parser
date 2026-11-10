@@ -79,10 +79,12 @@ def _is_inert(node: nodes.Element) -> bool:
 
 
 def _is_section_title(node: nodes.Node) -> bool:
-    """Whether a node is a section title (in docutils, maybe promoted to the document)."""
-    return isinstance(node, nodes.subtitle) or (
-        isinstance(node, nodes.title)
-        and isinstance(node.parent, (nodes.section, nodes.document))
+    """Whether a node is a section title (in docutils, maybe promoted to the document).
+
+    A sidebar's subtitle is not one.
+    """
+    return isinstance(node, (nodes.title, nodes.subtitle)) and isinstance(
+        node.parent, (nodes.section, nodes.document)
     )
 
 
