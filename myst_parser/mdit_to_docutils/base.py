@@ -35,6 +35,7 @@ from docutils.parsers.rst import Directive, DirectiveError, directives, roles
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.body import ParsedLiteral
 from docutils.parsers.rst.directives.misc import Include
+from docutils.parsers.rst.directives.tables import RSTTable
 from docutils.parsers.rst.languages import get_language as get_language_rst
 from docutils.statemachine import StringList
 from docutils.utils import Reporter, SystemMessage, new_document
@@ -54,6 +55,7 @@ from myst_parser.mocking import (
     MockRSTParser,
     MockState,
     MockStateMachine,
+    MockTableState,
 )
 from myst_parser.parsers.directives import (
     YAML_LOAD_ERRORS,
@@ -1984,6 +1986,7 @@ class DocutilsRenderer(RendererProtocol):
             )
 
         # initialise directive
+        state: MockState | None = None
         if issubclass(directive_class, Include):
             directive_instance = MockIncludeDirective(
                 self,
@@ -1996,7 +1999,14 @@ class DocutilsRenderer(RendererProtocol):
             )
         else:
             state_machine = MockStateMachine(self, position)
-            state = MockState(
+            # a table caption may wrap onto the lines directly after the opening line
+            # (or the options block), only where docutils' run would otherwise fail
+            state_class = (
+                MockTableState
+                if directive_class.run is RSTTable.run and not parsed.blank_line_removed
+                else MockState
+            )
+            state = state_class(
                 self,
                 state_machine,
                 position,
@@ -2042,6 +2052,8 @@ class DocutilsRenderer(RendererProtocol):
         assert isinstance(result, list), (
             f'Directive "{name}" must return a list of nodes.'
         )
+        if isinstance(state, MockTableState):
+            result = state.add_caption_continuation(directive_instance, result)
         for i in range(len(result)):
             assert isinstance(result[i], nodes.Node), (
                 f'Directive "{name}" returned non-Node object (index {i}): {result[i]}'

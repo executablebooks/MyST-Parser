@@ -85,6 +85,10 @@ class DirectiveParsingResult:
     """List of non-fatal errors encountered during parsing.
     (message, line_number)
     """
+    blank_line_removed: bool = False
+    """Whether a blank line between the opening line (or the options block)
+    and the body content was removed.
+    """
 
 
 def parse_directive_text(
@@ -161,7 +165,8 @@ def parse_directive_text(
 
     # remove first line of body if blank
     # this is to allow space between the options and the content
-    if body_lines and not body_lines[0].strip():
+    blank_line_removed = bool(body_lines) and not body_lines[0].strip()
+    if blank_line_removed:
         body_lines = body_lines[1:]
         content_offset += 1
 
@@ -170,7 +175,12 @@ def parse_directive_text(
         parse_warnings.append(ParseWarnings("Has content, but none permitted"))
 
     return DirectiveParsingResult(
-        arguments, options, body_lines, content_offset, parse_warnings
+        arguments,
+        options,
+        body_lines,
+        content_offset,
+        parse_warnings,
+        blank_line_removed,
     )
 
 
@@ -188,6 +198,16 @@ class _DirectiveOptions:
     It is derived before the body is joined back into a string, so it is not
     affected by trailing blank lines being lost in the ``"\\n".join(...)`` round-trip.
     """
+
+
+def is_option_line(line: str) -> bool:
+    """Return True if ``line`` is read as a ``:key: value`` directive option line,
+    when it is in the options block.
+    """
+    stripped = line.lstrip()
+    # lines that don't start with a colon or have 3+ colons, which are colon fences
+    # (e.g. nested directives like `::::{other}`), are not options
+    return stripped.startswith(":") and not stripped.startswith(":::")
 
 
 def _parse_directive_options(
@@ -245,10 +265,7 @@ def _parse_directive_options(
         content_lines = content.splitlines()
         yaml_lines = []
         while content_lines:
-            stripped = content_lines[0].lstrip()
-            # Stop at lines that don't start with a colon or have 3+ colons, which are colon fences
-            # (e.g. nested directives like `::::{other}`)
-            if not stripped.startswith(":") or stripped.startswith(":::"):
+            if not is_option_line(content_lines[0]):
                 break
             yaml_lines.append(content_lines.pop(0).lstrip()[1:])
         options_block = "\n".join(yaml_lines)

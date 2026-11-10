@@ -6,6 +6,7 @@ import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
 from docutils.parsers.rst.directives.misc import TestDirective as DocutilsTestDirective
+from docutils.parsers.rst.directives.tables import RSTTable
 from markdown_it import MarkdownIt
 from sphinx.directives.code import CodeBlock
 
@@ -308,3 +309,43 @@ def test_options_to_tokens_comment_lines():
     _, state = options_to_tokens("# first\na: 1 # second\n# third\nb: 2\n")
     assert state.has_comments
     assert state.comment_lines == [0, 1, 2]
+
+
+TABLE_BODY = "| a | b |\n|---|---|\n| 1 | 2 |"
+
+
+def test_table_caption_on_one_line_unchanged():
+    """A single-line caption is still the only argument, body is the table."""
+    result = parse_directive_text(
+        RSTTable,
+        "Table caption",
+        "\n" + TABLE_BODY,
+    )
+    assert result.arguments == ["Table caption"]
+    assert result.body == TABLE_BODY.splitlines()
+    assert result.body_offset == 1
+    assert result.blank_line_removed
+
+
+@pytest.mark.parametrize(
+    "content,body_offset,blank_line_removed",
+    [
+        pytest.param("continued\n" + TABLE_BODY, 0, False, id="no-blank"),
+        pytest.param(":name: tbl\ncontinued\n" + TABLE_BODY, 1, False, id="options"),
+        pytest.param(":name: tbl\n\nSome prose.", 2, True, id="options-blank"),
+    ],
+)
+def test_table_arguments_from_opening_line_only(
+    content, body_offset, blank_line_removed
+):
+    """Directive arguments come from the opening line only:
+    a wrapped ``{table}`` caption is joined when the table is rendered
+    (see ``test_table_caption.py``), which needs to know
+    whether a blank line separated the body from the opening line or options.
+    """
+    result = parse_directive_text(RSTTable, "Cap", content)
+    assert result.arguments == ["Cap"]
+    assert result.body == content.splitlines()[body_offset:]
+    assert result.body_offset == body_offset
+    assert result.blank_line_removed is blank_line_removed
+    assert not result.warnings
