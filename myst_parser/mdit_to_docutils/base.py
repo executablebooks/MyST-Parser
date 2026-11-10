@@ -17,6 +17,7 @@ from collections.abc import (
 )
 from contextlib import contextmanager, suppress
 from datetime import date, datetime
+from pathlib import Path
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
@@ -1363,9 +1364,64 @@ class DocutilsRenderer(RendererProtocol):
                 fields, language_code=self.document.settings.language_code
             )
             self.current_node.append(field_list)
+            self._add_fm_env_metadata(field_list, self.document.settings.language_code)
 
         if data.get("title") and self.md_config.title_to_header:
             self.nested_render_text(f"# {data['title']}", 0)
+
+    def _add_fm_env_metadata(
+        self, field_list: nodes.field_list, language_code: str
+    ) -> None:
+        """Eagerly add the front matter to the sphinx ``env.metadata``.
+
+        Sphinx's ``MetadataCollector`` only populates ``env.metadata`` on the
+        ``doctree-read`` event, i.e. after the whole document has been parsed.
+        Adding the metadata here as well makes it available *during* the parse,
+        so that a document can reference its own front matter,
+        e.g. ``{{ env.metadata[env.docname]["key"] }}`` in a substitution.
+
+        The values are read back off the rendered fields,
+        and keyed as the collector keys them,
+        so that the collector later overwrites each of them with its own value.
+        These are the same, except for ``authors``,
+        which is a single string here, but a list once collected.
+
+        Nothing is added unless the document being rendered is the one Sphinx is
+        reading: a Markdown file parsed into another document, for example by an
+        rST ``include`` with ``:parser: myst_parser.sphinx_``, is parsed into a
+        separate document whose ``docinfo`` the collector never sees,
+        so its front matter would otherwise remain in the including
+        document's metadata.
+
+        :param field_list: the field list rendered from the front matter.
+        :param language_code: used to resolve localised bibliographic field names.
+        """
+        env = self.sphinx_env
+        if env is None:
+            return
+        source = self.document.get("source")
+        if not source or (
+            Path(source).resolve() != Path(env.doc2path(env.docname)).resolve()
+        ):
+            return
+        bibliofields = get_language(language_code).bibliographic_fields
+        meta = env.metadata[env.docname]
+        for field in field_list:
+            name: str = field[0].astext()
+            value: Any = field[1].astext()
+            # the `DocInfo` transform converts bibliographic fields to dedicated
+            # nodes, which the collector then keys by the canonical (English) name
+            name = bibliofields.get(nodes.fully_normalize_name(name), name)
+            if name in ("dedication", "abstract"):
+                # these are placed outside the `docinfo`, so are never collected
+                continue
+            if name == "tocdepth":
+                # as per MetadataCollector
+                try:
+                    value = int(value)
+                except ValueError:
+                    value = 0
+            meta[name] = value
 
     def dict_to_fm_field_list(
         self, data: dict[str, Any], language_code: str, line: int = 0
@@ -1400,7 +1456,10 @@ class DocutilsRenderer(RendererProtocol):
         by the `DoctreeReadEvent` transform (priority 880),
         calling `MetadataCollector.process_doc`.
         In this case keys and values will be converted to strings and stored in
-        `app.env.metadata[app.env.docname]`
+        `app.env.metadata[app.env.docname]`.
+        Note that this only happens once the whole document has been parsed,
+        so `_add_fm_env_metadata` additionally seeds these keys during the
+        render, to make them readable from within the document itself.
 
         See
         https://www.sphinx-doc.org/en/master/usage/restructuredtext/field-lists.html
