@@ -1,5 +1,124 @@
 # Changelog
 
+## 5.2.0 - 2026-11-10
+
+Heading anchors are now stable and documented:
+one shared slug implementation with `"github"`, `"gitlab"` and `"docutils"` presets,
+slugs emitted as real HTML ids, explicit `(target)=` ids taking priority, and a versioned anchor contract.
+Warnings and other tools now get accurate source lines (also inside `{include}`d files),
+docutils 0.23 is supported, inputs that used to abort the build now warn instead,
+and many fixes land for references, images, front matter, substitutions and directives;
+a new `section_ref` extension links `§1.1`-style references to numbered headings.
+
+Nothing is dropped: Python `>=3.11`, Sphinx `>=8,<10` and the markdown-it-py requirement are unchanged,
+mdit-py-plugins is raised to `~=0.7` (it was `~=0.6,>=0.6.1`),
+and the docutils range is widened to `>=0.20,<0.24`.
+Some of these changes can still alter the output of a project that built before, so please read the upgrade notes.
+
+### ‼️ Upgrade notes
+
+- **Heading anchors** (<gh-pr:1158>, <gh-pr:1168>), see [](syntax/header-anchors):
+  - Duplicate heading slugs now get fixed-base suffixes, `x`, `x-1`, `x-2`, as on GitHub;
+    the third and later duplicates used to get `x-1-2`, `x-1-2-3`, ...
+    **So a link that uses the old slug of a third or later duplicate, such as `[](#x-1-2)`, no longer resolves
+    and warns (`myst.xref_missing`, which fails a `-W` build): change it to `[](#x-2)`.**
+    Links to the first two duplicates are unchanged, and every HTML id a heading had before is kept.
+  - Slugs are also emitted as secondary HTML `id`s on the rendered headings, so `#slug` links work in the published HTML.
+    The docutils id stays the primary (first) id, so existing fragment links keep working.
+    Set `myst_heading_anchors_html_ids = False` to emit only the docutils id.
+  - An explicit `(target)=` placed before a heading becomes the section's primary id,
+    which tocs, permalinks and `objects.inv` use; the implicit heading id is kept as a secondary anchor.
+  - A heading whose slug is empty (a punctuation-only title, or any non-Latin title with the `"docutils"` preset) gets no anchor,
+    and an empty fragment, `[](#)`, now warns as unresolved.
+  - Links that used to warn now resolve when the anchor exists:
+    same-document links to implicit ids (such as headings deeper than `myst_heading_anchors`; under Sphinx only as a last resort),
+    and cross-document links to label ids and to the implicit ids of headings within the `myst_heading_anchors` depth.
+    `[](doc.md#label)` takes the target's title as its text (<gh-pr:1207>).
+  - These rules (slug presets, deduplication, empty slugs, explicit-id priority and HTML ids) are now a documented contract,
+    pinned by a versioned, language-agnostic corpus (`tests/fixtures/slugs.json`).
+    `myst_parser.mdit_to_docutils.base.default_slugify` is deprecated in favour of `myst_parser.slugs.github_slugify`.
+- **Directive option warnings** (<gh-pr:1164>): each warning now points at the offending option's line,
+  and unknown options are reported one per warning, as `Unknown option key: 'x' (allowed: [...])`,
+  instead of one aggregate `Unknown option keys: [...]`.
+  The `myst.directive_option` subtype is unchanged, so `suppress_warnings` keeps working,
+  but tests that match the old message need updating.
+- **Directive API** (<gh-pr:1164>): directives now receive the full fenced text as `block_text`, as in reStructuredText,
+  so errors that echo it show the whole fence;
+  and `content_offset` is `-1` when the body starts on the opening line.
+- **Source lines** (<gh-pr:1164>, <gh-pr:1169>, <gh-pr:1179>): lines in warnings and nodes change where they were wrong.
+  Text nodes no longer take the line of the most recent directive (so gettext `.pot` locations change),
+  lines inside `{include}`d files are no longer one late,
+  and the body of a directive with options and a trailing blank line is no longer one line off.
+- **Front matter** (<gh-pr:1197>): options that can only be set globally
+  (`heading_slug_func`, `update_mathjax`, `mathjax_classes`, `suppress_warnings`, `inventories`)
+  now warn (`myst.topmatter`) and are ignored in a document's front matter.
+  This removes the undocumented per-document effect of `inventories` (docutils) and `update_mathjax` (Sphinx).
+- **Rendered output**:
+  - `parsed-literal` keeps each line's indentation, and two trailing spaces no longer make a hard line break (<gh-pr:1176>);
+  - `$$` math blocks lose the blank lines at the start and end of their content, which broke LaTeX output (<gh-pr:1224>);
+  - `myst_links_external_new_tab` writes `rel="noreferrer"` (it was misspelt `noreferer`),
+    and no longer overwrites an authored `target` or `rel` (<gh-pr:1200>);
+  - image alt text keeps backslash escapes and entities (<gh-pr:1211>),
+    an HTML `<img>` keeps its alt text exactly, and a valueless `alt` is now empty rather than `None` (<gh-pr:1214>);
+  - link titles are kept on links that go through cross-reference resolution (<gh-pr:1196>);
+  - a footnote whose label equals a heading's name is now kept, rather than dropped with a warning (<gh-pr:1157>).
+- **Packaging** (<gh-pr:1221>): the distributions are now built with `python -m build`,
+  so the sdists hold only the package, `pyproject.toml`, `README.md` and `LICENSE`
+  (no longer `CHANGELOG.md`, `tox.ini` or `.github/`); the wheels are unaffected.
+- **mdit-py-plugins 0.7** (<gh-pr:1170>): myst-parser and myst-docutils now require `mdit-py-plugins>=0.7,<1`.
+
+### ✨ New Features
+
+- ✨ Stable heading anchors: one shared slug module (`myst_parser.slugs`), named presets for `myst_heading_slug_func` (`"github"`, `"gitlab"`), slugs emitted as HTML ids (`myst_heading_anchors_html_ids`), explicit-id priority, fewer false warnings for working links, and `myst-anchors --slug-func`, by <gh-user:chrisjsewell> in <gh-pr:1158>
+- ✨ Add the `"docutils"` heading slug preset (byte-identical to `docutils.nodes.make_id`) and a versioned anchor contract, see [](syntax/header-anchors), by <gh-user:chrisjsewell> in <gh-pr:1168>
+- ✨ Add the `"section_ref"` syntax extension: section-sign references such as `§1`, `§1.1` and `§2.3.4` link to the correspondingly numbered heading of the current document (numbered the same in docutils and Sphinx), with a suppressible `myst.section_ref` warning when no heading matches, see [](syntax/section-ref), by <gh-user:chrisjsewell> in <gh-pr:1170>
+
+### 👌 Improvements
+
+- 👌 Report accurate source lines: directive option warnings point at their option, unknown options warn per key, first-line directive content is no longer one line off, text nodes get their own lines (<gh-issue:546>), directives receive the full `block_text` (superseding <gh-pr:1048>, thanks to <gh-user:kdeldycke>), and an `include` with `:literal:` gets its true line, by <gh-user:chrisjsewell> in <gh-pr:1164>
+- 👌 Allow a `{table}` caption to wrap onto the following lines, by <gh-user:BetterAndBetterII> in <gh-pr:1195>
+- 👌 Make a document's own front matter available to its substitutions, as `env.metadata[env.docname]`, by <gh-user:holmboe> in <gh-pr:1171>
+
+### 🐛 Bug Fixes
+
+- 🐛 Warn instead of aborting the build on hostile input (deeply nested HTML, malformed or hostile YAML front matter, YAML alias bombs), and keep a footnote whose label equals a heading's name, by <gh-user:chrisjsewell> in <gh-pr:1157>
+- 🐛 Fix small docutils renderer bugs: field bodies get source lines, a definition without a term no longer crashes, and `linkify` without `linkify-it-py` installed is disabled with a `myst.linkify` warning instead of crashing, by <gh-user:chrisjsewell> in <gh-pr:1153>
+- 🐛 Resolve `[](doc.md#label)` links to explicit targets in other documents without a false `myst.xref_missing` warning (<gh-issue:1151>, reported by <gh-user:kdeldycke>), using the target's title as the link text, by <gh-user:dstrodtman> in <gh-pr:1207>
+- 🐛 Keep link titles through cross-reference resolution, by <gh-user:dylanpulver> in <gh-pr:1196>
+- 🐛 Report exact source lines in `{include}`d files (also with `:start-after:` and a negative `:start-line:`), by <gh-user:chrisjsewell>, <gh-user:dchaudhari7177>, <gh-user:vishalkaay> and <gh-user:Sanjays2402> in <gh-pr:1169>
+- 🐛 Keep validated front matter config values (`enable_extensions`, `fence_as_directive`, `url_schemes`), and reject `global_only` options in front matter, by <gh-user:dchaudhari7177> in <gh-pr:1197>
+- 🐛 Fix a directive's body offset when its body ends in blank lines, by <gh-user:dchaudhari7177> in <gh-pr:1179>
+- 🐛 Don't crash on nested YAML dates in front matter, by <gh-user:00200200> in <gh-pr:1205>
+- 🐛 Fix sorting of mixed manual and auto-numbered footnotes, by <gh-user:Sanjays2402> in <gh-pr:1178>
+- 🐛 Keep backslash escapes and entities in image alt text, by <gh-user:Cherith1222> in <gh-pr:1211>
+- 🐛 Keep the literal alt text of HTML images (`html_image`), so a newline in an attribute can no longer inject a directive option, by <gh-user:AryanRG> in <gh-pr:1214>
+- 🐛 Preserve line indentation in `parsed-literal` directives, by <gh-user:deepakganesh78> in <gh-pr:1176>
+- 🐛 Allow substitution keys that are not Jinja2 identifiers, such as `{{foo-bar}}`, by <gh-user:agu2347> in <gh-pr:1172>
+- 🐛 attrs: warn instead of raising on an invalid aliased image attribute (`{w=…}`) or a duplicate heading `{#id}`, and fix the new-tab link attributes, by <gh-user:chrisjsewell> in <gh-pr:1200>
+- 🐛 Strip blank boundary lines from `$$` math blocks, which broke LaTeX output, by <gh-user:chrisjsewell> in <gh-pr:1224>
+- 🐛 Send a User-Agent when fetching remote inventories, which Read the Docs rejected with HTTP 403, by <gh-user:chrisjsewell> in <gh-pr:1223>
+- 🐛 Allow `setup_sphinx` to run twice, so `myst_parser` and `myst_nb` can both be listed in `extensions`, by <gh-user:chrisjsewell> in <gh-pr:1222>
+
+### ⬆️ Dependency Upgrades
+
+- ⬆️ Require `mdit-py-plugins~=0.7`, for its `section_ref` plugin, by <gh-user:chrisjsewell> in <gh-pr:1170>
+- ⬆️ Allow docutils 0.23 (`docutils>=0.20,<0.24`), reported by <gh-user:befeleme> in <gh-issue:1152>, by <gh-user:chrisjsewell> in <gh-pr:1157>
+- ⬆️ Update the `testing` extra's pygments requirement from `<2.21` to `<2.22` in <gh-pr:1191>
+- ⬆️ Allow flit_core 4 as the build backend (`flit_core>=3.4,<5`) in <gh-pr:1185>
+
+### 📚 Documentation
+
+- 📚 Document percent-encoding spaces in inventory object names, by <gh-user:sapunyangkut> in <gh-pr:1163>
+- 📚 Drop the unsupported `\[...\]` and `\(...\)` math delimiters from the syntax reference, by <gh-user:chrisjsewell> in <gh-pr:1220>
+- 📚 Link to `auto_mode` in sphinx-autodoc2, by <gh-user:nerdoc> in <gh-pr:1157> (from <gh-pr:1032>)
+- 📚 Render the docs' syntax examples with `sphinx-syntax-example`, by <gh-user:chrisjsewell> in <gh-pr:1181>
+
+### 🔧 Internal / Maintenance
+
+- 🔧 Publish to PyPI with trusted publishing, by <gh-user:chrisjsewell> in <gh-pr:1140>, from distributions built and checked in CI, by <gh-user:chrisjsewell> in <gh-pr:1221>
+
+**Full Changelog**: [v5.1.0...v5.2.0](https://github.com/executablebooks/MyST-Parser/compare/v5.1.0...v5.2.0)
+
 ## 5.1.0 - 2026-05-13
 
 ### ✨ New Features
