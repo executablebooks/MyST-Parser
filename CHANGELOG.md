@@ -7,9 +7,11 @@ one shared slug implementation with `"github"`, `"gitlab"` and `"docutils"` pres
 slugs emitted as real HTML ids, explicit `(target)=` ids taking priority, and a versioned anchor contract.
 Warnings and other tools now get accurate source lines (also inside `{include}`d files),
 docutils 0.23 is supported, inputs that used to abort the build now warn instead,
-and many fixes land for references, images, front matter, substitutions and directives.
+and many fixes land for references, images, front matter, substitutions and directives;
+a new `section_ref` extension links `§1.1`-style references to numbered headings.
 
-Nothing is dropped: Python `>=3.11`, Sphinx `>=8,<10` and the markdown-it-py and mdit-py-plugins requirements are unchanged,
+Nothing is dropped: Python `>=3.11`, Sphinx `>=8,<10` and the markdown-it-py requirement are unchanged,
+mdit-py-plugins is raised to `~=0.7` (it was `~=0.6,>=0.6.1`),
 and the docutils range is widened to `>=0.20,<0.24`.
 Some of these changes can still alter the output of a project that built before, so please read the upgrade notes.
 
@@ -63,11 +65,13 @@ Some of these changes can still alter the output of a project that built before,
 - **Packaging** (<gh-pr:1221>): the distributions are now built with `python -m build`,
   so the sdists hold only the package, `pyproject.toml`, `README.md` and `LICENSE`
   (no longer `CHANGELOG.md`, `tox.ini` or `.github/`); the wheels are unaffected.
+- **mdit-py-plugins 0.7** (<gh-pr:1170>): myst-parser and myst-docutils now require `mdit-py-plugins>=0.7,<1`.
 
 ### ✨ New Features
 
 - ✨ Stable heading anchors: one shared slug module (`myst_parser.slugs`), named presets for `myst_heading_slug_func` (`"github"`, `"gitlab"`), slugs emitted as HTML ids (`myst_heading_anchors_html_ids`), explicit-id priority, fewer false warnings for working links, and `myst-anchors --slug-func`, by <gh-user:chrisjsewell> in <gh-pr:1158>
 - ✨ Add the `"docutils"` heading slug preset (byte-identical to `docutils.nodes.make_id`) and a versioned anchor contract, see [](syntax/header-anchors), by <gh-user:chrisjsewell> in <gh-pr:1168>
+- ✨ Add the `"section_ref"` syntax extension: section-sign references such as `§1`, `§1.1` and `§2.3.4` link to the correspondingly numbered heading of the current document (numbered the same in docutils and Sphinx), with a suppressible `myst.section_ref` warning when no heading matches, see [](syntax/section-ref), by <gh-user:chrisjsewell> in <gh-pr:1170>
 
 ### 👌 Improvements
 
@@ -97,6 +101,7 @@ Some of these changes can still alter the output of a project that built before,
 
 ### ⬆️ Dependency Upgrades
 
+- ⬆️ Require `mdit-py-plugins~=0.7`, for its `section_ref` plugin, by <gh-user:chrisjsewell> in <gh-pr:1170>
 - ⬆️ Allow docutils 0.23 (`docutils>=0.20,<0.24`), reported by <gh-user:befeleme> in <gh-issue:1152>, by <gh-user:chrisjsewell> in <gh-pr:1157>
 - ⬆️ Update the `testing` extra's pygments requirement from `<2.21` to `<2.22` in <gh-pr:1191>
 - ⬆️ Allow flit_core 4 as the build backend (`flit_core>=3.4,<5`) in <gh-pr:1185>
