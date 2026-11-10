@@ -176,3 +176,60 @@ Body §1 resolves to the first section.
                 §1
              resolves to the first section.
 .
+
+[title-and-one-section] --myst-enable-extensions=section_ref
+.
+# Title
+
+See §1 and §1.1.
+
+## Section One
+
+### Sub One One
+.
+<document ids="title" names="title" source="<src>/index.md" title="Title">
+    <title>
+        Title
+    <paragraph>
+        See
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
+            §1
+         and
+        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One">
+            §1.1
+        .
+    <section ids="section-one" names="section\ one">
+        <title>
+            Section One
+        <section ids="sub-one-one" names="sub\ one\ one">
+            <title>
+                Sub One One
+.
+
+[subtitle] --myst-enable-extensions=section_ref
+.
+# Title
+
+## Subtitle
+
+See §1 and §1.1.
+
+### Section One
+.
+<document ids="title" names="title" source="<src>/index.md" title="Title">
+    <title>
+        Title
+    <subtitle ids="subtitle" names="subtitle">
+        Subtitle
+    <paragraph>
+        See
+        <reference classes="section-ref" internal="True" refid="subtitle" reftitle="Subtitle">
+            §1
+         and
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
+            §1.1
+        .
+    <section ids="section-one" names="section\ one">
+        <title>
+            Section One
+.

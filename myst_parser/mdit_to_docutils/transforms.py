@@ -391,7 +391,7 @@ def _child_sections(node: nodes.Element) -> list[nodes.section]:
 def _number_sections(
     sections: list[nodes.section],
     prefix: tuple[int, ...],
-    number_map: dict[tuple[int, ...], nodes.section],
+    number_map: dict[tuple[int, ...], nodes.Element],
 ) -> None:
     """Recursively assign structural numbers to sections, populating ``number_map``.
 
@@ -413,17 +413,61 @@ def _leave_section_ref_inert(node: nodes.Element) -> bool:
       inside another ``<a>``, which is invalid HTML; or
     - a ``title`` — a reference here would be copied into navigation/toc entries
       (sphinx toctree entry links, docutils contents entries), again nesting
-      ``<a>`` in those navs.
+      ``<a>`` in those navs; or
+    - a ``subtitle`` — this is a heading that docutils promoted to the document
+      subtitle, and it stays inert as the same heading does in sphinx.
     """
     parent = node.parent
     while parent is not None:
         if (
-            isinstance(parent, nodes.reference | nodes.title)
+            isinstance(parent, nodes.reference | nodes.title | nodes.subtitle)
             or parent.tagname == "pending_xref"
         ):
             return True
         parent = parent.parent
     return False
+
+
+def _section_number_map(
+    document: nodes.document,
+) -> dict[tuple[int, ...], nodes.Element]:
+    """Map structural section numbers to their target nodes.
+
+    The numbering is that of the document's heading hierarchy as written:
+    when there is a single top-level heading (the common ``# Title`` layout),
+    its child sections are numbered ``1``, ``2``, ...; otherwise the
+    top-level sections themselves are.
+
+    Sphinx never promotes a heading to the document title, so its doctree
+    keeps that hierarchy.  docutils' ``DocTitle`` transform (on by default)
+    promotes the single top-level section to the document ``title``, and if
+    that section in turn holds nothing but one child section, promotes that
+    child to the document ``subtitle``.  Their child sections are then
+    attached directly to the document, so the numbering is recovered from
+    the promoted ``title`` and ``subtitle`` nodes, and the same reference
+    resolves to the same heading in docutils and sphinx.
+    """
+    number_map: dict[tuple[int, ...], nodes.Element] = {}
+    roots = _child_sections(document)
+    if any(isinstance(child, nodes.title) for child in document.children):
+        # docutils promoted the single top-level section to the document title,
+        # so its child sections are now the document's top-level sections
+        subtitle = next(
+            (child for child in document.children if isinstance(child, nodes.subtitle)),
+            None,
+        )
+        if subtitle is None:
+            _number_sections(roots, (), number_map)
+        else:
+            # ... and its only child section to the subtitle, which is ``1``,
+            # so the top-level sections are that section's children ``1.1``, ...
+            number_map[(1,)] = subtitle
+            _number_sections(roots, (1,), number_map)
+    elif len(roots) == 1:
+        _number_sections(_child_sections(roots[0]), (), number_map)
+    else:
+        _number_sections(roots, (), number_map)
+    return number_map
 
 
 class ResolveSectionRefs(Transform):
@@ -436,7 +480,8 @@ class ResolveSectionRefs(Transform):
     section id exists (docutils' ``PropagateTargets`` (260)/sphinx's ``SortIds``
     (261) and the later id transforms have all run).  Numbering is
     document-local and purely structural (independent of any ``:numbered:``
-    toctree), so the same references resolve identically in docutils and sphinx.
+    toctree), and accounts for doctitle promotion (see ``_section_number_map``),
+    so the same references resolve identically in docutils and sphinx.
     """
 
     default_priority = 878  # before ResolveAnchorIds (879)/DoctreeReadEvent (880)
@@ -454,14 +499,7 @@ class ResolveSectionRefs(Transform):
         if not markers:
             return
 
-        # build a document-local, structural map of section numbers to sections
-        roots = _child_sections(self.document)
-        # with a single top-level section (the common ``# Title`` layout, which
-        # docutils doctitle promotion and sphinx local numbering both assume),
-        # number its child sections; otherwise number the top-level sections
-        top_sections = _child_sections(roots[0]) if len(roots) == 1 else roots
-        number_map: dict[tuple[int, ...], nodes.section] = {}
-        _number_sections(top_sections, (), number_map)
+        number_map = _section_number_map(self.document)
 
         for node in markers:
             # a reference nested inside a link or heading would produce invalid
@@ -470,25 +508,29 @@ class ResolveSectionRefs(Transform):
                 continue
             content = node.astext()
             number = tuple(node["section_numbers"])
-            section = number_map.get(number)
-            if section is not None and section["ids"]:
+            target = number_map.get(number)
+            if target is not None and target["ids"]:
                 ref = nodes.reference(
                     "",
                     "",
                     internal=True,
-                    refid=section["ids"][0],
+                    refid=target["ids"][0],
                     classes=["section-ref"],
                 )
                 ref += node.children
                 # add the target's title as a hover tooltip (``title="..."`` in
-                # sphinx HTML); the section's first child is its ``title``
-                title_node = next(
-                    (
-                        child
-                        for child in section.children
-                        if isinstance(child, nodes.title)
-                    ),
-                    None,
+                # sphinx HTML): a section's ``title`` child, or the subtitle itself
+                title_node = (
+                    target
+                    if isinstance(target, nodes.subtitle)
+                    else next(
+                        (
+                            child
+                            for child in target.children
+                            if isinstance(child, nodes.title)
+                        ),
+                        None,
+                    )
                 )
                 if title_node is not None:
                     ref["reftitle"] = clean_astext(title_node)
