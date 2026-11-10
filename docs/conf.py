@@ -51,7 +51,12 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-suppress_warnings = ["myst.strikethrough"]
+suppress_warnings = [
+    "myst.strikethrough",
+    # sphinx-design 0.8.0 warns on the legacy ``^^^``/``+++`` card separators,
+    # which these docs still use; migrate them to card-header/card-footer later
+    "design.card_legacy",
+]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.11", None),
