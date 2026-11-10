@@ -78,3 +78,11 @@ Numbered code block:
 ```typescript
 type Result = "pass" | "fail"
 ```
+
+## Section with §1 self-ref
+
+Body referencing §1 and §1.1.
+
+### Nested section
+
+## Second section

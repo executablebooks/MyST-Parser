@@ -508,10 +508,12 @@ class DocutilsRenderer(RendererProtocol):
         result = ""
 
         for token in tokens or []:
-            if token.type in {"text", "text_special"}:
+            if token.type in {"text", "text_special", "section_ref"}:
                 # An escape or entity is a text_special token with no children.
                 # Its content is the character the alt text must keep
                 # (executablebooks/MyST-Parser#1210).
+                # A section reference is also a childless token,
+                # whose content is the reference as written (e.g. "§1.1").
                 result += token.content
             else:
                 result += self.renderInlineAsText(token.children or [])
@@ -1326,6 +1328,13 @@ class DocutilsRenderer(RendererProtocol):
         self.copy_attributes(token, node, ("class", "id"))
         with self.current_node_context(node, append=True):
             self.render_children(token)
+
+    def render_section_ref(self, token: SyntaxTreeNode) -> None:
+        """Render a section reference (§1.1), for later resolution by ``ResolveSectionRefs``."""
+        node = nodes.inline(token.content, token.content, classes=["section-ref"])
+        node["section_numbers"] = token.meta["numbers"]
+        self.add_line_and_source_path(node, token)
+        self.current_node.append(node)
 
     def render_front_matter(self, token: SyntaxTreeNode) -> None:
         """Pass document front matter data."""

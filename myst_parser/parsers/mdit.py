@@ -20,6 +20,7 @@ from mdit_py_plugins.gfm import gfm_plugin
 from mdit_py_plugins.gfm_autolink import gfm_autolink_plugin
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 from mdit_py_plugins.myst_role import myst_role_plugin
+from mdit_py_plugins.section_ref import section_ref_plugin
 from mdit_py_plugins.substitution import substitution_plugin
 from mdit_py_plugins.wordcount import wordcount_plugin
 
@@ -84,6 +85,8 @@ def create_md_parser(
         linkify_enabled = True
     if "gfm_autolink" in config.enable_extensions:
         md.use(gfm_autolink_plugin)
+    if "section_ref" in config.enable_extensions:
+        md.use(section_ref_plugin)
     if "strikethrough" in config.enable_extensions:
         md.enable("strikethrough")
         md.options["strikethrough_single_tilde"] = config.strikethrough_single_tilde
