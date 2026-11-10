@@ -453,6 +453,48 @@ def test_substitutions(
 
 @pytest.mark.sphinx(
     buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "frontmatter_metadata"),
+    freshenv=True,
+)
+def test_frontmatter_metadata(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    file_regression,
+    normalize_doctree_xml,
+):
+    """Test that a document can access its own front matter via ``env.metadata``."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    assert warning.getvalue().strip() == ""
+
+    # values should be the same strings that sphinx's MetadataCollector stores,
+    # except for ``tocdepth``, which it converts to an integer
+    ignore = {"myst_slugs", "wordcount"}  # added separately by the renderer
+    metadata = {k: v for k, v in app.env.metadata["index"].items() if k not in ignore}
+    assert metadata == {
+        "tocdepth": 2,
+        "last_review_date": "1970-09-08",
+        "reviewers": '["alice", "bob"]',
+        "links": '{"home": "https://example.com"}',
+    }
+
+    # front matter of a Markdown file parsed into another document
+    # (here an rST ``include`` with ``:parser:``) must not be added to the
+    # including document's metadata: the collector never sees that front matter,
+    # so nothing would ever overwrite or remove it
+    assert "leaked" not in app.env.metadata["host"]
+
+    get_sphinx_app_doctree(app, docname="index", regress=True)
+    file_regression.check(
+        normalize_doctree_xml(get_sphinx_app_doctree(app, docname="other").pformat()),
+        extension=".other.xml",
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "substitutions_missing"),
     freshenv=True,
 )
@@ -470,6 +512,71 @@ def test_substitutions_missing(
         "index.md:5: WARNING: Substitution error:UndefinedError: 'missing' is undefined [myst.substitution]"
         in warnings[0]
     )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "substitutions_dashed_key"),
+    freshenv=True,
+)
+def test_substitutions_dashed_key(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+):
+    """
+    Regression test for
+    https://github.com/executablebooks/MyST-Parser/issues/1007
+
+    A substitution key containing a dash (e.g. ``foo-bar``) must be
+    looked up as a single key, not parsed by Jinja2 as a subtraction
+    expression (``foo - bar``, two separate, likely-undefined names).
+    Plain keys and circular-reference detection must continue to work
+    as before.
+    """
+    app.build()
+    assert "build succeeded" in status.getvalue()
+
+    warnings = warning.getvalue().strip().splitlines()
+    assert len(warnings) == 1
+    assert "circular substitution reference: {'circ-a'}" in warnings[0]
+
+    output = get_sphinx_app_output(app, filename="index.html")
+    assert "Foobar" in output
+    assert "PlainValue" in output
+    # The circular substitution should not have rendered a value.
+    assert "{{circ-a}}" not in output
+    assert "{{circ-b}}" not in output
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "attrs_block_duplicate_ids"),
+    freshenv=True,
+)
+def test_attrs_block_duplicate_ids(
+    app,
+    status,
+    warning,
+):
+    """Test that a duplicated ``{#id}`` warns, rather than aborting the build."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = strip_colors(warning.getvalue()).strip().splitlines()
+    assert len(warnings) == 3
+    assert warnings[0].endswith(
+        'index.md:7: WARNING: Duplicate explicit target name: "sec". [docutils]'
+    )
+    # the paragraph warning has no line number yet: allow one to be added later
+    assert re.search(
+        r'index\.md:\d*: WARNING: Duplicate explicit target name: "para"\. \[docutils\]$',
+        warnings[1],
+    )
+    assert warnings[2].endswith(
+        'index.md:20: WARNING: Duplicate explicit target name: "rub". [docutils]'
+    )
+    assert Path(app.outdir, "index.html").exists()
 
 
 @pytest.mark.sphinx(

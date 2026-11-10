@@ -47,7 +47,9 @@ class SphinxRenderer(DocutilsRenderer):
     ):
         """Process a wrap node, which is a node that wraps a link."""
         self.add_line_and_source_path(wrap_node, token)
-        self.copy_attributes(token, wrap_node, ("class", "id", "title"))
+        self.copy_attributes(
+            token, wrap_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         self.current_node.append(wrap_node)
 
         if explicit:
@@ -140,7 +142,7 @@ class SphinxRenderer(DocutilsRenderer):
         path_dest, *_path_ids = destination.split("#", maxsplit=1)
         path_id = _path_ids[0] if _path_ids else None
 
-        potential_path: None | Path = None
+        potential_path: Path | None = None
         if self.sphinx_env.srcdir:  # not set in some test situations
             _, path_str = self.sphinx_env.relfn2path(path_dest, self.sphinx_env.docname)
             potential_path = Path(path_str)

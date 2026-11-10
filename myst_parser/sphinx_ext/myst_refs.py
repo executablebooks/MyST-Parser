@@ -28,6 +28,22 @@ from myst_parser.warnings_ import MystWarnings
 LOGGER = logging.getLogger(__name__)
 
 
+def _section_text_for_id(
+    slug_to_section: dict[str, tuple[int | None, str, str]], section_id: str
+) -> str | None:
+    """Find the text of the section whose docutils id is ``section_id``.
+
+    :param slug_to_section: The document's ``myst_slugs`` metadata,
+        mapping each heading slug to ``(line, section id, heading text)``.
+    :param section_id: The docutils id to look for.
+    :return: The heading text (possibly empty), or None if no section has that id.
+    """
+    for _, sect_id, text in slug_to_section.values():
+        if sect_id == section_id:
+            return text
+    return None
+
+
 class MystReferenceResolver(ReferencesResolver):
     """Resolves cross-references on doctrees.
 
@@ -37,7 +53,7 @@ class MystReferenceResolver(ReferencesResolver):
     default_priority = 9  # higher priority than ReferencesResolver (10)
 
     def log_warning(
-        self, target: None | str, msg: str, subtype: MystWarnings, **kwargs: Any
+        self, target: str | None, msg: str, subtype: MystWarnings, **kwargs: Any
     ):
         """Log a warning, with a myst type and specific subtype."""
 
@@ -80,7 +96,7 @@ class MystReferenceResolver(ReferencesResolver):
             contnode = cast(nodes.TextElement, node[0].deepcopy())
             target = node["reftarget"]
             refdoc = node.get("refdoc", self.env.docname)
-            search_domains: None | list[str] = self.env.config.myst_ref_domains
+            search_domains: list[str] | None = self.env.config.myst_ref_domains
 
             # try to resolve the reference within the local project,
             # this asks all domains to resolve the reference,
@@ -144,24 +160,33 @@ class MystReferenceResolver(ReferencesResolver):
             elif not newnode.children:
                 newnode.append(nodes.literal(target, target))
 
+            if "reftitle" in node and isinstance(newnode, nodes.reference):
+                # carry the link title, e.g. [text](#target "title"),
+                # through whichever branch resolved the reference;
+                # the authored title wins over a domain or inventory default
+                newnode["reftitle"] = node["reftitle"]
+
             node.replace_self(newnode)
 
-    def _std_label_id_in_doc(self, docname: str, ref_id: str) -> str | None:
+    def _std_label_in_doc(self, docname: str, ref_id: str) -> tuple[str, str] | None:
         """Resolve ``ref_id`` against the std-domain labels of ``docname``.
 
-        Returns the label's id (the actual anchor) if ``ref_id`` is either
-        a label id or a label name in that document, else None.
+        :param docname: The document to search for the label.
+        :param ref_id: A label id or a label name in that document.
+        :return: The label's id (the actual anchor) and the title of the
+            section it names (empty for anonymous labels), or None.
         """
         std = self.env.domaindata.get("std", {})
         for store in ("labels", "anonlabels"):
             for name, entry in std.get(store, {}).items():
                 if entry[0] != docname:
                     continue
+                title = entry[2] if len(entry) > 2 else ""
                 if entry[1] == ref_id:
-                    return ref_id
+                    return ref_id, title
                 if name == ref_id:
                     # referenced by label name: point at its actual anchor
-                    return entry[1]
+                    return entry[1], title
         return None
 
     def resolve_myst_ref_doc(self, node: pending_xref):
@@ -190,14 +215,17 @@ class MystReferenceResolver(ReferencesResolver):
             slug_to_section = self.env.metadata[ref_docname].get("myst_slugs", {})
             if ref_id in slug_to_section:
                 _, targetid, implicit_text = slug_to_section[ref_id]
-            elif any(sect_id == ref_id for _, sect_id, _ in slug_to_section.values()):
+            elif (
+                section_text := _section_text_for_id(slug_to_section, ref_id)
+            ) is not None:
                 # the id demonstrably exists in the target document
                 # (a section's docutils id), so resolve silently
                 targetid = ref_id
-            elif (std_id := self._std_label_id_in_doc(ref_docname, ref_id)) is not None:
+                implicit_text = section_text
+            elif (std_label := self._std_label_in_doc(ref_docname, ref_id)) is not None:
                 # an explicit target in the document, referenced by its
                 # id or name: point at its actual anchor
-                targetid = std_id
+                targetid, implicit_text = std_label
             else:
                 self.log_warning(
                     ref_id,
@@ -214,10 +242,16 @@ class MystReferenceResolver(ReferencesResolver):
             caption = node.astext()
             innernode = nodes.inline(caption, "", classes=inner_classes)
             innernode.extend(node[0].children)
-        else:
+        elif implicit_text:
             innernode = nodes.inline(
                 implicit_text, implicit_text, classes=inner_classes
             )
+        else:
+            # no title to use (e.g. an anonymous label, or an unresolved id),
+            # so show the target rather than rendering an empty link
+            innernode = nodes.inline("", "", classes=inner_classes)
+            shown = ref_id or ref_docname
+            innernode += nodes.literal(shown, shown)
 
         assert self.app.builder
         try:
@@ -226,6 +260,8 @@ class MystReferenceResolver(ReferencesResolver):
             )
         except NoUri:
             ref_node = innernode
+        if "reftitle" in node and isinstance(ref_node, nodes.reference):
+            ref_node["reftitle"] = node["reftitle"]
         node.replace_self(ref_node)
 
     def resolve_myst_ref_any(
@@ -233,7 +269,7 @@ class MystReferenceResolver(ReferencesResolver):
         refdoc: str,
         node: pending_xref,
         contnode: Element,
-        only_domains: None | list[str],
+        only_domains: list[str] | None,
     ) -> Element | None:
         """Resolve reference generated by the "myst" role; ``[text](#reference)``.
 
@@ -393,7 +429,7 @@ class MystReferenceResolver(ReferencesResolver):
         contnode: nodes.Element,
         target: str,
         only_domains: list[str] | None,
-    ) -> None | nodes.reference:
+    ) -> nodes.reference | None:
         """Resolve a myst reference to an intersphinx inventory."""
         matches = [
             m
