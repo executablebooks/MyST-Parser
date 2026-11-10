@@ -23,6 +23,7 @@ myst:
       - item1
     nested_dict:
       key1: value1
+    unused: null
 
 ---
 
@@ -50,6 +51,12 @@ This will not process the substitution
 
 ```python
 {{ text_with_nest }}
+```
+
+Test substitutions are processed within eval-rst
+
+```{eval-rst}
+a |text| b
 ```
 
 Using env and filters:
