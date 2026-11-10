@@ -18,7 +18,9 @@ Some of these changes can still alter the output of a project that built before,
 - **Heading anchors** (<gh-pr:1158>, <gh-pr:1168>), see [](syntax/header-anchors):
   - Duplicate heading slugs now get fixed-base suffixes, `x`, `x-1`, `x-2`, as on GitHub;
     the third and later duplicates used to get `x-1-2`, `x-1-2-3`, ...
-    **So a link to the third or later duplicate of a heading changes URL**; the first two keep theirs.
+    **So a link that uses the old slug of a third or later duplicate, such as `[](#x-1-2)`, no longer resolves
+    and warns (`myst.xref_missing`, which fails a `-W` build): change it to `[](#x-2)`.**
+    Links to the first two duplicates are unchanged, and every HTML id a heading had before is kept.
   - Slugs are also emitted as secondary HTML `id`s on the rendered headings, so `#slug` links work in the published HTML.
     The docutils id stays the primary (first) id, so existing fragment links keep working.
     Set `myst_heading_anchors_html_ids = False` to emit only the docutils id.
@@ -28,7 +30,7 @@ Some of these changes can still alter the output of a project that built before,
     and an empty fragment, `[](#)`, now warns as unresolved.
   - Links that used to warn now resolve when the anchor exists:
     same-document links to implicit ids (such as headings deeper than `myst_heading_anchors`; under Sphinx only as a last resort),
-    and cross-document links to section and label ids.
+    and cross-document links to label ids and to the implicit ids of headings within the `myst_heading_anchors` depth.
     `[](doc.md#label)` takes the target's title as its text (<gh-pr:1207>).
   - These rules (slug presets, deduplication, empty slugs, explicit-id priority and HTML ids) are now a documented contract,
     pinned by a versioned, language-agnostic corpus (`tests/fixtures/slugs.json`).
@@ -77,7 +79,7 @@ Some of these changes can still alter the output of a project that built before,
 
 - 🐛 Warn instead of aborting the build on hostile input (deeply nested HTML, malformed or hostile YAML front matter, YAML alias bombs), and keep a footnote whose label equals a heading's name, by <gh-user:chrisjsewell> in <gh-pr:1157>
 - 🐛 Fix small docutils renderer bugs: field bodies get source lines, a definition without a term no longer crashes, and `linkify` without `linkify-it-py` installed is disabled with a `myst.linkify` warning instead of crashing, by <gh-user:chrisjsewell> in <gh-pr:1153>
-- 🐛 Use the target's title for `[](doc.md#label)` links, which rendered as invisible empty links, by <gh-user:dstrodtman> in <gh-pr:1207>
+- 🐛 Resolve `[](doc.md#label)` links to explicit targets in other documents without a false `myst.xref_missing` warning (<gh-issue:1151>, reported by <gh-user:kdeldycke>), using the target's title as the link text, by <gh-user:dstrodtman> in <gh-pr:1207>
 - 🐛 Keep link titles through cross-reference resolution, by <gh-user:dylanpulver> in <gh-pr:1196>
 - 🐛 Report exact source lines in `{include}`d files (also with `:start-after:` and a negative `:start-line:`), by <gh-user:chrisjsewell>, <gh-user:dchaudhari7177>, <gh-user:vishalkaay> and <gh-user:Sanjays2402> in <gh-pr:1169>
 - 🐛 Keep validated front matter config values (`enable_extensions`, `fence_as_directive`, `url_schemes`), and reject `global_only` options in front matter, by <gh-user:dchaudhari7177> in <gh-pr:1197>
