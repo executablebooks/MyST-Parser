@@ -400,7 +400,7 @@ Cross-document section references may be supported in a future release.
 ### Numbering rules
 
 These rules say exactly which section heading a reference points to.
-Sphinx and docutils follow them in the same way (except that docutils has no `{only}` directive, so it drops such blocks), and MyST's test suite pins them.
+Sphinx and docutils follow them in the same way (except that docutils has no `{only}` or `ifconfig` directive, so it drops such blocks), and MyST's test suite pins them.
 
 **What is a reference**
 
@@ -423,7 +423,7 @@ Sphinx and docutils follow them in the same way (except that docutils has no `{o
   - the headings inside an `{only}` block, whatever its condition, so that the numbers are the same for every builder;
   - any other section that a directive places in the document, such as one inside `.. ifconfig::` in an `{eval-rst}` block, under the section that contains it;
   - a front-matter `title` that [`myst_title_to_header`](#sphinx/config-options) turns into a heading: it is the first heading of the document.
-- A heading inside the body of a directive, such as `{note}`, is rendered as a rubric, and does not count.
+- A Markdown heading inside the body of a directive, such as `{note}`, is rendered as a rubric, and does not count.
   It is not a section heading, so a reference written in it resolves as usual.
 
 **How headings are numbered**
@@ -438,8 +438,9 @@ Sphinx and docutils follow them in the same way (except that docutils has no `{o
 
 - `§1.2` links to the section heading numbered exactly 1.2; there is no fallback to `§1` or to the nearest heading.
 - The link goes to the section's primary anchor, so a `(label)=` target on the heading is used.
-  A reference to a heading in an `{only}` branch that the build excludes points to an anchor that is not in the output.
+  A reference to a heading in an `{only}` or `ifconfig` branch that the build excludes points to an anchor that is not in the output.
 - A reference in a section heading or in link text is never linked, and never warns.
+  A heading that docutils promotes to the subtitle is still a section heading, but the `:subtitle:` of a `{sidebar}` is not, so a reference there resolves.
   Everywhere else (paragraphs, emphasis, lists, tables, figure captions, admonitions) it resolves.
 - In image alt text, the reference is kept as written, without a link.
 - A reference that does not resolve stays as text marked with the `section-ref` class, and gives one `myst.section_ref` warning.
