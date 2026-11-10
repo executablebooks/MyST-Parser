@@ -377,7 +377,7 @@ With the extension enabled, every `§` followed by a number is read as a referen
 - A reference to another specification, such as `RFC 9110 §8.3`, links to section 8.3 *of the current document* if it has one, with no warning.
 
 To write a `§` that is not a reference, use the `&sect;` entity (e.g. `&sect;242 BGB`).
-A backslash does not escape it, since `§` is not ASCII punctuation, so `\§242` keeps the backslash.
+A backslash before the `§` (`\§242`) also stops the reference, but stays in the output, since `§` is not ASCII punctuation.
 :::
 
 :::{note}
