@@ -348,24 +348,42 @@ See §1 and §1.1, and also §2.
 ## Section Two
 ```
 
-`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*, each link also carrying the target heading's title as a hover tooltip.
+`§1` links to *Section One*, `§1.1` to *Sub One One*, and `§2` to *Section Two*, each link also carrying the target heading's title as a hover tooltip in Sphinx HTML output.
 
-The numbering is **document-local** and purely **structural**, computed from the heading hierarchy (independent of any `toctree` `:numbered:` numbering):
+The numbering is **document-local** and purely **structural**, computed from the heading hierarchy as written in the source:
 
 - If the document has a single top-level heading (the common `# Title` layout), its subsections are numbered `§1`, `§2`, … in order.
 - Otherwise the top-level headings themselves are numbered `§1`, `§2`, ….
 - Deeper levels are appended with dots, so the second subsection of the first section is `§1.2`, and so on.
 
-A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
+The numbering is the same in Sphinx and in single-page docutils output.
+docutils promotes a lone top-level heading to the document title and, if that heading holds nothing but one subsection, promotes the subsection's heading to the subtitle.
+References still resolve as if nothing had been promoted, so `§1` then links to the subtitle, and `§1.1` to the first subsection under it.
 
-References that appear **inside a heading or inside link text** are intentionally left as styled text rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
+A `§` number directly followed by an ASCII letter, such as `§1a`, is not a reference.
+
+References that appear **inside a heading or inside link text** are intentionally left as text marked with the `section-ref` class, rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+
+:::{important}
+§-numbers are **not** the section numbers that Sphinx displays.
+In a `toctree` with the `:numbered:` option, Sphinx numbers sections across the documents it lists, so *Section One* above could be displayed as "2.1.", while `§1` still targets it, as the first section of its own document.
+:::
+
+:::{caution}
+With the extension enabled, every `§` followed by a number is read as a reference into the **current** document:
+
+- A legal citation such as `§242 BGB` gives a `myst.section_ref` warning, or links to section 242 if the document has one.
+- A reference to another specification, such as `RFC 9110 §8.3`, links to section 8.3 *of the current document* if it has one, with no warning.
+
+To write a `§` that is not a reference, use the `&sect;` entity (e.g. `&sect;242 BGB`).
+A backslash does not escape it, since `§` is not ASCII punctuation, so `\§242` keeps the backslash.
+:::
 
 :::{note}
 References resolve to positions **in the current document only**.
-If a reference cannot be resolved to a numbered heading (for example `§9.9` in a document with fewer sections), the reference is left as plain, `section-ref`-styled text and a `myst.section_ref` warning is emitted.
+If a reference cannot be resolved to a numbered heading (for example `§9.9` in a document with fewer sections), the reference is left as text marked with the `section-ref` class, and a `myst.section_ref` warning is emitted.
 This warning can be suppressed *via* [`suppress_warnings`](sphinx/config-options), e.g. `suppress_warnings = ["myst.section_ref"]`.
-
-In single-page docutils output, a document consisting solely of a `# Title` and one `## Section` promotes both to the document title and subtitle (standard docutils behaviour), leaving no numbered sections to reference.
 
 Cross-document section references may be supported in a future release.
 :::
