@@ -255,6 +255,26 @@ text
 <string>:3: (WARNING/2) circular substitution reference: {'e'} [myst.substitution]
 .
 
+[substitutions_non_identifier_key] --myst-enable-extensions=substitution --myst-substitutions='{"foo-bar": "Foobar", "c-1": "{{c-2}}", "c-2": "{{c-1}}"}'
+.
+{{foo-bar}} {{c-1}} {{ foo-bar | upper }}
+.
+<document source="<string>">
+    <paragraph>
+        Foobar
+
+        <system_message level="2" line="3" source="<string>" type="WARNING">
+            <paragraph>
+                circular substitution reference: {'c-1'} [myst.substitution]
+
+        <system_message level="2" line="1" source="<string>" type="WARNING">
+            <paragraph>
+                Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+
+<string>:3: (WARNING/2) circular substitution reference: {'c-1'} [myst.substitution]
+<string>:1: (WARNING/2) Substitution error:UndefinedError: 'bar' is undefined [myst.substitution]
+.
+
 [attrs_image] --myst-enable-extensions=attrs_image
 .
 a
@@ -596,4 +616,220 @@ content
     <paragraph>
         <reference refuri="https://example.com" rel="nofollow" target="_blank">
             https://example.com
+.
+
+[table_wrapped_caption_colon_fence] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto">
+        <title>
+            Mid-syllable marks that must be tagged for sorting with above-base consonants
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_wrapped_caption_after_options] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+:name: tbl
+above-base consonants
+
+a | b
+--|--
+1 | 2
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto" ids="tbl" names="tbl">
+        <title>
+            Mid-syllable marks that must be tagged for sorting with above-base consonants
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_wrapped_caption_options_after] --myst-enable-extensions=colon_fence
+.
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+:name: tbl
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <system_message level="3" line="1" source="<string>" type="ERROR">
+        <paragraph>
+            Error parsing content block for the "table" directive: exactly one table expected.
+        <literal_block xml:space="preserve">
+            :::{table} Mid-syllable marks that must be tagged for sorting with
+            above-base consonants
+            :name: tbl
+
+            | a | b |
+            |---|---|
+            | 1 | 2 |
+            :::
+
+<string>:1: (ERROR/3) Error parsing content block for the "table" directive: exactly one table expected.
+
+:::{table} Mid-syllable marks that must be tagged for sorting with
+above-base consonants
+:name: tbl
+
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+
+[table_caption_attrs_block] --myst-enable-extensions=colon_fence,attrs_block
+.
+:::{table} Cap
+{#mytbl}
+{.striped}
+| a | b |
+|---|---|
+| 1 | 2 |
+:::
+.
+<document source="<string>">
+    <table classes="colwidths-auto striped" ids="mytbl" names="mytbl">
+        <title>
+            Cap
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_caption_attrs_block_no_argument] --myst-enable-extensions=attrs_block
+.
+```{table}
+:align: center
+{.striped}
+
+| a | b |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<string>">
+    <table align="center" classes="colwidths-auto striped">
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            a
+                    <entry>
+                        <paragraph>
+                            b
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
+.
+
+[table_caption_link_definition_escaped_label]
+.
+```{table} Cap
+[a\]b]: https://example.com
+[foo
+bar]: https://example.org
+
+| [x][a\]b] | [y][foo bar] |
+|---|---|
+| 1 | 2 |
+```
+.
+<document source="<string>">
+    <table classes="colwidths-auto">
+        <title>
+            Cap
+        <tgroup cols="2">
+            <colspec colwidth="50">
+            <colspec colwidth="50">
+            <thead>
+                <row>
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://example.com">
+                                x
+                    <entry>
+                        <paragraph>
+                            <reference refuri="https://example.org">
+                                y
+            <tbody>
+                <row>
+                    <entry>
+                        <paragraph>
+                            1
+                    <entry>
+                        <paragraph>
+                            2
 .

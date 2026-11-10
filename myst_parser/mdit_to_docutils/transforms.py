@@ -107,14 +107,18 @@ class CollectFootnotes(Transform):
         if not self.document.settings.myst_footnote_sort:
             return
 
-        footnotes: list[tuple[str, nodes.footnote]] = []
+        footnotes: list[tuple[str | None, nodes.footnote]] = []
         for footnote in (
             self.document.symbol_footnotes
             + self.document.footnotes
             + self.document.autofootnotes
         ):
-            label = footnote.children[0]
-            footnotes.append((label.astext(), footnote))
+            # labels are assigned by docutils' ``Footnotes`` transform, which has not run
+            # when the content is parsed into a sub-document (``.. include:: :parser:``),
+            # so the first child may be a body element, or absent for an empty definition
+            first = footnote.children[0] if footnote.children else None
+            label = first.astext() if isinstance(first, nodes.label) else None
+            footnotes.append((label, footnote))
 
         if (
             footnotes
@@ -126,13 +130,23 @@ class CollectFootnotes(Transform):
             transition.source = self.document.source
             self.document += transition
 
-        def _sort_key(footnote: tuple[str, nodes.footnote]) -> int | str:
+        def _sort_key(
+            footnote: tuple[str | None, nodes.footnote],
+        ) -> tuple[int, int, str]:
             label, _ = footnote
+            if label is None:
+                # unlabelled: after all labelled footnotes; the sort is stable,
+                # so they keep the order they are first referenced
+                # (the order docutils numbers them)
+                return (2, 0, "")
             try:
                 # ensure e.g 10 comes after 2
-                return int(label)
+                return (0, int(label), "")
             except ValueError:
-                return label
+                # non-numeric labels sort after numeric ones;
+                # the leading discriminant keeps the key totally ordered,
+                # since int and str cannot be compared with each other
+                return (1, 0, label)
 
         for _, footnote in sorted(footnotes, key=_sort_key):
             footnote.parent.remove(footnote)
@@ -340,6 +354,8 @@ class ResolveAnchorIds(Transform):
                 )
                 if labelid:
                     pending["reflocalid"] = labelid
+                if "reftitle" in refnode:
+                    pending["reftitle"] = refnode["reftitle"]
                 inner_node = nodes.inline(
                     "", "", classes=["xref", "myst"] + refnode["classes"]
                 )
