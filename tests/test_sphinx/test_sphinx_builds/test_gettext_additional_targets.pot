@@ -48,11 +48,11 @@ msgstr ""
 msgid "**bold** text 8"
 msgstr ""
 
-#: ../../index.md:0
+#: ../../index.md:20
 msgid "**bold** text 9"
 msgstr ""
 
-#: ../../index.md:0
+#: ../../index.md:20
 msgid "**bold** text 10"
 msgstr ""
 

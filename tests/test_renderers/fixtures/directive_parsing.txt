@@ -6,7 +6,7 @@ note: content in first line only
 arguments: []
 body:
 - a
-content_offset: 0
+content_offset: -1
 options: {}
 warnings: []
 .
@@ -35,7 +35,7 @@ arguments: []
 body:
 - a
 - b
-content_offset: 0
+content_offset: -1
 options: {}
 warnings: []
 .
@@ -73,7 +73,7 @@ options:
   - name
 warnings:
 - 'ParseWarnings(msg=''Directive options has # comments, which may not be supported
-  in future versions.'', lineno=0, type=<MystWarnings.DIRECTIVE_OPTION_COMMENTS: ''directive_comments''>)'
+  in future versions.'', lineno=1, type=<MystWarnings.DIRECTIVE_OPTION_COMMENTS: ''directive_comments''>)'
 .
 
 note: content after option with new line
@@ -199,8 +199,8 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- 'ParseWarnings(msg="Unknown option keys: [''a''] (allowed: [''class'', ''name''])",
-  lineno=1, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
+- 'ParseWarnings(msg="Unknown option key: ''a'' (allowed: [''class'', ''name''])",
+  lineno=2, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 warning: yaml not a dict
@@ -216,7 +216,7 @@ body: []
 content_offset: 3
 options: {}
 warnings:
-- 'ParseWarnings(msg="Invalid options format: expected '':'' after key", lineno=1,
+- 'ParseWarnings(msg="Invalid options format: expected '':'' after key", lineno=2,
   type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
@@ -231,8 +231,8 @@ body: []
 content_offset: 1
 options: {}
 warnings:
-- 'ParseWarnings(msg="Unknown option keys: [''unknown''] (allowed: [''class'', ''name''])",
-  lineno=0, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
+- 'ParseWarnings(msg="Unknown option key: ''unknown'' (allowed: [''class'', ''name''])",
+  lineno=1, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 warning: invalid option value
@@ -247,7 +247,7 @@ content_offset: 1
 options: {}
 warnings:
 - 'ParseWarnings(msg=''Invalid option value for \''class\'': 1: cannot make "1" into
-  a class name'', lineno=0, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
+  a class name'', lineno=1, type=<MystWarnings.DIRECTIVE_OPTION: ''directive_option''>)'
 .
 
 error: missing argument

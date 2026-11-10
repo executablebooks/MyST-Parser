@@ -16,7 +16,11 @@ from sphinx.ext.intersphinx import InventoryAdapter
 from sphinx.util import logging
 
 from myst_parser import inventory
-from myst_parser.mdit_to_docutils.base import DocutilsRenderer, token_line
+from myst_parser.mdit_to_docutils.base import (
+    DocutilsRenderer,
+    strip_blank_lines,
+    token_line,
+)
 from myst_parser.warnings_ import MystWarnings
 
 LOGGER = logging.getLogger(__name__)
@@ -43,7 +47,9 @@ class SphinxRenderer(DocutilsRenderer):
     ):
         """Process a wrap node, which is a node that wraps a link."""
         self.add_line_and_source_path(wrap_node, token)
-        self.copy_attributes(token, wrap_node, ("class", "id", "title"))
+        self.copy_attributes(
+            token, wrap_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
+        )
         self.current_node.append(wrap_node)
 
         if explicit:
@@ -136,7 +142,7 @@ class SphinxRenderer(DocutilsRenderer):
         path_dest, *_path_ids = destination.split("#", maxsplit=1)
         path_id = _path_ids[0] if _path_ids else None
 
-        potential_path: None | Path = None
+        potential_path: Path | None = None
         if self.sphinx_env.srcdir:  # not set in some test situations
             _, path_str = self.sphinx_env.relfn2path(path_dest, self.sphinx_env.docname)
             potential_path = Path(path_str)
@@ -182,7 +188,7 @@ class SphinxRenderer(DocutilsRenderer):
     def render_math_block_label(self, token: SyntaxTreeNode) -> None:
         """Render math with referenceable labels, e.g. ``$a=1$ (label)``."""
         label = token.info
-        content = token.content
+        content = strip_blank_lines(token.content)
         node = nodes.math_block(
             content, content, nowrap=False, number=None, label=label
         )

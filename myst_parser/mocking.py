@@ -17,11 +17,28 @@ from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
 from docutils.utils import unescape
+from markdown_it.rules_inline import StateInline
 
-from .parsers.directives import MarkupError, parse_directive_text
+from .parsers.directives import MarkupError, is_option_line, parse_directive_text
 
 if TYPE_CHECKING:
     from .mdit_to_docutils.base import DocutilsRenderer
+
+
+_PRESERVE_LINE_EDGE_WHITESPACE = "myst_preserve_line_edge_whitespace"
+_PRESERVE_NEWLINE_RULE = "myst_preserve_newline"
+
+
+def _preserve_newline(state: StateInline, silent: bool) -> bool:
+    """Render a newline without consuming adjacent whitespace."""
+    if not state.env.get(_PRESERVE_LINE_EDGE_WHITESPACE):
+        return False
+    if state.src[state.pos] != "\n":
+        return False
+    if not silent:
+        state.push("softbreak", "br", 0)
+    state.pos += 1
+    return True
 
 
 class MockingError(Exception):
@@ -37,6 +54,10 @@ class MockInliner:
     def __init__(self, renderer: DocutilsRenderer):
         """Initialize the mock inliner."""
         self._renderer = renderer
+        if _PRESERVE_NEWLINE_RULE not in renderer.md.inline.ruler.get_all_rules():
+            renderer.md.inline.ruler.before(
+                "newline", _PRESERVE_NEWLINE_RULE, _preserve_newline
+            )
         # here we mock that the `parse` method has already been called
         # which is where these attributes are set (via the RST state Memo)
         self.document = renderer.document
@@ -61,7 +82,13 @@ class MockInliner:
         return problematic
 
     def parse(
-        self, text: str, lineno: int, memo: Any, parent: nodes.Node
+        self,
+        text: str,
+        lineno: int,
+        memo: Any,
+        parent: nodes.Node,
+        *,
+        preserve_edge_whitespace: bool = False,
     ) -> tuple[list[nodes.Node], list[nodes.system_message]]:
         """Parse the text and return a list of nodes."""
         # note the only place this is normally called,
@@ -70,12 +97,23 @@ class MockInliner:
         # self.reporter = memo.reporter
         # self.document = memo.document
         # self.language = memo.language
-        with self._renderer.current_node_context(parent):
-            # the parent is never actually appended to though,
-            # so we make a temporary parent to parse into
-            container = nodes.Element()
-            with self._renderer.current_node_context(container):
-                self._renderer.nested_render_text(text, lineno, inline=True)
+        previous_preserve = self._renderer.md_env.get(_PRESERVE_LINE_EDGE_WHITESPACE)
+        if preserve_edge_whitespace:
+            self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = True
+        try:
+            with self._renderer.current_node_context(parent):
+                # the parent is never actually appended to though,
+                # so we make a temporary parent to parse into
+                container = nodes.Element()
+                with self._renderer.current_node_context(container):
+                    self._renderer.nested_render_text(text, lineno, inline=True)
+        finally:
+            if previous_preserve is None:
+                self._renderer.md_env.pop(_PRESERVE_LINE_EDGE_WHITESPACE, None)
+            else:
+                self._renderer.md_env[_PRESERVE_LINE_EDGE_WHITESPACE] = (
+                    previous_preserve
+                )
 
         return container.children, []
 
@@ -104,9 +142,12 @@ class MockState:
         renderer: DocutilsRenderer,
         state_machine: MockStateMachine,
         lineno: int,
+        *,
+        preserve_inline_edge_whitespace: bool = False,
     ):
         self._renderer = renderer
         self._lineno = lineno
+        self._preserve_inline_edge_whitespace = preserve_inline_edge_whitespace
         self.document = renderer.document
         self.reporter = renderer.document.reporter
         self.state_machine = state_machine
@@ -197,7 +238,13 @@ class MockState:
 
         :returns: (list of nodes, list of messages)
         """
-        return self.inliner.parse(text, lineno, self.memo, self._renderer.current_node)
+        return self.inliner.parse(
+            text,
+            lineno,
+            self.memo,
+            self._renderer.current_node,
+            preserve_edge_whitespace=self._preserve_inline_edge_whitespace,
+        )
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
@@ -305,6 +352,100 @@ class MockState:
             else f"{cls} has no attribute '{name}'"
         )
         raise MockingError(msg).with_traceback(sys.exc_info()[2])
+
+
+class MockTableState(MockState):
+    """A mock state for the docutils ``table`` directive,
+    whose caption may wrap onto the lines directly after the opening line.
+
+    MyST takes a directive's argument from its opening line only,
+    so the rest of a hard-wrapped caption is parsed as a paragraph before the table,
+    and the directive fails with "exactly one table expected".
+    The body is parsed exactly as by `MockState`, and is only changed in that case:
+    when it parses to a paragraph that starts on its first line,
+    followed by a table (system messages aside),
+    the paragraph is taken out (so the directive gets its one table),
+    and `add_caption_continuation` then adds its content to the table's caption.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._caption_continuation: nodes.paragraph | None = None
+        self._caption_messages: list[nodes.Element] = []
+
+    def nested_parse(
+        self,
+        block: StringList,
+        input_offset: int,
+        node: nodes.Element,
+        match_titles: bool = False,
+        state_machine_class=None,
+        state_machine_kwargs=None,
+    ) -> None:
+        super().nested_parse(
+            block,
+            input_offset,
+            node,
+            match_titles,
+            state_machine_class,
+            state_machine_kwargs,
+        )
+        messages = [c for c in node.children if isinstance(c, nodes.system_message)]
+        blocks = [c for c in node.children if not isinstance(c, nodes.system_message)]
+        if not (
+            len(blocks) == 2
+            and isinstance(blocks[0], nodes.paragraph)
+            and isinstance(blocks[1], nodes.table)
+        ):
+            return
+        paragraph, table = blocks
+        first_line = self._lineno + input_offset + 1
+        if paragraph.line != first_line:
+            return
+        # options go before the caption's continuation: an option line in it
+        # would be silently lost in the caption
+        if any(is_option_line(line) for line in paragraph.rawsource.splitlines()):
+            return
+        self._caption_continuation = paragraph
+        self._caption_messages = messages
+        node[:] = [table]
+
+    def add_caption_continuation(
+        self, directive: Directive, result: list[nodes.Node]
+    ) -> list[nodes.Node]:
+        """Add the wrapped caption's continuation to the table's caption.
+
+        :param directive: The table directive that was run with this state
+        :param result: The nodes returned by the directive
+        :returns: The nodes to output
+        """
+        paragraph = self._caption_continuation
+        if paragraph is None or not result or not isinstance(result[0], nodes.table):
+            return result
+        table = result[0]
+        continuation = paragraph.children[:]
+        paragraph.children = []
+        if directive.arguments and table.children and isinstance(table[0], nodes.title):
+            # the caption from the opening line, joined to its continuation by a space
+            title = table[0]
+            title.rawsource = f"{title.rawsource} {paragraph.rawsource}"
+            if (
+                title.children
+                and isinstance(title[-1], nodes.Text)
+                and continuation
+                and isinstance(continuation[0], nodes.Text)
+            ):
+                title[-1] = nodes.Text(f"{title[-1]!s} {continuation.pop(0)!s}")
+            else:
+                title += nodes.Text(" ")
+        else:
+            title = nodes.title(paragraph.rawsource, "")
+            title.source, title.line = self.state_machine.get_source_and_line(
+                directive.lineno
+            )
+            table.insert(0, title)
+        title.extend(continuation)
+        return [*result, *self._caption_messages]
 
 
 class MockStateMachine:
@@ -429,6 +570,10 @@ class MockIncludeDirective:
         # get required section of text
         startline = self.options.get("start-line", None)
         endline = self.options.get("end-line", None)
+        if startline is not None and startline < 0:
+            # resolve to the actual 0-based line, for source-line reporting
+            # (slicing semantics are unchanged by this)
+            startline = max(0, len(file_content.splitlines()) + startline)
         file_content = "\n".join(file_content.splitlines()[startline:endline])
         startline = startline or 0
         for split_on_type in ["start-after", "end-before"]:
@@ -442,7 +587,9 @@ class MockIncludeDirective:
                     f'Directive "{self.name}"; option "{split_on_type}": text not found "{split_on}".',
                 )
             if split_on_type == "start-after":
-                startline += split_index + len(split_on)
+                # advance by the number of *lines* removed, so that
+                # source-line reporting stays aligned
+                startline += file_content.count("\n", 0, split_index + len(split_on))
                 file_content = file_content[split_index + len(split_on) :]
             else:
                 file_content = file_content[:split_index]
@@ -451,7 +598,8 @@ class MockIncludeDirective:
             literal_block = nodes.literal_block(
                 file_content, source=str(path), classes=self.options.get("class", [])
             )
-            literal_block.line = 1  # TODO don;t think this should be 1?
+            # docutils sets this to the ``start-line`` option (or 0) + 1
+            literal_block.line = (self.options.get("start-line") or 0) + 1
             self.add_name(literal_block)
             if "number-lines" in self.options:
                 # note starting in docutils 0.22 this option is now an integer instead of a string, see: https://github.com/live-clones/docutils/commit/f39ac1413e56a330c8fea6e0d080fed0ff2b8483
@@ -513,9 +661,12 @@ class MockIncludeDirective:
                     source_dir,
                     path.parent,
                 )
+            # ``nested_render_text`` expects the 0-based source line of the
+            # first line of the text (the final 0-based to 1-based conversion
+            # happens in ``_render_tokens``), which is exactly ``startline``
             self.renderer.nested_render_text(
                 file_content,
-                startline + 1,
+                startline,
                 heading_offset=self.options.get("heading-offset", 0),
             )
         finally:

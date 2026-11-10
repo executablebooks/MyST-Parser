@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.4,<4"]
+requires = ["flit_core >=3.4,<5"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -65,6 +65,7 @@ rtd = [
     "sphinx-tippy>=0.4.3",
     "sphinx-autodoc2~=0.5.0",
     "sphinx-togglebutton",
+    "sphinx-syntax-example~=0.2.0",
 ]
 testing = [
     "beautifulsoup4",
@@ -75,7 +76,7 @@ testing = [
     "pytest-regressions",
     "pytest-param-files~=0.6.0",
     "sphinx-pytest~=0.3.0",
-    "pygments<2.21",  # TODO fix test regression with 2.19"
+    "pygments<2.22",  # TODO fix test regression with 2.19"
 ]
 testing-docutils = [
     "pygments",
@@ -85,13 +86,14 @@ testing-docutils = [
 
 [dependency-groups]
 mypy = [
-    "mypy==2.1.0",
+    "mypy==2.4.1",
     "types-urllib3",
     "sphinx~=8.2",
     "markdown-it-py~=4.2",
     "mdit-py-plugins~=0.7.0",
+    "sphinx-syntax-example~=0.2.0",
 ]
-ruff = ["ruff==0.15.20"]
+ruff = ["ruff==0.17.4"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
@@ -112,7 +114,12 @@ exclude = [
     "tests/",
 ]
 
+[tool.ruff]
+# test fixtures are input data; mirrors the exclude in .pre-commit-config.yaml
+extend-exclude = ["tests/**/*.md"]
+
 [tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 extend-select = ["B", "C4", "FA", "FURB", "I", "ICN", "ISC", "N", "PERF", "PGH", "PIE", "RUF", "SIM", "UP"]
 extend-ignore = ["ISC001", "RUF005", "RUF012"]
 

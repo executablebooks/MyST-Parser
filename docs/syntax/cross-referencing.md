@@ -23,7 +23,7 @@ primary HTML id, used by tocs, permalinks and `objects.inv`; the implicit
 heading id is kept as a secondary anchor, so existing fragment links keep working.
 ```
 
-::::{myst-example}
+::::{syntax-example}
 
 (heading-target)=
 ### Heading
@@ -47,7 +47,7 @@ This is a directive with a `name` option
 There are also other ways to create targets, specific to certain directives,
 such as [glossaries](#syntax/glossaries) create targets for terms, and [code APIs](#syntax/apis) create targets for objects:
 
-::::{myst-example}
+::::{syntax-example}
 {.glossary}
 my other term
 : Definition of the term
@@ -79,7 +79,7 @@ By default the anchor "slugs" are created according to the [GitHub implementatio
 
 For example, using `myst_heading_anchors = 2`:
 
-::::{myst-example}
+::::{syntax-example}
 ## A heading with slug
 
 ## A heading with slug
@@ -191,7 +191,7 @@ Otherwise, the link text will be the destination itself.
 
 #### Autolinks
 
-:::{myst-example}
+:::{syntax-example}
 
 :External URL: <https://example.com>
 :Internal target reference: <project:#cross-references>
@@ -204,7 +204,7 @@ Otherwise, the link text will be the destination itself.
 
 #### Inline links with implicit text
 
-:::{myst-example}
+:::{syntax-example}
 
 :External URL: [](https://example.com)
 :Internal target reference: [](#cross-references)
@@ -217,7 +217,7 @@ Otherwise, the link text will be the destination itself.
 
 #### Inline links with explicit text
 
-:::{myst-example}
+:::{syntax-example}
 
 :External URL: [Explicit text](https://example.com)
 :Internal target reference: [Explicit text](#cross-references)
@@ -347,6 +347,8 @@ myst-inventories:
 
 you can then reference inventory objects by prefixing the `inv` schema to the destination [URI]: `inv:key:domain:type#name`.
 
+For object names containing spaces, percent-encode the spaces as `%20` in an `inv` autolink, for example `<inv:ipywidgets:std:doc#examples/Using%20Interact>`.
+
 `key`, `domain` and `type` are optional, e.g. for `inv:#name`, all inventories, domains and types will be searched, with a [warning emitted](myst-warnings) if multiple matches are found.
 
 Additionally, `*` is a wildcard which matches zero or more characters, e.g. `inv:*:std:doc#a*` will match all `std:doc` objects in all inventories, with a `name` beginning with `a`.
@@ -389,7 +391,7 @@ Sphinx offers numerous [roles for referencing](#usage/restructuredtext/roles) sp
 
 These can also be used within MyST documents, although it is recommended to use the Markdown syntax where possible, which is more portable and native to MyST.
 
-:::{myst-example}
+:::{syntax-example}
 Sphinx roles:
 
 - {ref}`syntax/referencing`, {ref}`Explicit text <syntax/referencing>`

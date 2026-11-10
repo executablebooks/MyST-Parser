@@ -36,7 +36,6 @@ This is to allow for separation between the option block and content.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from textwrap import dedent
@@ -50,7 +49,7 @@ from docutils.parsers.rst.states import MarkupError
 
 from myst_parser.warnings_ import MystWarnings
 
-from .options import TokenizeError, options_to_items
+from .options import TokenizeError, options_to_tokens
 
 YAML_LOAD_ERRORS = (yaml.YAMLError, ValueError, RecursionError)
 """Errors that ``yaml.safe_load`` can raise on invalid input:
@@ -76,10 +75,19 @@ class DirectiveParsingResult:
     body: list[str]
     """The lines of body content"""
     body_offset: int
-    """The number of lines to the start of the body content."""
+    """The number of lines from the directive's opening line
+    to the first line of the body content.
+
+    This is ``-1`` when body content starts on the opening line itself
+    (only possible for directives that take no arguments).
+    """
     warnings: list[ParseWarnings]
     """List of non-fatal errors encountered during parsing.
     (message, line_number)
+    """
+    blank_line_removed: bool = False
+    """Whether a blank line between the opening line (or the options block)
+    and the body content was removed.
     """
 
 
@@ -125,7 +133,11 @@ def parse_directive_text(
         has_options_block = result.has_options
         options = result.options
         body_lines = result.content.splitlines()
-        content_offset = len(content.splitlines()) - len(body_lines)
+        # Use the option-block line count directly rather than
+        # ``len(content.splitlines()) - len(body_lines)``: re-splitting the
+        # re-joined body drops a trailing blank line, which would otherwise
+        # inflate the offset when the body ends in blank lines.
+        content_offset = result.option_line_count
     else:
         parse_warnings = []
         has_options_block = False
@@ -144,14 +156,17 @@ def parse_directive_text(
                     )
                 )
             body_lines.insert(0, first_line)
-            content_offset = 0
+            # the merged first body line sits on the opening line itself,
+            # one line *before* where body content normally starts
+            content_offset -= 1
         arguments = []
     else:
         arguments = parse_directive_arguments(directive_class, first_line)
 
     # remove first line of body if blank
     # this is to allow space between the options and the content
-    if body_lines and not body_lines[0].strip():
+    blank_line_removed = bool(body_lines) and not body_lines[0].strip()
+    if blank_line_removed:
         body_lines = body_lines[1:]
         content_offset += 1
 
@@ -160,7 +175,12 @@ def parse_directive_text(
         parse_warnings.append(ParseWarnings("Has content, but none permitted"))
 
     return DirectiveParsingResult(
-        arguments, options, body_lines, content_offset, parse_warnings
+        arguments,
+        options,
+        body_lines,
+        content_offset,
+        parse_warnings,
+        blank_line_removed,
     )
 
 
@@ -170,6 +190,24 @@ class _DirectiveOptions:
     options: dict[str, Any]
     warnings: list[ParseWarnings]
     has_options: bool
+    option_line_count: int
+    """Number of source lines before the body (0 if there is no option block).
+
+    This is the option block's own length, except when text trails a closing
+    ``---``: that text is the first body line, so the closing line is not counted.
+    It is derived before the body is joined back into a string, so it is not
+    affected by trailing blank lines being lost in the ``"\\n".join(...)`` round-trip.
+    """
+
+
+def is_option_line(line: str) -> bool:
+    """Return True if ``line`` is read as a ``:key: value`` directive option line,
+    when it is in the options block.
+    """
+    stripped = line.lstrip()
+    # lines that don't start with a colon or have 3+ colons, which are colon fences
+    # (e.g. nested directives like `::::{other}`), are not options
+    return stripped.startswith(":") and not stripped.startswith(":::")
 
 
 def _parse_directive_options(
@@ -181,31 +219,57 @@ def _parse_directive_options(
 ) -> _DirectiveOptions:
     """Parse (and validate) the directive option section.
 
-    :returns: (content, options, validation_errors)
+    :param content: All text after the directive's opening line,
+        possibly starting with an option block
+    :param directive_class: The directive class to validate options against
+    :param as_yaml: Whether to parse the options block with the full YAML spec,
+        rather than validating against the directive's option specification
+        (used by myst-nb)
+    :param line: The 1-based line number of the directive's opening line,
+        or None if unknown
+    :param additional_options: Additional options for the directive,
+        which the options block takes priority over
     """
-    options_block: None | str = None
+    options_block: str | None = None
+    options_position: int | None = None
+    """The 1-based source line of the first line of the options block."""
+    option_line_count = 0
+    """Number of source lines before the body, counted before the body is
+    re-joined (so a body ending in blank lines does not throw the count off)."""
     if content.startswith("---"):
-        line = None if line is None else line + 1
-        content = "\n".join(content.splitlines()[1:])
-        match = re.search(r"^-{3,}", content, re.MULTILINE)
-        if match:
-            options_block = content[: match.start()]
-            content = content[match.end() + 1 :]  # TODO advance line number
+        options_position = None if line is None else line + 2
+        content_lines = content.splitlines()[1:]
+        for index, content_line in enumerate(content_lines):
+            if content_line.startswith("---"):
+                options_block = "\n".join(content_lines[:index])
+                # any text after the closing delimiter's dashes becomes
+                # the first line of the body content (and, being kept as
+                # its own line, maps exactly to its source line)
+                remainder = content_line.lstrip("-")
+                remainder = remainder.removeprefix(" ")
+                rest = content_lines[index + 1 :]
+                content = "\n".join([remainder, *rest] if remainder else rest)
+                # opening ``---`` + the option lines (``index``), then the
+                # closing ``---``: normally the body starts on the next line
+                # (``+ 2``), but when the closer carries trailing text, that text
+                # is the first body line, on the closing line itself (``+ 1``).
+                option_line_count = index + 1 if remainder else index + 2
+                break
         else:
-            options_block = content
+            options_block = "\n".join(content_lines)
+            option_line_count = len(content.splitlines())
             content = ""
         options_block = dedent(options_block)
     elif content.lstrip().startswith(":"):
+        options_position = None if line is None else line + 1
         content_lines = content.splitlines()
         yaml_lines = []
         while content_lines:
-            stripped = content_lines[0].lstrip()
-            # Stop at lines that don't start with a colon or have 3+ colons, which are colon fences
-            # (e.g. nested directives like `::::{other}`)
-            if not stripped.startswith(":") or stripped.startswith(":::"):
+            if not is_option_line(content_lines[0]):
                 break
             yaml_lines.append(content_lines.pop(0).lstrip()[1:])
         options_block = "\n".join(yaml_lines)
+        option_line_count = len(yaml_lines)
         content = "\n".join(content_lines)
 
     has_options_block = options_block is not None
@@ -214,12 +278,19 @@ def _parse_directive_options(
         yaml_errors: list[ParseWarnings] = []
         try:
             yaml_options = yaml.safe_load(options_block or "") or {}
-        except YAML_LOAD_ERRORS:
+        except YAML_LOAD_ERRORS as exc:
             yaml_options = {}
+            yaml_error_line = options_position
+            if (
+                options_position is not None
+                and isinstance(exc, yaml.MarkedYAMLError)
+                and exc.problem_mark is not None
+            ):
+                yaml_error_line = options_position + exc.problem_mark.line
             yaml_errors.append(
                 ParseWarnings(
                     "Invalid options format (bad YAML)",
-                    line,
+                    yaml_error_line,
                     MystWarnings.DIRECTIVE_OPTION,
                 )
             )
@@ -228,19 +299,24 @@ def _parse_directive_options(
             yaml_errors.append(
                 ParseWarnings(
                     "Invalid options format (not a dict)",
-                    line,
+                    options_position,
                     MystWarnings.DIRECTIVE_OPTION,
                 )
             )
-        return _DirectiveOptions(content, yaml_options, yaml_errors, has_options_block)
+        return _DirectiveOptions(
+            content, yaml_options, yaml_errors, has_options_block, option_line_count
+        )
 
     validation_errors: list[ParseWarnings] = []
 
     options: dict[str, str] = {}
+    option_lines: dict[str, int] = {}
+    """0-based line of each key, within the options block
+    (both block styles keep a 1:1 line correspondence with the source).
+    """
     if options_block is not None:
         try:
-            _options, state = options_to_items(options_block)
-            options = dict(_options)
+            option_tokens, state = options_to_tokens(options_block)
         except TokenizeError as err:
             return _DirectiveOptions(
                 content,
@@ -248,25 +324,46 @@ def _parse_directive_options(
                 [
                     ParseWarnings(
                         f"Invalid options format: {err.problem}",
-                        line,
+                        None
+                        if options_position is None
+                        else options_position + err.problem_mark.line,
                         MystWarnings.DIRECTIVE_OPTION,
                     )
                 ],
                 has_options_block,
+                option_line_count,
             )
+        for key_token, value_token in option_tokens:
+            options[key_token.value] = (
+                value_token.value if value_token is not None else ""
+            )
+            option_lines[key_token.value] = key_token.start.line
         if state.has_comments:
             validation_errors.append(
                 ParseWarnings(
                     "Directive options has # comments, which may not be supported in future versions.",
-                    line,
+                    None
+                    if options_position is None
+                    else options_position
+                    + (state.comment_lines[0] if state.comment_lines else 0),
                     MystWarnings.DIRECTIVE_OPTION_COMMENTS,
                 )
             )
 
+    def _option_line(name: str) -> int | None:
+        """The 1-based source line of an option key, or None if unknown
+        (e.g. keys injected via ``additional_options`` have no source line).
+        """
+        if options_position is None or name not in option_lines:
+            return None
+        return options_position + option_lines[name]
+
     if issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
-        return _DirectiveOptions(content, options, [], has_options_block)
+        return _DirectiveOptions(
+            content, options, [], has_options_block, option_line_count
+        )
 
     if additional_options:
         # The options block takes priority over additional options
@@ -274,14 +371,19 @@ def _parse_directive_options(
 
     # check options against spec
     options_spec: dict[str, Callable] = directive_class.option_spec
-    unknown_options: list[str] = []
     new_options: dict[str, Any] = {}
     value: str | None
     for name, value in options.items():
         try:
             converter = options_spec[name]
         except KeyError:
-            unknown_options.append(name)
+            validation_errors.append(
+                ParseWarnings(
+                    f"Unknown option key: {name!r} (allowed: {sorted(options_spec)})",
+                    _option_line(name),
+                    MystWarnings.DIRECTIVE_OPTION,
+                )
+            )
             continue
         if not value:
             # restructured text parses empty option values as None
@@ -296,24 +398,16 @@ def _parse_directive_options(
             validation_errors.append(
                 ParseWarnings(
                     f"Invalid option value for {name!r}: {value}: {error}",
-                    line,
+                    _option_line(name),
                     MystWarnings.DIRECTIVE_OPTION,
                 )
             )
         else:
             new_options[name] = converted_value
 
-    if unknown_options:
-        validation_errors.append(
-            ParseWarnings(
-                f"Unknown option keys: {sorted(unknown_options)} "
-                f"(allowed: {sorted(options_spec)})",
-                line,
-                MystWarnings.DIRECTIVE_OPTION,
-            )
-        )
-
-    return _DirectiveOptions(content, new_options, validation_errors, has_options_block)
+    return _DirectiveOptions(
+        content, new_options, validation_errors, has_options_block, option_line_count
+    )
 
 
 def parse_directive_arguments(

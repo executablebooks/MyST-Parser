@@ -21,14 +21,14 @@ repos:
     - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.17.4
     hooks:
     - id: ruff-check
       args: [--fix]
     - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.1.0
+    rev: v2.4.1
     hooks:
     - id: mypy
       args: [--config-file=pyproject.toml]
@@ -37,6 +37,7 @@ repos:
       - sphinx~=8.2
       - markdown-it-py~=4.2
       - mdit-py-plugins~=0.7.0
+      - sphinx-syntax-example~=0.2.0
       files: >
         (?x)^(
             myst_parser/.*py|
