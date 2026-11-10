@@ -130,7 +130,7 @@ def get_sphinx_app_doctree(file_regression, normalize_doctree_xml):
                 text = text.replace(find, rep)
             if rstrip_lines:
                 text = "\n".join([li.rstrip() for li in text.splitlines()])
-            file_regression.check(text, extension=extension)
+            file_regression.check(text, extension=extension, encoding="utf8")
 
         return doctree
 

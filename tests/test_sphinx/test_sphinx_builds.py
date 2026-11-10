@@ -453,6 +453,48 @@ def test_substitutions(
 
 @pytest.mark.sphinx(
     buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "frontmatter_metadata"),
+    freshenv=True,
+)
+def test_frontmatter_metadata(
+    app,
+    status,
+    warning,
+    get_sphinx_app_doctree,
+    file_regression,
+    normalize_doctree_xml,
+):
+    """Test that a document can access its own front matter via ``env.metadata``."""
+    app.build()
+    assert "build succeeded" in status.getvalue()
+    assert warning.getvalue().strip() == ""
+
+    # values should be the same strings that sphinx's MetadataCollector stores,
+    # except for ``tocdepth``, which it converts to an integer
+    ignore = {"myst_slugs", "wordcount"}  # added separately by the renderer
+    metadata = {k: v for k, v in app.env.metadata["index"].items() if k not in ignore}
+    assert metadata == {
+        "tocdepth": 2,
+        "last_review_date": "1970-09-08",
+        "reviewers": '["alice", "bob"]',
+        "links": '{"home": "https://example.com"}',
+    }
+
+    # front matter of a Markdown file parsed into another document
+    # (here an rST ``include`` with ``:parser:``) must not be added to the
+    # including document's metadata: the collector never sees that front matter,
+    # so nothing would ever overwrite or remove it
+    assert "leaked" not in app.env.metadata["host"]
+
+    get_sphinx_app_doctree(app, docname="index", regress=True)
+    file_regression.check(
+        normalize_doctree_xml(get_sphinx_app_doctree(app, docname="other").pformat()),
+        extension=".other.xml",
+    )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
     srcdir=os.path.join(SOURCE_DIR, "substitutions_missing"),
     freshenv=True,
 )
@@ -470,6 +512,71 @@ def test_substitutions_missing(
         "index.md:5: WARNING: Substitution error:UndefinedError: 'missing' is undefined [myst.substitution]"
         in warnings[0]
     )
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "substitutions_dashed_key"),
+    freshenv=True,
+)
+def test_substitutions_dashed_key(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+):
+    """
+    Regression test for
+    https://github.com/executablebooks/MyST-Parser/issues/1007
+
+    A substitution key containing a dash (e.g. ``foo-bar``) must be
+    looked up as a single key, not parsed by Jinja2 as a subtraction
+    expression (``foo - bar``, two separate, likely-undefined names).
+    Plain keys and circular-reference detection must continue to work
+    as before.
+    """
+    app.build()
+    assert "build succeeded" in status.getvalue()
+
+    warnings = warning.getvalue().strip().splitlines()
+    assert len(warnings) == 1
+    assert "circular substitution reference: {'circ-a'}" in warnings[0]
+
+    output = get_sphinx_app_output(app, filename="index.html")
+    assert "Foobar" in output
+    assert "PlainValue" in output
+    # The circular substitution should not have rendered a value.
+    assert "{{circ-a}}" not in output
+    assert "{{circ-b}}" not in output
+
+
+@pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "attrs_block_duplicate_ids"),
+    freshenv=True,
+)
+def test_attrs_block_duplicate_ids(
+    app,
+    status,
+    warning,
+):
+    """Test that a duplicated ``{#id}`` warns, rather than aborting the build."""
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = strip_colors(warning.getvalue()).strip().splitlines()
+    assert len(warnings) == 3
+    assert warnings[0].endswith(
+        'index.md:7: WARNING: Duplicate explicit target name: "sec". [docutils]'
+    )
+    # the paragraph warning has no line number yet: allow one to be added later
+    assert re.search(
+        r'index\.md:\d*: WARNING: Duplicate explicit target name: "para"\. \[docutils\]$',
+        warnings[1],
+    )
+    assert warnings[2].endswith(
+        'index.md:20: WARNING: Duplicate explicit target name: "rub". [docutils]'
+    )
+    assert Path(app.outdir, "index.html").exists()
 
 
 @pytest.mark.sphinx(
@@ -784,3 +891,58 @@ def test_include_read_event(app, status, warning):
     assert len(include_read_events) == len(expected_events), "Wrong number of events"
     for evt in expected_events:
         assert evt in include_read_events
+
+
+@pytest.mark.parametrize(
+    "extensions",
+    [
+        pytest.param(
+            ["myst_parser", "myst_setup_again"],
+            marks=pytest.mark.sphinx(
+                buildername="html",
+                srcdir=os.path.join(SOURCE_DIR, "setup_twice"),
+                freshenv=True,
+                confoverrides={"extensions": ["myst_parser", "myst_setup_again"]},
+            ),
+            id="myst_parser-first",
+        ),
+        pytest.param(
+            ["myst_setup_again", "myst_parser"],
+            marks=pytest.mark.sphinx(
+                buildername="html",
+                srcdir=os.path.join(SOURCE_DIR, "setup_twice"),
+                freshenv=True,
+                confoverrides={"extensions": ["myst_setup_again", "myst_parser"]},
+            ),
+            id="myst_parser-second",
+        ),
+    ],
+)
+def test_setup_sphinx_twice(app, status, warning, extensions):
+    """Running ``setup_sphinx`` twice on one app is a no-op the second time.
+
+    myst-nb calls ``setup_sphinx`` from its own setup, so listing both
+    ``myst_parser`` and ``myst_nb`` in ``extensions`` used to crash with
+    ``ValueError: list.remove(x): x not in list`` (#962, #1052).
+    """
+    from sphinx.transforms import (
+        UnreferencedFootnotesDetector as SphinxUnreferencedFootnotesDetector,
+    )
+
+    from myst_parser.mdit_to_docutils.transforms import UnreferencedFootnotesDetector
+    from myst_parser.sphinx_ext.myst_refs import MystReferenceResolver
+
+    assert app.config.extensions == extensions
+    # the transforms are registered exactly once
+    assert SphinxUnreferencedFootnotesDetector not in app.registry.transforms
+    assert app.registry.transforms.count(UnreferencedFootnotesDetector) == 1
+    assert app.registry.post_transforms.count(MystReferenceResolver) == 1
+    # the parser is registered, whichever call asked for it
+    assert app.registry.source_suffix[".md"] == "markdown"
+
+    app.build()
+
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    warnings = warning.getvalue().strip()
+    assert warnings == ""
+    assert "index" in app.env.found_docs

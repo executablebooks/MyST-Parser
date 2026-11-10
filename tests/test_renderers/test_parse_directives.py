@@ -5,6 +5,8 @@ import pytest
 import yaml
 from docutils.parsers.rst.directives.admonitions import Admonition, Note
 from docutils.parsers.rst.directives.body import Rubric
+from docutils.parsers.rst.directives.misc import TestDirective as DocutilsTestDirective
+from docutils.parsers.rst.directives.tables import RSTTable
 from markdown_it import MarkdownIt
 from sphinx.directives.code import CodeBlock
 
@@ -164,6 +166,67 @@ def test_option_warning_lines_colon_block():
     assert result.body_offset == 3
 
 
+@pytest.mark.parametrize(
+    ("first_line", "content", "offset"),
+    [
+        # colon-style option block
+        pytest.param("", ":class: tip\nbody", 1, id="colon"),
+        pytest.param("", ":class: tip\nbody\n\n\n", 1, id="colon-blanks"),
+        # a fence body always ends in "\n", so one blank line before the
+        # closing fence is enough to trigger #1177
+        pytest.param("", ":class: tip\nbody\n\n", 1, id="colon-one-blank"),
+        # blank separator line between the options and the body
+        pytest.param("", ":class: tip\n\nbody\n\n", 2, id="colon-separator"),
+        # yaml-style option block
+        pytest.param("", "---\nclass: tip\n---\nbody", 3, id="yaml"),
+        pytest.param("", "---\nclass: tip\n---\nbody\n\n\n", 3, id="yaml-blanks"),
+        # text trailing the closing `---` is the first body line,
+        # sitting on the closing line itself (#1164)
+        pytest.param(
+            "", "---\nclass: tip\n--- body\nmore\n\n", 2, id="yaml-closer-text"
+        ),
+        # unclosed `---` block: everything is options, there is no body
+        pytest.param("", "---\nclass: tip\n\n", 3, id="yaml-unclosed"),
+        # no option block: unaffected
+        pytest.param("", "body\n\n", 0, id="no-options"),
+        # body text on the first line sits on the opening line itself: -1 (#1164)
+        pytest.param("first", "second\n\n", -1, id="first-line"),
+        # ... and with an option block, the offset is right for the body lines
+        # after the merged first line (``body`` is two lines below the opener)
+        pytest.param("first", ":class: tip\nbody\n\n", 0, id="first-line-colon"),
+    ],
+)
+def test_body_offset_not_inflated_by_trailing_blank_lines(first_line, content, offset):
+    """A body ending in blank lines must not inflate ``body_offset`` (#1177)."""
+    result = parse_directive_text(Note, first_line, content)
+    assert result.body_offset == offset
+
+
+@pytest.mark.parametrize(
+    ("directive", "validate_options", "content", "offset"),
+    [
+        # options read as plain YAML, without validation (as myst-nb does)
+        pytest.param(Note, False, ":class: tip\nbody\n\n", 1, id="as-yaml-colon"),
+        pytest.param(
+            Note, False, "---\nclass: tip\n---\nbody\n\n", 3, id="as-yaml-yaml"
+        ),
+        # docutils' test directive accepts any option, on its own return path
+        pytest.param(
+            DocutilsTestDirective, True, ":option: x\nbody\n\n", 1, id="test-directive"
+        ),
+    ],
+)
+def test_body_offset_trailing_blank_other_option_paths(
+    directive, validate_options, content, offset
+):
+    """The #1177 fix also holds where options are not validated against a spec."""
+    result = parse_directive_text(
+        directive, "", content, validate_options=validate_options
+    )
+    assert result.body == ["body"]
+    assert result.body_offset == offset
+
+
 def test_option_warning_lines_none():
     """Without a known directive line, option warnings have no line number."""
     result = parse_directive_text(
@@ -246,3 +309,43 @@ def test_options_to_tokens_comment_lines():
     _, state = options_to_tokens("# first\na: 1 # second\n# third\nb: 2\n")
     assert state.has_comments
     assert state.comment_lines == [0, 1, 2]
+
+
+TABLE_BODY = "| a | b |\n|---|---|\n| 1 | 2 |"
+
+
+def test_table_caption_on_one_line_unchanged():
+    """A single-line caption is still the only argument, body is the table."""
+    result = parse_directive_text(
+        RSTTable,
+        "Table caption",
+        "\n" + TABLE_BODY,
+    )
+    assert result.arguments == ["Table caption"]
+    assert result.body == TABLE_BODY.splitlines()
+    assert result.body_offset == 1
+    assert result.blank_line_removed
+
+
+@pytest.mark.parametrize(
+    "content,body_offset,blank_line_removed",
+    [
+        pytest.param("continued\n" + TABLE_BODY, 0, False, id="no-blank"),
+        pytest.param(":name: tbl\ncontinued\n" + TABLE_BODY, 1, False, id="options"),
+        pytest.param(":name: tbl\n\nSome prose.", 2, True, id="options-blank"),
+    ],
+)
+def test_table_arguments_from_opening_line_only(
+    content, body_offset, blank_line_removed
+):
+    """Directive arguments come from the opening line only:
+    a wrapped ``{table}`` caption is joined when the table is rendered
+    (see ``test_table_caption.py``), which needs to know
+    whether a blank line separated the body from the opening line or options.
+    """
+    result = parse_directive_text(RSTTable, "Cap", content)
+    assert result.arguments == ["Cap"]
+    assert result.body == content.splitlines()[body_offset:]
+    assert result.body_offset == body_offset
+    assert result.blank_line_removed is blank_line_removed
+    assert not result.warnings
