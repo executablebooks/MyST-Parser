@@ -363,13 +363,13 @@ but references are resolved before that, against the headings as written, so `§
 A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
 A `§` number directly followed by an ASCII letter, such as `§1a`, is not a reference.
 
-References that appear **inside a heading or inside link text** are intentionally left as text marked with the `section-ref` class, rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+References that appear **inside a section heading or inside link text** are intentionally left as text marked with the `section-ref` class, rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
 References in other titles, such as the title of an admonition or a table, are resolved as usual.
 
 :::{important}
 §-numbers are **not** the section numbers that Sphinx displays.
 In a `toctree` with the `:numbered:` option, Sphinx numbers sections across the documents it lists, so *Section One* above could be displayed as "2.1.", while `§1` still targets it, as the first section of its own document.
-To cite the number that a `:numbered:` toctree displays, put a [`(label)=` target](syntax/targets) on the heading and use the [`{numref}` role](inv:sphinx:rst:role#numref) (with `numfig = True`), which by default prints "Section 2.1".
+To cite the number that a `:numbered:` toctree displays, put a [`(label)=` target](syntax/targets) on the heading and use the [`{numref}` role](inv:sphinx:rst:role#numref), which by default prints "Section 2.1".
 :::
 
 :::{caution}
@@ -399,8 +399,8 @@ Cross-document section references may be supported in a future release.
 
 ### Numbering rules
 
-These rules say exactly which heading a reference points to.
-Sphinx and docutils follow them in the same way, and MyST's test suite pins them.
+These rules say exactly which section heading a reference points to.
+Sphinx and docutils follow them in the same way (except that docutils has no `{only}` directive, so it drops such blocks), and MyST's test suite pins them.
 
 **What is a reference**
 
@@ -418,11 +418,13 @@ Sphinx and docutils follow them in the same way, and MyST's test suite pins them
 **Which headings count**
 
 - Every heading that starts a section counts, in the order of the source, including:
-  - the headings of a file pulled in with `{include}`, at the point of inclusion and at the level they are written at;
+  - the headings of a file pulled in with `{include}`, at the point of inclusion and at the level they are written at, shifted by the directive's `:heading-offset:`;
   - the sections of an `{eval-rst}` block, where the document places them;
   - the headings inside an `{only}` block, whatever its condition, so that the numbers are the same for every builder;
+  - any other section that a directive places in the document, such as one inside `.. ifconfig::` in an `{eval-rst}` block, under the section that contains it;
   - a front-matter `title` that [`myst_title_to_header`](#sphinx/config-options) turns into a heading: it is the first heading of the document.
 - A heading inside the body of a directive, such as `{note}`, is rendered as a rubric, and does not count.
+  It is not a section heading, so a reference written in it resolves as usual.
 
 **How headings are numbered**
 
@@ -434,8 +436,9 @@ Sphinx and docutils follow them in the same way, and MyST's test suite pins them
 
 **How references resolve**
 
-- `§1.2` links to the heading numbered exactly 1.2; there is no fallback to `§1` or to the nearest heading.
-- The link goes to the heading's primary anchor, so a `(label)=` target on the heading is used.
+- `§1.2` links to the section heading numbered exactly 1.2; there is no fallback to `§1` or to the nearest heading.
+- The link goes to the section's primary anchor, so a `(label)=` target on the heading is used.
+  A reference to a heading in an `{only}` branch that the build excludes points to an anchor that is not in the output.
 - A reference in a section heading or in link text is never linked, and never warns.
   Everywhere else (paragraphs, emphasis, lists, tables, figure captions, admonitions) it resolves.
 - In image alt text, the reference is kept as written, without a link.
