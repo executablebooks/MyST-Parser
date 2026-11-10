@@ -357,13 +357,14 @@ The numbering is **document-local** and purely **structural**, computed from the
 - Deeper levels are appended with dots, so the second subsection of the first section is `§1.2`, and so on.
 
 The numbering is the same in Sphinx and in single-page docutils output.
-docutils promotes a lone top-level heading to the document title and, if that heading holds nothing but one subsection, promotes the subsection's heading to the subtitle.
-References still resolve as if nothing had been promoted, so `§1` then links to the subtitle, and `§1.1` to the first subsection under it.
+docutils may promote a lone top-level heading to the document title, and a heading below it to the subtitle,
+but references are resolved before that, against the headings as written, so `§1` can link to a heading that docutils displays as the subtitle.
 
 A `§` must be immediately followed by digits (e.g. `§1.2`); no spaces are allowed, and a trailing dot is not consumed (so `see §1.` references `§1`).
 A `§` number directly followed by an ASCII letter, such as `§1a`, is not a reference.
 
 References that appear **inside a heading or inside link text** are intentionally left as text marked with the `section-ref` class, rather than converted to links, since a link there would nest inside another link (a heading reference is also copied into navigation and table-of-contents entries).
+References in other titles, such as the title of an admonition or a table, are resolved as usual.
 
 :::{important}
 §-numbers are **not** the section numbers that Sphinx displays.
@@ -382,6 +383,11 @@ A backslash before the `§` (`\§242`) also stops the reference, but stays in th
 
 :::{note}
 References resolve to positions **in the current document only**.
+A reference written in a file that is pulled in with the `{include}` directive resolves against the numbering of the document that includes it.
+
+Numbers are positional: inserting or moving a heading changes what every later reference points to, without a warning.
+Use a [`(label)=` target](syntax/targets) for references that must survive restructuring.
+
 If a reference cannot be resolved to a numbered heading (for example `§9.9` in a document with fewer sections), the reference is left as text marked with the `section-ref` class, and a `myst.section_ref` warning is emitted.
 This warning can be suppressed *via* [`suppress_warnings`](sphinx/config-options), e.g. `suppress_warnings = ["myst.section_ref"]`.
 
