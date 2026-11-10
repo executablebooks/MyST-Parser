@@ -1,6 +1,6 @@
-The conformance contract for `section_ref` resolution (docs/syntax/optional.md, "Numbering rules"), run through docutils and Sphinx.
-Each case is a document, then one line per reference in document order: `§n -> <target heading title>` (`@<label>` if the target has a `(label)=`), `§n unresolved` (one warning) or `§n inert` (no link, no warning).
-A `-- file: <name>` line starts an extra file; `[id] key=value` options set config, `sphinx-only` cases need `{only}`, `docutils:` options are docutils-only settings.
+The conformance contract for `section_ref` resolution (docs/syntax/optional.md, "Numbering rules"), run through docutils and Sphinx; text that is not a reference (`§0000000001`) has no line.
+Each case is a document, then one line per reference in document order after inclusion: `§n -> <target section title>`, plus ` [k]` if k-th of several sections with that title, plus ` @<id>` if the target has a `(label)=`; `§n unresolved` (one warning); or `§n inert` (no link, no warning).
+A `-- file: <name>` line starts an extra file; `[id] key=value` options set config for both engines, `docutils:`/`sphinx:` ones for one (`sphinx:extensions` is a comma list added to Sphinx's), and `sphinx-only` cases need a Sphinx-only directive ({only}, {ifconfig}) or a cross-document link.
 
 [C1-title-and-sections]
 .
@@ -147,7 +147,7 @@ See §1 §2 §1.1 §1.2.
 ## A
 
 ```{note}
-## In a note
+## In a note §1
 ```
 
 ## B
@@ -163,6 +163,7 @@ text
 
 See §1 §1.1 §2 §2.1 §3 §4.
 .
+§1 -> A
 §1 -> A
 §1.1 unresolved
 §2 -> B
@@ -198,6 +199,31 @@ In the included file: §1 §2 §2.1 §9.
 §2 -> P
 §2.1 -> P1
 §3 -> Z
+.
+
+[C9-include-heading-offset]
+.
+# T
+
+## A
+
+```{include} part.md
+:heading-offset: 1
+```
+
+## Z
+
+See §1 §2 §2.1 §3 §4.
+-- file: part.md
+# P
+
+## P1
+.
+§1 -> A
+§2 -> P
+§2.1 -> P1
+§3 -> Z
+§4 unresolved
 .
 
 [C13-inert-contexts]
@@ -246,6 +272,17 @@ See §1 and §1.1.
 §1 inert
 .
 
+[C13-reference-in-document-link] sphinx-only
+.
+# T
+
+## A
+
+[see §1](other.md)
+.
+§1 inert
+.
+
 [C13-reference-in-admonition-title]
 .
 # T
@@ -272,9 +309,9 @@ x
 
 See §1 §2 §3.
 .
-§1 -> A @lbl
-§2 -> A
-§3 -> A
+§1 -> A [1] @lbl
+§2 -> A [2]
+§3 -> A [3]
 .
 
 [C14-explicit-target]
@@ -418,11 +455,9 @@ See §1 §2 §2.1 §1.1.
 
 ## A3
 
-See §1 §2 §2.1 §3.
+See §1 §3.
 .
 §1 -> A
-§2 -> Only1
-§2.1 -> Only1a
 §3 -> A3
 .
 
@@ -441,11 +476,81 @@ See §1 §2 §2.1 §3.
    text
 ```
 
+### A1b
+
 ## A2
+
+See §1 §1.2 §2.
+.
+§1 -> A
+§1.2 -> A1b
+§2 -> A2
+.
+
+[P7-only-eval-rst-top-level] sphinx-only
+.
+See §1 §2.
+
+```{eval-rst}
+.. only:: html or not html
+
+   A
+   -
+
+   B
+   -
+```
+.
+§1 -> A
+§2 -> B
+.
+
+[P7-only-nested] sphinx-only
+.
+# T
+
+## A
+
+```{eval-rst}
+.. only:: html or not html
+
+   .. only:: html or not html
+
+      Inner
+      -----
+
+      text
+```
+
+## B
 
 See §1 §1.1 §2.
 .
 §1 -> A
-§1.1 -> Only1
-§2 -> A2
+§1.1 -> Inner
+§2 -> B
+.
+
+[N1-ifconfig-eval-rst] sphinx-only sphinx:extensions=sphinx.ext.ifconfig
+.
+# T
+
+## A
+
+```{eval-rst}
+.. ifconfig:: True
+
+   IfSec
+   -----
+
+   text
+```
+
+## B
+
+See §1 §1.1 §2.
+.
+§1 -> A
+§1.1 -> IfSec
+§2 -> B
 .

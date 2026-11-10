@@ -386,14 +386,19 @@ class ResolveAnchorIds(Transform):
 def _child_sections(node: nodes.Element) -> list[nodes.section]:
     """Return the child sections of an element, in document order.
 
-    Sections inside a sphinx ``only`` node count, whatever its condition,
-    so that the numbering does not depend on the builder.
+    A section counts wherever the document tree places it, under its nearest
+    section ancestor: the search descends through any other container element,
+    such as a sphinx ``only`` node (whatever its condition, so the numbering
+    does not depend on the builder) or an ``ifconfig`` node, but not into
+    sections or text elements.
     """
     sections: list[nodes.section] = []
     for child in node.children:
         if isinstance(child, nodes.section):
             sections.append(child)
-        elif child.tagname == "only":
+        elif isinstance(child, nodes.Element) and not isinstance(
+            child, nodes.TextElement
+        ):
             sections.extend(_child_sections(child))
     return sections
 

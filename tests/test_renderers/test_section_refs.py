@@ -38,22 +38,27 @@ def _split_files(content: str) -> tuple[str, dict[str, str]]:
     return parts[0], dict(zip(parts[1::2], parts[2::2], strict=True))
 
 
-def _parse_options(description: str | None) -> tuple[bool, dict, dict]:
-    """Parse the case options into ``(sphinx_only, shared, docutils_only)`` settings."""
+def _parse_options(description: str | None) -> tuple[bool, dict, dict, dict]:
+    """Parse the case options into ``(sphinx_only, shared, docutils, sphinx)`` settings."""
     sphinx_only = False
     shared: dict = {}
     docutils_only: dict = {}
+    sphinx_conf: dict = {"extensions": ["myst_parser"]}
     for option in (description or "").split():
         if option == "sphinx-only":
             sphinx_only = True
             continue
         key, value = option.split("=", 1)
         parsed = {"true": True, "false": False}.get(value, value)
-        if key.startswith("docutils:"):
+        if key == "sphinx:extensions":
+            sphinx_conf["extensions"] += value.split(",")
+        elif key.startswith("sphinx:"):
+            sphinx_conf[key.removeprefix("sphinx:")] = parsed
+        elif key.startswith("docutils:"):
             docutils_only[key.removeprefix("docutils:")] = parsed
         else:
             shared[key] = parsed
-    return sphinx_only, shared, docutils_only
+    return sphinx_only, shared, docutils_only, sphinx_conf
 
 
 def _is_inert(node: nodes.Element) -> bool:
@@ -64,20 +69,29 @@ def _is_inert(node: nodes.Element) -> bool:
     parent = node.parent
     while parent is not None:
         if (
-            isinstance(parent, (nodes.reference, nodes.subtitle))
+            isinstance(parent, nodes.reference)
             or parent.tagname == "pending_xref"
-            or (
-                isinstance(parent, nodes.title)
-                and isinstance(parent.parent, (nodes.section, nodes.document))
-            )
+            or _is_section_title(parent)
         ):
             return True
         parent = parent.parent
     return False
 
 
+def _is_section_title(node: nodes.Node) -> bool:
+    """Whether a node is a section title (in docutils, maybe promoted to the document)."""
+    return isinstance(node, nodes.subtitle) or (
+        isinstance(node, nodes.title)
+        and isinstance(node.parent, (nodes.section, nodes.document))
+    )
+
+
 def _target_title(doctree: nodes.document, refid: str) -> str:
-    """Return the title of the heading that holds ``refid``, plus ``@refid`` if explicit."""
+    """Return the title of the section that holds ``refid``.
+
+    ``[k]`` is added if it is the k-th of several sections with that title,
+    and ``@refid`` if the id comes from an explicit target.
+    """
     target = next(
         node for node in doctree.findall(nodes.Element) if refid in node["ids"]
     )
@@ -85,9 +99,16 @@ def _target_title(doctree: nodes.document, refid: str) -> str:
         target = next(
             child for child in target.children if isinstance(child, nodes.title)
         )
+    text = target.astext()
+    same = [
+        node for node in doctree.findall(_is_section_title) if node.astext() == text
+    ]
+    if len(same) > 1:
+        text += f" [{next(i for i, node in enumerate(same, 1) if node is target)}]"
     # an explicit target, such as ``(label)=``, leaves a ``target`` that points to it
-    explicit = any(node.get("refid") == refid for node in doctree.findall(nodes.target))
-    return f"{target.astext()} @{refid}" if explicit else target.astext()
+    if any(node.get("refid") == refid for node in doctree.findall(nodes.target)):
+        text += f" @{refid}"
+    return text
 
 
 def _outcome(doctree: nodes.document, warnings: str) -> str:
@@ -132,7 +153,9 @@ def test_resolution(
 ):
     """Each conformance case gives the expected outcome in both docutils and sphinx."""
     source, files = _split_files(file_params.content)
-    sphinx_only, shared, docutils_only = _parse_options(file_params.description)
+    sphinx_only, shared, docutils_only, sphinx_conf = _parse_options(
+        file_params.description
+    )
 
     if not sphinx_only:
         (tmp_path / "docutils").mkdir()
@@ -158,32 +181,17 @@ def test_resolution(
         sphinx_doctree.srcdir.joinpath(name).write_text(text, encoding="utf8")
     sphinx_doctree.set_conf(
         {
-            "extensions": ["myst_parser"],
             "myst_enable_extensions": ["section_ref"],
             # extra files are only included, not documents of their own
             "exclude_patterns": list(files),
             **shared,
+            **sphinx_conf,
         }
     )
     result = sphinx_doctree(source, "index.md")
     file_params.assert_expected(
         _outcome(result.doctrees["index"], result.warnings), rstrip_lines=True
     )
-
-
-def test_sphinx_reference_in_document_link(sphinx_doctree: CreateDoctree):
-    """A reference in the text of a link to another document stays inert.
-
-    sphinx parses such a link to a ``pending_xref`` rather than a ``reference``
-    (docutils cannot resolve it at all, so this case is sphinx-only).
-    """
-    sphinx_doctree.set_conf(
-        {"extensions": ["myst_parser"], "myst_enable_extensions": ["section_ref"]}
-    )
-    result = sphinx_doctree("# T\n\n## A\n\n[see §1](other.md)\n", "index.md")
-    doctree = result.doctrees["index"]
-    assert any(node.tagname == "pending_xref" for node in doctree.findall())
-    assert _summarise(doctree) == ([], ["§1"])
 
 
 def test_docutils_without_doctitle_promotion():
