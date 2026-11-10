@@ -76,6 +76,25 @@ class SphinxRenderer(DocutilsRenderer):
             )
         return destination
 
+    def _link_target_path(self, path: str) -> str:
+        """Return the absolute path of a file that a link points to.
+
+        Like ``BuildEnvironment.relfn2path``, a path starting with ``/`` is
+        relative to the source directory, any other is relative to the
+        directory of the current document.
+        Unlike ``relfn2path``, symlinks are not followed:
+        a document is registered under the path of the symlink,
+        so the path of its target would not be found as a document.
+        """
+        env = self.sphinx_env
+        file_path = Path(path)
+        if file_path.parts[:1] in {("/",), ("\\",)}:
+            base = env.srcdir.joinpath(*file_path.parts[1:])
+        else:
+            doc_dir = env.doc2path(env.docname, base=False).parent
+            base = env.srcdir.joinpath(doc_dir, file_path)
+        return os.path.normpath(base)
+
     def render_link_project(self, token: SyntaxTreeNode) -> None:
         destination = cast(str, token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
@@ -90,7 +109,7 @@ class SphinxRenderer(DocutilsRenderer):
         path_dest, *_path_ids = destination.split("#", maxsplit=1)
         path_id = _path_ids[0] if _path_ids else None
         explicit = (token.info != "auto") and (len(token.children or []) > 0)
-        _, abs_path = self.sphinx_env.relfn2path(path_dest, self.sphinx_env.docname)
+        abs_path = self._link_target_path(path_dest)
         docname = self.sphinx_env.path2doc(abs_path)
         if not docname:
             self.create_warning(
@@ -144,8 +163,7 @@ class SphinxRenderer(DocutilsRenderer):
 
         potential_path: Path | None = None
         if self.sphinx_env.srcdir:  # not set in some test situations
-            _, path_str = self.sphinx_env.relfn2path(path_dest, self.sphinx_env.docname)
-            potential_path = Path(path_str)
+            potential_path = Path(self._link_target_path(path_dest))
 
         if potential_path and potential_path.is_file():
             docname = self.sphinx_env.path2doc(str(potential_path))
