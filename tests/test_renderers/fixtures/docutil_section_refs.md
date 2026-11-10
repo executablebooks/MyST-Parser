@@ -15,13 +15,13 @@ Intro referencing §1, §1.1 and §2.
         Title
     <paragraph>
         Intro referencing
-        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One" section_numbers="1">
             §1
         ,
-        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One">
+        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One" section_numbers="1 1">
             §1.1
          and
-        <reference classes="section-ref" internal="True" refid="section-two" reftitle="Section Two">
+        <reference classes="section-ref" internal="True" refid="section-two" reftitle="Section Two" section_numbers="2">
             §2
         .
     <section ids="section-one" names="section\ one">
@@ -46,10 +46,10 @@ See §1 and §2.
 <document source="<src>/index.md">
     <paragraph>
         See
-        <reference classes="section-ref" internal="True" refid="first" reftitle="First">
+        <reference classes="section-ref" internal="True" refid="first" reftitle="First" section_numbers="1">
             §1
          and
-        <reference classes="section-ref" internal="True" refid="second" reftitle="Second">
+        <reference classes="section-ref" internal="True" refid="second" reftitle="Second" section_numbers="2">
             §2
         .
     <section ids="first" names="first">
@@ -80,7 +80,7 @@ Text in second.
             First
         <paragraph>
             Text in first, see
-            <reference classes="section-ref" internal="True" refid="second" reftitle="Second">
+            <reference classes="section-ref" internal="True" refid="second" reftitle="Second" section_numbers="2">
                 §2
             .
     <section ids="second" names="second">
@@ -111,7 +111,7 @@ See §9.9 which does not exist.
             Only Section
 
 
-<src>/index.md:3: (WARNING/2) Section reference target not found: '§9.9' [myst.section_ref]
+<src>/index.md:3: (WARNING/2) Section reference target not found in this document: '§9.9' [myst.section_ref]
 .
 
 [in-link-text] --myst-enable-extensions=section_ref
@@ -140,10 +140,10 @@ A link [see §1](https://example.com) leaves §1 inert, but body §2 resolves.
                 <inline classes="section-ref" section_numbers="1">
                     §1
              leaves
-            <reference classes="section-ref" internal="True" refid="one" reftitle="One">
+            <reference classes="section-ref" internal="True" refid="one" reftitle="One" section_numbers="1">
                 §1
              inert, but body
-            <reference classes="section-ref" internal="True" refid="two" reftitle="Two">
+            <reference classes="section-ref" internal="True" refid="two" reftitle="Two" section_numbers="2">
                 §2
              resolves.
 .
@@ -172,7 +172,7 @@ Body §1 resolves to the first section.
             Other
         <paragraph>
             Body
-            <reference classes="section-ref" internal="True" refid="heading-with-1-inside" reftitle="Heading with §1 inside">
+            <reference classes="section-ref" internal="True" refid="heading-with-1-inside" reftitle="Heading with §1 inside" section_numbers="1">
                 §1
              resolves to the first section.
 .
@@ -192,10 +192,10 @@ See §1 and §1.1.
         Title
     <paragraph>
         See
-        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One" section_numbers="1">
             §1
          and
-        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One">
+        <reference classes="section-ref" internal="True" refid="sub-one-one" reftitle="Sub One One" section_numbers="1 1">
             §1.1
         .
     <section ids="section-one" names="section\ one">
@@ -223,10 +223,10 @@ See §1 and §1.1.
         Subtitle
     <paragraph>
         See
-        <reference classes="section-ref" internal="True" refid="subtitle" reftitle="Subtitle">
+        <reference classes="section-ref" internal="True" refid="subtitle" reftitle="Subtitle" section_numbers="1">
             §1
          and
-        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One">
+        <reference classes="section-ref" internal="True" refid="section-one" reftitle="Section One" section_numbers="1 1">
             §1.1
         .
     <section ids="section-one" names="section\ one">

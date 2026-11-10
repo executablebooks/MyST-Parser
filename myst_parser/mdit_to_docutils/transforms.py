@@ -384,8 +384,18 @@ class ResolveAnchorIds(Transform):
 
 
 def _child_sections(node: nodes.Element) -> list[nodes.section]:
-    """Return the direct child sections of an element, in document order."""
-    return [child for child in node.children if isinstance(child, nodes.section)]
+    """Return the child sections of an element, in document order.
+
+    Sections inside a sphinx ``only`` node count, whatever its condition,
+    so that the numbering does not depend on the builder.
+    """
+    sections: list[nodes.section] = []
+    for child in node.children:
+        if isinstance(child, nodes.section):
+            sections.append(child)
+        elif child.tagname == "only":
+            sections.extend(_child_sections(child))
+    return sections
 
 
 def _number_sections(
@@ -396,7 +406,7 @@ def _number_sections(
     """Recursively assign structural numbers to sections, populating ``number_map``.
 
     The i-th (1-based) section at a level is numbered ``prefix + (i,)``, and the
-    numbering recurses into each section's direct child sections.
+    numbering recurses into each section's child sections.
     """
     for i, section in enumerate(sections, start=1):
         number = prefix + (i,)
@@ -470,9 +480,8 @@ class ResolveSectionRefs(Transform):
     # and PrioritiseExplicitIds (262), which settle each section's first id
     # (AddSlugIds (700) only appends), and strictly before docutils' DocTitle
     # (320) and SectSubTitle (350), which reshape the section tree;
-    # this is also before sphinx's DoctreeReadEvent (880), so doctree-read
-    # consumers (``env.titles``, the toctree collector) see the resolved
-    # references rather than the raw markers
+    # this is also before sphinx's DoctreeReadEvent (880), so anything that
+    # reads the body at doctree-read sees the resolved references
     default_priority = 300
 
     def apply(self, **kwargs: t.Any) -> None:
@@ -505,6 +514,7 @@ class ResolveSectionRefs(Transform):
                     internal=True,
                     refid=target["ids"][0],
                     classes=["section-ref"],
+                    section_numbers=node["section_numbers"],
                 )
                 ref += node.children
                 # add the section title as a hover tooltip (``title="..."`` in
@@ -525,7 +535,7 @@ class ResolveSectionRefs(Transform):
                 # reference was written in, which differs inside an ``{include}``
                 create_warning(
                     self.document,
-                    f"Section reference target not found: {content!r}",
+                    f"Section reference target not found in this document: {content!r}",
                     MystWarnings.SECTION_REF,
                     node=node,
                 )
