@@ -91,10 +91,9 @@ def check_url_schemes(inst: "MdParserConfig", field: dc.Field, value: Any) -> No
                 raise TypeError(
                     f"'{field.name}[{key}][title]' is not a string: {val['title']!r}"
                 )
-            if (
-                "classes" in val
-                and not isinstance(val["classes"], list)
-                and not all(isinstance(c, str) for c in val["classes"])
+            if "classes" in val and (
+                not isinstance(val["classes"], list)
+                or not all(isinstance(c, str) for c in val["classes"])
             ):
                 raise TypeError(
                     f"'{field.name}[{key}][classes]' is not a list of str: {val['classes']!r}"
