@@ -225,6 +225,29 @@ class TestUrlSchemes:
         assert warnings == []
         assert config.url_schemes == {"wiki": {"url": "https://w.org/{{path}}"}}
 
+    @pytest.mark.parametrize(
+        "classes",
+        ["my-class", ["a", 1], 1],
+        ids=["string", "non-string-item", "int"],
+    )
+    def test_classes_must_be_a_list_of_strings(self, classes):
+        """A bare string was accepted, and split into one class per character;
+        a list holding a non-string was accepted, and crashed the HTML writer.
+        """
+        with pytest.raises(TypeError, match=r"\[classes\]' is not a list of str"):
+            MdParserConfig(url_schemes={"gh": {"url": "{{path}}", "classes": classes}})
+        _config, warnings = merge(
+            {"myst": {"url_schemes": {"gh": {"url": "{{path}}", "classes": classes}}}}
+        )
+        assert len(warnings) == 1
+        assert "is not a list of str" in warnings[0]
+
+    def test_classes_list_of_strings_is_accepted(self):
+        config = MdParserConfig(
+            url_schemes={"gh": {"url": "{{path}}", "classes": ["a", "b"]}}
+        )
+        assert config.url_schemes["gh"]["classes"] == ["a", "b"]
+
 
 class TestGlobalOnlyWarningKind:
     """The global-only rejection is a ``myst.topmatter`` warning.
