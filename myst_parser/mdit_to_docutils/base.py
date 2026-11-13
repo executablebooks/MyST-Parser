@@ -270,9 +270,14 @@ class DocutilsRenderer(RendererProtocol):
     def _render_finalise(self) -> None:
         """Finalise the render of the document."""
 
+        # when sphinx parses a translation snippet (``_publish_msgstr``),
+        # the document source ends with ":<translated>";
+        # such a snippet must not overwrite the page's own metadata
+        is_translated = str(self.document["source"]).endswith(":<translated>")
+
         # save for later reference resolution
         self.document.myst_slugs = self._heading_slugs
-        if self._heading_slugs and self.sphinx_env:
+        if self._heading_slugs and self.sphinx_env and not is_translated:
             self.sphinx_env.metadata[self.sphinx_env.docname]["myst_slugs"] = (
                 self._heading_slugs
             )
@@ -302,7 +307,7 @@ class DocutilsRenderer(RendererProtocol):
         wordcount_metadata = self.md_env.get("wordcount", {})
         if wordcount_metadata:
             # save the wordcount to the sphinx BuildEnvironment metadata
-            if self.sphinx_env is not None:
+            if self.sphinx_env is not None and not is_translated:
                 meta = self.sphinx_env.metadata.setdefault(self.sphinx_env.docname, {})
                 meta["wordcount"] = wordcount_metadata
 
