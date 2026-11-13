@@ -648,6 +648,34 @@ def test_gettext_html(
 
 
 @pytest.mark.sphinx(
+    buildername="html",
+    srcdir=os.path.join(SOURCE_DIR, "translated_slugs"),
+    freshenv=True,
+    confoverrides={"language": "fr", "gettext_compact": False, "locale_dirs": ["."]},
+)
+def test_translated_local_id(
+    app,
+    status,
+    warning,
+    get_sphinx_app_output,
+):
+    """A translated snippet must not clobber the page's heading-slug metadata.
+
+    Sphinx's ``Locale`` transform parses each translated message with a new
+    document whose source ends in ``:<translated>``; when the snippet is a
+    heading (Sphinx appends an ``===`` underline to translated titles), the
+    snippet's own slugs must not replace ``env.metadata[docname]["myst_slugs"]``,
+    or local anchors in other documents stop resolving (#844).
+    """
+    app.build()
+    assert "build succeeded" in status.getvalue()  # Build succeeded
+    assert warning.getvalue().strip() == ""
+    # and the local id still resolves to the right anchor
+    output = get_sphinx_app_output(app, filename="index.html", buildername="html")
+    assert 'other.html#beta' in output
+
+
+@pytest.mark.sphinx(
     buildername="gettext",
     srcdir=os.path.join(SOURCE_DIR, "gettext"),
     freshenv=True,
