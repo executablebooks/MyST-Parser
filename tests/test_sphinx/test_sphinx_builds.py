@@ -672,7 +672,7 @@ def test_translated_local_id(
     assert warning.getvalue().strip() == ""
     # and the local id still resolves to the right anchor
     output = get_sphinx_app_output(app, filename="index.html", buildername="html")
-    assert 'other.html#beta' in output
+    assert "other.html#beta" in output
 
 
 @pytest.mark.sphinx(
