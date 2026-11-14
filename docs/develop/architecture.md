@@ -25,3 +25,19 @@ system. This parser does the following:
 * Parse markdown files with the markdown-it parser, including MyST specific plugins
 * Convert these files into docutils objects using the MyST docutils renderer
 * Provide these to Sphinx in order to use in building your site.
+
+## Extracting directive text
+
+Tools that inspect directive source without rendering it can use
+`myst_parser.parsers.directives.parse_directive_text(None, "", content)`.
+Passing `None` instead of a docutils directive class extracts arbitrary option
+names as strings, including empty flags, without applying a directive's option
+converters. Both colon-prefixed options and YAML-style option blocks are supported.
+Syntax errors still produce warnings with source locations.
+
+The result includes `options`, normalized `body` lines and `body_offset`.
+For tools that need exact source whitespace, use `body_offset` to locate the
+body in the original content rather than joining the normalized lines.
+The empty second argument means there is no body text on the directive's opening
+line. If supplied, that text is included in the body, as with a directive that
+takes no arguments.

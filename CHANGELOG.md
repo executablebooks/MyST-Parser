@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Allow `parse_directive_text(None, first_line, content)` to extract arbitrary
+  string options and body offsets without defining a docutils directive class.
+  Type the result's option values as strings in this mode, and allow arbitrary
+  converter result values when a directive class or full YAML parsing is used.
+
 ## 5.2.0 - 2026-11-10
 
 Heading anchors are now stable and documented:
