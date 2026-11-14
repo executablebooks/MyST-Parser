@@ -39,7 +39,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any
+from typing import Any, Generic, Literal, TypeVar, overload
 
 import yaml
 from docutils.parsers.rst import Directive
@@ -66,11 +66,14 @@ class ParseWarnings:
     type: MystWarnings = MystWarnings.DIRECTIVE_PARSING
 
 
+_OptionValue = TypeVar("_OptionValue")
+
+
 @dataclass
-class DirectiveParsingResult:
+class DirectiveParsingResult(Generic[_OptionValue]):
     arguments: list[str]
     """The arguments parsed from the first line."""
-    options: dict
+    options: dict[str, _OptionValue]
     """Options parsed from the YAML block."""
     body: list[str]
     """The lines of body content"""
@@ -91,17 +94,47 @@ class DirectiveParsingResult:
     """
 
 
+@overload
 def parse_directive_text(
-    directive_class: type[Directive],
+    directive_class: None,
+    first_line: str,
+    content: str,
+    *,
+    line: int | None = None,
+    validate_options: Literal[True] = True,
+    additional_options: dict[str, str] | None = None,
+) -> DirectiveParsingResult[str]: ...
+
+
+@overload
+def parse_directive_text(
+    directive_class: type[Directive] | None,
     first_line: str,
     content: str,
     *,
     line: int | None = None,
     validate_options: bool = True,
     additional_options: dict[str, str] | None = None,
-) -> DirectiveParsingResult:
+) -> DirectiveParsingResult[Any]: ...
+
+
+def parse_directive_text(
+    directive_class: type[Directive] | None,
+    first_line: str,
+    content: str,
+    *,
+    line: int | None = None,
+    validate_options: bool = True,
+    additional_options: dict[str, str] | None = None,
+) -> DirectiveParsingResult[Any]:
     """Parse (and validate) the full directive text.
 
+    :param directive_class: The directive class defining arguments and options.
+        Pass ``None`` to extract arbitrary string options without a directive
+        schema. In this mode, text on the opening line is body content, as for
+        a directive with no arguments, and body content is always allowed.
+        With ``validate_options=False``, full YAML values are returned instead,
+        as when a directive class is supplied.
     :param first_line: The text on the same line as the directive name.
         May be an argument or body text, dependent on the directive
     :param content: All text after the first line. Can include options.
@@ -119,7 +152,7 @@ def parse_directive_text(
     content_offset: int
     has_options_block: bool
 
-    if directive_class.option_spec:
+    if directive_class is None or directive_class.option_spec:
         # only look for an option block if there are possible options
         # body, options, option_errors = _parse_directive_options(
         result = _parse_directive_options(
@@ -145,7 +178,9 @@ def parse_directive_text(
         body_lines = content.splitlines()
         content_offset = 0
 
-    if not (directive_class.required_arguments or directive_class.optional_arguments):
+    if directive_class is None or not (
+        directive_class.required_arguments or directive_class.optional_arguments
+    ):
         # If there are no possible arguments, then the body can start on the argument line
         if first_line.strip():
             if has_options_block and any(body_lines):
@@ -171,7 +206,7 @@ def parse_directive_text(
         content_offset += 1
 
     # check for body content
-    if body_lines and not directive_class.has_content:
+    if directive_class is not None and body_lines and not directive_class.has_content:
         parse_warnings.append(ParseWarnings("Has content, but none permitted"))
 
     return DirectiveParsingResult(
@@ -212,7 +247,7 @@ def is_option_line(line: str) -> bool:
 
 def _parse_directive_options(
     content: str,
-    directive_class: type[Directive],
+    directive_class: type[Directive] | None,
     as_yaml: bool,
     line: int | None,
     additional_options: dict[str, str] | None = None,
@@ -221,7 +256,8 @@ def _parse_directive_options(
 
     :param content: All text after the directive's opening line,
         possibly starting with an option block
-    :param directive_class: The directive class to validate options against
+    :param directive_class: The directive class to validate options against,
+        or None to retain arbitrary string options without validation
     :param as_yaml: Whether to parse the options block with the full YAML spec,
         rather than validating against the directive's option specification
         (used by myst-nb)
@@ -358,7 +394,7 @@ def _parse_directive_options(
             return None
         return options_position + option_lines[name]
 
-    if issubclass(directive_class, TestDirective):
+    if directive_class is not None and issubclass(directive_class, TestDirective):
         # technically this directive spec only accepts one option ('option')
         # but since its for testing only we accept all options
         return _DirectiveOptions(
@@ -368,6 +404,11 @@ def _parse_directive_options(
     if additional_options:
         # The options block takes priority over additional options
         options = {**additional_options, **options}
+
+    if directive_class is None:
+        return _DirectiveOptions(
+            content, options, validation_errors, has_options_block, option_line_count
+        )
 
     # check options against spec
     options_spec: dict[str, Callable] = directive_class.option_spec

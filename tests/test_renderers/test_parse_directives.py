@@ -20,6 +20,88 @@ from myst_parser.parsers.options import (
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
+@pytest.mark.parametrize(
+    "content,expected_options,expected_body,expected_offset",
+    [
+        ("body\n", {}, ["body"], 0),
+        (
+            ':ctx: {"name": "World"}\n:custom: true\n:flag:\n\nbody\n\n\n',
+            {"ctx": '{"name": "World"}', "custom": "true", "flag": ""},
+            ["body", ""],
+            4,
+        ),
+        (
+            '---\nctx: {"name": "World"}\ncustom: true\nflag:\n---\n\nbody\n\n\n',
+            {"ctx": '{"name": "World"}', "custom": "true", "flag": ""},
+            ["body", ""],
+            6,
+        ),
+        (
+            "---\ncustom: |\n  first\n  second\n---\n\nbody\n",
+            {"custom": "first\nsecond"},
+            ["body"],
+            6,
+        ),
+        (
+            ":custom: value\n:::{note}\nbody\n:::\n",
+            {"custom": "value"},
+            [":::{note}", "body", ":::"],
+            1,
+        ),
+        (":flag:\n\n", {"flag": ""}, [], 1),
+    ],
+)
+def test_parsing_without_directive_class(
+    content: str,
+    expected_options: dict[str, str],
+    expected_body: list[str],
+    expected_offset: int,
+) -> None:
+    """Tools can extract string options without defining a directive."""
+    result = parse_directive_text(None, "", content)
+    assert result.options == expected_options
+    assert result.body == expected_body
+    assert result.body_offset == expected_offset
+    assert result.arguments == []
+    assert not result.warnings
+
+
+def test_parsing_without_directive_class_additional_options() -> None:
+    result = parse_directive_text(
+        None,
+        "",
+        ":custom: authored\n\nbody",
+        additional_options={"custom": "default", "other": "injected"},
+    )
+    assert result.options == {"custom": "authored", "other": "injected"}
+    assert not result.warnings
+
+
+def test_parsing_without_directive_class_first_line() -> None:
+    result = parse_directive_text(None, "body on opening line", "next line")
+    assert result.body == ["body on opening line", "next line"]
+    assert result.body_offset == -1
+    assert not result.warnings
+
+
+def test_parsing_without_directive_class_reports_invalid_options() -> None:
+    result = parse_directive_text(None, "", '---\ncustom: "unclosed\n---\nbody', line=5)
+    assert result.options == {}
+    assert result.body == ["body"]
+    assert len(result.warnings) == 1
+    assert result.warnings[0].lineno == 7
+
+
+def test_parsing_without_directive_class_full_yaml() -> None:
+    """The existing full-YAML mode remains available without a schema."""
+    result = parse_directive_text(
+        None, "", "---\ncustom: [1]\n---\nbody", validate_options=False
+    )
+    assert result.options == {"custom": [1]}
+    assert result.body == ["body"]
+    assert not result.warnings
+
+
 @pytest.mark.param_file(FIXTURE_PATH / "option_parsing.yaml", "yaml")
 def test_option_parsing(file_params):
     """Test parsing of directive options."""
