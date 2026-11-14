@@ -28,7 +28,11 @@ from myst_parser.parsers.docutils_ import (
     cli_xml,
     to_html5_demo,
 )
-from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.parsers.mdit import (
+    DEFAULT_SMARTQUOTES,
+    create_md_parser,
+    resolve_smartquotes,
+)
 
 
 def test_attr_to_optparse_option():
@@ -1218,3 +1222,149 @@ def test_math_inline_double_latex_no_blank_lines():
     )
     assert "\\begin{align*}" in output
     assert_no_blank_line_in_math_env(output)
+
+
+@pytest.mark.parametrize(
+    ("language_code", "smart_quotes", "locales", "expected"),
+    [
+        pytest.param(None, False, None, DEFAULT_SMARTQUOTES, id="unset"),
+        pytest.param("", False, None, DEFAULT_SMARTQUOTES, id="empty"),
+        pytest.param("   ", False, None, DEFAULT_SMARTQUOTES, id="whitespace"),
+        pytest.param("en", False, None, DEFAULT_SMARTQUOTES, id="english"),
+        pytest.param(
+            "fr",
+            False,
+            None,
+            ("\u00ab\u00a0", "\u00a0\u00bb", "\u201c", "\u201d"),
+            id="french",
+        ),
+        pytest.param(
+            "fr",
+            "alt",
+            None,
+            ("\u00ab\u202f", "\u202f\u00bb", "\u201c", "\u201d"),
+            id="french-alt",
+        ),
+        pytest.param(
+            "fr-x-altquot",
+            "alt",
+            None,
+            ("\u00ab\u00a0", "\u00a0\u00bb", "\u201c", "\u201d"),
+            id="french-alt-toggle",
+        ),
+        pytest.param(
+            "fr_CH",
+            False,
+            None,
+            ("\u00ab", "\u00bb", "\u2039", "\u203a"),
+            id="swiss-french",
+        ),
+        pytest.param(
+            "de_AT",
+            False,
+            None,
+            ("\u201e", "\u201c", "\u201a", "\u2018"),
+            id="austrian-german-fallback",
+        ),
+        pytest.param(
+            "zh_TW",
+            False,
+            None,
+            ("\u300c", "\u300d", "\u300e", "\u300f"),
+            id="traditional-chinese",
+        ),
+        pytest.param(
+            "tlh",
+            False,
+            None,
+            DEFAULT_SMARTQUOTES,
+            id="unsupported-fallback",
+        ),
+        pytest.param(
+            "fr_FR",
+            False,
+            [("fr_FR", ("<<", ">>", "<", ">")), ("", "abcd"), ("de", "bad")],
+            ("<<", ">>", "<", ">"),
+            id="custom-locale-override",
+        ),
+    ],
+)
+def test_resolve_smartquotes(language_code, smart_quotes, locales, expected):
+    """``resolve_smartquotes`` honors Docutils locale rules without mutating globals (#806)."""
+    from docutils.utils.smartquotes import smartchars
+
+    snapshot = dict(smartchars.quotes)
+    assert (
+        resolve_smartquotes(
+            language_code,
+            smart_quotes=smart_quotes,
+            smartquotes_locales=locales,
+        )
+        == expected
+    )
+    assert smartchars.quotes == snapshot
+
+
+def test_create_md_parser_invalid_quotes():
+    """``create_md_parser`` rejects quote overrides that do not specify 4 entries."""
+    with pytest.raises(ValueError, match="exactly 4 quote strings"):
+        create_md_parser(
+            MdParserConfig(enable_extensions={"smartquotes"}),
+            DocutilsRenderer,
+            quotes=("<<", ">>"),
+        )
+
+
+@pytest.mark.parametrize(
+    ("source", "settings", "expected"),
+    [
+        pytest.param(
+            'Test\'s "double" and \'single\' and "*emph*"',
+            {
+                "language_code": "fr",
+                "myst_enable_extensions": ["smartquotes"],
+            },
+            "Test\u2019s \u00ab\u00a0double\u00a0\u00bb and \u201csingle\u201d and \u00ab\u00a0emph\u00a0\u00bb",
+            id="fr-default",
+        ),
+        pytest.param(
+            '"Test"',
+            {
+                "language_code": "fr",
+                "smart_quotes": "alt",
+                "myst_enable_extensions": ["smartquotes"],
+            },
+            "\u00ab\u202fTest\u202f\u00bb",
+            id="fr-alt",
+        ),
+        pytest.param(
+            "---\nmyst:\n  enable_extensions: [smartquotes]\n---\n\"Hallo\" und 'Welt'",
+            {
+                "language_code": "de",
+            },
+            "\u201eHallo\u201c und \u201aWelt\u2018",
+            id="de-topmatter",
+        ),
+        pytest.param(
+            "\"Custom\" and 'quote'",
+            {
+                "language_code": "de",
+                "smartquotes_locales": [("de", ("[", "]", "{", "}"))],
+                "myst_enable_extensions": ["smartquotes"],
+            },
+            "[Custom] and {quote}",
+            id="custom-locales",
+        ),
+    ],
+)
+def test_docutils_smartquotes_localized(source, settings, expected):
+    """Docutils ``Parser`` localizes MyST ``smartquotes`` using document settings (#806)."""
+    doctree = publish_doctree(
+        source=source,
+        parser=Parser(),
+        settings_overrides={
+            "warning_stream": io.StringIO(),
+            **settings,
+        },
+    )
+    assert doctree.astext() == expected
