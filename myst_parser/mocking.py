@@ -10,13 +10,13 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from docutils import nodes
+from docutils import frontend, nodes
 from docutils.parsers.rst import Directive, DirectiveError
 from docutils.parsers.rst import Parser as RSTParser
 from docutils.parsers.rst.directives.misc import Include
 from docutils.parsers.rst.states import Body, Inliner, RSTStateMachine
 from docutils.statemachine import StringList
-from docutils.utils import unescape
+from docutils.utils import new_document, unescape
 from markdown_it.rules_inline import StateInline
 
 from .parsers.directives import MarkupError, is_option_line, parse_directive_text
@@ -641,6 +641,8 @@ class MockIncludeDirective:
                 state_machine=state_machine,
             )
             return codeblock.run()
+        if "parser" in self.options:
+            return self._custom_parse(file_content, path)
 
         # Here we perform a nested render, but temporarily setup the document/reporter
         # with the correct document path and lineno for the included file.
@@ -679,6 +681,31 @@ class MockIncludeDirective:
             else:
                 del self.renderer.reporter.get_source_and_line
         return []
+
+    def _custom_parse(self, text: str, path: Path) -> list[nodes.Element]:
+        """Parse the included text with the parser given by the ``parser`` option.
+
+        As for the docutils ``include`` directive, the text is parsed into a new
+        (dummy) document, the parser's default transforms are applied,
+        and the resulting child nodes are returned.
+        """
+        parser = self.options["parser"]()
+        settings = frontend.get_default_settings(parser)
+        # update with the current document settings
+        for key, value in self.document.settings.__dict__.items():
+            setattr(settings, key, value)
+        document = new_document(str(path), settings)
+        document.include_log = getattr(self.document, "include_log", [])
+        document.ids = self.document.ids
+        document.nameids = self.document.nameids
+        document.nametypes = self.document.nametypes
+        parser.parse(text, document)
+        self.document.parse_messages.extend(document.parse_messages)
+        # clean up doctree and complete parsing
+        document.transformer.populate_from_components((parser,))
+        document.transformer.apply_transforms()
+        self.document.transform_messages.extend(document.transform_messages)
+        return document.children
 
     def add_name(self, node: nodes.Element):
         """Append self.options['name'] to node['names'] if it exists.

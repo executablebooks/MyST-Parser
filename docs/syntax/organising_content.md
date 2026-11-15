@@ -138,6 +138,7 @@ to make it relative to the location that it is being inserted:
 
 Additional options:
 :encoding: The text encoding of the external file
+:parser: Parse the included file with this parser (e.g. `rst`), instead of as MyST Markdown
 
 ::::{admonition} Including to/from reStructuredText files
 :class: tip dropdown
