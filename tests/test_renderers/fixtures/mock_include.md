@@ -64,3 +64,18 @@ Include code:
             
         c
 .
+
+Include with parser:
+.
+```{include} other.rst
+:parser: rst
+```
+.
+<document source="tmpdir/test.md">
+    <paragraph>
+        <emphasis>
+            a
+    <note>
+        <paragraph>
+            b
+.

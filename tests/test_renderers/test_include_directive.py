@@ -16,6 +16,7 @@ def test_render(file_params, tmp_path, monkeypatch, normalize_doctree_xml):
 
     tmp_path.joinpath("other.md").write_text("a\nb\nc")
     tmp_path.joinpath("fmatter.md").write_text("---\na: 1\n---\nb")
+    tmp_path.joinpath("other.rst").write_text("*a*\n\n.. note:: b")
 
     doctree = publish_doctree(
         file_params.content,
