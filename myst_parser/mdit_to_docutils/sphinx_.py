@@ -80,7 +80,7 @@ class SphinxRenderer(DocutilsRenderer):
         destination = cast(str, token.attrGet("href") or "")
         destination = destination.removeprefix("project:")
         if destination.startswith("#"):
-            return self.render_link_anchor(token, destination)
+            return self.render_link_anchor(token, destination, project_only=True)
 
         if not self.sphinx_env.srcdir:  # not set in some test situations
             return self.render_link_url(token)

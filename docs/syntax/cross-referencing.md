@@ -145,7 +145,7 @@ By default, MyST will resolve link destinations according to the following rules
 1. Destination beginning with a scheme (e.g. `xxx:`), will be handled according to that scheme:
 
    {style=lower-roman}
-   1. Destinations beginning with `project:` will be treated as internal references
+   1. Destinations beginning with `project:` will be treated as internal references, and are not matched against intersphinx inventories
    2. Destinations beginning with `path:` will be treated as downloadable files
    3. Destinations beginning with `inv:` will be treated as intersphinx references
    4. Autolinks or destinations beginning with  `http:`, `https:`, `ftp:`, or `mailto:` will be treated as external [URL] links.

@@ -109,9 +109,9 @@ class MystReferenceResolver(ReferencesResolver):
                 )
             except NoUri:
                 newnode = contnode
-            if newnode is None:
-                # If no local domain could resolve the reference, try to
-                # resolve it as an inter-sphinx reference
+            if newnode is None and node.get("myst_scope") != "project":
+                # A plain `#` link may match an intersphinx inventory.
+                # `project:` is an internal reference; `inv:` is the inventory scheme.
                 newnode = self._resolve_myst_ref_intersphinx(
                     node, contnode, target, search_domains
                 )

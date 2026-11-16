@@ -285,6 +285,9 @@ class ResolveAnchorIds(Transform):
 
             target = refnode["refuri"][1:]
             del refnode["refuri"]
+            project_only = refnode.get("myst_scope") == "project"
+            if "myst_scope" in refnode:
+                del refnode["myst_scope"]
 
             # search explicit first
             if target in explicit:
@@ -356,6 +359,8 @@ class ResolveAnchorIds(Transform):
                     pending["reflocalid"] = labelid
                 if "reftitle" in refnode:
                     pending["reftitle"] = refnode["reftitle"]
+                if project_only:
+                    pending["myst_scope"] = "project"
                 inner_node = nodes.inline(
                     "", "", classes=["xref", "myst"] + refnode["classes"]
                 )
