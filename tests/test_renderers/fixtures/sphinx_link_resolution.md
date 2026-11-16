@@ -30,7 +30,7 @@
         <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst">
             <inline classes="xref myst">
 
-        <pending_xref refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst">
+        <pending_xref myst_scope="project" refdoc="index" refdomain="True" refexplicit="False" reftarget="test" reftype="myst">
             <inline classes="xref myst">
 
         <pending_xref refdoc="index" refdomain="True" refexplicit="True" reftarget="test" reftype="myst">

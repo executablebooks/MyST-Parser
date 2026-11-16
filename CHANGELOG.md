@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### ‼️ Upgrade notes
+
+- **`project:` references** (<gh-issue:1235>): a `project:` target that is missing from the current project now warns (`myst.xref_missing`) instead of being resolved against an intersphinx inventory. Use `inv:` for an inventory target. A plain `#target` link is unchanged and can still match an inventory.
+
+### 🐛 Bug Fixes
+
+- 🐛 Keep a `project:` reference inside the current project (<gh-issue:1235>)
+
 ## 5.2.0 - 2026-11-10
 
 Heading anchors are now stable and documented:

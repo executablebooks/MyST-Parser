@@ -1116,14 +1116,20 @@ class DocutilsRenderer(RendererProtocol):
         )
         return self.render_link_url(token)
 
-    def render_link_anchor(self, token: SyntaxTreeNode, target: str) -> None:
+    def render_link_anchor(
+        self, token: SyntaxTreeNode, target: str, *, project_only: bool = False
+    ) -> None:
         """Render link token like `[text](#target)`, to a local target.
 
         :target: the target id, e.g. `#target`
+        :project_only: the reference came from the ``project:`` scheme,
+            so it stays inside this project
         """
         ref_node = nodes.reference()
         self.add_line_and_source_path(ref_node, token)
         ref_node["id_link"] = True
+        if project_only:
+            ref_node["myst_scope"] = "project"
         ref_node["refuri"] = self.md.normalizeLinkText(target)
         self.copy_attributes(
             token, ref_node, ("class", "id", "reftitle"), aliases={"title": "reftitle"}
