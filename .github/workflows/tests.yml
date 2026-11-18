@@ -66,6 +66,26 @@ jobs:
     #     file: ./coverage.xml
     #     fail_ci_if_error: true
 
+  # This uses a different job to allow failures
+  test-sphinx-upstream:
+    runs-on: ubuntu-latest
+
+    name: "pytest: py3, sphinx master, on ubuntu-latest"
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python 3
+      uses: actions/setup-python@v6
+      with:
+        python-version: 3
+        allow-prereleases: true
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[linkify,testing]" "sphinx @ git+https://github.com/sphinx-doc/sphinx.git"
+    - name: Run pytest
+      run: pytest
+
   check-myst-docutils:
 
     name: Check myst-docutils install
