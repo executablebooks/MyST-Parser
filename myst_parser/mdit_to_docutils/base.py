@@ -1888,6 +1888,12 @@ class DocutilsRenderer(RendererProtocol):
             if node["names"]:
                 self.document.note_explicit_target(node, node)
         self.current_node.extend(newdoc.children)
+        # ``extend`` only re-parents the direct children, so point every nested node
+        # at the real document, not the temporary one (which shares the ``settings.env``
+        # that Sphinx strips from its own copy of the settings before pickling the doctree)
+        for node in newdoc.children:
+            for descendant in node.findall(nodes.Element):
+                descendant.document = self.document
 
     def render_directive(
         self,
