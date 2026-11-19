@@ -71,6 +71,36 @@ def test_parse(
     file_regression.check(outcome, basename=test_name, extension=".xml")
 
 
+@pytest.mark.parametrize("term", ["example term", "café term"])
+def test_glossary_link_caption(term: str, sphinx_doctree: CreateDoctree) -> None:
+    """Render an implicit glossary caption as text and keep authored code."""
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree(
+        f"""\
+# Glossary
+
+```{{glossary}}
+{term}
+  An example definition.
+```
+
+[](<#{term}>)
+
+{{term}}`{term}`
+
+[`{term}`](<#{term}>)
+""",
+        "index.md",
+    )
+    doctree = result.get_resolved_doctree("index")
+    assert not result.warnings, result.warnings
+    refs = list(doctree.findall(nodes.reference))
+    term_id = next(doctree.findall(nodes.term))["ids"][0]
+    assert [ref["refid"] for ref in refs] == [term_id] * 3
+    assert [ref.astext() for ref in refs] == [term] * 3
+    assert [any(ref.findall(nodes.literal)) for ref in refs] == [False, False, True]
+
+
 def test_project_resolution_beats_local_implicit(sphinx_doctree: CreateDoctree):
     """`[](#name)` prefers project-wide targets over local implicit names.
 
