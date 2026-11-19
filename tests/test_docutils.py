@@ -274,6 +274,23 @@ def test_field_list_body_source_line():
     assert bodies[0].line  # a real line, not 0/None
 
 
+def test_eval_rst_nested_nodes_belong_to_document():
+    """Nodes created inside an ``{eval-rst}`` block must point at the real document.
+
+    Regression: the block is parsed into a temporary document sharing the page's
+    settings, and only the direct children were re-parented when it was merged, so
+    deeper nodes kept ``.document`` set to the temporary document. Sphinx removes
+    ``settings.env`` from its own copy of the settings before pickling a doctree, but
+    not from the temporary document's settings, so those nodes dragged the whole
+    ``BuildEnvironment`` into the pickled doctree.
+    """
+    source = "```{eval-rst}\n* item one\n\n  * nested item\n\n    paragraph\n```\n"
+    doctree = publish_doctree(source=source, parser=Parser())
+    elements = list(doctree.findall(nodes.Element))
+    assert any(isinstance(node, nodes.list_item) for node in elements)
+    assert [node.tagname for node in elements if node.document is not doctree] == []
+
+
 def test_linkify_disabled_without_linkify_it_py(monkeypatch):
     """Enabling ``linkify`` without ``linkify-it-py`` warns and disables it.
 
