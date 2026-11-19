@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- 🐛 Render implicit glossary link captions as plain text (<gh-issue:984>).
+
 ## 5.2.0 - 2026-11-10
 
 Heading anchors are now stable and documented:
