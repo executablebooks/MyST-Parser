@@ -93,7 +93,7 @@ mypy = [
     "mdit-py-plugins~=0.7.0",
     "sphinx-syntax-example~=0.2.0",
 ]
-ruff = ["ruff==0.17.4"]
+ruff = ["ruff==0.17.6"]
 
 [project.scripts]
 myst-anchors = "myst_parser.cli:print_anchors"
