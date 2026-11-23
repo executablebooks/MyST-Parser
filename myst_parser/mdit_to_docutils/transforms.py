@@ -15,6 +15,84 @@ from myst_parser.mdit_to_docutils.base import clean_astext
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 
+class RegisterIncludedFootnotes(Transform):
+    """Register footnotes parsed in an included document with the host.
+
+    An rST ``include`` with ``:parser: myst_parser.sphinx_`` parses Markdown
+    into a temporary document. Its nodes are inserted into the host, but the
+    footnote registries are not. Register those nodes before docutils numbers
+    the host's footnotes, so references and numbering work across the include.
+    """
+
+    default_priority = Footnotes.default_priority - 3
+
+    def apply(self, **kwargs: t.Any) -> None:
+        document = self.document
+        ordered = list(
+            document.findall(
+                lambda node: isinstance(
+                    node, (nodes.footnote, nodes.footnote_reference)
+                )
+            )
+        )
+        footnote_ids = {
+            id(node) for node in document.autofootnotes + document.footnotes
+        }
+        reference_ids = {id(node) for node in document.autofootnote_refs}
+        reference_ids.update(
+            id(node) for refs in document.footnote_refs.values() for node in refs
+        )
+        changed = False
+        for node in ordered:
+            if not getattr(node, "_myst_footnote", False):
+                continue
+            if isinstance(node, nodes.footnote):
+                if id(node) in footnote_ids:
+                    continue
+                changed = True
+                # docutils < 0.22 does not share IDs with the host when parsing
+                # an include; replace an ID if the host has already used it.
+                if any(
+                    node_id in document.ids and document.ids[node_id] is not node
+                    for node_id in node["ids"]
+                ):
+                    node["ids"] = []
+                if not any(
+                    document.ids.get(node_id) is node for node_id in node["ids"]
+                ):
+                    document.note_explicit_target(node, node)
+                if node.get("auto") == 1:
+                    document.note_autofootnote(node)
+                else:
+                    document.note_footnote(node)
+            else:
+                if id(node) in reference_ids or node.resolved or "refid" in node:
+                    continue
+                changed = True
+                if any(
+                    node_id in document.ids and document.ids[node_id] is not node
+                    for node_id in node["ids"]
+                ):
+                    node["ids"] = []
+                if node.get("auto") == 1:
+                    document.note_autofootnote_ref(node)
+                if "refname" in node:
+                    document.note_footnote_ref(node)
+
+        if changed:
+            # Existing host entries were registered before included nodes. Restore
+            # document order so numbering remains correct on both sides of an include.
+            order = {id(node): index for index, node in enumerate(ordered)}
+            for name in (
+                "autofootnotes",
+                "footnotes",
+                "autofootnote_refs",
+            ):
+                getattr(document, name).sort(
+                    key=lambda node: order.get(id(node), len(order))
+                )
+
+
 class UnreferencedFootnotesDetector(Transform):
     """Detect unreferenced footnotes and emit warnings.
 

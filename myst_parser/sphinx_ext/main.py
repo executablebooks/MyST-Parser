@@ -8,7 +8,10 @@ from sphinx.transforms import (
     UnreferencedFootnotesDetector as SphinxUnreferencedFootnotesDetector,
 )
 
-from myst_parser.mdit_to_docutils.transforms import UnreferencedFootnotesDetector
+from myst_parser.mdit_to_docutils.transforms import (
+    RegisterIncludedFootnotes,
+    UnreferencedFootnotesDetector,
+)
 from myst_parser.parsers.docutils_ import (
     depart_container_html,
     visit_container_html,
@@ -56,6 +59,7 @@ def setup_sphinx(app: Sphinx, load_parser: bool = False) -> None:
     # but once this PR is merged/released, we should remove this
     app.registry.transforms.remove(SphinxUnreferencedFootnotesDetector)
     app.add_transform(UnreferencedFootnotesDetector)
+    app.add_transform(RegisterIncludedFootnotes)
 
     app.add_post_transform(MystReferenceResolver)
 

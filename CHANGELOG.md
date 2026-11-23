@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+- Fix Sphinx footnotes in Markdown included from reStructuredText with `:parser: myst_parser.sphinx_`, including references across the include.
+
 ## 5.2.0 - 2026-11-10
 
 Heading anchors are now stable and documented:
