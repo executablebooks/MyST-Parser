@@ -282,6 +282,29 @@ def test_doc_with_missing_target_link_text(sphinx_doctree: CreateDoctree):
     assert ref["refuri"].endswith("#missing-id"), ref.attributes
 
 
+def test_unresolved_target_degrades_to_external_link(sphinx_doctree: CreateDoctree):
+    """`[text](missing.md)` warns once and degrades to an external link.
+
+    Regression test: unresolved references were emitted with a ``refid``,
+    which HTML writers render as a local fragment link
+    (``href="#missing.md"``); the documented fallback is an external link
+    that keeps the authored destination.
+    """
+    from docutils import nodes as docutils_nodes
+
+    sphinx_doctree.set_conf({"extensions": ["myst_parser"]})
+    result = sphinx_doctree("# Index\n\n[broken](missing.md)\n", "index.md")
+    doctree = result.get_resolved_doctree("index")
+    warnings = [line for line in result.warnings.splitlines() if line.strip()]
+    assert len(warnings) == 1, result.warnings
+    assert "'myst' cross-reference target not found: 'missing.md'" in warnings[0]
+    assert "[myst.xref_missing]" in warnings[0]
+    ref = next(doctree.findall(docutils_nodes.reference))
+    assert not ref.get("refid"), ref.attributes
+    assert ref.get("refuri") == "missing.md", ref.attributes
+    assert ref.astext() == "broken", ref.pformat()
+
+
 @pytest.mark.parametrize(
     "test_name,text",
     [

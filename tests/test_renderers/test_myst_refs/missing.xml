@@ -1,6 +1,6 @@
 <document source="root/index.md">
     <paragraph>
-        <reference refid="ref">
+        <reference refuri="ref">
             <literal classes="xref myst">
                 ref
 
