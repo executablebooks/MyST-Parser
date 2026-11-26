@@ -306,8 +306,13 @@ class MystReferenceResolver(ReferencesResolver):
                 if key in stddomain.objects:
                     docname, labelid = stddomain.objects[key]
                     domain_role = "std:" + (stddomain.role_for_objtype(objtype) or "")
+                    innernode = contnode
+                    if objtype == "term" and not node["refexplicit"]:
+                        innernode = nodes.inline(
+                            target, target, classes=contnode["classes"]
+                        )
                     ref_node = make_refnode(
-                        self.app.builder, refdoc, docname, labelid, contnode
+                        self.app.builder, refdoc, docname, labelid, innernode
                     )
                     results.append((domain_role, ref_node))
 
