@@ -12,6 +12,7 @@ import pytest
 from docutils import __version_info__ as docutils_version
 from docutils import nodes
 from docutils.core import publish_doctree, publish_string
+from docutils.writers.html5_polyglot import Writer as HTML5Writer
 from docutils.writers.latex2e import Writer as LatexWriter
 from markdown_it.token import Token
 
@@ -92,7 +93,7 @@ def test_parsed_literal_hard_break_is_a_line_ending():
     output = publish_string(
         source,
         parser=Parser(),
-        writer="html5",
+        writer=HTML5Writer(),
         settings_overrides={"output_encoding": "unicode"},
     )
     assert "alpha <em>em</em>\nbeta</pre>" in output
@@ -110,7 +111,7 @@ def test_hard_break_outside_a_parsed_literal_is_unchanged():
     output = publish_string(
         source,
         parser=Parser(),
-        writer="html5",
+        writer=HTML5Writer(),
         settings_overrides={"output_encoding": "unicode"},
     )
     assert "<p>alpha<br />\nbeta</p>" in output
