@@ -307,6 +307,139 @@ a
             attribution
 .
 
+[epigraph-two-attributions] (each attribution ends one block quote, and nothing after the first is dropped):
+.
+```{epigraph}
+First quote.
+
+-- First Who
+
+Second quote.
+
+-- Second Who
+
+Trailing paragraph.
+```
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <paragraph>
+            First quote.
+        <attribution>
+            First Who
+    <block_quote classes="epigraph">
+        <paragraph>
+            Second quote.
+        <attribution>
+            Second Who
+    <block_quote classes="epigraph">
+        <paragraph>
+            Trailing paragraph.
+.
+
+[epigraph-unindented-continuation] (an attribution's continuation line need not be indented):
+.
+```{epigraph}
+Quote.
+
+--- Who,
+of Somewhere
+```
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <paragraph>
+            Quote.
+        <attribution>
+            Who,
+
+            of Somewhere
+.
+
+[epigraph-bad-continuation] (continuation lines that disagree on their indent are not an attribution):
+.
+```{epigraph}
+Quote.
+
+-- Who
+  line two
+line three
+```
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <paragraph>
+            Quote.
+        <paragraph>
+            -- Who
+
+            line two
+
+            line three
+.
+
+[epigraph-fence] (a line inside a code fence does not start an attribution):
+.
+````{epigraph}
+```text
+code
+
+-- inside the fence
+```
+
+-- After Fence
+````
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <literal_block classes="code text" xml:space="preserve">
+            code
+            
+            -- inside the fence
+        <attribution>
+            After Fence
+.
+
+[epigraph-blank-before-closer] (a blank line after the last attribution makes no empty block quote):
+.
+```{epigraph}
+Quote.
+
+-- Who
+
+```
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <paragraph>
+            Quote.
+        <attribution>
+            Who
+.
+
+[epigraph-fence-in-list-item] (a fence left open in a list item closes with the item):
+.
+````{epigraph}
+- item
+  ```
+  code
+
+-- List Who
+````
+.
+<document source="notset">
+    <block_quote classes="epigraph">
+        <bullet_list bullet="-">
+            <list_item>
+                <paragraph>
+                    item
+                <literal_block classes="code" xml:space="preserve">
+                    code
+                    
+        <attribution>
+            List Who
+.
+
 [highlights] (`docutils.parsers.rst.directives.body.Highlights`):
 .
 ```{highlights}
