@@ -82,6 +82,40 @@ def test_parsed_literal_whitespace_preserves_delimiter_boundaries():
     assert not list(literal.findall(nodes.emphasis))
 
 
+def test_parsed_literal_hard_break_is_a_line_ending():
+    """A hard break in a parsed literal draws one line ending, not two.
+
+    The literal block's own newline is already a line break in every writer,
+    so a raw ``<br />`` beside it would add an empty line to the listing.
+    """
+    source = "\n".join(["```{parsed-literal}", "alpha *em*\\", "beta", "```", ""])
+    output = publish_string(
+        source,
+        parser=Parser(),
+        writer="html5",
+        settings_overrides={"output_encoding": "unicode"},
+    )
+    assert "alpha <em>em</em>\nbeta</pre>" in output
+    assert "<br" not in output
+
+    document = publish_doctree(source, parser=Parser())
+    literal = next(document.findall(nodes.literal_block))
+    assert literal.astext() == "alpha em\nbeta"
+    assert not list(literal.findall(nodes.raw))
+
+
+def test_hard_break_outside_a_parsed_literal_is_unchanged():
+    """A hard break in a paragraph still renders as ``<br />``."""
+    source = "\n".join(["```{parsed-literal}", "a", "```", "", "alpha\\", "beta", ""])
+    output = publish_string(
+        source,
+        parser=Parser(),
+        writer="html5",
+        settings_overrides={"output_encoding": "unicode"},
+    )
+    assert "<p>alpha<br />\nbeta</p>" in output
+
+
 def test_cli_html(monkeypatch, capsys):
     monkeypatch.setattr("sys.stdin", io.TextIOWrapper(io.BytesIO(b"text")))
     cli_html([])

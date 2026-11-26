@@ -237,6 +237,25 @@ bar
         bar
 .
 
+[parsed-literal-hard-break] (a hard break is the line ending, with no raw `<br />` node):
+.
+```{parsed-literal}
+foo\
+bar *em\
+baz*
+```
+.
+<document source="notset">
+    <literal_block xml:space="preserve">
+        foo
+
+        bar
+        <emphasis>
+            em
+
+            baz
+.
+
 [parsed-literal-following-paragraph] (the block keeps its indent; a nested paragraph parsed after it still collapses):
 .
 ```{parsed-literal}
