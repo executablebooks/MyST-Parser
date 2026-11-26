@@ -1655,6 +1655,8 @@ class DocutilsRenderer(RendererProtocol):
         target = token.meta["label"]
 
         refnode = nodes.footnote_reference(f"[^{target}]")
+        if getattr(self.document, "_myst_included_by_rst", False):
+            refnode._myst_footnote = True
         self.add_line_and_source_path(refnode, token)
         if target.isdigit():
             # a manually numbered footnote, similar to rST ``[1]_``
@@ -1695,6 +1697,8 @@ class DocutilsRenderer(RendererProtocol):
             return
 
         footnote = nodes.footnote()
+        if getattr(self.document, "_myst_included_by_rst", False):
+            footnote._myst_footnote = True
         self.add_line_and_source_path(footnote, token)
         footnote["names"].append(target)
         if target.isdigit():

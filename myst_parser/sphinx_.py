@@ -6,4 +6,14 @@ For example::
       :parser: myst_parser.sphinx_
 """
 
-from myst_parser.parsers.sphinx_ import MystParser as Parser  # noqa: F401
+from docutils import nodes
+
+from myst_parser.parsers.sphinx_ import MystParser
+
+
+class Parser(MystParser):
+    """MyST parser for an rST ``include`` directive using Sphinx."""
+
+    def parse(self, inputstring: str, document: nodes.document) -> None:
+        document._myst_included_by_rst = True
+        super().parse(inputstring, document)
