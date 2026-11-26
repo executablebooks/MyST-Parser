@@ -147,7 +147,7 @@ class MystReferenceResolver(ReferencesResolver):
             # if the target could not be found, then default to using an external link
             if not newnode:
                 newnode = nodes.reference()
-                newnode["refid"] = normalizeLink(target)
+                newnode["refuri"] = normalizeLink(target)
                 newnode.append(node[0].deepcopy())
 
             # ensure the output node has some content

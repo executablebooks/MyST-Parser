@@ -123,12 +123,12 @@
                 #
         <paragraph>
             Unknown 
-            <reference refid="unknown">
+            <reference refuri="unknown">
                 <literal classes="xref myst">
                     unknown
         <paragraph>
             Unknown explicit 
-            <reference refid="unknown">
+            <reference refuri="unknown">
                 <inline classes="xref myst">
                     <strong>
                         hallo
