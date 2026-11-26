@@ -248,6 +248,10 @@ class MockState:
 
     # U+2014 is an em-dash:
     attribution_pattern = re.compile("^((?:---?(?!-)|\u2014) *)(.+)")
+    # the opening (or closing) line of a code or directive fence
+    _fence_pattern = re.compile("^ {0,3}(`{3,}|~{3,}|:{3,})")
+    # the opening line of a list item: its indent, marker and the spaces after it
+    _list_item_pattern = re.compile("^( *)([-*+]|[0-9]{1,9}[.)])( +)\\S")
 
     def block_quote(self, lines: list[str], line_offset: int) -> list[nodes.Element]:
         """Parse a block quote, which is a block of text,
@@ -258,51 +262,151 @@ class MockState:
            No matter where you go, there you are.
 
            -- Buckaroo Banzai
+
+        As docutils' ``Body.block_quote``, each attribution ends one block quote,
+        and the lines after it start the next one, so no line is dropped.
         """
-        elements = []
-        # split attribution
-        last_line_blank = False
-        blockquote_lines = lines
-        attribution_lines = []
-        attribution_line_offset = None
-        # First line after a blank line must begin with a dash
-        for i, line in enumerate(lines):
-            if not line.strip():
-                last_line_blank = True
-                continue
-            if not last_line_blank:
-                last_line_blank = False
-                continue
-            last_line_blank = False
-            match = self.attribution_pattern.match(line)
-            if not match:
-                continue
-            attribution_line_offset = i
-            attribution_lines = [match.group(2)]
-            for at_line in lines[i + 1 :]:
-                indented_line = at_line[len(match.group(1)) :]
-                if len(indented_line) != len(at_line.lstrip()):
-                    break
-                attribution_lines.append(indented_line)
-            blockquote_lines = lines[:i]
-            break
-        # parse block
-        blockquote = nodes.block_quote()
-        self.nested_parse(blockquote_lines, line_offset, blockquote)
-        elements.append(blockquote)
-        # parse attribution
-        if attribution_lines:
-            attribution_text = "\n".join(attribution_lines)
-            lineno = self._lineno + line_offset + (attribution_line_offset or 0)
-            textnodes, messages = self.inline_text(attribution_text, lineno)
-            attribution = nodes.attribution(attribution_text, "", *textnodes)
+        elements: list[nodes.Element] = []
+        while lines:
             (
-                attribution.source,
-                attribution.line,
-            ) = self.state_machine.get_source_and_line(lineno)
-            blockquote += attribution
-            elements += messages
+                blockquote_lines,
+                attribution_lines,
+                attribution_offset,
+                lines,
+                new_line_offset,
+            ) = self.split_attribution(lines, line_offset)
+            blockquote = nodes.block_quote()
+            self.nested_parse(blockquote_lines, line_offset, blockquote)
+            elements.append(blockquote)
+            if attribution_lines:
+                attribution_text = "\n".join(attribution_lines)
+                lineno = self._lineno + line_offset + (attribution_offset or 0)
+                textnodes, messages = self.inline_text(attribution_text, lineno)
+                attribution = nodes.attribution(attribution_text, "", *textnodes)
+                (
+                    attribution.source,
+                    attribution.line,
+                ) = self.state_machine.get_source_and_line(lineno)
+                blockquote += attribution
+                elements += messages
+            line_offset = new_line_offset
+            # as docutils, skip the blank lines that start the remainder
+            while lines and not lines[0].strip():
+                lines = lines[1:]
+                line_offset += 1
         return elements
+
+    def split_attribution(
+        self, lines: list[str], line_offset: int
+    ) -> tuple[list[str], list[str], int | None, list[str], int]:
+        """Split off the first attribution of a block quote's lines,
+        as docutils' ``Body.split_attribution`` does.
+
+        The first line after a blank line, following some body, that begins
+        with a dash marker starts an attribution; its continuation lines run to
+        the next blank line and must share one indent (which may be none).
+        A line inside a code or directive fence never starts an attribution.
+
+        :returns: (blockquote lines, attribution lines, attribution offset,
+            remaining lines, line offset of the remaining lines)
+        """
+        blank: int | None = None
+        nonblank_seen = False
+        # the open fence's marker run, and the indent a line needs to stay in
+        # its container (a fence left open closes with its list item)
+        fence: str | None = None
+        fence_container = 0
+        colon_fence = "colon_fence" in self._renderer.md_config.enable_extensions
+        for i, line in enumerate(lines):
+            fence_match = self._fence_pattern.match(line)
+            if fence_match and fence_match.group(1)[0] == ":" and not colon_fence:
+                fence_match = None
+            indent = len(line) - len(line.lstrip(" "))
+            if fence is not None and line.strip() and indent < fence_container:
+                fence = None
+            if fence is not None:
+                if not line.strip():
+                    blank = i
+                    continue
+                if (
+                    fence_match
+                    and fence_match.group(1)[0] == fence[0]
+                    and len(fence_match.group(1)) >= len(fence)
+                    and not line.strip().strip(fence[0])
+                ):
+                    fence = None
+                nonblank_seen = True
+                continue
+            if not line.strip():
+                blank = i
+                continue
+            if fence_match:
+                fence = fence_match.group(1)
+                fence_container = self._list_item_content_indent(lines, i, indent)
+                nonblank_seen = True
+                continue
+            if nonblank_seen and blank == i - 1:
+                match = self.attribution_pattern.match(line)
+                if match:
+                    attribution_end, at_indent = self.check_attribution(lines, i)
+                    if attribution_end:
+                        attribution_lines = [match.group(2)] + [
+                            a_line[at_indent:]
+                            for a_line in lines[i + 1 : attribution_end]
+                        ]
+                        return (
+                            lines[:i],
+                            attribution_lines,
+                            i,
+                            lines[attribution_end:],
+                            line_offset + attribution_end,
+                        )
+            nonblank_seen = True
+        return lines, [], None, [], line_offset + len(lines)
+
+    def _list_item_content_indent(
+        self, lines: list[str], index: int, indent: int
+    ) -> int:
+        """The content indent of the list item the line at ``index`` sits in,
+        or 0 when it sits at the quote's own level.
+        """
+        for line in reversed(lines[:index]):
+            if line.strip() and len(line) - len(line.lstrip(" ")) < indent:
+                match = self._list_item_pattern.match(line)
+                if not match:
+                    return 0
+                spaces = len(match.group(3))
+                content = (
+                    len(match.group(1))
+                    + len(match.group(2))
+                    + (1 if spaces > 4 else spaces)
+                )
+                return content if content <= indent else 0
+        return 0
+
+    def check_attribution(
+        self, lines: list[str], attribution_start: int
+    ) -> tuple[int | None, int | None]:
+        """Check the attribution shape, as docutils' ``Body.check_attribution``:
+        the continuation lines must share one indent.
+
+        :returns: (index of the line after the attribution, indent),
+            or (None, None) for a bad shape
+        """
+        indent = None
+        i = attribution_start + 1
+        for i in range(attribution_start + 1, len(lines)):
+            line = lines[i].rstrip()
+            if not line:
+                break
+            if indent is None:
+                indent = len(line) - len(line.lstrip())
+            elif len(line) - len(line.lstrip()) != indent:
+                return None, None  # bad shape; not an attribution
+        else:
+            # return index of line after last attribution line:
+            i += 1
+        return i, (indent or 0)
 
     def build_table(self, tabledata, tableline, stub_columns: int = 0, widths=None):
         return Body.build_table(self, tabledata, tableline, stub_columns, widths)
