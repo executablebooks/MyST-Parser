@@ -49,6 +49,7 @@ from myst_parser import inventory
 from myst_parser._compat import findall
 from myst_parser.config.main import MdParserConfig, UrlSchemeType
 from myst_parser.mocking import (
+    _PRESERVE_LINE_EDGE_WHITESPACE,
     MockIncludeDirective,
     MockingError,
     MockInliner,
@@ -611,6 +612,12 @@ class DocutilsRenderer(RendererProtocol):
         self.current_node.append(nodes.Text("\n"))
 
     def render_hardbreak(self, token: SyntaxTreeNode) -> None:
+        if self.md_env.get(_PRESERVE_LINE_EDGE_WHITESPACE):
+            # inside a literal block (a parsed-literal), the line ending is
+            # already a line break in every writer, so a raw break beside it
+            # would draw a second one: an empty line in the listing
+            self.current_node.append(nodes.Text("\n"))
+            return
         self.current_node.append(nodes.raw("", "<br />\n", format="html"))
         self.current_node.append(nodes.raw("", "\\\\\n", format="latex"))
 
