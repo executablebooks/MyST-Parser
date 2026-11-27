@@ -22,7 +22,7 @@ from myst_parser.mdit_to_docutils.transforms import (
     ResolveSectionRefs,
     SortFootnotes,
 )
-from myst_parser.parsers.mdit import create_md_parser
+from myst_parser.parsers.mdit import create_md_parser, document_smartquotes
 from myst_parser.warnings_ import create_warning
 
 SPHINX_LOGGER = logging.getLogger(__name__)
@@ -84,6 +84,11 @@ class MystParser(SphinxParser):
                 )
                 config = merge_file_level(config, topmatter, warning)
 
-        parser = create_md_parser(config, SphinxRenderer)
+        quotes = (
+            document_smartquotes(document)
+            if "smartquotes" in config.enable_extensions
+            else None
+        )
+        parser = create_md_parser(config, SphinxRenderer, quotes=quotes)
         parser.options["document"] = document
         parser.render(inputstring)

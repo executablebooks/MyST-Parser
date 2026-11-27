@@ -32,7 +32,11 @@ from myst_parser.mdit_to_docutils.transforms import (
     SortFootnotes,
     UnreferencedFootnotesDetector,
 )
-from myst_parser.parsers.mdit import create_md_parser, linkify_available
+from myst_parser.parsers.mdit import (
+    create_md_parser,
+    document_smartquotes,
+    linkify_available,
+)
 from myst_parser.warnings_ import MystWarnings, create_warning
 
 
@@ -329,7 +333,12 @@ class Parser(RstParser):
                 config = merge_file_level(config, topmatter, warning)
 
         # parse content
-        parser = create_md_parser(config, DocutilsRenderer)
+        quotes = (
+            document_smartquotes(document)
+            if "smartquotes" in config.enable_extensions
+            else None
+        )
+        parser = create_md_parser(config, DocutilsRenderer, quotes=quotes)
         parser.options["document"] = document
         parser.render(inputstring)
 

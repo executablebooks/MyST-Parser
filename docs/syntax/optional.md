@@ -64,6 +64,8 @@ Adding `"smartquotes"` to `myst_enable_extensions` (in the {{ confpy }}) will au
 - `'single quotes'`: 'single quotes'
 - `"double quotes"`: "double quotes"
 
+Quote characters follow the configured document language (such as Sphinx's `language` option or Docutils' `--language`, `--smart-quotes`, and `--smartquote-locales` settings), falling back to English typographic quotes when unsupported.
+
 Adding `"replacements"` to `myst_enable_extensions` (in the {{ confpy }}) will automatically convert some common typographic texts:
 
 text  | converted

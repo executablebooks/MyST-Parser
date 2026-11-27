@@ -4,7 +4,8 @@ which creates a parser from the config.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererProtocol
@@ -26,6 +27,90 @@ from mdit_py_plugins.wordcount import wordcount_plugin
 
 from myst_parser.config.main import MdParserConfig
 
+if TYPE_CHECKING:
+    from docutils import nodes
+
+DEFAULT_SMARTQUOTES: tuple[str, str, str, str] = (
+    "\u201c",
+    "\u201d",
+    "\u2018",
+    "\u2019",
+)
+
+
+def _coerce_quotes(quotes: Sequence[str]) -> tuple[str, str, str, str] | None:
+    """Validate and normalize a 4-item quote sequence into a 4-tuple of strings."""
+    if len(quotes) != 4:
+        return None
+    return (quotes[0], quotes[1], quotes[2], quotes[3])
+
+
+def resolve_smartquotes(
+    language_code: str | None = None,
+    *,
+    smart_quotes: bool | str = False,
+    smartquotes_locales: Iterable[tuple[str, Sequence[str]]] | None = None,
+) -> tuple[str, str, str, str]:
+    """Resolve localized smart quote characters for ``markdown-it-py``.
+
+    Follows Docutils' ``SmartQuotes`` locale lookup (``smartchars.quotes``,
+    ``smartquotes_locales``, ``smart_quotes="alt"``, and BCP 47 subtag fallback
+    via ``normalize_language_tag``) without mutating global Docutils state.
+    Falls back to ``DEFAULT_SMARTQUOTES`` when ``language_code`` is unset or
+    has no matching quote definition.
+
+    :param language_code: Document language tag (e.g. ``"fr"``, ``"de_DE"``).
+    :param smart_quotes: Docutils ``smart_quotes`` setting; strings starting
+        with ``"alt"`` select the ``-x-altquot`` variant.
+    :param smartquotes_locales: Optional ``(language_tag, quotes)`` overrides
+        from Docutils' ``smartquotes_locales`` setting.
+    :return: A 4-tuple ``(open_double, close_double, open_single, close_single)``.
+    """
+    if not language_code or not language_code.strip():
+        return DEFAULT_SMARTQUOTES
+
+    from docutils.utils import normalize_language_tag
+    from docutils.utils.smartquotes import smartchars
+
+    quotes_map: dict[str, Sequence[str]] = dict(smartchars.quotes)
+    if smartquotes_locales:
+        for locale_tag, locale_quotes in smartquotes_locales:
+            coerced = _coerce_quotes(locale_quotes)
+            if coerced is None or not locale_tag:
+                continue
+            normalized = normalize_language_tag(locale_tag)
+            if normalized and normalized[0]:
+                quotes_map[normalized[0]] = coerced
+
+    lang = language_code.strip()
+    if isinstance(smart_quotes, str) and smart_quotes.startswith("alt"):
+        if "-x-altquot" in lang:
+            lang = lang.replace("-x-altquot", "")
+        else:
+            lang = f"{lang}-x-altquot"
+
+    for tag in normalize_language_tag(lang):
+        if tag in quotes_map:
+            coerced = _coerce_quotes(quotes_map[tag])
+            if coerced is not None:
+                return coerced
+
+    return DEFAULT_SMARTQUOTES
+
+
+def document_smartquotes(document: nodes.document, /) -> tuple[str, str, str, str]:
+    """Resolve localized smart quote characters from a Docutils document.
+
+    :param document: The Docutils document whose runtime settings are read.
+    :return: A 4-tuple ``(open_double, close_double, open_single, close_single)``.
+    """
+    settings = document.settings
+    return resolve_smartquotes(
+        getattr(settings, "language_code", None),
+        smart_quotes=getattr(settings, "smart_quotes", False),
+        smartquotes_locales=getattr(settings, "smartquotes_locales", None),
+    )
+
 
 def linkify_available() -> bool:
     """Return whether the optional ``linkify-it-py`` dependency is installed."""
@@ -36,9 +121,20 @@ def linkify_available() -> bool:
 
 
 def create_md_parser(
-    config: MdParserConfig, renderer: Callable[[MarkdownIt], RendererProtocol]
+    config: MdParserConfig,
+    renderer: Callable[[MarkdownIt], RendererProtocol],
+    *,
+    quotes: Sequence[str] | None = None,
 ) -> MarkdownIt:
-    """Return a Markdown parser with the required MyST configuration."""
+    """Return a Markdown parser with the required MyST configuration.
+
+    :param config: The MyST parser configuration.
+    :param renderer: Renderer factory passed to ``MarkdownIt``.
+    :param quotes: Optional 4-item sequence ``(open_double, close_double,
+        open_single, close_single)`` overriding ``markdown-it-py``'s default
+        typographic quote characters when ``smartquotes`` is enabled.
+    :return: Configured ``MarkdownIt`` parser instance.
+    """
 
     if config.commonmark_only:
         # see https://spec.commonmark.org/
@@ -73,6 +169,11 @@ def create_md_parser(
     if "smartquotes" in config.enable_extensions:
         md.enable("smartquotes")
         typographer = True
+        if quotes is not None:
+            coerced_quotes = _coerce_quotes(quotes)
+            if coerced_quotes is None:
+                raise ValueError("`quotes` must contain exactly 4 quote strings.")
+            md.options["quotes"] = coerced_quotes
     if "replacements" in config.enable_extensions:
         md.enable("replacements")
         typographer = True
