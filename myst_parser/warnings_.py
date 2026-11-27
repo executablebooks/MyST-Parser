@@ -68,6 +68,8 @@ class MystWarnings(Enum):
     """Substitution could not be resolved."""
     SECTION_REF = "section_ref"
     """A section reference could not be resolved."""
+    MATH_LABEL = "math_label"
+    """A label in LaTeX math could not be used."""
 
 
 def _is_suppressed_warning(

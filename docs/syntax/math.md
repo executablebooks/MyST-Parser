@@ -91,3 +91,17 @@ a_{21}& =b_{21}&
 \end{align}
 
 :::
+
+A numbered environment can contain a single `\label`, to reference it with the `eq` role:
+
+:::{syntax-example}
+:highlight: latex
+
+\begin{equation}
+e^{i\pi} + 1 = 0 \label{eq:euler}
+\end{equation}
+
+The equation {eq}`eq:euler` is Euler's identity.
+:::
+
+See [](#syntax/amsmath) for more details.
