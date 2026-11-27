@@ -1,5 +1,6 @@
 """Tests of the warning reporting for different MyST Markdown inputs."""
 
+import re
 from io import StringIO
 from pathlib import Path
 
@@ -26,3 +27,43 @@ def test_basic(file_params):
         "corresponding footnote available", "corresponding footnotes available"
     )
     file_params.assert_expected(text, rstrip=True)
+
+
+@pytest.mark.parametrize("preamble", ["", "```{note}\nA note.\n```\n"])
+def test_eval_rst_include_locations(tmp_path, preamble):
+    """An ``.. include::`` in ``{eval-rst}`` must not shift later warning locations."""
+    included = tmp_path / "inc.rst"
+    included.write_text("Line 1.\n\nAn *unclosed on line 3.\n", encoding="utf8")
+    content = preamble + (
+        "```{eval-rst}\n"
+        f".. include:: {included.as_posix()}\n"
+        "\n"
+        "Block 1 *unclosed.\n"
+        "```\n"
+        "\n"
+        "```{eval-rst}\n"
+        "Block 2 *unclosed.\n"
+        "```\n"
+        "\n"
+        "{unknown-role}`x`\n"
+    )
+    offset = preamble.count("\n")
+    report_stream = StringIO()
+    publish_doctree(
+        content,
+        source_path=str(tmp_path / "index.md"),
+        parser=Parser(),
+        settings_overrides={"warning_stream": report_stream},
+    )
+    locations = [
+        (Path(source).name, int(line))
+        for source, line in re.findall(
+            r"^(.+?):(\d+): \(", report_stream.getvalue(), re.MULTILINE
+        )
+    ]
+    assert set(locations) == {
+        ("inc.rst", 3),
+        ("index.md", offset + 4),
+        ("index.md", offset + 8),
+        ("index.md", offset + 11),
+    }
