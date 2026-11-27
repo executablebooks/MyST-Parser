@@ -1889,8 +1889,20 @@ class DocutilsRenderer(RendererProtocol):
         newdoc.reporter = self.reporter
         # pad the line numbers artificially so they offset with the fence block
         pseudosource = ("\n" * token_line(token)) + token.content
-        # actually parse the rst into our document
-        MockRSTParser().parse(pseudosource, newdoc)
+        # docutils only binds the reporter's line lookup if it has none, so remove
+        # any existing one, to let this block's state machine map its own lines
+        # (which `.. include::` shifts), then restore it afterwards
+        line_func = getattr(self.reporter, "get_source_and_line", None)
+        if line_func is not None:
+            del self.reporter.get_source_and_line
+        try:
+            # actually parse the rst into our document
+            MockRSTParser().parse(pseudosource, newdoc)
+        finally:
+            if line_func is not None:
+                self.reporter.get_source_and_line = line_func
+            else:
+                self.reporter.__dict__.pop("get_source_and_line", None)
         for node in newdoc:
             if node["names"]:
                 self.document.note_explicit_target(node, node)
